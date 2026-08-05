@@ -22,6 +22,9 @@ trend = importlib.import_module(
     "02_AI.Features.trend_features"
 ).trend
 
+momentum = importlib.import_module(
+    "02_AI.Features.momentum_features"
+).momentum  
 
 class FeatureGenerator:
 
@@ -34,6 +37,9 @@ class FeatureGenerator:
 
         # Trend Features
         data = trend.generate(data)
+
+        # Momentum Features
+        data = momentum.generate(data)
 
         return data
 
