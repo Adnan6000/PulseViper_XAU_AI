@@ -38,8 +38,17 @@ class MarketStructure:
         data["bars_since_high"] = np.nan
         data["bars_since_low"] = np.nan
 
+        # New Structure Columns
+        data["HH"] = 0
+        data["HL"] = 0
+        data["LH"] = 0
+        data["LL"] = 0
+
         last_high = None
         last_low = None
+
+        previous_high_price = None
+        previous_low_price = None
 
         w = self.swing_window
 
@@ -47,51 +56,51 @@ class MarketStructure:
 
             current_high = data.iloc[i]["high"]
 
-            left_high = data.iloc[i-w:i]["high"].max()
-
-            right_high = data.iloc[i+1:i+w+1]["high"].max()
-
             if (
-                current_high > left_high
+                current_high > data.iloc[i-w:i]["high"].max()
                 and
-                current_high >= right_high
+                current_high >= data.iloc[i+1:i+w+1]["high"].max()
             ):
 
                 data.at[data.index[i], "swing_high"] = 1
                 data.at[data.index[i], "swing_high_price"] = current_high
 
+                if previous_high_price is not None:
+
+                    if current_high > previous_high_price:
+                        data.at[data.index[i], "HH"] = 1
+                    else:
+                        data.at[data.index[i], "LH"] = 1
+
+                previous_high_price = current_high
                 last_high = i
 
             current_low = data.iloc[i]["low"]
 
-            left_low = data.iloc[i-w:i]["low"].min()
-
-            right_low = data.iloc[i+1:i+w+1]["low"].min()
-
             if (
-                current_low < left_low
+                current_low < data.iloc[i-w:i]["low"].min()
                 and
-                current_low <= right_low
+                current_low <= data.iloc[i+1:i+w+1]["low"].min()
             ):
 
                 data.at[data.index[i], "swing_low"] = 1
                 data.at[data.index[i], "swing_low_price"] = current_low
 
+                if previous_low_price is not None:
+
+                    if current_low > previous_low_price:
+                        data.at[data.index[i], "HL"] = 1
+                    else:
+                        data.at[data.index[i], "LL"] = 1
+
+                previous_low_price = current_low
                 last_low = i
 
             if last_high is not None:
-
-                data.at[
-                    data.index[i],
-                    "bars_since_high"
-                ] = i - last_high
+                data.at[data.index[i], "bars_since_high"] = i - last_high
 
             if last_low is not None:
-
-                data.at[
-                    data.index[i],
-                    "bars_since_low"
-                ] = i - last_low
+                data.at[data.index[i], "bars_since_low"] = i - last_low
 
         return data
 

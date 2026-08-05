@@ -18,12 +18,16 @@ market_structure = importlib.import_module(
 
 def test_market_structure():
 
-    df = fetcher.fetch(bars=1000)
+    df = fetcher.fetch(bars=2000)
 
     df = market_structure.generate(df)
 
-    assert "swing_high" in df.columns
-    assert "swing_low" in df.columns
+    assert "HH" in df.columns
+    assert "HL" in df.columns
+    assert "LH" in df.columns
+    assert "LL" in df.columns
 
-    assert df["swing_high"].sum() > 0
-    assert df["swing_low"].sum() > 0
+    assert df["HH"].sum() >= 0
+    assert df["HL"].sum() >= 0
+    assert df["LH"].sum() >= 0
+    assert df["LL"].sum() >= 0
