@@ -1,5 +1,5 @@
 """PulseViper Database Layer Package."""
 
-from .database import DatabaseConnection
+from .database import DatabaseConnection, database
 
-__all__ = ["DatabaseConnection"]
+__all__ = ["DatabaseConnection", "database"]

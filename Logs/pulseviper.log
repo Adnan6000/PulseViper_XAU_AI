@@ -9,3 +9,4 @@
 2026-08-05 15:43:38,459 | ERROR | TEST | Database Not Connected
 2026-08-05 16:44:57,700 | INFO | DATABASE | Database Connected
 2026-08-05 16:44:57,702 | INFO | DATABASE | Database Closed
+2026-08-05 16:54:14,093 | INFO | SCHEMA | Database schema initialized
