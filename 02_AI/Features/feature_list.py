@@ -61,4 +61,34 @@ FEATURE_COLUMNS = [
 
     "rolling_std20",
 
+    # ===========================
+    # Candle Features
+    # ===========================
+
+    "body",
+    "range",
+
+    "upper_wick",
+    "lower_wick",
+
+    "body_ratio",
+    "upper_wick_ratio",
+    "lower_wick_ratio",
+
+    "bullish",
+    "bearish",
+
+    "doji",
+    "marubozu",
+    "pinbar",
+
+    "bullish_engulfing",
+    "bearish_engulfing",
+
+    "inside_bar",
+    "outside_bar",
+
+    "expansion",
+    "compression",
+
 ]

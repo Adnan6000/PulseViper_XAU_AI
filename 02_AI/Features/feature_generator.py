@@ -30,6 +30,10 @@ volatility = importlib.import_module(
     "02_AI.Features.volatility_features"
 ).volatility
 
+candle = importlib.import_module(
+    "02_AI.Features.candle_features"
+).candle
+
 class FeatureGenerator:
 
     def generate(
@@ -47,6 +51,9 @@ class FeatureGenerator:
 
         # Volatility Features
         data = volatility.generate(data)
+
+        # Candle Features
+        data = candle.generate(data)
 
         return data
 
