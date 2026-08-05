@@ -275,6 +275,71 @@ class MarketStructure:
         return data
 
     # ==========================================================
+    # Market Structure
+    # ==========================================================
+
+    def detect_structure(
+        self,
+        data: pd.DataFrame
+    ) -> pd.DataFrame:
+
+        data["HH"] = 0
+        data["HL"] = 0
+        data["LH"] = 0
+        data["LL"] = 0
+
+        data["structure"] = "NONE"
+
+        data["last_major_high"] = np.nan
+        data["last_major_low"] = np.nan
+
+        last_high = None
+        last_low = None
+
+        for i in range(len(data)):
+
+            if data.iloc[i]["major_high"] == 1:
+
+                price = data.iloc[i]["high"]
+
+                if last_high is not None:
+
+                    if price > last_high:
+
+                        data.at[data.index[i], "HH"] = 1
+                        data.at[data.index[i], "structure"] = "HH"
+
+                    else:
+
+                        data.at[data.index[i], "LH"] = 1
+                        data.at[data.index[i], "structure"] = "LH"
+
+                last_high = price
+
+            if data.iloc[i]["major_low"] == 1:
+
+                price = data.iloc[i]["low"]
+
+                if last_low is not None:
+
+                    if price > last_low:
+
+                        data.at[data.index[i], "HL"] = 1
+                        data.at[data.index[i], "structure"] = "HL"
+
+                    else:
+
+                        data.at[data.index[i], "LL"] = 1
+                        data.at[data.index[i], "structure"] = "LL"
+
+                last_low = price
+
+            data.at[data.index[i], "last_major_high"] = last_high
+            data.at[data.index[i], "last_major_low"] = last_low
+
+        return data
+
+    # ==========================================================
     # Main Pipeline
     # ==========================================================
 
@@ -290,6 +355,8 @@ class MarketStructure:
         data = self.detect_pivots(data)
 
         data = self.classify_swings(data)
+
+        data = self.detect_structure(data)
 
         return data
 

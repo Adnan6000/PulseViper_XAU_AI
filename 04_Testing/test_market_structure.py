@@ -33,6 +33,11 @@ def test_market_structure():
     assert "minor_low" in df.columns
     assert "swing_score" in df.columns
     assert "swing_id" in df.columns
+    assert "HH" in df.columns
+    assert "HL" in df.columns
+    assert "LH" in df.columns
+    assert "LL" in df.columns
+    assert "structure" in df.columns
 
     assert df["pivot_high"].sum() > 0
     assert df["pivot_low"].sum() > 0
