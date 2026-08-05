@@ -43,4 +43,22 @@ FEATURE_COLUMNS = [
 
     "momentum10",
 
+    # ===========================
+    # Volatility Features
+    # ===========================
+
+    "true_range",
+
+    "atr14",
+
+    "atr_percent",
+
+    "candle_range",
+
+    "avg_range20",
+
+    "volatility_ratio",
+
+    "rolling_std20",
+
 ]
