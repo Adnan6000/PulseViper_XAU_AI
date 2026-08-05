@@ -20,37 +20,37 @@ class Settings:
             raise FileNotFoundError(f"Configuration file not found at: {CONFIG_FILE}")
 
         with open(CONFIG_FILE, "r", encoding="utf-8") as file:
-            self._config: Dict[str, Any] = yaml.safe_load(file)
+            self.config = yaml.safe_load(file)
 
     @property
     def project(self) -> Dict[str, Any]:
         """Returns project metadata configurations."""
-        return self._config["project"]
+        return self.config["project"]
 
     @property
     def trading(self) -> Dict[str, Any]:
         """Returns market and trading symbol configurations."""
-        return self._config["trading"]
+        return self.config["trading"]
 
     @property
     def risk(self) -> Dict[str, Any]:
         """Returns risk management parameters."""
-        return self._config["risk"]
+        return self.config["risk"]
 
     @property
     def training(self) -> Dict[str, Any]:
         """Returns model training hyper-parameters."""
-        return self._config["training"]
+        return self.config["training"]
 
     @property
     def database(self) -> Dict[str, Any]:
         """Returns SQLite database file properties."""
-        return self._config["database"]
+        return self.config["database"]
 
     @property
     def logging(self) -> Dict[str, Any]:
         """Returns system logging preferences."""
-        return self._config["logging"]
+        return self.config["logging"]
 
 
 # Global Instance Export

@@ -1,69 +1,100 @@
 """
-PulseViper XAUUSD AI - Database Connection Manager
-Path: 02_AI/Database/database.py
-Provides SQLite connection lifecycle, WAL mode configuration, and Context Manager execution.
+PulseViper XAU AI
+Database Connection Manager
+
+Path:
+02_AI/Database/database.py
+
+Responsibility:
+- Open SQLite connection
+- Configure SQLite
+- Handle transactions
+- Close connection safely
 """
 
+from __future__ import annotations
+
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, Optional
-import importlib
+from typing import Generator
 
-# Dynamic Import for Configuration Subsystem
-settings_module = importlib.import_module("02_AI.Config.settings")
-settings = settings_module.settings
+from Config.settings import settings
+from Utils.logger import get_logger
 
-# Dynamic Import for Logger Subsystem
-logger_module = importlib.import_module("02_AI.Utils.logger")
-get_logger = logger_module.get_logger
+logger = get_logger("DATABASE")
 
-logger = get_logger("DATABASE_ENGINE")
+ROOT_DIR = Path(__file__).resolve().parents[2]
 
-ROOT_DIR: Path = Path(__file__).resolve().parents[2]
-DATA_DIR: Path = ROOT_DIR / "Data"
-DATA_DIR.mkdir(exist_ok=True)
+# IMPORTANT:
+# Database FILE always stays inside 01_Data
+DATABASE_FILE = ROOT_DIR / "01_Data" / settings.database["filename"]
 
 
 class DatabaseConnection:
-    """SQLite Database connection factory using WAL mode and Thread-Safe execution."""
+    """
+    Central SQLite connection manager.
+    """
 
-    def __init__(self, db_path: Optional[Path] = None) -> None:
-        if db_path is None:
-            db_name = settings.database.get("filename", "pulseviper.db")
-            self.db_path = DATA_DIR / db_name
-        else:
-            self.db_path = db_path
+    def __init__(self) -> None:
+        self.database_path = DATABASE_FILE
 
-    def get_connection(self) -> sqlite3.Connection:
+    def connect(self) -> sqlite3.Connection:
         """
-        Establishes a connection to the SQLite database.
-        Enforces foreign key constraints and WAL mode for high concurrency.
+        Create configured SQLite connection.
         """
+
         try:
-            conn = sqlite3.connect(
-                self.db_path,
-                timeout=20.0,
-                check_same_thread=False
+
+            connection = sqlite3.connect(
+                self.database_path,
+                timeout=30,
+                check_same_thread=False,
             )
-            conn.row_factory = sqlite3.Row
-            # Enforce Performance & Integrity Pragmas
-            conn.execute("PRAGMA journal_mode=WAL;")
-            conn.execute("PRAGMA foreign_keys=ON;")
-            conn.execute("PRAGMA synchronous=NORMAL;")
-            return conn
-        except sqlite3.Error as err:
-            logger.error(f"Failed to connect to SQLite Database at {self.db_path}: {err}")
-            raise err
 
+            connection.row_factory = sqlite3.Row
+
+            connection.execute("PRAGMA foreign_keys = ON;")
+            connection.execute("PRAGMA journal_mode = WAL;")
+            connection.execute("PRAGMA synchronous = NORMAL;")
+
+            logger.info("Database Connected")
+
+            return connection
+
+        except sqlite3.Error as error:
+
+            logger.exception("Database Connection Failed")
+
+            raise error
+
+    @contextmanager
     def session(self) -> Generator[sqlite3.Connection, None, None]:
-        """Context manager for handling automatic transaction commit/rollback."""
-        conn = self.get_connection()
+        """
+        Transaction manager.
+        """
+
+        connection = self.connect()
+
         try:
-            yield conn
-            conn.commit()
-        except Exception as err:
-            conn.rollback()
-            logger.error(f"Database Transaction Error, Rolling back: {err}")
-            raise err
+
+            yield connection
+
+            connection.commit()
+
+        except Exception:
+
+            connection.rollback()
+
+            logger.exception("Transaction Rolled Back")
+
+            raise
+
         finally:
-            conn.close()
+
+            connection.close()
+
+            logger.info("Database Closed")
+
+
+database = DatabaseConnection()
