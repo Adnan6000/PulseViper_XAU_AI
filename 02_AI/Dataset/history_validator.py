@@ -1,6 +1,10 @@
 """
-PulseViper History Validator
-Enterprise Data Quality Engine
+===============================================================================
+Module      : history_validator.py
+Project     : PulseViper XAU AI
+Version     : 3.0
+Purpose     : Enterprise History Validator
+===============================================================================
 """
 
 import pandas as pd
@@ -18,50 +22,80 @@ class HistoryValidator:
         "spread",
     ]
 
-    def validate_columns(self, df: pd.DataFrame):
+    def validate(self, df: pd.DataFrame):
 
-        missing = []
+        self.validate_columns(df)
+        self.validate_empty(df)
+        self.validate_duplicates(df)
+        self.validate_nulls(df)
+        self.validate_ohlc(df)
+        self.validate_sorting(df)
 
-        for column in self.REQUIRED_COLUMNS:
+        return True
 
-            if column not in df.columns:
-                missing.append(column)
+    def validate_columns(self, df):
+
+        missing = [
+            c for c in self.REQUIRED_COLUMNS
+            if c not in df.columns
+        ]
 
         if missing:
             raise ValueError(
                 f"Missing Columns: {missing}"
             )
 
-        return True
-
-    def validate_empty(self, df: pd.DataFrame):
+    def validate_empty(self, df):
 
         if df.empty:
-            raise ValueError("Dataset is empty.")
+            raise ValueError(
+                "Dataset is empty."
+            )
 
-        return True
-
-    def validate_duplicates(self, df: pd.DataFrame):
+    def validate_duplicates(self, df):
 
         duplicates = df.duplicated().sum()
 
-        if duplicates > 0:
+        if duplicates:
             raise ValueError(
-                f"Duplicate rows found: {duplicates}"
+                f"{duplicates} duplicate rows found."
             )
 
-        return True
+    def validate_nulls(self, df):
 
-    def validate_nulls(self, df: pd.DataFrame):
+        total = df.isnull().sum().sum()
 
-        nulls = df.isnull().sum().sum()
-
-        if nulls > 0:
+        if total:
             raise ValueError(
-                f"Dataset contains {nulls} NULL values."
+                f"{total} NULL values detected."
             )
 
-        return True
+    def validate_sorting(self, df):
+
+        if not df["time"].is_monotonic_increasing:
+            raise ValueError(
+                "Dataset is not sorted by time."
+            )
+
+    def validate_ohlc(self, df):
+
+        invalid = (
+            (df["high"] < df["open"])
+            |
+            (df["high"] < df["close"])
+            |
+            (df["high"] < df["low"])
+            |
+            (df["low"] > df["open"])
+            |
+            (df["low"] > df["close"])
+        )
+
+        if invalid.any():
+
+            raise ValueError(
+                "Invalid OHLC values detected."
+            )
 
 
 validator = HistoryValidator()
