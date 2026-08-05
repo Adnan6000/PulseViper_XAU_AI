@@ -1,0 +1,30 @@
+﻿# Core Data Processing & Analysis
+numpy
+pandas
+ta
+joblib
+sqlalchemy
+
+# Machine Learning & Gradient Boosting
+scikit-learn
+xgboost
+lightgbm
+catboost
+
+# Deep Learning (PyTorch Engine)
+torch
+
+# Model Optimization & Explainability
+optuna
+shap
+
+# High-Performance Model Export & Inference (MT5 Bridge)
+onnx
+onnxruntime
+
+# Trading Platform Integration
+MetaTrader5
+
+# Visualization & Plotting
+matplotlib
+plotly
