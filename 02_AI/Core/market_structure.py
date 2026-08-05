@@ -2,25 +2,68 @@
 ===============================================================================
 Module      : market_structure.py
 Project     : PulseViper XAU AI
-Version     : 3.2
-Purpose     : Market Structure Engine (Phase 1 - Swing Detection)
+Version     : 4.0
+Purpose     : Institutional Market Structure Engine
 ===============================================================================
 """
 
-import pandas as pd
+from __future__ import annotations
+
 import numpy as np
+import pandas as pd
 
 
 class MarketStructure:
 
     def __init__(
         self,
-        swing_window: int = 5,
-        min_distance: int = 3
+        pivot_window: int = 5,
+        atr_period: int = 14,
+        min_strength: float = 1.20,
     ):
 
-        self.swing_window = swing_window
-        self.min_distance = min_distance
+        self.pivot_window = pivot_window
+        self.atr_period = atr_period
+        self.min_strength = min_strength
+
+    # ============================================================
+    # ATR
+    # ============================================================
+
+    def _calculate_atr(
+        self,
+        data: pd.DataFrame
+    ) -> pd.Series:
+
+        high_low = data["high"] - data["low"]
+
+        high_close = (
+            data["high"]
+            - data["close"].shift()
+        ).abs()
+
+        low_close = (
+            data["low"]
+            - data["close"].shift()
+        ).abs()
+
+        tr = pd.concat(
+            [
+                high_low,
+                high_close,
+                low_close,
+            ],
+            axis=1,
+        ).max(axis=1)
+
+        return tr.rolling(
+            self.atr_period,
+            min_periods=1,
+        ).mean()
+
+    # ============================================================
+    # Main
+    # ============================================================
 
     def generate(
         self,
@@ -29,78 +72,106 @@ class MarketStructure:
 
         data = df.copy()
 
-        data["swing_high"] = 0
-        data["swing_low"] = 0
+        # ATR
 
-        data["swing_high_price"] = np.nan
-        data["swing_low_price"] = np.nan
+        data["atr"] = self._calculate_atr(data)
 
-        data["bars_since_high"] = np.nan
-        data["bars_since_low"] = np.nan
+        # Pivot Columns
 
-        # New Structure Columns
-        data["HH"] = 0
-        data["HL"] = 0
-        data["LH"] = 0
-        data["LL"] = 0
+        data["pivot_high"] = 0
+        data["pivot_low"] = 0
 
-        last_high = None
-        last_low = None
+        data["pivot_strength"] = 0.0
+        data["major_swing"] = 0
 
-        previous_high_price = None
-        previous_low_price = None
+        window = self.pivot_window
 
-        w = self.swing_window
-
-        for i in range(w, len(data) - w):
+        for i in range(window, len(data) - window):
 
             current_high = data.iloc[i]["high"]
-
-            if (
-                current_high > data.iloc[i-w:i]["high"].max()
-                and
-                current_high >= data.iloc[i+1:i+w+1]["high"].max()
-            ):
-
-                data.at[data.index[i], "swing_high"] = 1
-                data.at[data.index[i], "swing_high_price"] = current_high
-
-                if previous_high_price is not None:
-
-                    if current_high > previous_high_price:
-                        data.at[data.index[i], "HH"] = 1
-                    else:
-                        data.at[data.index[i], "LH"] = 1
-
-                previous_high_price = current_high
-                last_high = i
-
             current_low = data.iloc[i]["low"]
 
+            left_high = data.iloc[i-window:i]["high"].max()
+            right_high = data.iloc[i+1:i+window+1]["high"].max()
+
+            left_low = data.iloc[i-window:i]["low"].min()
+            right_low = data.iloc[i+1:i+window+1]["low"].min()
+
+            # -------------------------
+            # Pivot High
+            # -------------------------
+
             if (
-                current_low < data.iloc[i-w:i]["low"].min()
+                current_high > left_high
                 and
-                current_low <= data.iloc[i+1:i+w+1]["low"].min()
+                current_high >= right_high
             ):
 
-                data.at[data.index[i], "swing_low"] = 1
-                data.at[data.index[i], "swing_low_price"] = current_low
+                atr = data.iloc[i]["atr"]
 
-                if previous_low_price is not None:
+                strength = (
+                    current_high
+                    -
+                    max(left_high, right_high)
+                ) / max(atr, 0.00001)
 
-                    if current_low > previous_low_price:
-                        data.at[data.index[i], "HL"] = 1
-                    else:
-                        data.at[data.index[i], "LL"] = 1
+                data.at[
+                    data.index[i],
+                    "pivot_high"
+                ] = 1
 
-                previous_low_price = current_low
-                last_low = i
+                data.at[
+                    data.index[i],
+                    "pivot_strength"
+                ] = strength
 
-            if last_high is not None:
-                data.at[data.index[i], "bars_since_high"] = i - last_high
+                if strength >= self.min_strength:
 
-            if last_low is not None:
-                data.at[data.index[i], "bars_since_low"] = i - last_low
+                    data.at[
+                        data.index[i],
+                        "major_swing"
+                    ] = 1
+
+            # -------------------------
+            # Pivot Low
+            # -------------------------
+
+            if (
+                current_low < left_low
+                and
+                current_low <= right_low
+            ):
+
+                atr = data.iloc[i]["atr"]
+
+                strength = (
+                    min(left_low, right_low)
+                    -
+                    current_low
+                ) / max(atr, 0.00001)
+
+                data.at[
+                    data.index[i],
+                    "pivot_low"
+                ] = 1
+
+                data.at[
+                    data.index[i],
+                    "pivot_strength"
+                ] = max(
+                    data.at[
+                        data.index[i],
+                        "pivot_strength"
+                    ],
+                    strength,
+                )
+
+                if strength >= self.min_strength:
+
+                    data.at[
+                        data.index[i],
+                        "major_swing"
+                    ] = 1
 
         return data
 
