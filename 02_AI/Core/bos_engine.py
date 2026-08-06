@@ -11,6 +11,13 @@ from __future__ import annotations
 
 import pandas as pd
 
+import importlib
+
+memory_module = importlib.import_module(
+    "02_AI.Memory.bos_memory"
+)
+
+bos_memory = memory_module.bos_memory
 
 class BOSEngine:
 
