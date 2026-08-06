@@ -22,13 +22,20 @@ bos_engine = importlib.import_module(
 
 def test_bos():
 
+    bos_engine.reset()
+
     df = fetcher.fetch(bars=5000)
 
     df = market_structure.generate(df)
 
     df = bos_engine.generate(df)
 
-    assert "bullish_bos" in df.columns
-    assert "bearish_bos" in df.columns
-    assert "bos_direction" in df.columns
-    assert "bos_strength" in df.columns
+    assert "bos_id" in df.columns
+    assert "bos_active" in df.columns
+    assert "bos_confirmed" in df.columns
+    assert "broken_swing_id" in df.columns
+    assert "break_distance" in df.columns
+
+    ids = df[df["bos_id"] > 0]["bos_id"]
+
+    assert ids.is_unique
