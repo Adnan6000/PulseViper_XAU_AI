@@ -2,9 +2,9 @@
 ===============================================================================
 Module      : market_structure.py
 Project     : PulseViper XAU AI
-Version     : 4.1
+Version     : 5.1
 Author      : PulseViper AI
-Purpose     : Institutional Market Structure Engine
+Purpose     : Institutional Market Structure & Swing Contract Engine
 ===============================================================================
 """
 
@@ -21,11 +21,43 @@ class MarketStructure:
         pivot_window: int = 5,
         atr_period: int = 14,
         min_strength: float = 1.20,
-    ):
+        major_strength: float = 2.50,
+    ) -> None:
 
         self.pivot_window = pivot_window
         self.atr_period = atr_period
         self.min_strength = min_strength
+        self.major_strength = major_strength
+
+    # ==========================================================
+    # Validation
+    # ==========================================================
+
+    @staticmethod
+    def _validate_input(
+        df: pd.DataFrame,
+    ) -> None:
+
+        required_columns = {
+            "open",
+            "high",
+            "low",
+            "close",
+        }
+
+        missing_columns = (
+            required_columns
+            - set(df.columns)
+        )
+
+        if missing_columns:
+
+            raise ValueError(
+                "Missing required columns: "
+                + ", ".join(
+                    sorted(missing_columns)
+                )
+            )
 
     # ==========================================================
     # ATR
@@ -33,36 +65,51 @@ class MarketStructure:
 
     def calculate_atr(
         self,
-        df: pd.DataFrame
+        df: pd.DataFrame,
     ) -> pd.Series:
 
-        hl = df["high"] - df["low"]
+        high = pd.to_numeric(
+            df["high"],
+            errors="coerce",
+        )
 
-        hc = (
-            df["high"]
-            - df["close"].shift()
+        low = pd.to_numeric(
+            df["low"],
+            errors="coerce",
+        )
+
+        close = pd.to_numeric(
+            df["close"],
+            errors="coerce",
+        )
+
+        high_low = (
+            high - low
+        )
+
+        high_close = (
+            high - close.shift(1)
         ).abs()
 
-        lc = (
-            df["low"]
-            - df["close"].shift()
+        low_close = (
+            low - close.shift(1)
         ).abs()
 
-        tr = pd.concat(
+        true_range = pd.concat(
             [
-                hl,
-                hc,
-                lc,
+                high_low,
+                high_close,
+                low_close,
             ],
             axis=1,
         ).max(axis=1)
 
-        atr = tr.rolling(
-            self.atr_period,
-            min_periods=1
+        atr = true_range.rolling(
+            window=self.atr_period,
+            min_periods=1,
         ).mean()
 
-        return atr
+        return atr.astype("float64")
 
     # ==========================================================
     # Pivot Detection
@@ -70,34 +117,128 @@ class MarketStructure:
 
     def detect_pivots(
         self,
-        data: pd.DataFrame
+        data: pd.DataFrame,
     ) -> pd.DataFrame:
+
+        df = data.copy()
 
         window = self.pivot_window
 
-        data["pivot_high"] = 0
-        data["pivot_low"] = 0
+        df["pivot_high"] = 0
+        df["pivot_low"] = 0
+        df["pivot_strength"] = 0.0
 
-        data["pivot_strength"] = 0.0
+        if len(df) <= window * 2:
+
+            return df
+
+        # ------------------------------------------------------
+        # Convert to NumPy arrays.
+        #
+        # This avoids Pandas Scalar typing problems in Pylance.
+        # ------------------------------------------------------
+
+        high_values = np.asarray(
+            pd.to_numeric(
+                df["high"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        low_values = np.asarray(
+            pd.to_numeric(
+                df["low"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        atr_values = np.asarray(
+            pd.to_numeric(
+                df["atr"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        pivot_high = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        pivot_low = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        pivot_strength = np.zeros(
+            len(df),
+            dtype=np.float64,
+        )
+
+        # ======================================================
+        # Pivot Scan
+        # ======================================================
 
         for i in range(
             window,
-            len(data) - window
+            len(df) - window,
         ):
 
-            current_high = data.iloc[i]["high"]
+            current_high = high_values[i]
+            current_low = low_values[i]
 
-            left_high = (
-                data.iloc[
-                    i-window:i
-                ]["high"].max()
+            left_high = np.max(
+                high_values[
+                    i - window:i
+                ]
             )
 
-            right_high = (
-                data.iloc[
-                    i+1:i+window+1
-                ]["high"].max()
+            right_high = np.max(
+                high_values[
+                    i + 1:i + window + 1
+                ]
             )
+
+            left_low = np.min(
+                low_values[
+                    i - window:i
+                ]
+            )
+
+            right_low = np.min(
+                low_values[
+                    i + 1:i + window + 1
+                ]
+            )
+
+            atr_value = atr_values[i]
+
+            if (
+                not np.isfinite(
+                    current_high
+                )
+                or
+                not np.isfinite(
+                    current_low
+                )
+            ):
+                continue
+
+            if (
+                not np.isfinite(
+                    atr_value
+                )
+                or
+                atr_value <= 0
+            ):
+
+                atr_value = 0.00001
+
+            # ==================================================
+            # Pivot High
+            # ==================================================
 
             if (
                 current_high > left_high
@@ -105,43 +246,24 @@ class MarketStructure:
                 current_high >= right_high
             ):
 
-                atr = max(
-                    data.iloc[i]["atr"],
-                    0.00001
-                )
-
                 strength = (
                     current_high
-                    -
-                    max(
+                    - max(
                         left_high,
-                        right_high
+                        right_high,
                     )
-                ) / atr
+                ) / atr_value
 
-                data.at[
-                    data.index[i],
-                    "pivot_high"
-                ] = 1
+                pivot_high[i] = 1
 
-                data.at[
-                    data.index[i],
-                    "pivot_strength"
-                ] = strength
+                pivot_strength[i] = max(
+                    pivot_strength[i],
+                    strength,
+                )
 
-            current_low = data.iloc[i]["low"]
-
-            left_low = (
-                data.iloc[
-                    i-window:i
-                ]["low"].min()
-            )
-
-            right_low = (
-                data.iloc[
-                    i+1:i+window+1
-                ]["low"].min()
-            )
+            # ==================================================
+            # Pivot Low
+            # ==================================================
 
             if (
                 current_low < left_low
@@ -149,195 +271,487 @@ class MarketStructure:
                 current_low <= right_low
             ):
 
-                atr = max(
-                    data.iloc[i]["atr"],
-                    0.00001
-                )
-
                 strength = (
                     min(
                         left_low,
-                        right_low
+                        right_low,
                     )
-                    -
-                    current_low
-                ) / atr
+                    - current_low
+                ) / atr_value
 
-                data.at[
-                    data.index[i],
-                    "pivot_low"
-                ] = 1
+                pivot_low[i] = 1
 
-                if (
-                    strength >
-                    data.at[
-                        data.index[i],
-                        "pivot_strength"
-                    ]
-                ):
+                pivot_strength[i] = max(
+                    pivot_strength[i],
+                    strength,
+                )
 
-                    data.at[
-                        data.index[i],
-                        "pivot_strength"
-                    ] = strength
+        # ------------------------------------------------------
+        # Assign back to DataFrame
+        # ------------------------------------------------------
 
-        return data
+        df["pivot_high"] = pivot_high
+
+        df["pivot_low"] = pivot_low
+
+        df["pivot_strength"] = (
+            pivot_strength
+        )
+
+        return df
 
     # ==========================================================
-    # Swing Ranking
+    # Swing Classification
     # ==========================================================
 
     def classify_swings(
         self,
-        data: pd.DataFrame
+        data: pd.DataFrame,
     ) -> pd.DataFrame:
 
-        data["major_high"] = 0
-        data["major_low"] = 0
+        df = data.copy()
 
-        data["minor_high"] = 0
-        data["minor_low"] = 0
+        df["major_high"] = 0
+        df["major_low"] = 0
 
-        data["major_swing"] = 0
+        df["minor_high"] = 0
+        df["minor_low"] = 0
 
-        data["swing_score"] = 0.0
+        df["major_swing"] = 0
 
-        data["swing_id"] = 0
+        df["swing_score"] = 0.0
+
+        df["swing_id"] = 0
+
+        df["swing_type"] = "NONE"
+
+        df["swing_price"] = np.nan
+
+        # ------------------------------------------------------
+        # NumPy arrays for type-safe iteration
+        # ------------------------------------------------------
+
+        pivot_high_values = np.asarray(
+            df["pivot_high"],
+            dtype=np.int8,
+        )
+
+        pivot_low_values = np.asarray(
+            df["pivot_low"],
+            dtype=np.int8,
+        )
+
+        strength_values = np.asarray(
+            df["pivot_strength"],
+            dtype=np.float64,
+        )
+
+        high_values = np.asarray(
+            pd.to_numeric(
+                df["high"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        low_values = np.asarray(
+            pd.to_numeric(
+                df["low"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        major_high = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        major_low = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        minor_high = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        minor_low = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        major_swing = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        swing_score = np.zeros(
+            len(df),
+            dtype=np.float64,
+        )
+
+        swing_id_values = np.zeros(
+            len(df),
+            dtype=np.int64,
+        )
+
+        swing_type = np.full(
+            len(df),
+            "NONE",
+            dtype=object,
+        )
+
+        swing_price = np.full(
+            len(df),
+            np.nan,
+            dtype=np.float64,
+        )
 
         swing_id = 1
 
-        for i in range(len(data)):
+        # ======================================================
+        # Classification
+        # ======================================================
+
+        for i in range(len(df)):
 
             is_high = (
-                data.iloc[i]["pivot_high"] == 1
+                pivot_high_values[i] == 1
             )
 
             is_low = (
-                data.iloc[i]["pivot_low"] == 1
+                pivot_low_values[i] == 1
             )
 
-            if not (is_high or is_low):
+            if not is_high and not is_low:
                 continue
 
-            score = float(
-                data.iloc[i]["pivot_strength"]
+            score = strength_values[i]
+
+            swing_score[i] = score
+
+            swing_id_values[i] = (
+                swing_id
             )
 
-            data.at[
-                data.index[i],
-                "swing_score"
-            ] = score
+            # ==================================================
+            # HIGH SWING
+            # ==================================================
 
-            data.at[
-                data.index[i],
-                "swing_id"
-            ] = swing_id
+            if is_high:
+
+                swing_type[i] = "HIGH"
+
+                swing_price[i] = (
+                    high_values[i]
+                )
+
+                if (
+                    score >=
+                    self.major_strength
+                ):
+
+                    major_high[i] = 1
+                    major_swing[i] = 1
+
+                elif (
+                    score >=
+                    self.min_strength
+                ):
+
+                    minor_high[i] = 1
+
+            # ==================================================
+            # LOW SWING
+            # ==================================================
+
+            elif is_low:
+
+                swing_type[i] = "LOW"
+
+                swing_price[i] = (
+                    low_values[i]
+                )
+
+                if (
+                    score >=
+                    self.major_strength
+                ):
+
+                    major_low[i] = 1
+                    major_swing[i] = 1
+
+                elif (
+                    score >=
+                    self.min_strength
+                ):
+
+                    minor_low[i] = 1
 
             swing_id += 1
 
-            if score >= 2.50:
+        # ------------------------------------------------------
+        # Assign results
+        # ------------------------------------------------------
 
-                data.at[
-                    data.index[i],
-                    "major_swing"
-                ] = 1
+        df["major_high"] = major_high
+        df["major_low"] = major_low
 
-                if is_high:
+        df["minor_high"] = minor_high
+        df["minor_low"] = minor_low
 
-                    data.at[
-                        data.index[i],
-                        "major_high"
-                    ] = 1
+        df["major_swing"] = major_swing
 
-                else:
+        df["swing_score"] = swing_score
 
-                    data.at[
-                        data.index[i],
-                        "major_low"
-                    ] = 1
+        df["swing_id"] = swing_id_values
 
-            else:
+        df["swing_type"] = swing_type
 
-                if is_high:
+        df["swing_price"] = swing_price
 
-                    data.at[
-                        data.index[i],
-                        "minor_high"
-                    ] = 1
-
-                else:
-
-                    data.at[
-                        data.index[i],
-                        "minor_low"
-                    ] = 1
-
-        return data
+        return df
 
     # ==========================================================
-    # Market Structure
+    # Market Structure Classification
     # ==========================================================
 
     def detect_structure(
         self,
-        data: pd.DataFrame
+        data: pd.DataFrame,
     ) -> pd.DataFrame:
 
-        data["HH"] = 0
-        data["HL"] = 0
-        data["LH"] = 0
-        data["LL"] = 0
+        df = data.copy()
 
-        data["structure"] = "NONE"
+        df["HH"] = 0
+        df["HL"] = 0
 
-        data["last_major_high"] = np.nan
-        data["last_major_low"] = np.nan
+        df["LH"] = 0
+        df["LL"] = 0
 
-        last_high = None
-        last_low = None
+        df["structure"] = "NONE"
 
-        for i in range(len(data)):
+        df["last_major_high"] = np.nan
+        df["last_major_low"] = np.nan
 
-            if data.iloc[i]["major_high"] == 1:
+        # ------------------------------------------------------
+        # NumPy arrays
+        # ------------------------------------------------------
 
-                price = data.iloc[i]["high"]
+        major_high_values = np.asarray(
+            df["major_high"],
+            dtype=np.int8,
+        )
 
-                if last_high is not None:
+        major_low_values = np.asarray(
+            df["major_low"],
+            dtype=np.int8,
+        )
+
+        high_values = np.asarray(
+            pd.to_numeric(
+                df["high"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        low_values = np.asarray(
+            pd.to_numeric(
+                df["low"],
+                errors="coerce",
+            ),
+            dtype=np.float64,
+        )
+
+        hh = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        hl = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        lh = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        ll = np.zeros(
+            len(df),
+            dtype=np.int8,
+        )
+
+        structure = np.full(
+            len(df),
+            "NONE",
+            dtype=object,
+        )
+
+        last_major_high_values = (
+            np.full(
+                len(df),
+                np.nan,
+                dtype=np.float64,
+            )
+        )
+
+        last_major_low_values = (
+            np.full(
+                len(df),
+                np.nan,
+                dtype=np.float64,
+            )
+        )
+
+        last_high: float | None = None
+        last_low: float | None = None
+
+        # ======================================================
+        # Structure Scan
+        # ======================================================
+
+        for i in range(len(df)):
+
+            # ==================================================
+            # Major High
+            # ==================================================
+
+            if major_high_values[i] == 1:
+
+                price = high_values[i]
+
+                if (
+                    last_high is not None
+                ):
 
                     if price > last_high:
 
-                        data.at[data.index[i], "HH"] = 1
-                        data.at[data.index[i], "structure"] = "HH"
+                        hh[i] = 1
+                        structure[i] = "HH"
 
-                    else:
+                    elif price < last_high:
 
-                        data.at[data.index[i], "LH"] = 1
-                        data.at[data.index[i], "structure"] = "LH"
+                        lh[i] = 1
+                        structure[i] = "LH"
 
                 last_high = price
 
-            if data.iloc[i]["major_low"] == 1:
+            # ==================================================
+            # Major Low
+            # ==================================================
 
-                price = data.iloc[i]["low"]
+            if major_low_values[i] == 1:
 
-                if last_low is not None:
+                price = low_values[i]
+
+                if (
+                    last_low is not None
+                ):
 
                     if price > last_low:
 
-                        data.at[data.index[i], "HL"] = 1
-                        data.at[data.index[i], "structure"] = "HL"
+                        hl[i] = 1
+                        structure[i] = "HL"
 
-                    else:
+                    elif price < last_low:
 
-                        data.at[data.index[i], "LL"] = 1
-                        data.at[data.index[i], "structure"] = "LL"
+                        ll[i] = 1
+                        structure[i] = "LL"
 
                 last_low = price
 
-            data.at[data.index[i], "last_major_high"] = last_high
-            data.at[data.index[i], "last_major_low"] = last_low
+            if last_high is not None:
 
-        return data
+                last_major_high_values[i] = (
+                    last_high
+                )
+
+            if last_low is not None:
+
+                last_major_low_values[i] = (
+                    last_low
+                )
+
+        # ------------------------------------------------------
+        # Assign results
+        # ------------------------------------------------------
+
+        df["HH"] = hh
+        df["HL"] = hl
+
+        df["LH"] = lh
+        df["LL"] = ll
+
+        df["structure"] = structure
+
+        df["last_major_high"] = (
+            last_major_high_values
+        )
+
+        df["last_major_low"] = (
+            last_major_low_values
+        )
+
+        return df
+
+    # ==========================================================
+    # Persistent Structure Bias
+    # ==========================================================
+
+    def add_structure_state(
+        self,
+        data: pd.DataFrame,
+    ) -> pd.DataFrame:
+
+        df = data.copy()
+
+        structure_values = (
+            np.asarray(
+                df["structure"],
+                dtype=object,
+            )
+        )
+
+        bias_values = np.full(
+            len(df),
+            "NEUTRAL",
+            dtype=object,
+        )
+
+        bias = "NEUTRAL"
+
+        for i in range(len(df)):
+
+            current_structure = (
+                structure_values[i]
+            )
+
+            if current_structure in (
+                "HH",
+                "HL",
+            ):
+
+                bias = "BULLISH"
+
+            elif current_structure in (
+                "LH",
+                "LL",
+            ):
+
+                bias = "BEARISH"
+
+            bias_values[i] = bias
+
+        df["structure_bias"] = (
+            bias_values
+        )
+
+        return df
 
     # ==========================================================
     # Main Pipeline
@@ -345,20 +759,58 @@ class MarketStructure:
 
     def generate(
         self,
-        df: pd.DataFrame
+        df: pd.DataFrame,
     ) -> pd.DataFrame:
+
+        self._validate_input(df)
 
         data = df.copy()
 
-        data["atr"] = self.calculate_atr(data)
+        # ------------------------------------------------------
+        # 1. ATR
+        # ------------------------------------------------------
 
-        data = self.detect_pivots(data)
+        data["atr"] = (
+            self.calculate_atr(data)
+        )
 
-        data = self.classify_swings(data)
+        # ------------------------------------------------------
+        # 2. Pivot Detection
+        # ------------------------------------------------------
 
-        data = self.detect_structure(data)
+        data = self.detect_pivots(
+            data
+        )
+
+        # ------------------------------------------------------
+        # 3. Swing Classification
+        # ------------------------------------------------------
+
+        data = self.classify_swings(
+            data
+        )
+
+        # ------------------------------------------------------
+        # 4. HH / HL / LH / LL
+        # ------------------------------------------------------
+
+        data = self.detect_structure(
+            data
+        )
+
+        # ------------------------------------------------------
+        # 5. Persistent Bias
+        # ------------------------------------------------------
+
+        data = self.add_structure_state(
+            data
+        )
 
         return data
 
+
+# ==============================================================
+# Global Engine Instance
+# ==============================================================
 
 market_structure = MarketStructure()
