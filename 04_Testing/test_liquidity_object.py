@@ -11,6 +11,10 @@ Liquidity = importlib.import_module(
     "02_AI.Objects.liquidity"
 ).Liquidity
 
+LiquidityType = importlib.import_module(
+    "02_AI.Common.enums"
+).LiquidityType
+
 
 def test_liquidity_object():
 
@@ -18,28 +22,47 @@ def test_liquidity_object():
 
         liquidity_id=1,
 
-        liquidity_type="BUY_SIDE",
+        liquidity_type=LiquidityType.BUY_SIDE,
 
         price=3400.25,
 
-        touches=2,
+        touches=1,
 
         first_index=100,
 
-        last_index=120
+        last_index=100,
 
     )
 
-    obj.increase_touch()
+    assert obj.liquidity_type == LiquidityType.BUY_SIDE
 
-    assert obj.touches == 3
+    obj.increase_touch(
+        index=120,
+        price=3400.25,
+        touch_type="RETEST",
+    )
 
-    obj.update_last_touch(150)
+    assert obj.touches == 2
+    assert obj.last_index == 120
+    assert len(obj.touch_history) == 1
+
+    obj.update_last_touch(
+        index=150,
+        price=3400.30,
+        touch_type="RETEST",
+    )
 
     assert obj.last_index == 150
+    assert len(obj.touch_history) == 2
 
     obj.mark_swept(180)
 
-    assert obj.swept
+    assert obj.swept is True
+    assert obj.active is False
 
-    assert not obj.active
+    data = obj.to_dict()
+
+    assert data["liquidity_id"] == 1
+    assert data["liquidity_type"] == "BUY_SIDE"
+    assert data["touches"] == 2
+    assert len(data["touch_history"]) == 2
