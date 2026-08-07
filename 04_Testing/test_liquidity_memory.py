@@ -11,43 +11,60 @@ Liquidity = importlib.import_module(
     "02_AI.Objects.liquidity"
 ).Liquidity
 
+LiquidityType = importlib.import_module(
+    "02_AI.Common.enums"
+).LiquidityType
+
 memory = importlib.import_module(
     "02_AI.Memory.liquidity_memory"
-).liquidity_memory
+).LiquidityMemory
 
 
 def test_liquidity_memory():
 
-    memory.reset()
+    manager = memory(
+        price_tolerance=0.20
+    )
 
-    obj = Liquidity(
-
-        liquidity_id=memory.generate_id(),
-
-        liquidity_type="BUY_SIDE",
-
+    first = Liquidity(
+        liquidity_id=manager.generate_id(),
+        liquidity_type=LiquidityType.BUY_SIDE,
         price=3400.00,
-
-        touches=2,
-
+        touches=1,
         first_index=10,
-
-        last_index=20
-
+        last_index=10,
     )
 
-    memory.register(obj)
+    registered = manager.register(first)
 
-    assert len(memory.get_active()) == 1
+    assert registered is first
+    assert manager.active_count() == 1
 
-    memory.mark_swept(
-
-        liquidity_id=obj.liquidity_id,
-
-        index=50
-
+    second = Liquidity(
+        liquidity_id=manager.generate_id(),
+        liquidity_type=LiquidityType.BUY_SIDE,
+        price=3400.10,
+        touches=1,
+        first_index=20,
+        last_index=20,
     )
 
-    assert len(memory.get_active()) == 0
+    merged = manager.register(second)
 
-    assert len(memory.get_swept()) == 1
+    assert merged is first
+    assert manager.active_count() == 1
+    assert first.touches == 2
+    assert len(first.touch_history) == 1
+
+    manager.mark_swept(
+        liquidity_id=first.liquidity_id,
+        index=50,
+    )
+
+    assert manager.active_count() == 0
+    assert manager.swept_count() == 1
+
+    swept = manager.get_swept()[0]
+
+    assert swept.swept is True
+    assert swept.active is False
