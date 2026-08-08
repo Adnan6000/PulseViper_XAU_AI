@@ -2,9 +2,28 @@
 ===============================================================================
 Module      : fvg_engine.py
 Project     : PulseViper XAU AI
-Version     : 1.0
+Version     : 1.1
+Author      : Muhammad Adnan
 Purpose     : Institutional Fair Value Gap Detection Engine
 ===============================================================================
+
+Architecture
+------------
+FVGEngine owns ONLY FVG creation/detection.
+
+FVG lifecycle responsibilities such as:
+- mitigation
+- fill percentage
+- rejection
+- lifecycle state
+
+belong to:
+
+    02_AI.Core.fvg_mitigation_engine.FVGMitigationEngine
+
+Keeping lifecycle logic out of this detector avoids duplicate calculations
+and prevents historical FVG scans from becoming increasingly expensive as
+the dataset grows.
 """
 
 from __future__ import annotations
@@ -14,6 +33,18 @@ import pandas as pd
 
 
 class FVGEngine:
+    """
+    Detect bullish and bearish three-candle Fair Value Gaps.
+
+    Bullish FVG:
+        current low > high two candles earlier
+
+    Bearish FVG:
+        current high < low two candles earlier
+
+    Gap size is normalized by ATR so extremely small/noisy gaps
+    can be rejected while preserving timeframe independence.
+    """
 
     def __init__(
         self,
@@ -22,13 +53,66 @@ class FVGEngine:
         max_gap_atr: float = 5.00,
     ) -> None:
 
-        self.atr_period = atr_period
-        self.min_gap_atr = min_gap_atr
-        self.max_gap_atr = max_gap_atr
+        if atr_period <= 0:
+            raise ValueError(
+                "atr_period must be greater than zero"
+            )
 
-    # ==========================================================
+        if min_gap_atr < 0:
+            raise ValueError(
+                "min_gap_atr cannot be negative"
+            )
+
+        if max_gap_atr <= min_gap_atr:
+            raise ValueError(
+                "max_gap_atr must be greater than min_gap_atr"
+            )
+
+        self.atr_period = int(
+            atr_period
+        )
+
+        self.min_gap_atr = float(
+            min_gap_atr
+        )
+
+        self.max_gap_atr = float(
+            max_gap_atr
+        )
+
+    # =========================================================================
+    # Input Validation
+    # =========================================================================
+
+    @staticmethod
+    def _validate_input(
+        df: pd.DataFrame,
+    ) -> None:
+
+        required = {
+            "open",
+            "high",
+            "low",
+            "close",
+        }
+
+        missing = (
+            required
+            - set(df.columns)
+        )
+
+        if missing:
+
+            raise ValueError(
+                "Missing required columns: "
+                + ", ".join(
+                    sorted(missing)
+                )
+            )
+
+    # =========================================================================
     # ATR
-    # ==========================================================
+    # =========================================================================
 
     def calculate_atr(
         self,
@@ -50,89 +134,82 @@ class FVGEngine:
             errors="coerce",
         )
 
-        previous_close = close.shift(1)
+        previous_close = (
+            close.shift(1)
+        )
 
         true_range = pd.concat(
             [
                 high - low,
-                (high - previous_close).abs(),
-                (low - previous_close).abs(),
+                (
+                    high
+                    - previous_close
+                ).abs(),
+                (
+                    low
+                    - previous_close
+                ).abs(),
             ],
             axis=1,
-        ).max(axis=1)
+        ).max(
+            axis=1
+        )
 
         return (
             true_range
             .rolling(
-                self.atr_period,
+                window=self.atr_period,
                 min_periods=1,
             )
             .mean()
-            .astype("float64")
-        )
-
-    # ==========================================================
-    # Validation
-    # ==========================================================
-
-    @staticmethod
-    def _validate_input(
-        df: pd.DataFrame,
-    ) -> None:
-
-        required = {
-            "open",
-            "high",
-            "low",
-            "close",
-        }
-
-        missing = (
-            required - set(df.columns)
-        )
-
-        if missing:
-
-            raise ValueError(
-                "Missing required columns: "
-                + ", ".join(
-                    sorted(missing)
-                )
+            .astype(
+                "float64"
             )
+        )
 
-    # ==========================================================
+    # =========================================================================
     # Main Detection
-    # ==========================================================
+    # =========================================================================
 
     def generate(
         self,
         data: pd.DataFrame,
     ) -> pd.DataFrame:
 
-        self._validate_input(data)
+        self._validate_input(
+            data
+        )
 
         df = data.copy()
 
-        # ------------------------------------------------------
+        # ---------------------------------------------------------------------
         # ATR
-        # ------------------------------------------------------
+        # ---------------------------------------------------------------------
 
         if "atr" not in df.columns:
 
             df["atr"] = (
-                self.calculate_atr(df)
+                self.calculate_atr(
+                    df
+                )
             )
 
-        # ------------------------------------------------------
-        # Output Columns
-        # ------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # Output Contract
+        #
+        # Lifecycle fields are initialized here because downstream modules
+        # expect them, but FVGEngine does NOT calculate historical mitigation.
+        # FVGMitigationEngine owns that responsibility.
+        # ---------------------------------------------------------------------
 
         df["fvg_id"] = 0
 
         df["bullish_fvg"] = 0
         df["bearish_fvg"] = 0
 
-        df["fvg_direction"] = "NONE"
+        df["fvg_direction"] = (
+            "NONE"
+        )
 
         df["fvg_high"] = np.nan
         df["fvg_low"] = np.nan
@@ -142,14 +219,13 @@ class FVGEngine:
 
         df["fvg_active"] = 0
         df["fvg_mitigated"] = 0
-
         df["fvg_fill_percent"] = 0.0
 
         df["fvg_origin_index"] = -1
 
-        # ------------------------------------------------------
-        # NumPy arrays
-        # ------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # Numeric Arrays
+        # ---------------------------------------------------------------------
 
         high = np.asarray(
             pd.to_numeric(
@@ -167,14 +243,6 @@ class FVGEngine:
             dtype=np.float64,
         )
 
-        close = np.asarray(
-            pd.to_numeric(
-                df["close"],
-                errors="coerce",
-            ),
-            dtype=np.float64,
-        )
-
         atr = np.asarray(
             pd.to_numeric(
                 df["atr"],
@@ -183,199 +251,100 @@ class FVGEngine:
             dtype=np.float64,
         )
 
-        # ======================================================
-        # FVG Scan
-        #
-        # Bullish:
-        # candle[i].low > candle[i-2].high
-        #
-        # Bearish:
-        # candle[i].high < candle[i-2].low
-        # ======================================================
+        row_count = len(
+            df
+        )
 
-        fvg_id = 1
+        # ---------------------------------------------------------------------
+        # Preallocated Result Arrays
+        #
+        # This avoids repeated df.at/df.iloc writes inside the hot loop.
+        # ---------------------------------------------------------------------
+
+        fvg_ids = np.zeros(
+            row_count,
+            dtype=np.int64,
+        )
+
+        bullish_fvg = np.zeros(
+            row_count,
+            dtype=np.int8,
+        )
+
+        bearish_fvg = np.zeros(
+            row_count,
+            dtype=np.int8,
+        )
+
+        fvg_direction = np.full(
+            row_count,
+            "NONE",
+            dtype=object,
+        )
+
+        fvg_high = np.full(
+            row_count,
+            np.nan,
+            dtype=np.float64,
+        )
+
+        fvg_low = np.full(
+            row_count,
+            np.nan,
+            dtype=np.float64,
+        )
+
+        fvg_size = np.zeros(
+            row_count,
+            dtype=np.float64,
+        )
+
+        fvg_atr_ratio = np.zeros(
+            row_count,
+            dtype=np.float64,
+        )
+
+        fvg_active = np.zeros(
+            row_count,
+            dtype=np.int8,
+        )
+
+        fvg_origin_index = np.full(
+            row_count,
+            -1,
+            dtype=np.int64,
+        )
+
+        # =========================================================================
+        # FVG Detection
+        # =========================================================================
+
+        next_fvg_id = 1
 
         for i in range(
             2,
-            len(df),
+            row_count,
         ):
 
-            if not (
-                np.isfinite(
-                    high[i]
-                )
-                and np.isfinite(
-                    low[i]
-                )
-                and np.isfinite(
-                    high[i - 2]
-                )
-                and np.isfinite(
-                    low[i - 2]
-                )
-            ):
-                continue
+            current_high = (
+                high[i]
+            )
 
-            atr_value = atr[i]
+            current_low = (
+                low[i]
+            )
 
-            if (
-                not np.isfinite(
-                    atr_value
-                )
-                or atr_value <= 0
-            ):
-                continue
+            previous_two_high = (
+                high[i - 2]
+            )
 
-            # ==================================================
-            # Bullish FVG
-            # ==================================================
+            previous_two_low = (
+                low[i - 2]
+            )
 
-            if low[i] > high[i - 2]:
-
-                gap_low = high[i - 2]
-                gap_high = low[i]
-
-                gap_size = (
-                    gap_high - gap_low
-                )
-
-                atr_ratio = (
-                    gap_size / atr_value
-                )
-
-                if (
-                    self.min_gap_atr
-                    <= atr_ratio
-                    <= self.max_gap_atr
-                ):
-
-                    df.at[
-                        df.index[i],
-                        "fvg_id"
-                    ] = fvg_id
-
-                    df.at[
-                        df.index[i],
-                        "bullish_fvg"
-                    ] = 1
-
-                    df.at[
-                        df.index[i],
-                        "fvg_direction"
-                    ] = "BULLISH"
-
-                    df.at[
-                        df.index[i],
-                        "fvg_high"
-                    ] = gap_high
-
-                    df.at[
-                        df.index[i],
-                        "fvg_low"
-                    ] = gap_low
-
-                    df.at[
-                        df.index[i],
-                        "fvg_size"
-                    ] = gap_size
-
-                    df.at[
-                        df.index[i],
-                        "fvg_atr_ratio"
-                    ] = atr_ratio
-
-                    df.at[
-                        df.index[i],
-                        "fvg_active"
-                    ] = 1
-
-                    df.at[
-                        df.index[i],
-                        "fvg_origin_index"
-                    ] = i - 2
-
-                    fvg_id += 1
-
-            # ==================================================
-            # Bearish FVG
-            # ==================================================
-
-            elif high[i] < low[i - 2]:
-
-                gap_high = low[i - 2]
-                gap_low = high[i]
-
-                gap_size = (
-                    gap_high - gap_low
-                )
-
-                atr_ratio = (
-                    gap_size / atr_value
-                )
-
-                if (
-                    self.min_gap_atr
-                    <= atr_ratio
-                    <= self.max_gap_atr
-                ):
-
-                    df.at[
-                        df.index[i],
-                        "fvg_id"
-                    ] = fvg_id
-
-                    df.at[
-                        df.index[i],
-                        "bearish_fvg"
-                    ] = 1
-
-                    df.at[
-                        df.index[i],
-                        "fvg_direction"
-                    ] = "BEARISH"
-
-                    df.at[
-                        df.index[i],
-                        "fvg_high"
-                    ] = gap_high
-
-                    df.at[
-                        df.index[i],
-                        "fvg_low"
-                    ] = gap_low
-
-                    df.at[
-                        df.index[i],
-                        "fvg_size"
-                    ] = gap_size
-
-                    df.at[
-                        df.index[i],
-                        "fvg_atr_ratio"
-                    ] = atr_ratio
-
-                    df.at[
-                        df.index[i],
-                        "fvg_active"
-                    ] = 1
-
-                    df.at[
-                        df.index[i],
-                        "fvg_origin_index"
-                    ] = i - 2
-
-                    fvg_id += 1
-
-        # ======================================================
-        # Historical Mitigation Tracking
-        # ======================================================
-
-        active_fvgs: list[dict[str, float | int | str]] = []
-
-        for i in range(len(df)):
-
-            current_high = high[i]
-            current_low = low[i]
+            atr_value = (
+                atr[i]
+            )
 
             if not (
                 np.isfinite(
@@ -384,205 +353,204 @@ class FVGEngine:
                 and np.isfinite(
                     current_low
                 )
+                and np.isfinite(
+                    previous_two_high
+                )
+                and np.isfinite(
+                    previous_two_low
+                )
+                and np.isfinite(
+                    atr_value
+                )
+                and atr_value > 0.0
             ):
                 continue
 
-            # --------------------------------------------------
-            # Register newly created FVG
-            # --------------------------------------------------
+            # =================================================================
+            # Bullish FVG
+            # =================================================================
 
-            created_id = int(
-                df.iloc[i]["fvg_id"]
-            )
+            if (
+                current_low
+                >
+                previous_two_high
+            ):
 
-            if created_id > 0:
-
-                direction = str(
-                    df.iloc[i][
-                        "fvg_direction"
-                    ]
+                gap_low = (
+                    previous_two_high
                 )
 
-                zone_high = float(
-                    df.iloc[i]["fvg_high"]
+                gap_high = (
+                    current_low
                 )
 
-                zone_low = float(
-                    df.iloc[i]["fvg_low"]
+                gap_size = (
+                    gap_high
+                    - gap_low
                 )
 
-                active_fvgs.append(
-                    {
-                        "id": created_id,
-                        "direction": direction,
-                        "high": zone_high,
-                        "low": zone_low,
-                        "fill": 0.0,
-                    }
+                atr_ratio = (
+                    gap_size
+                    / atr_value
                 )
 
-            # --------------------------------------------------
-            # Update existing zones
-            # --------------------------------------------------
-
-            for zone in active_fvgs:
-
-                if zone["direction"] == "BULLISH":
-
-                    zone_high = float(
-                        zone["high"]
-                    )
-
-                    zone_low = float(
-                        zone["low"]
-                    )
-
-                    zone_size = (
-                        zone_high
-                        - zone_low
-                    )
-
-                    if (
-                        current_low
-                        <= zone_high
-                    ):
-
-                        penetration = (
-                            zone_high
-                            - max(
-                                current_low,
-                                zone_low,
-                            )
-                        )
-
-                        fill = (
-                            penetration
-                            / zone_size
-                            * 100.0
-                        )
-
-                        zone["fill"] = float(
-                            np.clip(
-                                fill,
-                                0.0,
-                                100.0,
-                            )
-                        )
-
-                    if (
-                        current_low
-                        <= zone_low
-                    ):
-
-                        zone["fill"] = 100.0
-
-                elif zone["direction"] == "BEARISH":
-
-                    zone_high = float(
-                        zone["high"]
-                    )
-
-                    zone_low = float(
-                        zone["low"]
-                    )
-
-                    zone_size = (
-                        zone_high
-                        - zone_low
-                    )
-
-                    if (
-                        current_high
-                        >= zone_low
-                    ):
-
-                        penetration = (
-                            min(
-                                current_high,
-                                zone_high,
-                            )
-                            - zone_low
-                        )
-
-                        fill = (
-                            penetration
-                            / zone_size
-                            * 100.0
-                        )
-
-                        zone["fill"] = float(
-                            np.clip(
-                                fill,
-                                0.0,
-                                100.0,
-                            )
-                        )
-
-                    if (
-                        current_high
-                        >= zone_high
-                    ):
-
-                        zone["fill"] = 100.0
-
-            # --------------------------------------------------
-            # Write latest state to originating FVG
-            # --------------------------------------------------
-
-            for zone in active_fvgs:
-
-                if int(zone["id"]) == int(
-                    df.iloc[i]["fvg_id"]
+                if (
+                    self.min_gap_atr
+                    <= atr_ratio
+                    <= self.max_gap_atr
                 ):
 
-                    continue
+                    fvg_ids[i] = (
+                        next_fvg_id
+                    )
 
-                # State is represented on
-                # the latest candle only when
-                # the FVG is interacted with.
+                    bullish_fvg[i] = 1
 
-                fill_value = float(
-                    zone["fill"]
+                    fvg_direction[i] = (
+                        "BULLISH"
+                    )
+
+                    fvg_high[i] = (
+                        gap_high
+                    )
+
+                    fvg_low[i] = (
+                        gap_low
+                    )
+
+                    fvg_size[i] = (
+                        gap_size
+                    )
+
+                    fvg_atr_ratio[i] = (
+                        atr_ratio
+                    )
+
+                    fvg_active[i] = 1
+
+                    fvg_origin_index[i] = (
+                        i - 2
+                    )
+
+                    next_fvg_id += 1
+
+            # =================================================================
+            # Bearish FVG
+            # =================================================================
+
+            elif (
+                current_high
+                <
+                previous_two_low
+            ):
+
+                gap_high = (
+                    previous_two_low
                 )
 
-                if fill_value <= 0:
-                    continue
-
-                # Find the original row.
-                matches = np.flatnonzero(
-                    df["fvg_id"].to_numpy()
-                    == int(zone["id"])
+                gap_low = (
+                    current_high
                 )
 
-                if len(matches) == 0:
-                    continue
-
-                origin_row = int(
-                    matches[0]
+                gap_size = (
+                    gap_high
+                    - gap_low
                 )
 
-                df.at[
-                    df.index[origin_row],
-                    "fvg_fill_percent"
-                ] = fill_value
+                atr_ratio = (
+                    gap_size
+                    / atr_value
+                )
 
-                if fill_value >= 100.0:
+                if (
+                    self.min_gap_atr
+                    <= atr_ratio
+                    <= self.max_gap_atr
+                ):
 
-                    df.at[
-                        df.index[origin_row],
-                        "fvg_mitigated"
-                    ] = 1
+                    fvg_ids[i] = (
+                        next_fvg_id
+                    )
 
-                    df.at[
-                        df.index[origin_row],
-                        "fvg_active"
-                    ] = 0
+                    bearish_fvg[i] = 1
+
+                    fvg_direction[i] = (
+                        "BEARISH"
+                    )
+
+                    fvg_high[i] = (
+                        gap_high
+                    )
+
+                    fvg_low[i] = (
+                        gap_low
+                    )
+
+                    fvg_size[i] = (
+                        gap_size
+                    )
+
+                    fvg_atr_ratio[i] = (
+                        atr_ratio
+                    )
+
+                    fvg_active[i] = 1
+
+                    fvg_origin_index[i] = (
+                        i - 2
+                    )
+
+                    next_fvg_id += 1
+
+        # =========================================================================
+        # Assign Results
+        # =========================================================================
+
+        df["fvg_id"] = (
+            fvg_ids
+        )
+
+        df["bullish_fvg"] = (
+            bullish_fvg
+        )
+
+        df["bearish_fvg"] = (
+            bearish_fvg
+        )
+
+        df["fvg_direction"] = (
+            fvg_direction
+        )
+
+        df["fvg_high"] = (
+            fvg_high
+        )
+
+        df["fvg_low"] = (
+            fvg_low
+        )
+
+        df["fvg_size"] = (
+            fvg_size
+        )
+
+        df["fvg_atr_ratio"] = (
+            fvg_atr_ratio
+        )
+
+        df["fvg_active"] = (
+            fvg_active
+        )
+
+        df["fvg_origin_index"] = (
+            fvg_origin_index
+        )
 
         return df
 
 
-# ==============================================================
+# =============================================================================
 # Global Engine Instance
-# ==============================================================
+# =============================================================================
 
 fvg_engine = FVGEngine()
