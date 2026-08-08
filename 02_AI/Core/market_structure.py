@@ -2,7 +2,7 @@
 ===============================================================================
 Module      : market_structure.py
 Project     : PulseViper XAU AI
-Version     : 5.1
+Version     : 5.2
 Author      : PulseViper AI
 Purpose     : Institutional Market Structure & Swing Contract Engine
 ===============================================================================
@@ -226,15 +226,21 @@ class MarketStructure:
             ):
                 continue
 
-            if (
-                not np.isfinite(
+            # --------------------------------------------------
+            # ATR validity
+            #
+            # Geometry can still identify a pivot even when ATR
+            # is invalid, but invalid ATR must never manufacture
+            # artificial structural strength.
+            # --------------------------------------------------
+
+            atr_is_valid = (
+                np.isfinite(
                     atr_value
                 )
-                or
-                atr_value <= 0
-            ):
-
-                atr_value = 0.00001
+                and
+                atr_value > 0
+            )
 
             # ==================================================
             # Pivot High
@@ -246,20 +252,22 @@ class MarketStructure:
                 current_high >= right_high
             ):
 
-                strength = (
-                    current_high
-                    - max(
-                        left_high,
-                        right_high,
-                    )
-                ) / atr_value
-
                 pivot_high[i] = 1
 
-                pivot_strength[i] = max(
-                    pivot_strength[i],
-                    strength,
-                )
+                if atr_is_valid:
+
+                    strength = (
+                        current_high
+                        - max(
+                            left_high,
+                            right_high,
+                        )
+                    ) / atr_value
+
+                    pivot_strength[i] = max(
+                        pivot_strength[i],
+                        strength,
+                    )
 
             # ==================================================
             # Pivot Low
@@ -271,20 +279,22 @@ class MarketStructure:
                 current_low <= right_low
             ):
 
-                strength = (
-                    min(
-                        left_low,
-                        right_low,
-                    )
-                    - current_low
-                ) / atr_value
-
                 pivot_low[i] = 1
 
-                pivot_strength[i] = max(
-                    pivot_strength[i],
-                    strength,
-                )
+                if atr_is_valid:
+
+                    strength = (
+                        min(
+                            left_low,
+                            right_low,
+                        )
+                        - current_low
+                    ) / atr_value
+
+                    pivot_strength[i] = max(
+                        pivot_strength[i],
+                        strength,
+                    )
 
         # ------------------------------------------------------
         # Assign back to DataFrame
@@ -429,6 +439,26 @@ class MarketStructure:
                 continue
 
             score = strength_values[i]
+
+            # --------------------------------------------------
+            # A geometric pivot does NOT automatically become
+            # a structural swing.
+            #
+            # Only pivots meeting min_strength receive:
+            # - swing_id
+            # - swing_type
+            # - swing_score
+            # - major/minor classification
+            # --------------------------------------------------
+
+            if (
+                not np.isfinite(
+                    score
+                )
+                or
+                score < self.min_strength
+            ):
+                continue
 
             swing_score[i] = score
 
