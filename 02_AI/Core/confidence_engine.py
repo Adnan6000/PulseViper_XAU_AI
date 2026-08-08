@@ -3,7 +3,7 @@
 Module      : confidence_engine.py
 Project     : PulseViper XAU AI
 Version     : 1.0
-Author      : PulseViper AI
+Author      : Muhammad Adnan
 Purpose     : Institutional Trade Confidence Engine
 ===============================================================================
 """

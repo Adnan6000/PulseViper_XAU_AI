@@ -3,7 +3,7 @@
 Module      : market_structure.py
 Project     : PulseViper XAU AI
 Version     : 5.2
-Author      : PulseViper AI
+Author      : Muhammad Adnan
 Purpose     : Institutional Market Structure & Swing Contract Engine
 ===============================================================================
 """
