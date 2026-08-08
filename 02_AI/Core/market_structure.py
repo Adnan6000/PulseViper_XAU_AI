@@ -2,35 +2,39 @@
 ===============================================================================
 Module      : market_structure.py
 Project     : PulseViper XAU AI
-Version     : 6.0
+Version     : 6.1
 Author      : Muhammad Adnan
-Purpose     : Adaptive Scalping Market Structure & Swing Engine
+Purpose     : Causal Adaptive XAUUSD Scalping Swing Engine
 ===============================================================================
 
-Design
-------
-This engine is built for XAUUSD scalping.
+Core design
+-----------
+- No fixed candle window.
+- No centered/look-ahead pivots.
+- Swing duration is market-driven.
+- Candidate extreme keeps extending until an ATR reversal confirms it.
+- Confirmed swing events are written on confirmation rows.
+- Actual turning-point price/index/time are preserved separately.
+- Confirmed swing types strictly alternate HIGH / LOW.
+- MICRO / INTERNAL / MAJOR describe importance, not candle count.
 
-It does NOT assume that a swing must contain a fixed number of candles.
-
-A swing may take:
-- 2-3 candles
-- 5 candles
-- 14 candles
-- 20+ candles
-
-The market decides swing length.
-
-Core principles
+v6.1 correction
 ---------------
-1. Chronological / causal processing.
-2. Candidate extremes extend until a meaningful reversal confirms them.
-3. Confirmed swings alternate HIGH -> LOW -> HIGH -> LOW.
-4. A stronger/newer extreme replaces the previous candidate.
-5. Swing origin and confirmation are stored separately.
-6. Swing importance is based on actual excursion relative to ATR.
-7. MICRO / INTERNAL / MAJOR hierarchy supports scalping.
-8. HH / HL / LH / LL operate on confirmed swings.
+v6.0 could freeze after a shallow but valid reversal because:
+
+    reversal_atr < min_swing_atr
+
+A swing could be confirmed with one threshold while the opposite swing
+required a larger excursion threshold.
+
+v6.1 uses ONE causal reversal threshold for swing confirmation.
+
+Leg excursion remains useful for:
+- MICRO / INTERNAL / MAJOR classification
+- swing scoring
+- diagnostics
+
+but it does NOT block the state machine.
 """
 
 from __future__ import annotations
@@ -50,14 +54,9 @@ class MarketStructure:
         min_swing_atr: float = 0.80,
         internal_swing_atr: float = 1.50,
         major_swing_atr: float = 2.50,
+        equality_atr: float = 0.05,
 
-        # ---------------------------------------------------------------------
-        # Legacy compatibility
-        #
-        # Old callers may still provide these arguments.
-        # pivot_window is intentionally ignored because v6 is not window based.
-        # min_strength / major_strength map to the new ATR swing hierarchy.
-        # ---------------------------------------------------------------------
+        # Legacy compatibility.
         pivot_window: int | None = None,
         min_strength: float | None = None,
         major_strength: float | None = None,
@@ -68,13 +67,8 @@ class MarketStructure:
                 "atr_period must be greater than zero"
             )
 
-        if reversal_atr <= 0:
-            raise ValueError(
-                "reversal_atr must be greater than zero"
-            )
-
         if min_strength is not None:
-            min_swing_atr = float(
+            reversal_atr = float(
                 min_strength
             )
 
@@ -83,40 +77,30 @@ class MarketStructure:
                 major_strength
             )
 
-            # Legacy diagnostics may provide:
-            # min=0.50, major=1.00.
-            #
-            # Keep INTERNAL logically between them.
-            if (
-                major_swing_atr
-                <= internal_swing_atr
-            ):
-                internal_swing_atr = (
-                    min_swing_atr
-                    + major_swing_atr
-                ) / 2.0
+        if reversal_atr <= 0.0:
+            raise ValueError(
+                "reversal_atr must be greater than zero"
+            )
 
-        if min_swing_atr <= 0:
+        if min_swing_atr <= 0.0:
             raise ValueError(
                 "min_swing_atr must be greater than zero"
             )
 
-        if (
-            internal_swing_atr
-            <= min_swing_atr
-        ):
+        if internal_swing_atr <= 0.0:
             raise ValueError(
-                "internal_swing_atr must be greater "
-                "than min_swing_atr"
+                "internal_swing_atr must be greater than zero"
             )
 
-        if (
-            major_swing_atr
-            <= internal_swing_atr
-        ):
+        if major_swing_atr <= internal_swing_atr:
             raise ValueError(
                 "major_swing_atr must be greater "
                 "than internal_swing_atr"
+            )
+
+        if equality_atr < 0.0:
+            raise ValueError(
+                "equality_atr cannot be negative"
             )
 
         self.atr_period = int(
@@ -127,6 +111,8 @@ class MarketStructure:
             reversal_atr
         )
 
+        # Preserved for compatibility / diagnostics.
+        # It is NOT a confirmation gate in v6.1.
         self.min_swing_atr = float(
             min_swing_atr
         )
@@ -139,11 +125,16 @@ class MarketStructure:
             major_swing_atr
         )
 
-        # Legacy public attributes.
-        self.pivot_window = pivot_window
+        self.equality_atr = float(
+            equality_atr
+        )
+
+        self.pivot_window = (
+            pivot_window
+        )
 
         self.min_strength = (
-            self.min_swing_atr
+            self.reversal_atr
         )
 
         self.major_strength = (
@@ -168,7 +159,9 @@ class MarketStructure:
 
         missing = (
             required
-            - set(df.columns)
+            - set(
+                df.columns
+            )
         )
 
         if missing:
@@ -176,7 +169,9 @@ class MarketStructure:
             raise ValueError(
                 "Missing required columns: "
                 + ", ".join(
-                    sorted(missing)
+                    sorted(
+                        missing
+                    )
                 )
             )
 
@@ -211,10 +206,12 @@ class MarketStructure:
         true_range = pd.concat(
             [
                 high - low,
+
                 (
                     high
                     - previous_close
                 ).abs(),
+
                 (
                     low
                     - previous_close
@@ -238,7 +235,44 @@ class MarketStructure:
         )
 
     # =========================================================================
-    # Swing Scale
+    # ATR reference
+    # =========================================================================
+
+    @staticmethod
+    def _atr_reference(
+        candidate_atr: float,
+        current_atr: float,
+    ) -> float:
+
+        values = [
+            value
+            for value in (
+                candidate_atr,
+                current_atr,
+            )
+            if (
+                np.isfinite(
+                    value
+                )
+                and value > 0.0
+            )
+        ]
+
+        if not values:
+            return float(
+                "nan"
+            )
+
+        # Do not allow an ATR collapse on the confirmation candle
+        # to make reversal artificially easy.
+        return float(
+            max(
+                values
+            )
+        )
+
+    # =========================================================================
+    # Swing hierarchy
     # =========================================================================
 
     def _swing_scale(
@@ -261,7 +295,186 @@ class MarketStructure:
         return "MICRO"
 
     # =========================================================================
-    # Adaptive Swing Detection
+    # Output allocator
+    # =========================================================================
+
+    @staticmethod
+    def _empty_outputs(
+        row_count: int,
+    ) -> dict[str, Any]:
+
+        return {
+            "pivot_high": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "pivot_low": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "pivot_strength": np.zeros(
+                row_count,
+                dtype=np.float64,
+            ),
+
+            "major_high": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "major_low": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "minor_high": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "minor_low": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "micro_high": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "micro_low": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "internal_high": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "internal_low": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "major_swing": np.zeros(
+                row_count,
+                dtype=np.int8,
+            ),
+
+            "swing_score": np.zeros(
+                row_count,
+                dtype=np.float64,
+            ),
+
+            "swing_id": np.zeros(
+                row_count,
+                dtype=np.int64,
+            ),
+
+            "swing_type": np.full(
+                row_count,
+                "NONE",
+                dtype=object,
+            ),
+
+            "swing_price": np.full(
+                row_count,
+                np.nan,
+                dtype=np.float64,
+            ),
+
+            "swing_scale": np.full(
+                row_count,
+                "NONE",
+                dtype=object,
+            ),
+
+            "swing_origin_index": np.full(
+                row_count,
+                -1,
+                dtype=np.int64,
+            ),
+
+            "swing_confirmation_index": np.full(
+                row_count,
+                -1,
+                dtype=np.int64,
+            ),
+
+            "swing_origin_time": np.full(
+                row_count,
+                None,
+                dtype=object,
+            ),
+
+            "swing_confirmation_time": np.full(
+                row_count,
+                None,
+                dtype=object,
+            ),
+
+            "swing_leg_bars": np.zeros(
+                row_count,
+                dtype=np.int64,
+            ),
+
+            "swing_confirmation_bars": np.zeros(
+                row_count,
+                dtype=np.int64,
+            ),
+
+            "swing_excursion": np.zeros(
+                row_count,
+                dtype=np.float64,
+            ),
+
+            "swing_excursion_atr": np.zeros(
+                row_count,
+                dtype=np.float64,
+            ),
+
+            "swing_reversal": np.zeros(
+                row_count,
+                dtype=np.float64,
+            ),
+
+            "swing_reversal_atr": np.zeros(
+                row_count,
+                dtype=np.float64,
+            ),
+        }
+
+    # =========================================================================
+    # Assign swing outputs
+    # =========================================================================
+
+    @staticmethod
+    def _assign_swing_outputs(
+        df: pd.DataFrame,
+        outputs: dict[
+            str,
+            Any,
+        ],
+    ) -> pd.DataFrame:
+
+        result = df.copy()
+
+        for (
+            column,
+            values,
+        ) in outputs.items():
+
+            result[
+                column
+            ] = values
+
+        return result
+
+    # =========================================================================
+    # Adaptive causal swings
     # =========================================================================
 
     def detect_swings(
@@ -280,7 +493,9 @@ class MarketStructure:
 
         missing = (
             required
-            - set(df.columns)
+            - set(
+                df.columns
+            )
         )
 
         if missing:
@@ -288,7 +503,9 @@ class MarketStructure:
             raise ValueError(
                 "Missing required swing columns: "
                 + ", ".join(
-                    sorted(missing)
+                    sorted(
+                        missing
+                    )
                 )
             )
 
@@ -296,9 +513,20 @@ class MarketStructure:
             df
         )
 
-        # ---------------------------------------------------------------------
-        # Numeric arrays
-        # ---------------------------------------------------------------------
+        outputs = (
+            self._empty_outputs(
+                row_count
+            )
+        )
+
+        if row_count == 0:
+
+            return (
+                self._assign_swing_outputs(
+                    df,
+                    outputs,
+                )
+            )
 
         high = np.asarray(
             pd.to_numeric(
@@ -346,279 +574,54 @@ class MarketStructure:
                 dtype=object,
             )
 
-        # ---------------------------------------------------------------------
-        # Legacy output contract
-        # ---------------------------------------------------------------------
-
-        pivot_high = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        pivot_low = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        pivot_strength = np.zeros(
-            row_count,
-            dtype=np.float64,
-        )
-
-        minor_high = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        minor_low = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        major_high = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        major_low = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        major_swing = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        swing_score = np.zeros(
-            row_count,
-            dtype=np.float64,
-        )
-
-        swing_id = np.zeros(
-            row_count,
-            dtype=np.int64,
-        )
-
-        swing_type = np.full(
-            row_count,
-            "NONE",
-            dtype=object,
-        )
-
-        swing_price = np.full(
-            row_count,
-            np.nan,
-            dtype=np.float64,
-        )
-
-        # ---------------------------------------------------------------------
-        # New scalping hierarchy
-        # ---------------------------------------------------------------------
-
-        micro_high = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        micro_low = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        internal_high = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        internal_low = np.zeros(
-            row_count,
-            dtype=np.int8,
-        )
-
-        swing_scale = np.full(
-            row_count,
-            "NONE",
-            dtype=object,
-        )
-
-        # ---------------------------------------------------------------------
-        # Causal timing / geometry
-        # ---------------------------------------------------------------------
-
-        swing_origin_index = np.full(
-            row_count,
-            -1,
-            dtype=np.int64,
-        )
-
-        swing_confirmation_index = np.full(
-            row_count,
-            -1,
-            dtype=np.int64,
-        )
-
-        swing_origin_time = np.full(
-            row_count,
-            None,
-            dtype=object,
-        )
-
-        swing_confirmation_time = np.full(
-            row_count,
-            None,
-            dtype=object,
-        )
-
-        swing_leg_bars = np.zeros(
-            row_count,
-            dtype=np.int64,
-        )
-
-        swing_confirmation_bars = np.zeros(
-            row_count,
-            dtype=np.int64,
-        )
-
-        swing_excursion = np.zeros(
-            row_count,
-            dtype=np.float64,
-        )
-
-        swing_excursion_atr = np.zeros(
-            row_count,
-            dtype=np.float64,
-        )
-
-        swing_reversal = np.zeros(
-            row_count,
-            dtype=np.float64,
-        )
-
-        swing_reversal_atr = np.zeros(
-            row_count,
-            dtype=np.float64,
-        )
-
-        # ---------------------------------------------------------------------
-        # Empty / unusable data
-        # ---------------------------------------------------------------------
-
-        if row_count == 0:
-
-            return self._assign_swing_outputs(
-                df=df,
-                pivot_high=pivot_high,
-                pivot_low=pivot_low,
-                pivot_strength=pivot_strength,
-                minor_high=minor_high,
-                minor_low=minor_low,
-                major_high=major_high,
-                major_low=major_low,
-                major_swing=major_swing,
-                swing_score=swing_score,
-                swing_id=swing_id,
-                swing_type=swing_type,
-                swing_price=swing_price,
-                micro_high=micro_high,
-                micro_low=micro_low,
-                internal_high=internal_high,
-                internal_low=internal_low,
-                swing_scale=swing_scale,
-                swing_origin_index=swing_origin_index,
-                swing_confirmation_index=(
-                    swing_confirmation_index
-                ),
-                swing_origin_time=swing_origin_time,
-                swing_confirmation_time=(
-                    swing_confirmation_time
-                ),
-                swing_leg_bars=swing_leg_bars,
-                swing_confirmation_bars=(
-                    swing_confirmation_bars
-                ),
-                swing_excursion=swing_excursion,
-                swing_excursion_atr=(
-                    swing_excursion_atr
-                ),
-                swing_reversal=swing_reversal,
-                swing_reversal_atr=(
-                    swing_reversal_atr
-                ),
-            )
-
         valid = (
-            np.isfinite(high)
+            np.isfinite(
+                high
+            )
             &
-            np.isfinite(low)
+            np.isfinite(
+                low
+            )
             &
-            np.isfinite(close)
+            np.isfinite(
+                close
+            )
             &
-            np.isfinite(atr)
+            np.isfinite(
+                atr
+            )
             &
-            (atr > 0)
+            (atr > 0.0)
         )
 
         valid_indices = np.flatnonzero(
             valid
         )
 
-        if len(valid_indices) == 0:
+        if len(
+            valid_indices
+        ) == 0:
 
-            return self._assign_swing_outputs(
-                df=df,
-                pivot_high=pivot_high,
-                pivot_low=pivot_low,
-                pivot_strength=pivot_strength,
-                minor_high=minor_high,
-                minor_low=minor_low,
-                major_high=major_high,
-                major_low=major_low,
-                major_swing=major_swing,
-                swing_score=swing_score,
-                swing_id=swing_id,
-                swing_type=swing_type,
-                swing_price=swing_price,
-                micro_high=micro_high,
-                micro_low=micro_low,
-                internal_high=internal_high,
-                internal_low=internal_low,
-                swing_scale=swing_scale,
-                swing_origin_index=swing_origin_index,
-                swing_confirmation_index=(
-                    swing_confirmation_index
-                ),
-                swing_origin_time=swing_origin_time,
-                swing_confirmation_time=(
-                    swing_confirmation_time
-                ),
-                swing_leg_bars=swing_leg_bars,
-                swing_confirmation_bars=(
-                    swing_confirmation_bars
-                ),
-                swing_excursion=swing_excursion,
-                swing_excursion_atr=(
-                    swing_excursion_atr
-                ),
-                swing_reversal=swing_reversal,
-                swing_reversal_atr=(
-                    swing_reversal_atr
-                ),
+            return (
+                self._assign_swing_outputs(
+                    df,
+                    outputs,
+                )
             )
 
         next_swing_id = 1
 
-        last_swing_price: float | None = None
-        last_swing_origin: int | None = None
-        last_swing_type: str | None = None
+        last_swing_price: (
+            float | None
+        ) = None
 
-        # ---------------------------------------------------------------------
+        last_swing_origin: (
+            int | None
+        ) = None
+
+        # =====================================================================
         # Event writer
-        #
-        # IMPORTANT:
-        # Event is written on CONFIRMATION candle.
-        # Actual turning point is stored in swing_origin_index.
-        # ---------------------------------------------------------------------
+        # =====================================================================
 
         def confirm_swing(
             kind: str,
@@ -626,197 +629,248 @@ class MarketStructure:
             confirmation_index: int,
             price: float,
             excursion_value: float,
-            reversal_value: float,
             excursion_atr_value: float,
+            reversal_value: float,
             reversal_atr_value: float,
         ) -> None:
 
             nonlocal next_swing_id
             nonlocal last_swing_price
             nonlocal last_swing_origin
-            nonlocal last_swing_type
 
             event_index = (
                 confirmation_index
             )
 
-            scale = self._swing_scale(
-                excursion_atr_value
+            safe_excursion_atr = max(
+                0.0,
+                float(
+                    excursion_atr_value
+                ),
+            )
+
+            safe_reversal_atr = max(
+                0.0,
+                float(
+                    reversal_atr_value
+                ),
+            )
+
+            scale = (
+                self._swing_scale(
+                    safe_excursion_atr
+                )
             )
 
             if kind == "HIGH":
 
-                pivot_high[
-                    event_index
-                ] = 1
+                outputs[
+                    "pivot_high"
+                ][event_index] = 1
 
                 if scale == "MICRO":
-                    micro_high[
-                        event_index
-                    ] = 1
 
-                    minor_high[
-                        event_index
-                    ] = 1
+                    outputs[
+                        "micro_high"
+                    ][event_index] = 1
+
+                    outputs[
+                        "minor_high"
+                    ][event_index] = 1
 
                 elif scale == "INTERNAL":
-                    internal_high[
-                        event_index
-                    ] = 1
 
-                    minor_high[
-                        event_index
-                    ] = 1
+                    outputs[
+                        "internal_high"
+                    ][event_index] = 1
+
+                    outputs[
+                        "minor_high"
+                    ][event_index] = 1
 
                 else:
-                    major_high[
-                        event_index
-                    ] = 1
 
-                    major_swing[
-                        event_index
-                    ] = 1
+                    outputs[
+                        "major_high"
+                    ][event_index] = 1
+
+                    outputs[
+                        "major_swing"
+                    ][event_index] = 1
 
             else:
 
-                pivot_low[
-                    event_index
-                ] = 1
+                outputs[
+                    "pivot_low"
+                ][event_index] = 1
 
                 if scale == "MICRO":
-                    micro_low[
-                        event_index
-                    ] = 1
 
-                    minor_low[
-                        event_index
-                    ] = 1
+                    outputs[
+                        "micro_low"
+                    ][event_index] = 1
+
+                    outputs[
+                        "minor_low"
+                    ][event_index] = 1
 
                 elif scale == "INTERNAL":
-                    internal_low[
-                        event_index
-                    ] = 1
 
-                    minor_low[
-                        event_index
-                    ] = 1
+                    outputs[
+                        "internal_low"
+                    ][event_index] = 1
+
+                    outputs[
+                        "minor_low"
+                    ][event_index] = 1
 
                 else:
-                    major_low[
-                        event_index
-                    ] = 1
 
-                    major_swing[
-                        event_index
-                    ] = 1
+                    outputs[
+                        "major_low"
+                    ][event_index] = 1
 
-            pivot_strength[
-                event_index
-            ] = excursion_atr_value
+                    outputs[
+                        "major_swing"
+                    ][event_index] = 1
 
-            swing_id[
-                event_index
-            ] = next_swing_id
-
-            swing_type[
-                event_index
-            ] = kind
-
-            swing_price[
-                event_index
-            ] = price
-
-            swing_scale[
-                event_index
-            ] = scale
-
-            swing_origin_index[
-                event_index
-            ] = origin_index
-
-            swing_confirmation_index[
-                event_index
-            ] = confirmation_index
-
-            swing_origin_time[
-                event_index
-            ] = time_values[
-                origin_index
-            ]
-
-            swing_confirmation_time[
-                event_index
-            ] = time_values[
-                confirmation_index
-            ]
-
-            swing_confirmation_bars[
-                event_index
-            ] = max(
-                0,
-                confirmation_index
-                - origin_index,
+            outputs[
+                "pivot_strength"
+            ][event_index] = (
+                safe_excursion_atr
             )
 
-            if last_swing_origin is not None:
-
-                swing_leg_bars[
-                    event_index
-                ] = abs(
-                    origin_index
-                    - last_swing_origin
-                )
-
-            swing_excursion[
-                event_index
-            ] = excursion_value
-
-            swing_excursion_atr[
-                event_index
-            ] = excursion_atr_value
-
-            swing_reversal[
-                event_index
-            ] = reversal_value
-
-            swing_reversal_atr[
-                event_index
-            ] = reversal_atr_value
-
-            score = (
-                excursion_atr_value
-                * 18.0
-                +
-                reversal_atr_value
-                * 22.0
-            )
-
-            swing_score[
-                event_index
-            ] = round(
+            outputs[
+                "swing_score"
+            ][event_index] = round(
                 min(
                     100.0,
-                    max(
-                        0.0,
-                        score,
+                    (
+                        safe_excursion_atr
+                        * 20.0
+                    )
+                    +
+                    (
+                        safe_reversal_atr
+                        * 20.0
                     ),
                 ),
                 2,
             )
 
+            outputs[
+                "swing_id"
+            ][event_index] = (
+                next_swing_id
+            )
+
+            outputs[
+                "swing_type"
+            ][event_index] = (
+                kind
+            )
+
+            outputs[
+                "swing_price"
+            ][event_index] = (
+                price
+            )
+
+            outputs[
+                "swing_scale"
+            ][event_index] = (
+                scale
+            )
+
+            outputs[
+                "swing_origin_index"
+            ][event_index] = (
+                origin_index
+            )
+
+            outputs[
+                "swing_confirmation_index"
+            ][event_index] = (
+                confirmation_index
+            )
+
+            outputs[
+                "swing_origin_time"
+            ][event_index] = (
+                time_values[
+                    origin_index
+                ]
+            )
+
+            outputs[
+                "swing_confirmation_time"
+            ][event_index] = (
+                time_values[
+                    confirmation_index
+                ]
+            )
+
+            outputs[
+                "swing_confirmation_bars"
+            ][event_index] = max(
+                0,
+                (
+                    confirmation_index
+                    - origin_index
+                ),
+            )
+
+            if (
+                last_swing_origin
+                is not None
+            ):
+
+                outputs[
+                    "swing_leg_bars"
+                ][event_index] = abs(
+                    origin_index
+                    - last_swing_origin
+                )
+
+            outputs[
+                "swing_excursion"
+            ][event_index] = max(
+                0.0,
+                excursion_value,
+            )
+
+            outputs[
+                "swing_excursion_atr"
+            ][event_index] = (
+                safe_excursion_atr
+            )
+
+            outputs[
+                "swing_reversal"
+            ][event_index] = max(
+                0.0,
+                reversal_value,
+            )
+
+            outputs[
+                "swing_reversal_atr"
+            ][event_index] = (
+                safe_reversal_atr
+            )
+
             next_swing_id += 1
 
-            last_swing_price = price
+            last_swing_price = (
+                price
+            )
 
             last_swing_origin = (
                 origin_index
             )
 
-            last_swing_type = kind
-
-        # =========================================================================
+        # =====================================================================
         # Bootstrap
-        # =========================================================================
+        # =====================================================================
 
         first = int(
             valid_indices[0]
@@ -826,25 +880,51 @@ class MarketStructure:
             high[first]
         )
 
-        running_high_index = first
+        running_high_index = (
+            first
+        )
+
+        running_high_atr = float(
+            atr[first]
+        )
 
         running_low = float(
             low[first]
         )
 
-        running_low_index = first
+        running_low_index = (
+            first
+        )
+
+        running_low_atr = float(
+            atr[first]
+        )
 
         mode = "SEEK_INITIAL"
 
-        candidate_high = np.nan
+        candidate_high = float(
+            "nan"
+        )
+
         candidate_high_index = -1
 
-        candidate_low = np.nan
+        candidate_high_atr = float(
+            "nan"
+        )
+
+        candidate_low = float(
+            "nan"
+        )
+
         candidate_low_index = -1
 
-        # =========================================================================
-        # Chronological State Machine
-        # =========================================================================
+        candidate_low_atr = float(
+            "nan"
+        )
+
+        # =====================================================================
+        # Chronological state machine
+        # =====================================================================
 
         for i in range(
             first + 1,
@@ -854,9 +934,14 @@ class MarketStructure:
             if not valid[i]:
                 continue
 
-            # =====================================================================
-            # Find first confirmed turning point.
-            # =====================================================================
+            current_atr = float(
+                atr[i]
+            )
+
+            # =================================================================
+            # Initial state:
+            # determine which terminal extreme gets reversed first.
+            # =================================================================
 
             if mode == "SEEK_INITIAL":
 
@@ -864,140 +949,135 @@ class MarketStructure:
                     high[i]
                     > running_high
                 ):
+
                     running_high = float(
                         high[i]
                     )
 
-                    running_high_index = i
+                    running_high_index = (
+                        i
+                    )
+
+                    running_high_atr = (
+                        current_atr
+                    )
 
                 if (
                     low[i]
                     < running_low
                 ):
+
                     running_low = float(
                         low[i]
                     )
 
-                    running_low_index = i
+                    running_low_index = (
+                        i
+                    )
 
-                low_atr = float(
-                    atr[
-                        running_low_index
-                    ]
+                    running_low_atr = (
+                        current_atr
+                    )
+
+                high_atr_ref = (
+                    self._atr_reference(
+                        running_high_atr,
+                        current_atr,
+                    )
                 )
 
-                high_atr = float(
-                    atr[
-                        running_high_index
-                    ]
+                low_atr_ref = (
+                    self._atr_reference(
+                        running_low_atr,
+                        current_atr,
+                    )
                 )
 
-                upward_departure = (
-                    close[i]
+                high_reversal = (
+                    running_high
+                    - float(
+                        low[i]
+                    )
+                )
+
+                low_reversal = (
+                    float(
+                        high[i]
+                    )
                     - running_low
                 )
 
-                downward_departure = (
-                    running_high
-                    - close[i]
+                high_ready = bool(
+                    running_high_index
+                    < i
+                    and
+                    np.isfinite(
+                        high_atr_ref
+                    )
+                    and
+                    (
+                        high_reversal
+                        / high_atr_ref
+                    )
+                    >= self.reversal_atr
                 )
 
-                low_ready = (
-                    running_low_index < i
+                low_ready = bool(
+                    running_low_index
+                    < i
                     and
-                    upward_departure
-                    >= (
-                        self.min_swing_atr
-                        * low_atr
+                    np.isfinite(
+                        low_atr_ref
                     )
+                    and
+                    (
+                        low_reversal
+                        / low_atr_ref
+                    )
+                    >= self.reversal_atr
                 )
 
-                high_ready = (
-                    running_high_index < i
-                    and
-                    downward_departure
-                    >= (
-                        self.min_swing_atr
-                        * high_atr
-                    )
-                )
+                first_kind: (
+                    str | None
+                ) = None
 
                 # -------------------------------------------------------------
-                # If both are technically possible, prefer the older extreme.
-                # Same-candle ambiguity is deliberately not guessed.
+                # If both are possible, confirm the MORE RECENT terminal
+                # extreme, not the older one.
                 # -------------------------------------------------------------
 
-                if low_ready and high_ready:
+                if (
+                    high_ready
+                    and low_ready
+                ):
 
                     if (
-                        running_low_index
-                        == running_high_index
-                    ):
-                        continue
-
-                    low_ready = (
-                        running_low_index
-                        < running_high_index
-                    )
-
-                    high_ready = (
                         running_high_index
-                        < running_low_index
-                    )
+                        > running_low_index
+                    ):
 
-                if low_ready:
+                        first_kind = "HIGH"
 
-                    excursion_value = (
-                        upward_departure
-                    )
+                    elif (
+                        running_low_index
+                        > running_high_index
+                    ):
 
-                    excursion_atr_value = (
-                        excursion_value
-                        / low_atr
-                    )
+                        first_kind = "LOW"
 
-                    confirm_swing(
-                        kind="LOW",
-                        origin_index=(
-                            running_low_index
-                        ),
-                        confirmation_index=i,
-                        price=running_low,
-                        excursion_value=(
-                            excursion_value
-                        ),
-                        reversal_value=(
-                            upward_departure
-                        ),
-                        excursion_atr_value=(
-                            excursion_atr_value
-                        ),
-                        reversal_atr_value=(
-                            excursion_atr_value
-                        ),
-                    )
+                elif high_ready:
 
-                    mode = "SEEK_HIGH"
+                    first_kind = "HIGH"
 
-                    # Seed next leg from close, not current high/low,
-                    # avoiding intrabar ordering assumptions.
-                    candidate_high = float(
-                        close[i]
-                    )
+                elif low_ready:
 
-                    candidate_high_index = i
+                    first_kind = "LOW"
 
-                    continue
+                if first_kind == "HIGH":
 
-                if high_ready:
-
-                    excursion_value = (
-                        downward_departure
-                    )
-
-                    excursion_atr_value = (
-                        excursion_value
-                        / high_atr
+                    reversal_atr_value = (
+                        high_reversal
+                        / high_atr_ref
                     )
 
                     confirm_swing(
@@ -1006,122 +1086,17 @@ class MarketStructure:
                             running_high_index
                         ),
                         confirmation_index=i,
-                        price=running_high,
-                        excursion_value=(
-                            excursion_value
-                        ),
-                        reversal_value=(
-                            downward_departure
-                        ),
-                        excursion_atr_value=(
-                            excursion_atr_value
-                        ),
-                        reversal_atr_value=(
-                            excursion_atr_value
-                        ),
-                    )
-
-                    mode = "SEEK_LOW"
-
-                    candidate_low = float(
-                        close[i]
-                    )
-
-                    candidate_low_index = i
-
-                    continue
-
-            # =====================================================================
-            # After LOW -> seek next HIGH
-            # =====================================================================
-
-            elif mode == "SEEK_HIGH":
-
-                if (
-                    high[i]
-                    > candidate_high
-                ):
-
-                    candidate_high = float(
-                        high[i]
-                    )
-
-                    candidate_high_index = i
-
-                if (
-                    last_swing_price
-                    is None
-                ):
-                    continue
-
-                candidate_atr = float(
-                    atr[
-                        candidate_high_index
-                    ]
-                )
-
-                excursion_value = (
-                    candidate_high
-                    - last_swing_price
-                )
-
-                reversal_value = (
-                    candidate_high
-                    - close[i]
-                )
-
-                excursion_atr_value = (
-                    excursion_value
-                    / candidate_atr
-                )
-
-                reversal_atr_value = (
-                    reversal_value
-                    / candidate_atr
-                )
-
-                excursion_ready = (
-                    excursion_atr_value
-                    >= self.min_swing_atr
-                )
-
-                reversal_ready = (
-                    reversal_atr_value
-                    >= self.reversal_atr
-                )
-
-                # Do not confirm a candidate on the exact
-                # candle that created the candidate extreme.
-                confirmation_ready = (
-                    i
-                    > candidate_high_index
-                )
-
-                if (
-                    excursion_ready
-                    and
-                    reversal_ready
-                    and
-                    confirmation_ready
-                ):
-
-                    confirm_swing(
-                        kind="HIGH",
-                        origin_index=(
-                            candidate_high_index
-                        ),
-                        confirmation_index=i,
                         price=(
-                            candidate_high
+                            running_high
                         ),
                         excursion_value=(
-                            excursion_value
-                        ),
-                        reversal_value=(
-                            reversal_value
+                            high_reversal
                         ),
                         excursion_atr_value=(
-                            excursion_atr_value
+                            reversal_atr_value
+                        ),
+                        reversal_value=(
+                            high_reversal
                         ),
                         reversal_atr_value=(
                             reversal_atr_value
@@ -1130,103 +1105,46 @@ class MarketStructure:
 
                     mode = "SEEK_LOW"
 
-                    candidate_low = float(
-                        close[i]
-                    )
-
-                    candidate_low_index = i
-
-                    continue
-
-            # =====================================================================
-            # After HIGH -> seek next LOW
-            # =====================================================================
-
-            elif mode == "SEEK_LOW":
-
-                if (
-                    low[i]
-                    < candidate_low
-                ):
-
+                    # Candidate low belongs to a later candle than
+                    # the confirmed high origin, so chronology is known.
                     candidate_low = float(
                         low[i]
                     )
 
-                    candidate_low_index = i
+                    candidate_low_index = (
+                        i
+                    )
 
-                if (
-                    last_swing_price
-                    is None
-                ):
+                    candidate_low_atr = (
+                        current_atr
+                    )
+
                     continue
 
-                candidate_atr = float(
-                    atr[
-                        candidate_low_index
-                    ]
-                )
+                if first_kind == "LOW":
 
-                excursion_value = (
-                    last_swing_price
-                    - candidate_low
-                )
-
-                reversal_value = (
-                    close[i]
-                    - candidate_low
-                )
-
-                excursion_atr_value = (
-                    excursion_value
-                    / candidate_atr
-                )
-
-                reversal_atr_value = (
-                    reversal_value
-                    / candidate_atr
-                )
-
-                excursion_ready = (
-                    excursion_atr_value
-                    >= self.min_swing_atr
-                )
-
-                reversal_ready = (
-                    reversal_atr_value
-                    >= self.reversal_atr
-                )
-
-                confirmation_ready = (
-                    i
-                    > candidate_low_index
-                )
-
-                if (
-                    excursion_ready
-                    and
-                    reversal_ready
-                    and
-                    confirmation_ready
-                ):
+                    reversal_atr_value = (
+                        low_reversal
+                        / low_atr_ref
+                    )
 
                     confirm_swing(
                         kind="LOW",
                         origin_index=(
-                            candidate_low_index
+                            running_low_index
                         ),
                         confirmation_index=i,
                         price=(
-                            candidate_low
+                            running_low
                         ),
                         excursion_value=(
-                            excursion_value
-                        ),
-                        reversal_value=(
-                            reversal_value
+                            low_reversal
                         ),
                         excursion_atr_value=(
-                            excursion_atr_value
+                            reversal_atr_value
+                        ),
+                        reversal_value=(
+                            low_reversal
                         ),
                         reversal_atr_value=(
                             reversal_atr_value
@@ -1236,77 +1154,299 @@ class MarketStructure:
                     mode = "SEEK_HIGH"
 
                     candidate_high = float(
-                        close[i]
+                        high[i]
                     )
 
-                    candidate_high_index = i
+                    candidate_high_index = (
+                        i
+                    )
+
+                    candidate_high_atr = (
+                        current_atr
+                    )
 
                     continue
 
-        return self._assign_swing_outputs(
-            df=df,
-            pivot_high=pivot_high,
-            pivot_low=pivot_low,
-            pivot_strength=pivot_strength,
-            minor_high=minor_high,
-            minor_low=minor_low,
-            major_high=major_high,
-            major_low=major_low,
-            major_swing=major_swing,
-            swing_score=swing_score,
-            swing_id=swing_id,
-            swing_type=swing_type,
-            swing_price=swing_price,
-            micro_high=micro_high,
-            micro_low=micro_low,
-            internal_high=internal_high,
-            internal_low=internal_low,
-            swing_scale=swing_scale,
-            swing_origin_index=swing_origin_index,
-            swing_confirmation_index=(
-                swing_confirmation_index
-            ),
-            swing_origin_time=swing_origin_time,
-            swing_confirmation_time=(
-                swing_confirmation_time
-            ),
-            swing_leg_bars=swing_leg_bars,
-            swing_confirmation_bars=(
-                swing_confirmation_bars
-            ),
-            swing_excursion=swing_excursion,
-            swing_excursion_atr=(
-                swing_excursion_atr
-            ),
-            swing_reversal=swing_reversal,
-            swing_reversal_atr=(
-                swing_reversal_atr
-            ),
+            # =================================================================
+            # Previous confirmed swing = LOW.
+            # Seek a terminal HIGH.
+            # =================================================================
+
+            elif mode == "SEEK_HIGH":
+
+                candidate_updated = False
+
+                if (
+                    not np.isfinite(
+                        candidate_high
+                    )
+                    or
+                    high[i]
+                    > candidate_high
+                ):
+
+                    candidate_high = float(
+                        high[i]
+                    )
+
+                    candidate_high_index = (
+                        i
+                    )
+
+                    candidate_high_atr = (
+                        current_atr
+                    )
+
+                    candidate_updated = True
+
+                # Same candle created the candidate high.
+                # Intrabar high/low ordering is unknown.
+                if candidate_updated:
+                    continue
+
+                if (
+                    last_swing_price
+                    is None
+                ):
+                    continue
+
+                atr_ref = (
+                    self._atr_reference(
+                        candidate_high_atr,
+                        current_atr,
+                    )
+                )
+
+                if not np.isfinite(
+                    atr_ref
+                ):
+                    continue
+
+                reversal_value = (
+                    candidate_high
+                    - float(
+                        low[i]
+                    )
+                )
+
+                reversal_atr_value = (
+                    reversal_value
+                    / atr_ref
+                )
+
+                if (
+                    reversal_atr_value
+                    < self.reversal_atr
+                ):
+                    continue
+
+                excursion_value = max(
+                    0.0,
+                    (
+                        candidate_high
+                        - last_swing_price
+                    ),
+                )
+
+                excursion_atr_value = (
+                    excursion_value
+                    / atr_ref
+                )
+
+                confirm_swing(
+                    kind="HIGH",
+                    origin_index=(
+                        candidate_high_index
+                    ),
+                    confirmation_index=i,
+                    price=(
+                        candidate_high
+                    ),
+                    excursion_value=(
+                        excursion_value
+                    ),
+                    excursion_atr_value=(
+                        excursion_atr_value
+                    ),
+                    reversal_value=(
+                        reversal_value
+                    ),
+                    reversal_atr_value=(
+                        reversal_atr_value
+                    ),
+                )
+
+                mode = "SEEK_LOW"
+
+                candidate_low = float(
+                    low[i]
+                )
+
+                candidate_low_index = (
+                    i
+                )
+
+                candidate_low_atr = (
+                    current_atr
+                )
+
+                continue
+
+            # =================================================================
+            # Previous confirmed swing = HIGH.
+            # Seek a terminal LOW.
+            # =================================================================
+
+            elif mode == "SEEK_LOW":
+
+                candidate_updated = False
+
+                if (
+                    not np.isfinite(
+                        candidate_low
+                    )
+                    or
+                    low[i]
+                    < candidate_low
+                ):
+
+                    candidate_low = float(
+                        low[i]
+                    )
+
+                    candidate_low_index = (
+                        i
+                    )
+
+                    candidate_low_atr = (
+                        current_atr
+                    )
+
+                    candidate_updated = True
+
+                if candidate_updated:
+                    continue
+
+                if (
+                    last_swing_price
+                    is None
+                ):
+                    continue
+
+                atr_ref = (
+                    self._atr_reference(
+                        candidate_low_atr,
+                        current_atr,
+                    )
+                )
+
+                if not np.isfinite(
+                    atr_ref
+                ):
+                    continue
+
+                reversal_value = (
+                    float(
+                        high[i]
+                    )
+                    - candidate_low
+                )
+
+                reversal_atr_value = (
+                    reversal_value
+                    / atr_ref
+                )
+
+                if (
+                    reversal_atr_value
+                    < self.reversal_atr
+                ):
+                    continue
+
+                excursion_value = max(
+                    0.0,
+                    (
+                        last_swing_price
+                        - candidate_low
+                    ),
+                )
+
+                excursion_atr_value = (
+                    excursion_value
+                    / atr_ref
+                )
+
+                confirm_swing(
+                    kind="LOW",
+                    origin_index=(
+                        candidate_low_index
+                    ),
+                    confirmation_index=i,
+                    price=(
+                        candidate_low
+                    ),
+                    excursion_value=(
+                        excursion_value
+                    ),
+                    excursion_atr_value=(
+                        excursion_atr_value
+                    ),
+                    reversal_value=(
+                        reversal_value
+                    ),
+                    reversal_atr_value=(
+                        reversal_atr_value
+                    ),
+                )
+
+                mode = "SEEK_HIGH"
+
+                candidate_high = float(
+                    high[i]
+                )
+
+                candidate_high_index = (
+                    i
+                )
+
+                candidate_high_atr = (
+                    current_atr
+                )
+
+                continue
+
+        return (
+            self._assign_swing_outputs(
+                df,
+                outputs,
+            )
         )
 
     # =========================================================================
-    # Output Assignment
+    # Legacy method alias
     # =========================================================================
 
-    @staticmethod
-    def _assign_swing_outputs(
-        df: pd.DataFrame,
-        **outputs: Any,
+    def detect_pivots(
+        self,
+        data: pd.DataFrame,
     ) -> pd.DataFrame:
 
-        result = df.copy()
+        df = data.copy()
 
-        for (
-            column,
-            values,
-        ) in outputs.items():
+        if "atr" not in df.columns:
 
-            result[column] = values
+            df["atr"] = (
+                self.calculate_atr(
+                    df
+                )
+            )
 
-        return result
+        return self.detect_swings(
+            df
+        )
 
     # =========================================================================
-    # Structure Classification
+    # Structure
     # =========================================================================
 
     def detect_structure(
@@ -1316,25 +1456,43 @@ class MarketStructure:
 
         df = data.copy()
 
+        required = {
+            "swing_id",
+            "swing_type",
+            "swing_price",
+            "major_high",
+            "major_low",
+        }
+
+        missing = (
+            required
+            - set(
+                df.columns
+            )
+        )
+
+        if missing:
+
+            raise ValueError(
+                "Missing required structure columns: "
+                + ", ".join(
+                    sorted(
+                        missing
+                    )
+                )
+            )
+
         row_count = len(
             df
         )
 
-        df["HH"] = 0
-        df["HL"] = 0
-        df["LH"] = 0
-        df["LL"] = 0
-
-        df["structure"] = "NONE"
-
-        df["last_swing_high"] = np.nan
-        df["last_swing_low"] = np.nan
-
-        df["last_major_high"] = np.nan
-        df["last_major_low"] = np.nan
-
         swing_ids = np.asarray(
-            df["swing_id"],
+            pd.to_numeric(
+                df["swing_id"],
+                errors="coerce",
+            ).fillna(
+                0
+            ),
             dtype=np.int64,
         )
 
@@ -1351,15 +1509,43 @@ class MarketStructure:
             dtype=np.float64,
         )
 
-        major_high_values = np.asarray(
-            df["major_high"],
+        major_high = np.asarray(
+            pd.to_numeric(
+                df["major_high"],
+                errors="coerce",
+            ).fillna(
+                0
+            ),
             dtype=np.int8,
         )
 
-        major_low_values = np.asarray(
-            df["major_low"],
+        major_low = np.asarray(
+            pd.to_numeric(
+                df["major_low"],
+                errors="coerce",
+            ).fillna(
+                0
+            ),
             dtype=np.int8,
         )
+
+        if "atr" in df.columns:
+
+            atr = np.asarray(
+                pd.to_numeric(
+                    df["atr"],
+                    errors="coerce",
+                ),
+                dtype=np.float64,
+            )
+
+        else:
+
+            atr = np.full(
+                row_count,
+                np.nan,
+                dtype=np.float64,
+            )
 
         hh = np.zeros(
             row_count,
@@ -1411,108 +1597,162 @@ class MarketStructure:
             dtype=np.float64,
         )
 
-        previous_high: float | None = None
-        previous_low: float | None = None
+        previous_high: (
+            float | None
+        ) = None
 
-        last_swing_high: float | None = None
-        last_swing_low: float | None = None
+        previous_low: (
+            float | None
+        ) = None
 
-        last_major_high: float | None = None
-        last_major_low: float | None = None
+        last_swing_high: (
+            float | None
+        ) = None
+
+        last_swing_low: (
+            float | None
+        ) = None
+
+        last_major_high: (
+            float | None
+        ) = None
+
+        last_major_low: (
+            float | None
+        ) = None
 
         for i in range(
             row_count
         ):
 
-            if swing_ids[i] > 0:
+            tolerance = 0.0
 
-                price = prices[i]
+            if (
+                np.isfinite(
+                    atr[i]
+                )
+                and atr[i] > 0.0
+            ):
 
-                if (
-                    np.isfinite(
-                        price
-                    )
-                ):
+                tolerance = (
+                    atr[i]
+                    * self.equality_atr
+                )
+
+            if (
+                swing_ids[i]
+                > 0
+                and
+                np.isfinite(
+                    prices[i]
+                )
+            ):
+
+                price = float(
+                    prices[i]
+                )
+
+                current_type = str(
+                    swing_types[i]
+                ).upper()
+
+                if current_type == "HIGH":
 
                     if (
-                        swing_types[i]
-                        == "HIGH"
+                        previous_high
+                        is not None
                     ):
 
                         if (
-                            previous_high
-                            is not None
+                            price
+                            > previous_high
+                            + tolerance
                         ):
 
-                            if (
-                                price
-                                > previous_high
-                            ):
+                            hh[i] = 1
 
-                                hh[i] = 1
-                                structure[i] = "HH"
+                            structure[i] = (
+                                "HH"
+                            )
 
-                            elif (
-                                price
-                                < previous_high
-                            ):
+                        elif (
+                            price
+                            < previous_high
+                            - tolerance
+                        ):
 
-                                lh[i] = 1
-                                structure[i] = "LH"
+                            lh[i] = 1
 
-                        previous_high = price
-                        last_swing_high = price
+                            structure[i] = (
+                                "LH"
+                            )
 
-                    elif (
-                        swing_types[i]
-                        == "LOW"
+                    previous_high = price
+
+                    last_swing_high = (
+                        price
+                    )
+
+                elif current_type == "LOW":
+
+                    if (
+                        previous_low
+                        is not None
                     ):
 
                         if (
-                            previous_low
-                            is not None
+                            price
+                            > previous_low
+                            + tolerance
                         ):
 
-                            if (
-                                price
-                                > previous_low
-                            ):
+                            hl[i] = 1
 
-                                hl[i] = 1
-                                structure[i] = "HL"
+                            structure[i] = (
+                                "HL"
+                            )
 
-                            elif (
-                                price
-                                < previous_low
-                            ):
+                        elif (
+                            price
+                            < previous_low
+                            - tolerance
+                        ):
 
-                                ll[i] = 1
-                                structure[i] = "LL"
+                            ll[i] = 1
 
-                        previous_low = price
-                        last_swing_low = price
+                            structure[i] = (
+                                "LL"
+                            )
+
+                    previous_low = price
+
+                    last_swing_low = (
+                        price
+                    )
 
             if (
-                major_high_values[i]
+                major_high[i]
                 == 1
                 and
                 np.isfinite(
                     prices[i]
                 )
             ):
-                last_major_high = (
+
+                last_major_high = float(
                     prices[i]
                 )
 
             if (
-                major_low_values[i]
+                major_low[i]
                 == 1
                 and
                 np.isfinite(
                     prices[i]
                 )
             ):
-                last_major_low = (
+
+                last_major_low = float(
                     prices[i]
                 )
 
@@ -1557,30 +1797,30 @@ class MarketStructure:
         df["LH"] = lh
         df["LL"] = ll
 
-        df["structure"] = (
-            structure
-        )
+        df[
+            "structure"
+        ] = structure
 
-        df["last_swing_high"] = (
-            last_swing_high_values
-        )
+        df[
+            "last_swing_high"
+        ] = last_swing_high_values
 
-        df["last_swing_low"] = (
-            last_swing_low_values
-        )
+        df[
+            "last_swing_low"
+        ] = last_swing_low_values
 
-        df["last_major_high"] = (
-            last_major_high_values
-        )
+        df[
+            "last_major_high"
+        ] = last_major_high_values
 
-        df["last_major_low"] = (
-            last_major_low_values
-        )
+        df[
+            "last_major_low"
+        ] = last_major_low_values
 
         return df
 
     # =========================================================================
-    # Persistent Structure Bias
+    # Persistent structure state
     # =========================================================================
 
     def add_structure_state(
@@ -1590,7 +1830,13 @@ class MarketStructure:
 
         df = data.copy()
 
-        structure_values = np.asarray(
+        if "structure" not in df.columns:
+
+            raise ValueError(
+                "Missing required structure column: structure"
+            )
+
+        values = np.asarray(
             df["structure"],
             dtype=object,
         )
@@ -1615,9 +1861,9 @@ class MarketStructure:
             len(df)
         ):
 
-            event = (
-                structure_values[i]
-            )
+            event = str(
+                values[i]
+            ).upper()
 
             if event in (
                 "HH",
@@ -1637,8 +1883,6 @@ class MarketStructure:
                     event
                 )
 
-            # Bullish structure needs BOTH:
-            # higher highs + higher lows.
             if (
                 latest_high_relation
                 == "HH"
@@ -1649,8 +1893,6 @@ class MarketStructure:
 
                 bias = "BULLISH"
 
-            # Bearish structure needs BOTH:
-            # lower highs + lower lows.
             elif (
                 latest_high_relation
                 == "LH"
@@ -1661,16 +1903,18 @@ class MarketStructure:
 
                 bias = "BEARISH"
 
-            bias_values[i] = bias
+            bias_values[i] = (
+                bias
+            )
 
-        df["structure_bias"] = (
-            bias_values
-        )
+        df[
+            "structure_bias"
+        ] = bias_values
 
         return df
 
     # =========================================================================
-    # Main Pipeline
+    # Main
     # =========================================================================
 
     def generate(
@@ -1704,10 +1948,6 @@ class MarketStructure:
 
         return data
 
-
-# =============================================================================
-# Global Engine
-# =============================================================================
 
 market_structure = (
     MarketStructure()
