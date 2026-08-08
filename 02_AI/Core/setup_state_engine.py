@@ -2,38 +2,57 @@
 ===============================================================================
 Module      : setup_state_engine.py
 Project     : PulseViper XAU AI
-Version     : 1.0
+Version     : 1.1
 Author      : Muhammad Adnan
-Purpose     : Causal Temporal Scalping Setup State Engine
+Purpose     : Causal Temporal Scalping Setup State & Quality Telemetry Engine
 ===============================================================================
 
-Purpose
--------
-A real scalp setup does not normally complete on one candle.
+Temporal setup sequence
+-----------------------
+Liquidity sweep
+    ↓
+Directional displacement
+    ↓
+Directional BOS
+    ↓
+Directional FVG
+    ↓
+Rejection of an FVG attached to the setup
+    ↓
+READY
 
-Example:
+Important
+---------
+Evidence may occur on different candles.
 
-    10:31  sell-side liquidity sweep
-    10:32  bullish displacement
-    10:33  bullish BOS
-    10:34  bullish FVG
-    10:37  bullish FVG rejection
-           -> bullish setup READY
+v1.1 adds quality telemetry while preserving v1.0 readiness behavior.
 
-This engine preserves that evidence across candles.
+Quality telemetry
+-----------------
+- displacement score
+- impulse strength
+- BOS ID
+- BOS strength ATR
+- BOS break distance ATR
+- BOS scope/context
+- rejection fill percentage
+- FVG count
+- causal event indices
+- sweep-to-event timing
+- sweep-to-ready duration
 
-Core principles
----------------
-1. A setup starts from a directional liquidity sweep.
-2. Evidence may arrive on different candles.
-3. Bullish and bearish setups are tracked independently.
-4. Opposite-direction evidence cannot contaminate a setup.
-5. FVG rejection must belong to an FVG attached to that setup.
-6. Setup memory expires after a configurable number of bars.
-7. A fresh same-direction sweep starts a fresh setup.
-8. No confidence threshold is applied here.
-9. No trade is opened here.
-10. This engine only builds truthful temporal market state.
+Engineering
+-----------
+- Pylance-safe heterogeneous snapshots.
+- Output columns are created as one DataFrame block.
+- Avoids DataFrame fragmentation from repeated column insertion.
+- Preserves canonical setup_direction required by ConfidenceEngine v2.
+
+This engine does NOT:
+- open trades
+- apply confidence thresholds
+- use future candles
+- decide which BOS scope is profitable
 """
 
 from __future__ import annotations
@@ -57,6 +76,118 @@ class SetupStateEngine:
         "MAJOR": 3,
     }
 
+    # =========================================================================
+    # Snapshot contract
+    #
+    # Every item below becomes:
+    #
+    # canonical:
+    #     setup_<suffix>
+    #
+    # directional:
+    #     bullish_setup_<suffix>
+    #     bearish_setup_<suffix>
+    # =========================================================================
+
+    SNAPSHOT_SUFFIXES = (
+        # ---------------------------------------------------------------------
+        # Core identity / lifecycle
+        # ---------------------------------------------------------------------
+        "id",
+        "direction",
+        "state",
+        "age_bars",
+        "evidence_count",
+        "ready",
+
+        "start_index",
+        "last_event_index",
+
+        # ---------------------------------------------------------------------
+        # Core evidence
+        # ---------------------------------------------------------------------
+        "has_sweep",
+        "has_displacement",
+        "has_bos",
+        "has_fvg",
+        "has_rejection",
+        "has_mitigation",
+
+        # ---------------------------------------------------------------------
+        # Context
+        # ---------------------------------------------------------------------
+        "structure_alignment",
+
+        # ---------------------------------------------------------------------
+        # FVG identity
+        # ---------------------------------------------------------------------
+        "fvg_id",
+        "rejection_fvg_id",
+
+        # ---------------------------------------------------------------------
+        # BOS compatibility
+        # ---------------------------------------------------------------------
+        "bos_scope",
+
+        # ---------------------------------------------------------------------
+        # Displacement telemetry
+        # ---------------------------------------------------------------------
+        "displacement_score",
+        "impulse_strength",
+        "displacement_index",
+
+        # ---------------------------------------------------------------------
+        # BOS telemetry
+        # ---------------------------------------------------------------------
+        "bos_id",
+        "bos_strength_atr",
+        "break_distance_atr",
+        "bos_event_scope",
+        "bos_context",
+        "bos_index",
+
+        # ---------------------------------------------------------------------
+        # FVG telemetry
+        # ---------------------------------------------------------------------
+        "fvg_index",
+        "fvg_count",
+
+        # ---------------------------------------------------------------------
+        # Rejection telemetry
+        # ---------------------------------------------------------------------
+        "rejection_index",
+        "rejection_fill_percent",
+        "rejection_strength_fvg_id",
+
+        # ---------------------------------------------------------------------
+        # Mitigation telemetry
+        # ---------------------------------------------------------------------
+        "mitigation_index",
+        "mitigation_fill_percent",
+
+        # ---------------------------------------------------------------------
+        # Ready timing
+        # ---------------------------------------------------------------------
+        "ready_index",
+
+        # ---------------------------------------------------------------------
+        # Temporal distances
+        # ---------------------------------------------------------------------
+        "sweep_to_displacement_bars",
+        "sweep_to_bos_bars",
+        "sweep_to_fvg_bars",
+        "sweep_to_rejection_bars",
+        "sweep_to_ready_bars",
+
+        "event_span_bars",
+    )
+
+    DIRECTIONAL_EVENT_SUFFIXES = (
+        "started_event",
+        "ready_event",
+        "expired_event",
+    )
+
     def __init__(
         self,
         max_setup_bars: int = 20,
@@ -73,7 +204,7 @@ class SetupStateEngine:
         )
 
     # =========================================================================
-    # Numeric Helpers
+    # Numeric helpers
     # =========================================================================
 
     @staticmethod
@@ -87,16 +218,24 @@ class SetupStateEngine:
 
         try:
 
-            if pd.isna(
+            missing = pd.isna(
                 value
+            )
+
+            if isinstance(
+                missing,
+                bool,
             ):
-                return default
+
+                if missing:
+                    return default
 
         except (
             TypeError,
             ValueError,
         ):
-            return default
+
+            pass
 
         try:
 
@@ -108,6 +247,7 @@ class SetupStateEngine:
             TypeError,
             ValueError,
         ):
+
             return default
 
     @classmethod
@@ -122,9 +262,44 @@ class SetupStateEngine:
 
         return (
             cls._to_float(
-                row[column]
+                row[
+                    column
+                ]
             )
             == 1.0
+        )
+
+    @staticmethod
+    def _normalize_direction(
+        value: Any,
+    ) -> str:
+
+        direction = str(
+            value
+        ).upper()
+
+        if direction in (
+            "BULLISH",
+            "BEARISH",
+        ):
+
+            return direction
+
+        return "NONE"
+
+    @staticmethod
+    def _clamp_percent(
+        value: float,
+    ) -> float:
+
+        return max(
+            0.0,
+            min(
+                100.0,
+                float(
+                    value
+                ),
+            ),
         )
 
     # =========================================================================
@@ -136,14 +311,17 @@ class SetupStateEngine:
         df: pd.DataFrame,
     ) -> None:
 
-        if "close" not in df.columns:
+        if (
+            "close"
+            not in df.columns
+        ):
 
             raise ValueError(
                 "Missing required setup column: close"
             )
 
     # =========================================================================
-    # Setup Object
+    # Setup creation
     # =========================================================================
 
     @staticmethod
@@ -154,77 +332,116 @@ class SetupStateEngine:
         timestamp: Any,
     ) -> dict[str, Any]:
 
-        return {
-            "setup_id": (
-                setup_id
-            ),
-            "direction": (
-                direction
-            ),
+        setup: dict[
+            str,
+            Any,
+        ] = {
+            # -----------------------------------------------------------------
+            # Identity
+            # -----------------------------------------------------------------
+            "setup_id": setup_id,
+            "direction": direction,
 
-            "start_index": (
-                index
-            ),
-            "start_time": (
-                timestamp
-            ),
+            # -----------------------------------------------------------------
+            # Lifecycle
+            # -----------------------------------------------------------------
+            "start_index": index,
+            "start_time": timestamp,
 
-            "last_event_index": (
-                index
-            ),
-            "last_event_time": (
-                timestamp
-            ),
+            "last_event_index": index,
+            "last_event_time": timestamp,
 
-            # -------------------------------------------------------------
-            # Core evidence
-            # -------------------------------------------------------------
-
+            # -----------------------------------------------------------------
+            # Required evidence
+            # -----------------------------------------------------------------
             "sweep": 1,
             "displacement": 0,
             "bos": 0,
             "fvg": 0,
             "rejection": 0,
 
-            # -------------------------------------------------------------
-            # Lifecycle/context evidence
-            # -------------------------------------------------------------
-
+            # -----------------------------------------------------------------
+            # Additional lifecycle context
+            # -----------------------------------------------------------------
             "mitigation": 0,
 
-            # -------------------------------------------------------------
-            # Exact FVG linkage
-            # -------------------------------------------------------------
+            # -----------------------------------------------------------------
+            # Displacement telemetry
+            # -----------------------------------------------------------------
+            "first_displacement_index": -1,
 
+            "displacement_score": 0.0,
+            "impulse_strength": 0.0,
+
+            "displacement_quality_seen": False,
+
+            # -----------------------------------------------------------------
+            # BOS telemetry
+            #
+            # bos_scope:
+            #     highest structural scope observed.
+            #
+            # bos_event_scope:
+            #     scope belonging to quantitatively strongest BOS event.
+            # -----------------------------------------------------------------
+            "bos_scope": "NONE",
+
+            "first_bos_index": -1,
+
+            "bos_id": 0,
+
+            "bos_strength_atr": 0.0,
+            "break_distance_atr": 0.0,
+
+            "bos_event_scope": "NONE",
+            "bos_context": "NONE",
+
+            "bos_quality_seen": False,
+
+            # -----------------------------------------------------------------
+            # FVG identity
+            # -----------------------------------------------------------------
             "fvg_ids": set(),
 
             "latest_fvg_id": 0,
 
+            "first_fvg_index": -1,
+
+            # -----------------------------------------------------------------
+            # Rejection
+            # -----------------------------------------------------------------
             "rejection_fvg_id": 0,
 
+            "first_rejection_index": -1,
+
+            "rejection_fill_percent": 0.0,
+
+            "rejection_strength_fvg_id": 0,
+
+            "rejection_quality_seen": False,
+
+            # -----------------------------------------------------------------
+            # Mitigation
+            # -----------------------------------------------------------------
             "mitigation_fvg_id": 0,
 
-            # -------------------------------------------------------------
-            # BOS metadata
-            # -------------------------------------------------------------
+            "first_mitigation_index": -1,
 
-            "bos_scope": (
-                "NONE"
-            ),
+            "mitigation_fill_percent": 0.0,
 
-            # -------------------------------------------------------------
-            # Ready state
-            # -------------------------------------------------------------
-
+            # -----------------------------------------------------------------
+            # READY
+            # -----------------------------------------------------------------
             "ready": False,
 
             "ready_index": -1,
-
             "ready_time": None,
         }
 
+        return setup
+
     # =========================================================================
-    # Touch Setup
+    # Touch setup
     # =========================================================================
 
     @staticmethod
@@ -243,7 +460,7 @@ class SetupStateEngine:
         ] = timestamp
 
     # =========================================================================
-    # BOS Scope
+    # BOS scope
     # =========================================================================
 
     def _update_bos_scope(
@@ -264,10 +481,18 @@ class SetupStateEngine:
             scope = "MICRO"
 
         current_scope = str(
-            setup[
-                "bos_scope"
-            ]
+            setup.get(
+                "bos_scope",
+                "NONE",
+            )
         ).upper()
+
+        if (
+            current_scope
+            not in self.BOS_SCOPE_RANK
+        ):
+
+            current_scope = "NONE"
 
         if (
             self.BOS_SCOPE_RANK[
@@ -284,7 +509,223 @@ class SetupStateEngine:
             ] = scope
 
     # =========================================================================
-    # Evidence Count
+    # Displacement telemetry
+    # =========================================================================
+
+    def _update_displacement_quality(
+        self,
+        setup: dict[str, Any],
+        row: pd.Series,
+    ) -> None:
+
+        score = max(
+            0.0,
+            self._to_float(
+                row.get(
+                    "displacement_score",
+                    row.get(
+                        "fvg_displacement_score",
+                        0.0,
+                    ),
+                )
+            ),
+        )
+
+        impulse = max(
+            0.0,
+            self._to_float(
+                row.get(
+                    "impulse_strength",
+                    0.0,
+                )
+            ),
+        )
+
+        candidate_rank = (
+            score,
+            impulse,
+        )
+
+        current_rank = (
+            float(
+                setup[
+                    "displacement_score"
+                ]
+            ),
+            float(
+                setup[
+                    "impulse_strength"
+                ]
+            ),
+        )
+
+        if (
+            not bool(
+                setup[
+                    "displacement_quality_seen"
+                ]
+            )
+            or
+            candidate_rank
+            > current_rank
+        ):
+
+            setup[
+                "displacement_score"
+            ] = score
+
+            setup[
+                "impulse_strength"
+            ] = impulse
+
+            setup[
+                "displacement_quality_seen"
+            ] = True
+
+    # =========================================================================
+    # BOS telemetry
+    # =========================================================================
+
+    def _update_bos_quality(
+        self,
+        setup: dict[str, Any],
+        row: pd.Series,
+        scope: str,
+    ) -> None:
+
+        strength_atr = max(
+            0.0,
+            self._to_float(
+                row.get(
+                    "bos_strength_atr",
+                    0.0,
+                )
+            ),
+        )
+
+        break_distance_atr = max(
+            0.0,
+            self._to_float(
+                row.get(
+                    "break_distance_atr",
+                    strength_atr,
+                )
+            ),
+        )
+
+        candidate_rank = (
+            break_distance_atr,
+            strength_atr,
+        )
+
+        current_rank = (
+            float(
+                setup[
+                    "break_distance_atr"
+                ]
+            ),
+            float(
+                setup[
+                    "bos_strength_atr"
+                ]
+            ),
+        )
+
+        if (
+            not bool(
+                setup[
+                    "bos_quality_seen"
+                ]
+            )
+            or
+            candidate_rank
+            > current_rank
+        ):
+
+            setup[
+                "bos_id"
+            ] = int(
+                self._to_float(
+                    row.get(
+                        "bos_id",
+                        0,
+                    )
+                )
+            )
+
+            setup[
+                "bos_strength_atr"
+            ] = strength_atr
+
+            setup[
+                "break_distance_atr"
+            ] = break_distance_atr
+
+            setup[
+                "bos_event_scope"
+            ] = scope
+
+            setup[
+                "bos_context"
+            ] = str(
+                row.get(
+                    "bos_context",
+                    "NONE",
+                )
+            ).upper()
+
+            setup[
+                "bos_quality_seen"
+            ] = True
+
+    # =========================================================================
+    # Rejection telemetry
+    # =========================================================================
+
+    def _update_rejection_quality(
+        self,
+        setup: dict[str, Any],
+        fvg_id: int,
+        fill_percent: float,
+    ) -> None:
+
+        fill = (
+            self._clamp_percent(
+                fill_percent
+            )
+        )
+
+        current_fill = float(
+            setup[
+                "rejection_fill_percent"
+            ]
+        )
+
+        if (
+            not bool(
+                setup[
+                    "rejection_quality_seen"
+                ]
+            )
+            or
+            fill
+            > current_fill
+        ):
+
+            setup[
+                "rejection_fill_percent"
+            ] = fill
+
+            setup[
+                "rejection_strength_fvg_id"
+            ] = fvg_id
+
+            setup[
+                "rejection_quality_seen"
+            ] = True
+
+    # =========================================================================
+    # Evidence count
     # =========================================================================
 
     @staticmethod
@@ -293,43 +734,76 @@ class SetupStateEngine:
     ) -> int:
 
         return int(
-            setup["sweep"]
-            + setup["displacement"]
-            + setup["bos"]
-            + setup["fvg"]
-            + setup["rejection"]
+            int(
+                bool(
+                    setup[
+                        "sweep"
+                    ]
+                )
+            )
+            +
+            int(
+                bool(
+                    setup[
+                        "displacement"
+                    ]
+                )
+            )
+            +
+            int(
+                bool(
+                    setup[
+                        "bos"
+                    ]
+                )
+            )
+            +
+            int(
+                bool(
+                    setup[
+                        "fvg"
+                    ]
+                )
+            )
+            +
+            int(
+                bool(
+                    setup[
+                        "rejection"
+                    ]
+                )
+            )
         )
 
     # =========================================================================
-    # Ready Contract
+    # READY contract
     # =========================================================================
 
     @staticmethod
     def _is_ready(
         setup: dict[str, Any],
     ) -> bool:
-        """
-        Setup readiness does NOT require all evidence on one candle.
-
-        Required temporal evidence:
-
-            sweep
-            + directional displacement
-            + directional BOS
-            + directional FVG
-            + rejection of an attached FVG
-        """
 
         return bool(
-            setup["sweep"]
+            setup[
+                "sweep"
+            ]
             and
-            setup["displacement"]
+            setup[
+                "displacement"
+            ]
             and
-            setup["bos"]
+            setup[
+                "bos"
+            ]
             and
-            setup["fvg"]
+            setup[
+                "fvg"
+            ]
             and
-            setup["rejection"]
+            setup[
+                "rejection"
+            ]
         )
 
     # =========================================================================
@@ -341,33 +815,50 @@ class SetupStateEngine:
         setup: dict[str, Any],
     ) -> str:
 
-        if setup["ready"]:
+        if bool(
+            setup[
+                "ready"
+            ]
+        ):
+
             return "READY"
 
-        if not setup[
-            "displacement"
-        ]:
+        if not bool(
+            setup[
+                "displacement"
+            ]
+        ):
+
             return "WAITING_IMPULSE"
 
-        if not setup[
-            "fvg"
-        ]:
+        if not bool(
+            setup[
+                "fvg"
+            ]
+        ):
+
             return "WAITING_FVG"
 
-        if not setup[
-            "bos"
-        ]:
+        if not bool(
+            setup[
+                "bos"
+            ]
+        ):
+
             return "WAITING_STRUCTURE"
 
-        if not setup[
-            "rejection"
-        ]:
+        if not bool(
+            setup[
+                "rejection"
+            ]
+        ):
+
             return "WAITING_RETRACE"
 
         return "DEVELOPING"
 
     # =========================================================================
-    # Structure Alignment
+    # Structure alignment
     # =========================================================================
 
     @staticmethod
@@ -376,26 +867,45 @@ class SetupStateEngine:
         bias: str,
     ) -> int:
 
+        normalized_direction = str(
+            direction
+        ).upper()
+
         normalized_bias = str(
             bias
         ).upper()
 
-        if normalized_bias not in (
-            "BULLISH",
-            "BEARISH",
+        if (
+            normalized_direction
+            not in (
+                "BULLISH",
+                "BEARISH",
+            )
         ):
+
             return 0
 
         if (
             normalized_bias
-            == direction
+            not in (
+                "BULLISH",
+                "BEARISH",
+            )
         ):
+
+            return 0
+
+        if (
+            normalized_direction
+            == normalized_bias
+        ):
+
             return 1
 
         return -1
 
     # =========================================================================
-    # Primary Setup Selection
+    # Primary setup selection
     # =========================================================================
 
     def _select_primary_setup(
@@ -422,28 +932,36 @@ class SetupStateEngine:
             and
             bearish is None
         ):
+
             return None, False
 
         if bullish is None:
+
             return bearish, False
 
         if bearish is None:
+
             return bullish, False
 
         bullish_rank = (
             int(
-                bullish[
-                    "ready"
-                ]
+                bool(
+                    bullish[
+                        "ready"
+                    ]
+                )
             ),
+
             self._evidence_count(
                 bullish
             ),
+
             int(
                 bullish[
                     "last_event_index"
                 ]
             ),
+
             int(
                 bullish[
                     "start_index"
@@ -453,18 +971,23 @@ class SetupStateEngine:
 
         bearish_rank = (
             int(
-                bearish[
-                    "ready"
-                ]
+                bool(
+                    bearish[
+                        "ready"
+                    ]
+                )
             ),
+
             self._evidence_count(
                 bearish
             ),
+
             int(
                 bearish[
                     "last_event_index"
                 ]
             ),
+
             int(
                 bearish[
                     "start_index"
@@ -476,23 +999,26 @@ class SetupStateEngine:
             bullish_rank
             > bearish_rank
         ):
+
             return bullish, False
 
         if (
             bearish_rank
             > bullish_rank
         ):
+
             return bearish, False
 
-        # -----------------------------------------------------------------
-        # Exact tie:
-        # do not invent directional preference.
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # Perfect tie.
+        #
+        # Do not invent directional preference.
+        # ---------------------------------------------------------------------
 
         return None, True
 
     # =========================================================================
-    # FVG Interaction Events
+    # FVG interaction events
     # =========================================================================
 
     @staticmethod
@@ -526,9 +1052,9 @@ class SetupStateEngine:
                     )
                 ]
 
-        # -----------------------------------------------------------------
-        # Scalar fallback for compatibility.
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
+        # Scalar fallback
+        # ---------------------------------------------------------------------
 
         interaction = (
             SetupStateEngine
@@ -541,6 +1067,7 @@ class SetupStateEngine:
         )
 
         if interaction != 1.0:
+
             return []
 
         fvg_id = int(
@@ -554,6 +1081,7 @@ class SetupStateEngine:
         )
 
         if fvg_id <= 0:
+
             return []
 
         return [
@@ -561,18 +1089,21 @@ class SetupStateEngine:
                 "fvg_id": (
                     fvg_id
                 ),
+
                 "direction": str(
                     row.get(
                         "fvg_interaction_direction",
                         "NONE",
                     )
                 ).upper(),
+
                 "event_type": str(
                     row.get(
                         "fvg_interaction_type",
                         "NONE",
                     )
                 ).upper(),
+
                 "fill_percent": (
                     SetupStateEngine
                     ._to_float(
@@ -586,7 +1117,522 @@ class SetupStateEngine:
         ]
 
     # =========================================================================
-    # Main
+    # Timing
+    # =========================================================================
+
+    @staticmethod
+    def _lag(
+        event_index: int,
+        start_index: int,
+    ) -> int:
+
+        if event_index < 0:
+
+            return -1
+
+        return max(
+            0,
+            event_index
+            - start_index,
+        )
+
+    # =========================================================================
+    # Empty snapshot
+    # =========================================================================
+
+    def _empty_snapshot(
+        self,
+    ) -> dict[str, Any]:
+
+        # ---------------------------------------------------------------------
+        # Explicit Any is required because snapshot values are heterogeneous.
+        # ---------------------------------------------------------------------
+
+        snapshot: dict[
+            str,
+            Any,
+        ] = {
+            suffix: 0
+            for suffix
+            in self.SNAPSHOT_SUFFIXES
+        }
+
+        snapshot[
+            "direction"
+        ] = "NONE"
+
+        snapshot[
+            "state"
+        ] = "NONE"
+
+        snapshot[
+            "age_bars"
+        ] = -1
+
+        snapshot[
+            "start_index"
+        ] = -1
+
+        snapshot[
+            "last_event_index"
+        ] = -1
+
+        snapshot[
+            "bos_scope"
+        ] = "NONE"
+
+        snapshot[
+            "bos_event_scope"
+        ] = "NONE"
+
+        snapshot[
+            "bos_context"
+        ] = "NONE"
+
+        snapshot[
+            "displacement_index"
+        ] = -1
+
+        snapshot[
+            "bos_index"
+        ] = -1
+
+        snapshot[
+            "fvg_index"
+        ] = -1
+
+        snapshot[
+            "rejection_index"
+        ] = -1
+
+        snapshot[
+            "mitigation_index"
+        ] = -1
+
+        snapshot[
+            "ready_index"
+        ] = -1
+
+        snapshot[
+            "sweep_to_displacement_bars"
+        ] = -1
+
+        snapshot[
+            "sweep_to_bos_bars"
+        ] = -1
+
+        snapshot[
+            "sweep_to_fvg_bars"
+        ] = -1
+
+        snapshot[
+            "sweep_to_rejection_bars"
+        ] = -1
+
+        snapshot[
+            "sweep_to_ready_bars"
+        ] = -1
+
+        snapshot[
+            "event_span_bars"
+        ] = -1
+
+        return snapshot
+
+    # =========================================================================
+    # Active setup snapshot
+    # =========================================================================
+
+    def _snapshot(
+        self,
+        setup: dict[str, Any] | None,
+        direction: str,
+        current_index: int,
+        structure_bias: str,
+    ) -> dict[str, Any]:
+
+        if setup is None:
+
+            return (
+                self._empty_snapshot()
+            )
+
+        start_index = int(
+            setup[
+                "start_index"
+            ]
+        )
+
+        displacement_index = int(
+            setup[
+                "first_displacement_index"
+            ]
+        )
+
+        bos_index = int(
+            setup[
+                "first_bos_index"
+            ]
+        )
+
+        fvg_index = int(
+            setup[
+                "first_fvg_index"
+            ]
+        )
+
+        rejection_index = int(
+            setup[
+                "first_rejection_index"
+            ]
+        )
+
+        mitigation_index = int(
+            setup[
+                "first_mitigation_index"
+            ]
+        )
+
+        ready_index = int(
+            setup[
+                "ready_index"
+            ]
+        )
+
+        fvg_ids = setup[
+            "fvg_ids"
+        ]
+
+        fvg_count = (
+            len(
+                fvg_ids
+            )
+            if isinstance(
+                fvg_ids,
+                set,
+            )
+            else 0
+        )
+
+        snapshot: dict[
+            str,
+            Any,
+        ] = {
+            # -----------------------------------------------------------------
+            # Identity
+            # -----------------------------------------------------------------
+            "id": int(
+                setup[
+                    "setup_id"
+                ]
+            ),
+
+            "direction": str(
+                setup[
+                    "direction"
+                ]
+            ).upper(),
+
+            # -----------------------------------------------------------------
+            # Lifecycle
+            # -----------------------------------------------------------------
+            "state": (
+                self._state(
+                    setup
+                )
+            ),
+
+            "age_bars": (
+                current_index
+                - start_index
+            ),
+
+            "evidence_count": (
+                self._evidence_count(
+                    setup
+                )
+            ),
+
+            "ready": int(
+                bool(
+                    setup[
+                        "ready"
+                    ]
+                )
+            ),
+
+            "start_index": (
+                start_index
+            ),
+
+            "last_event_index": int(
+                setup[
+                    "last_event_index"
+                ]
+            ),
+
+            # -----------------------------------------------------------------
+            # Required evidence
+            # -----------------------------------------------------------------
+            "has_sweep": int(
+                bool(
+                    setup[
+                        "sweep"
+                    ]
+                )
+            ),
+
+            "has_displacement": int(
+                bool(
+                    setup[
+                        "displacement"
+                    ]
+                )
+            ),
+
+            "has_bos": int(
+                bool(
+                    setup[
+                        "bos"
+                    ]
+                )
+            ),
+
+            "has_fvg": int(
+                bool(
+                    setup[
+                        "fvg"
+                    ]
+                )
+            ),
+
+            "has_rejection": int(
+                bool(
+                    setup[
+                        "rejection"
+                    ]
+                )
+            ),
+
+            "has_mitigation": int(
+                bool(
+                    setup[
+                        "mitigation"
+                    ]
+                )
+            ),
+
+            # -----------------------------------------------------------------
+            # Context
+            # -----------------------------------------------------------------
+            "structure_alignment": (
+                self._structure_alignment(
+                    direction=direction,
+                    bias=structure_bias,
+                )
+            ),
+
+            # -----------------------------------------------------------------
+            # FVG identity
+            # -----------------------------------------------------------------
+            "fvg_id": int(
+                setup[
+                    "latest_fvg_id"
+                ]
+            ),
+
+            "rejection_fvg_id": int(
+                setup[
+                    "rejection_fvg_id"
+                ]
+            ),
+
+            # -----------------------------------------------------------------
+            # BOS structural scope
+            # -----------------------------------------------------------------
+            "bos_scope": str(
+                setup[
+                    "bos_scope"
+                ]
+            ).upper(),
+
+            # -----------------------------------------------------------------
+            # Displacement telemetry
+            # -----------------------------------------------------------------
+            "displacement_score": round(
+                float(
+                    setup[
+                        "displacement_score"
+                    ]
+                ),
+                4,
+            ),
+
+            "impulse_strength": round(
+                float(
+                    setup[
+                        "impulse_strength"
+                    ]
+                ),
+                4,
+            ),
+
+            "displacement_index": (
+                displacement_index
+            ),
+
+            # -----------------------------------------------------------------
+            # BOS telemetry
+            # -----------------------------------------------------------------
+            "bos_id": int(
+                setup[
+                    "bos_id"
+                ]
+            ),
+
+            "bos_strength_atr": round(
+                float(
+                    setup[
+                        "bos_strength_atr"
+                    ]
+                ),
+                6,
+            ),
+
+            "break_distance_atr": round(
+                float(
+                    setup[
+                        "break_distance_atr"
+                    ]
+                ),
+                6,
+            ),
+
+            "bos_event_scope": str(
+                setup[
+                    "bos_event_scope"
+                ]
+            ).upper(),
+
+            "bos_context": str(
+                setup[
+                    "bos_context"
+                ]
+            ).upper(),
+
+            "bos_index": (
+                bos_index
+            ),
+
+            # -----------------------------------------------------------------
+            # FVG telemetry
+            # -----------------------------------------------------------------
+            "fvg_index": (
+                fvg_index
+            ),
+
+            "fvg_count": (
+                fvg_count
+            ),
+
+            # -----------------------------------------------------------------
+            # Rejection telemetry
+            # -----------------------------------------------------------------
+            "rejection_index": (
+                rejection_index
+            ),
+
+            "rejection_fill_percent": round(
+                float(
+                    setup[
+                        "rejection_fill_percent"
+                    ]
+                ),
+                4,
+            ),
+
+            "rejection_strength_fvg_id": int(
+                setup[
+                    "rejection_strength_fvg_id"
+                ]
+            ),
+
+            # -----------------------------------------------------------------
+            # Mitigation telemetry
+            # -----------------------------------------------------------------
+            "mitigation_index": (
+                mitigation_index
+            ),
+
+            "mitigation_fill_percent": round(
+                float(
+                    setup[
+                        "mitigation_fill_percent"
+                    ]
+                ),
+                4,
+            ),
+
+            # -----------------------------------------------------------------
+            # READY
+            # -----------------------------------------------------------------
+            "ready_index": (
+                ready_index
+            ),
+
+            # -----------------------------------------------------------------
+            # Timing
+            # -----------------------------------------------------------------
+            "sweep_to_displacement_bars": (
+                self._lag(
+                    displacement_index,
+                    start_index,
+                )
+            ),
+
+            "sweep_to_bos_bars": (
+                self._lag(
+                    bos_index,
+                    start_index,
+                )
+            ),
+
+            "sweep_to_fvg_bars": (
+                self._lag(
+                    fvg_index,
+                    start_index,
+                )
+            ),
+
+            "sweep_to_rejection_bars": (
+                self._lag(
+                    rejection_index,
+                    start_index,
+                )
+            ),
+
+            "sweep_to_ready_bars": (
+                self._lag(
+                    ready_index,
+                    start_index,
+                )
+            ),
+
+            "event_span_bars": max(
+                0,
+                int(
+                    setup[
+                        "last_event_index"
+                    ]
+                )
+                - start_index,
+            ),
+        }
+
+        return snapshot
+
+    # =========================================================================
+    # Generate
     # =========================================================================
 
     def generate(
@@ -604,10 +1650,15 @@ class SetupStateEngine:
             df
         )
 
-        if "time" in df.columns:
+        if (
+            "time"
+            in df.columns
+        ):
 
             time_values = (
-                df["time"]
+                df[
+                    "time"
+                ]
                 .tolist()
             )
 
@@ -632,12 +1683,21 @@ class SetupStateEngine:
         next_setup_id = 1
 
         # =====================================================================
-        # Directional output buffers
+        # Buffers
         # =====================================================================
+
+        directional_suffixes = (
+            self.SNAPSHOT_SUFFIXES
+            +
+            self.DIRECTIONAL_EVENT_SUFFIXES
+        )
 
         directional_buffers: dict[
             str,
-            dict[str, list[Any]],
+            dict[
+                str,
+                list[Any],
+            ],
         ] = {}
 
         for direction in (
@@ -647,121 +1707,68 @@ class SetupStateEngine:
             directional_buffers[
                 direction
             ] = {
-                "id": [],
-                "state": [],
-                "age": [],
-                "evidence": [],
-                "ready": [],
-                "ready_event": [],
-                "started_event": [],
-                "expired_event": [],
-                "start_index": [],
-                "last_event_index": [],
-                "fvg_id": [],
-                "rejection_fvg_id": [],
-                "bos_scope": [],
-                "structure_alignment": [],
-                "has_sweep": [],
-                "has_displacement": [],
-                "has_bos": [],
-                "has_fvg": [],
-                "has_rejection": [],
-                "has_mitigation": [],
+                suffix: []
+                for suffix
+                in directional_suffixes
             }
 
-        # =====================================================================
-        # Canonical output buffers
-        # =====================================================================
+        canonical_buffers: dict[
+            str,
+            list[Any],
+        ] = {
+            suffix: []
+            for suffix
+            in self.SNAPSHOT_SUFFIXES
+        }
 
-        setup_id_buffer: list[int] = []
-        setup_direction_buffer: list[str] = []
-        setup_state_buffer: list[str] = []
-        setup_age_buffer: list[int] = []
-        setup_evidence_buffer: list[int] = []
-        setup_ready_buffer: list[int] = []
         setup_ready_event_buffer: list[int] = []
         setup_conflict_buffer: list[int] = []
 
-        setup_start_index_buffer: list[
-            int
-        ] = []
-
-        setup_last_event_index_buffer: list[
-            int
-        ] = []
-
-        setup_fvg_id_buffer: list[
-            int
-        ] = []
-
-        setup_rejection_fvg_id_buffer: list[
-            int
-        ] = []
-
-        setup_bos_scope_buffer: list[
-            str
-        ] = []
-
-        setup_structure_alignment_buffer: list[
-            int
-        ] = []
-
-        setup_has_sweep_buffer: list[
-            int
-        ] = []
-
-        setup_has_displacement_buffer: list[
-            int
-        ] = []
-
-        setup_has_bos_buffer: list[
-            int
-        ] = []
-
-        setup_has_fvg_buffer: list[
-            int
-        ] = []
-
-        setup_has_rejection_buffer: list[
-            int
-        ] = []
-
-        setup_has_mitigation_buffer: list[
-            int
-        ] = []
-
         # =====================================================================
-        # Chronological Scan
+        # Chronological scan
         # =====================================================================
 
         for i in range(
             row_count
         ):
 
-            row = df.iloc[i]
+            row = df.iloc[
+                i
+            ]
 
             timestamp = (
-                time_values[i]
+                time_values[
+                    i
+                ]
             )
 
-            started_event = {
+            started_event: dict[
+                str,
+                int,
+            ] = {
                 "BULLISH": 0,
                 "BEARISH": 0,
             }
 
-            ready_event = {
+            ready_event: dict[
+                str,
+                int,
+            ] = {
                 "BULLISH": 0,
                 "BEARISH": 0,
             }
 
-            expired_event = {
+            expired_event: dict[
+                str,
+                int,
+            ] = {
                 "BULLISH": 0,
                 "BEARISH": 0,
             }
 
             # =================================================================
             # STEP 1
-            # Expire stale setups.
+            # Expire stale setup.
             # =================================================================
 
             for direction in (
@@ -799,7 +1806,7 @@ class SetupStateEngine:
 
             # =================================================================
             # STEP 2
-            # Directional liquidity sweep starts a fresh setup.
+            # Liquidity sweep starts new directional setup.
             # =================================================================
 
             bullish_sweep = (
@@ -816,13 +1823,7 @@ class SetupStateEngine:
                 )
             )
 
-            # -----------------------------------------------------------------
-            # Compatibility fallback:
-            #
-            # sell-side raid -> bullish
-            # buy-side raid  -> bearish
-            # -----------------------------------------------------------------
-
+            # Compatibility aliases.
             if (
                 not bullish_sweep
                 and
@@ -831,6 +1832,7 @@ class SetupStateEngine:
                     "sell_side_sweep",
                 )
             ):
+
                 bullish_sweep = True
 
             if (
@@ -841,6 +1843,7 @@ class SetupStateEngine:
                     "buy_side_sweep",
                 )
             ):
+
                 bearish_sweep = True
 
             if bullish_sweep:
@@ -851,13 +1854,9 @@ class SetupStateEngine:
                     setup_id=(
                         next_setup_id
                     ),
-                    direction=(
-                        "BULLISH"
-                    ),
+                    direction="BULLISH",
                     index=i,
-                    timestamp=(
-                        timestamp
-                    ),
+                    timestamp=timestamp,
                 )
 
                 next_setup_id += 1
@@ -874,13 +1873,9 @@ class SetupStateEngine:
                     setup_id=(
                         next_setup_id
                     ),
-                    direction=(
-                        "BEARISH"
-                    ),
+                    direction="BEARISH",
                     index=i,
-                    timestamp=(
-                        timestamp
-                    ),
+                    timestamp=timestamp,
                 )
 
                 next_setup_id += 1
@@ -971,9 +1966,27 @@ class SetupStateEngine:
 
                 if setup is not None:
 
+                    if (
+                        int(
+                            setup[
+                                "first_displacement_index"
+                            ]
+                        )
+                        < 0
+                    ):
+
+                        setup[
+                            "first_displacement_index"
+                        ] = i
+
                     setup[
                         "displacement"
                     ] = 1
+
+                    self._update_displacement_quality(
+                        setup,
+                        row,
+                    )
 
                     self._touch(
                         setup,
@@ -986,10 +1999,7 @@ class SetupStateEngine:
             # Directional BOS.
             # =================================================================
 
-            for (
-                direction,
-                column,
-            ) in (
+            bos_inputs = (
                 (
                     "BULLISH",
                     "bullish_bos",
@@ -998,12 +2008,18 @@ class SetupStateEngine:
                     "BEARISH",
                     "bearish_bos",
                 ),
-            ):
+            )
+
+            for (
+                direction,
+                bos_column,
+            ) in bos_inputs:
 
                 if not self._flag(
                     row,
-                    column,
+                    bos_column,
                 ):
+
                     continue
 
                 setup = active[
@@ -1017,6 +2033,19 @@ class SetupStateEngine:
                     "bos"
                 ] = 1
 
+                if (
+                    int(
+                        setup[
+                            "first_bos_index"
+                        ]
+                    )
+                    < 0
+                ):
+
+                    setup[
+                        "first_bos_index"
+                    ] = i
+
                 scope = str(
                     row.get(
                         "bos_scope",
@@ -1027,8 +2056,21 @@ class SetupStateEngine:
                     )
                 ).upper()
 
+                if (
+                    scope
+                    not in self.BOS_SCOPE_RANK
+                ):
+
+                    scope = "MICRO"
+
                 self._update_bos_scope(
                     setup,
+                    scope,
+                )
+
+                self._update_bos_quality(
+                    setup,
+                    row,
                     scope,
                 )
 
@@ -1100,9 +2142,24 @@ class SetupStateEngine:
                                 current_fvg_id
                             )
 
+                        if (
+                            int(
+                                setup[
+                                    "first_fvg_index"
+                                ]
+                            )
+                            < 0
+                        ):
+
+                            setup[
+                                "first_fvg_index"
+                            ] = i
+
                         setup[
                             "latest_fvg_id"
-                        ] = current_fvg_id
+                        ] = (
+                            current_fvg_id
+                        )
 
                         setup[
                             "fvg"
@@ -1116,11 +2173,7 @@ class SetupStateEngine:
 
             # =================================================================
             # STEP 6
-            # FVG lifecycle events.
-            #
-            # Rejection only counts when:
-            # - direction matches setup
-            # - FVG ID belongs to that setup
+            # Exact FVG lifecycle event.
             # =================================================================
 
             interaction_events = (
@@ -1145,17 +2198,20 @@ class SetupStateEngine:
                 if event_fvg_id <= 0:
                     continue
 
-                event_direction = str(
-                    event.get(
-                        "direction",
-                        "NONE",
+                event_direction = (
+                    self._normalize_direction(
+                        event.get(
+                            "direction",
+                            "NONE",
+                        )
                     )
-                ).upper()
+                )
 
                 if (
                     event_direction
                     not in self.DIRECTIONS
                 ):
+
                     continue
 
                 setup = active[
@@ -1173,17 +2229,18 @@ class SetupStateEngine:
                     fvg_ids,
                     set,
                 ):
+
                     continue
 
                 # -------------------------------------------------------------
-                # Identity protection:
-                # unrelated FVG must not contaminate setup.
+                # Exact identity protection.
                 # -------------------------------------------------------------
 
                 if (
                     event_fvg_id
                     not in fvg_ids
                 ):
+
                     continue
 
                 event_type = str(
@@ -1192,6 +2249,19 @@ class SetupStateEngine:
                         "NONE",
                     )
                 ).upper()
+
+                fill_percent = (
+                    self._to_float(
+                        event.get(
+                            "fill_percent",
+                            0.0,
+                        )
+                    )
+                )
+
+                # -------------------------------------------------------------
+                # Rejection
+                # -------------------------------------------------------------
 
                 if (
                     event_type
@@ -1214,11 +2284,34 @@ class SetupStateEngine:
                         event_fvg_id
                     )
 
+                    if (
+                        int(
+                            setup[
+                                "first_rejection_index"
+                            ]
+                        )
+                        < 0
+                    ):
+
+                        setup[
+                            "first_rejection_index"
+                        ] = i
+
+                    self._update_rejection_quality(
+                        setup,
+                        event_fvg_id,
+                        fill_percent,
+                    )
+
                     self._touch(
                         setup,
                         i,
                         timestamp,
                     )
+
+                # -------------------------------------------------------------
+                # Mitigation
+                # -------------------------------------------------------------
 
                 elif (
                     event_type
@@ -1235,6 +2328,32 @@ class SetupStateEngine:
                         event_fvg_id
                     )
 
+                    if (
+                        int(
+                            setup[
+                                "first_mitigation_index"
+                            ]
+                        )
+                        < 0
+                    ):
+
+                        setup[
+                            "first_mitigation_index"
+                        ] = i
+
+                    setup[
+                        "mitigation_fill_percent"
+                    ] = max(
+                        float(
+                            setup[
+                                "mitigation_fill_percent"
+                            ]
+                        ),
+                        self._clamp_percent(
+                            fill_percent
+                        ),
+                    )
+
                     self._touch(
                         setup,
                         i,
@@ -1243,7 +2362,7 @@ class SetupStateEngine:
 
             # =================================================================
             # STEP 7
-            # Ready transition.
+            # READY transition.
             # =================================================================
 
             for direction in (
@@ -1258,9 +2377,11 @@ class SetupStateEngine:
                     continue
 
                 if (
-                    not setup[
-                        "ready"
-                    ]
+                    not bool(
+                        setup[
+                            "ready"
+                        ]
+                    )
                     and
                     self._is_ready(
                         setup
@@ -1305,9 +2426,18 @@ class SetupStateEngine:
                 self.DIRECTIONS
             ):
 
-                setup = active[
-                    direction
-                ]
+                snapshot = (
+                    self._snapshot(
+                        setup=active[
+                            direction
+                        ],
+                        direction=direction,
+                        current_index=i,
+                        structure_bias=(
+                            structure_bias
+                        ),
+                    )
+                )
 
                 buffer = (
                     directional_buffers[
@@ -1315,259 +2445,16 @@ class SetupStateEngine:
                     ]
                 )
 
-                if setup is None:
+                for suffix in (
+                    self.SNAPSHOT_SUFFIXES
+                ):
 
                     buffer[
-                        "id"
+                        suffix
                     ].append(
-                        0
-                    )
-
-                    buffer[
-                        "state"
-                    ].append(
-                        "NONE"
-                    )
-
-                    buffer[
-                        "age"
-                    ].append(
-                        -1
-                    )
-
-                    buffer[
-                        "evidence"
-                    ].append(
-                        0
-                    )
-
-                    buffer[
-                        "ready"
-                    ].append(
-                        0
-                    )
-
-                    buffer[
-                        "start_index"
-                    ].append(
-                        -1
-                    )
-
-                    buffer[
-                        "last_event_index"
-                    ].append(
-                        -1
-                    )
-
-                    buffer[
-                        "fvg_id"
-                    ].append(
-                        0
-                    )
-
-                    buffer[
-                        "rejection_fvg_id"
-                    ].append(
-                        0
-                    )
-
-                    buffer[
-                        "bos_scope"
-                    ].append(
-                        "NONE"
-                    )
-
-                    buffer[
-                        "structure_alignment"
-                    ].append(
-                        0
-                    )
-
-                    for key in (
-                        "has_sweep",
-                        "has_displacement",
-                        "has_bos",
-                        "has_fvg",
-                        "has_rejection",
-                        "has_mitigation",
-                    ):
-
-                        buffer[
-                            key
-                        ].append(
-                            0
-                        )
-
-                else:
-
-                    buffer[
-                        "id"
-                    ].append(
-                        int(
-                            setup[
-                                "setup_id"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "state"
-                    ].append(
-                        self._state(
-                            setup
-                        )
-                    )
-
-                    buffer[
-                        "age"
-                    ].append(
-                        i
-                        - int(
-                            setup[
-                                "start_index"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "evidence"
-                    ].append(
-                        self._evidence_count(
-                            setup
-                        )
-                    )
-
-                    buffer[
-                        "ready"
-                    ].append(
-                        int(
-                            setup[
-                                "ready"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "start_index"
-                    ].append(
-                        int(
-                            setup[
-                                "start_index"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "last_event_index"
-                    ].append(
-                        int(
-                            setup[
-                                "last_event_index"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "fvg_id"
-                    ].append(
-                        int(
-                            setup[
-                                "latest_fvg_id"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "rejection_fvg_id"
-                    ].append(
-                        int(
-                            setup[
-                                "rejection_fvg_id"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "bos_scope"
-                    ].append(
-                        str(
-                            setup[
-                                "bos_scope"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "structure_alignment"
-                    ].append(
-                        self._structure_alignment(
-                            direction=(
-                                direction
-                            ),
-                            bias=(
-                                structure_bias
-                            ),
-                        )
-                    )
-
-                    buffer[
-                        "has_sweep"
-                    ].append(
-                        int(
-                            setup[
-                                "sweep"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "has_displacement"
-                    ].append(
-                        int(
-                            setup[
-                                "displacement"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "has_bos"
-                    ].append(
-                        int(
-                            setup[
-                                "bos"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "has_fvg"
-                    ].append(
-                        int(
-                            setup[
-                                "fvg"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "has_rejection"
-                    ].append(
-                        int(
-                            setup[
-                                "rejection"
-                            ]
-                        )
-                    )
-
-                    buffer[
-                        "has_mitigation"
-                    ].append(
-                        int(
-                            setup[
-                                "mitigation"
-                            ]
-                        )
+                        snapshot[
+                            suffix
+                        ]
                     )
 
                 buffer[
@@ -1614,93 +2501,30 @@ class SetupStateEngine:
                 )
             )
 
-            if (
-                primary is None
-            ):
+            primary_snapshot: dict[
+                str,
+                Any,
+            ]
 
-                setup_id_buffer.append(
-                    0
+            canonical_ready_event: int
+
+            if primary is None:
+
+                primary_snapshot = (
+                    self._empty_snapshot()
                 )
 
-                setup_direction_buffer.append(
-                    (
-                        "CONFLICT"
-                        if conflict
-                        else "NONE"
-                    )
-                )
+                canonical_ready_event = 0
 
-                setup_state_buffer.append(
-                    (
-                        "CONFLICT"
-                        if conflict
-                        else "NONE"
-                    )
-                )
+                if conflict:
 
-                setup_age_buffer.append(
-                    -1
-                )
+                    primary_snapshot[
+                        "direction"
+                    ] = "CONFLICT"
 
-                setup_evidence_buffer.append(
-                    0
-                )
-
-                setup_ready_buffer.append(
-                    0
-                )
-
-                setup_ready_event_buffer.append(
-                    0
-                )
-
-                setup_start_index_buffer.append(
-                    -1
-                )
-
-                setup_last_event_index_buffer.append(
-                    -1
-                )
-
-                setup_fvg_id_buffer.append(
-                    0
-                )
-
-                setup_rejection_fvg_id_buffer.append(
-                    0
-                )
-
-                setup_bos_scope_buffer.append(
-                    "NONE"
-                )
-
-                setup_structure_alignment_buffer.append(
-                    0
-                )
-
-                setup_has_sweep_buffer.append(
-                    0
-                )
-
-                setup_has_displacement_buffer.append(
-                    0
-                )
-
-                setup_has_bos_buffer.append(
-                    0
-                )
-
-                setup_has_fvg_buffer.append(
-                    0
-                )
-
-                setup_has_rejection_buffer.append(
-                    0
-                )
-
-                setup_has_mitigation_buffer.append(
-                    0
-                )
+                    primary_snapshot[
+                        "state"
+                    ] = "CONFLICT"
 
             else:
 
@@ -1708,157 +2532,57 @@ class SetupStateEngine:
                     primary[
                         "direction"
                     ]
-                )
+                ).upper()
 
-                setup_id_buffer.append(
-                    int(
-                        primary[
-                            "setup_id"
-                        ]
-                    )
-                )
-
-                setup_direction_buffer.append(
-                    primary_direction
-                )
-
-                setup_state_buffer.append(
-                    self._state(
-                        primary
-                    )
-                )
-
-                setup_age_buffer.append(
-                    i
-                    - int(
-                        primary[
-                            "start_index"
-                        ]
-                    )
-                )
-
-                setup_evidence_buffer.append(
-                    self._evidence_count(
-                        primary
-                    )
-                )
-
-                setup_ready_buffer.append(
-                    int(
-                        primary[
-                            "ready"
-                        ]
-                    )
-                )
-
-                setup_ready_event_buffer.append(
-                    ready_event[
-                        primary_direction
-                    ]
-                )
-
-                setup_start_index_buffer.append(
-                    int(
-                        primary[
-                            "start_index"
-                        ]
-                    )
-                )
-
-                setup_last_event_index_buffer.append(
-                    int(
-                        primary[
-                            "last_event_index"
-                        ]
-                    )
-                )
-
-                setup_fvg_id_buffer.append(
-                    int(
-                        primary[
-                            "latest_fvg_id"
-                        ]
-                    )
-                )
-
-                setup_rejection_fvg_id_buffer.append(
-                    int(
-                        primary[
-                            "rejection_fvg_id"
-                        ]
-                    )
-                )
-
-                setup_bos_scope_buffer.append(
-                    str(
-                        primary[
-                            "bos_scope"
-                        ]
-                    )
-                )
-
-                setup_structure_alignment_buffer.append(
-                    self._structure_alignment(
+                primary_snapshot = (
+                    self._snapshot(
+                        setup=primary,
                         direction=(
                             primary_direction
                         ),
-                        bias=(
+                        current_index=i,
+                        structure_bias=(
                             structure_bias
                         ),
                     )
                 )
 
-                setup_has_sweep_buffer.append(
-                    int(
-                        primary[
-                            "sweep"
-                        ]
-                    )
+                canonical_ready_event = int(
+                    ready_event[
+                        primary_direction
+                    ]
                 )
 
-                setup_has_displacement_buffer.append(
-                    int(
-                        primary[
-                            "displacement"
-                        ]
-                    )
+            for suffix in (
+                self.SNAPSHOT_SUFFIXES
+            ):
+
+                canonical_buffers[
+                    suffix
+                ].append(
+                    primary_snapshot[
+                        suffix
+                    ]
                 )
 
-                setup_has_bos_buffer.append(
-                    int(
-                        primary[
-                            "bos"
-                        ]
-                    )
-                )
-
-                setup_has_fvg_buffer.append(
-                    int(
-                        primary[
-                            "fvg"
-                        ]
-                    )
-                )
-
-                setup_has_rejection_buffer.append(
-                    int(
-                        primary[
-                            "rejection"
-                        ]
-                    )
-                )
-
-                setup_has_mitigation_buffer.append(
-                    int(
-                        primary[
-                            "mitigation"
-                        ]
-                    )
-                )
+            setup_ready_event_buffer.append(
+                canonical_ready_event
+            )
 
         # =====================================================================
-        # Assign directional outputs
+        # Build output columns in memory.
+        #
+        # No repeated df[column] insertion.
         # =====================================================================
+
+        output_columns: dict[
+            str,
+            list[Any],
+        ] = {}
+
+        # ---------------------------------------------------------------------
+        # Directional outputs
+        # ---------------------------------------------------------------------
 
         for direction in (
             self.DIRECTIONS
@@ -1874,221 +2598,84 @@ class SetupStateEngine:
                 ]
             )
 
-            df[
-                f"{prefix}_setup_id"
-            ] = buffer[
-                "id"
+            for suffix in (
+                directional_suffixes
+            ):
+
+                output_columns[
+                    f"{prefix}_setup_{suffix}"
+                ] = buffer[
+                    suffix
+                ]
+
+        # ---------------------------------------------------------------------
+        # Canonical outputs
+        # ---------------------------------------------------------------------
+
+        for suffix in (
+            self.SNAPSHOT_SUFFIXES
+        ):
+
+            output_columns[
+                f"setup_{suffix}"
+            ] = canonical_buffers[
+                suffix
             ]
 
-            df[
-                f"{prefix}_setup_state"
-            ] = buffer[
-                "state"
-            ]
-
-            df[
-                f"{prefix}_setup_age_bars"
-            ] = buffer[
-                "age"
-            ]
-
-            df[
-                f"{prefix}_setup_evidence_count"
-            ] = buffer[
-                "evidence"
-            ]
-
-            df[
-                f"{prefix}_setup_ready"
-            ] = buffer[
-                "ready"
-            ]
-
-            df[
-                f"{prefix}_setup_ready_event"
-            ] = buffer[
-                "ready_event"
-            ]
-
-            df[
-                f"{prefix}_setup_started_event"
-            ] = buffer[
-                "started_event"
-            ]
-
-            df[
-                f"{prefix}_setup_expired_event"
-            ] = buffer[
-                "expired_event"
-            ]
-
-            df[
-                f"{prefix}_setup_start_index"
-            ] = buffer[
-                "start_index"
-            ]
-
-            df[
-                f"{prefix}_setup_last_event_index"
-            ] = buffer[
-                "last_event_index"
-            ]
-
-            df[
-                f"{prefix}_setup_fvg_id"
-            ] = buffer[
-                "fvg_id"
-            ]
-
-            df[
-                f"{prefix}_setup_rejection_fvg_id"
-            ] = buffer[
-                "rejection_fvg_id"
-            ]
-
-            df[
-                f"{prefix}_setup_bos_scope"
-            ] = buffer[
-                "bos_scope"
-            ]
-
-            df[
-                f"{prefix}_setup_structure_alignment"
-            ] = buffer[
-                "structure_alignment"
-            ]
-
-            df[
-                f"{prefix}_setup_has_sweep"
-            ] = buffer[
-                "has_sweep"
-            ]
-
-            df[
-                f"{prefix}_setup_has_displacement"
-            ] = buffer[
-                "has_displacement"
-            ]
-
-            df[
-                f"{prefix}_setup_has_bos"
-            ] = buffer[
-                "has_bos"
-            ]
-
-            df[
-                f"{prefix}_setup_has_fvg"
-            ] = buffer[
-                "has_fvg"
-            ]
-
-            df[
-                f"{prefix}_setup_has_rejection"
-            ] = buffer[
-                "has_rejection"
-            ]
-
-            df[
-                f"{prefix}_setup_has_mitigation"
-            ] = buffer[
-                "has_mitigation"
-            ]
-
-        # =====================================================================
-        # Assign canonical outputs
-        # =====================================================================
-
-        df[
-            "setup_id"
-        ] = setup_id_buffer
-
-        df[
-            "setup_direction"
-        ] = setup_direction_buffer
-
-        df[
-            "setup_state"
-        ] = setup_state_buffer
-
-        df[
-            "setup_age_bars"
-        ] = setup_age_buffer
-
-        df[
-            "setup_evidence_count"
-        ] = setup_evidence_buffer
-
-        df[
-            "setup_ready"
-        ] = setup_ready_buffer
-
-        df[
+        output_columns[
             "setup_ready_event"
-        ] = setup_ready_event_buffer
+        ] = (
+            setup_ready_event_buffer
+        )
 
-        df[
+        output_columns[
             "setup_conflict"
-        ] = setup_conflict_buffer
-
-        df[
-            "setup_start_index"
-        ] = setup_start_index_buffer
-
-        df[
-            "setup_last_event_index"
-        ] = setup_last_event_index_buffer
-
-        df[
-            "setup_fvg_id"
-        ] = setup_fvg_id_buffer
-
-        df[
-            "setup_rejection_fvg_id"
         ] = (
-            setup_rejection_fvg_id_buffer
+            setup_conflict_buffer
         )
 
-        df[
-            "setup_bos_scope"
-        ] = setup_bos_scope_buffer
+        # =====================================================================
+        # Remove old setup output columns if generate() is called twice.
+        # =====================================================================
 
-        df[
-            "setup_structure_alignment"
-        ] = (
-            setup_structure_alignment_buffer
+        output_names = list(
+            output_columns.keys()
         )
 
-        df[
-            "setup_has_sweep"
-        ] = setup_has_sweep_buffer
+        existing_outputs = [
+            column
+            for column
+            in output_names
+            if column
+            in df.columns
+        ]
 
-        df[
-            "setup_has_displacement"
-        ] = (
-            setup_has_displacement_buffer
+        if existing_outputs:
+
+            df = df.drop(
+                columns=(
+                    existing_outputs
+                )
+            )
+
+        # =====================================================================
+        # Single-block output assignment.
+        # =====================================================================
+
+        output_frame = pd.DataFrame(
+            output_columns,
+            index=df.index,
         )
 
-        df[
-            "setup_has_bos"
-        ] = setup_has_bos_buffer
-
-        df[
-            "setup_has_fvg"
-        ] = setup_has_fvg_buffer
-
-        df[
-            "setup_has_rejection"
-        ] = (
-            setup_has_rejection_buffer
+        result = pd.concat(
+            [
+                df,
+                output_frame,
+            ],
+            axis=1,
         )
 
-        df[
-            "setup_has_mitigation"
-        ] = (
-            setup_has_mitigation_buffer
-        )
-
-        return df
+        return result
 
 
 setup_state_engine = (
