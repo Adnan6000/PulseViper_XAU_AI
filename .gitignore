@@ -49,3 +49,23 @@ Thumbs.db
 # ==========================================================
 
 *.log
+# ==========================================================
+# PulseViper generated/runtime artifacts
+# ==========================================================
+
+# Runtime logs
+Logs/*.log
+
+# Generated database backups
+01_Data/Backups/*.db
+
+# Generated dated MT5 exports
+01_Data/Raw/XAUUSDm_*.csv
+
+# SQLite runtime sidecar files
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Local repository snapshots
+project_structure.txt
