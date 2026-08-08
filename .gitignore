@@ -69,3 +69,6 @@ Logs/*.log
 
 # Local repository snapshots
 project_structure.txt
+
+# Local environment / secrets
+.env
