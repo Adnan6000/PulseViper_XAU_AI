@@ -1,0 +1,55 @@
+name: PulseViper V1 Offline CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  offline-health:
+    name: Offline V1 Health
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Upgrade pip
+        run: |
+          python -m pip install --upgrade pip
+
+      # Do NOT install the complete project requirements here.
+      #
+      # MetaTrader5/live broker integration does not belong in deterministic
+      # Linux CI. These are only the dependencies required by offline V1 checks.
+      - name: Install offline test dependencies
+        run: |
+          python -m pip install \
+            numpy \
+            pandas \
+            PyYAML \
+            pytest
+
+      - name: Compile production Python
+        run: |
+          python -m compileall -q 02_AI
+
+      - name: Compile testing Python
+        run: |
+          python -m compileall -q 04_Testing
+
+      - name: Run V1 health tests
+        run: |
+          python -m pytest \
+            04_Testing/test_v1_health.py \
+            04_Testing/test_market_regime.py \
+            -q
