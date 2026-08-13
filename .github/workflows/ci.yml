@@ -59,6 +59,9 @@ jobs:
             04_Testing/test_candle_swing_intelligence.py \
             04_Testing/test_market_decision_clarity.py \
             04_Testing/test_level_entry_intelligence.py \
+            04_Testing/test_institutional_zones_causal.py \
+            04_Testing/test_institutional_zone_lifecycle.py \
+            04_Testing/test_institutional_zone_context.py \
             04_Testing/test_research_intelligence_pipeline.py \
             04_Testing/test_research_telemetry.py \
             04_Testing/test_research_candidate_ledger.py \

@@ -2,7 +2,7 @@
 ===============================================================================
 Module      : research_intelligence_pipeline.py
 Project     : PulseViper XAU AI
-Version     : 1.0.1
+Version     : 1.1.0
 Purpose     : Shadow-Only Causal Research Intelligence Orchestrator
 ===============================================================================
 
@@ -21,39 +21,44 @@ Candle / Swing Intelligence
 Market Decision Clarity
         ↓
 Level Entry Intelligence
+        ↓
+Institutional Zone causal events
+        ↓
+Institutional Zone causal lifecycle
+        ↓
+Institutional Zone Context Adapter
+        ↓
+Final research-only wide frame
+
+Institutional Zone architecture
+-------------------------------
+Institutional-zone detection and lifecycle are side-chain event tables.
+
+They are NOT passed through the ordinary row-aligned stage loop.
+
+Only the final causal izctx_* context is attached to the bar-aligned research
+dataframe.
+
+Critically, this happens AFTER Level Entry Intelligence. Therefore the new
+institutional-zone context cannot change LEI decisions in this version.
 
 Research contract
 -----------------
-This module composes the frozen production pipeline with causal research-only
-intelligence.
+This module does NOT:
 
-It does NOT:
 - place trades
-- communicate with MT5 for execution
 - modify trade_ready
 - modify Confidence
 - modify SetupState
 - modify BOS
-- modify canonical production pipeline metadata
-- use retrospective cslabel_* features
+- modify canonical production metadata
+- modify existing MDC / LEI outputs through the zone side-chain
+- attach retrospective cslabel_* data
+- attach retrospective izlabel_* data
 - calculate account risk
+- authorize execution
 
-Safety
-------
-The canonical pipeline remains the sole owner of production trade decisions.
-
-Research engines may append metadata, but canonical production outputs are
-protected and restored exactly before the final result is returned.
-
-Performance
------------
-v1.0.1 avoids repeated DataFrame column insertion while composing the final
-wide research frame.
-
-Canonical columns, research-only columns, and research metadata are joined
-in blocks rather than inserted one column at a time. This avoids pandas
-fragmentation warnings while remaining friendly to static analysis tools
-such as Pylance.
+The canonical production pipeline remains the sole owner of trade_ready.
 """
 
 from __future__ import annotations
@@ -66,10 +71,10 @@ import pandas as pd
 
 class ResearchIntelligencePipeline:
     """
-    Causal shadow/research orchestration with strict production protection.
+    Causal shadow research orchestrator with frozen production protection.
     """
 
-    VERSION = "1.0.1"
+    VERSION = "1.1.0"
 
     MODE = "SHADOW_CAUSAL_RESEARCH_ONLY"
 
@@ -81,8 +86,18 @@ class ResearchIntelligencePipeline:
         "close",
     )
 
+    ALIGNED_RESEARCH_STAGE_COUNT = 6
+
+    ZONE_SIDECHAIN_STAGE_COUNT = 3
+
+    TOTAL_RESEARCH_STAGE_COUNT = (
+        ALIGNED_RESEARCH_STAGE_COUNT
+        +
+        ZONE_SIDECHAIN_STAGE_COUNT
+    )
+
     # =========================================================================
-    # Production protection
+    # Frozen production protection
     # =========================================================================
 
     PROTECTED_EXACT_COLUMNS = {
@@ -100,13 +115,6 @@ class ResearchIntelligencePipeline:
     # =========================================================================
     # Research namespaces
     # =========================================================================
-    #
-    # These namespaces are removed from a previously enriched input before
-    # the canonical pipeline is replayed.
-    #
-    # This prevents stale research state from contaminating a fresh causal
-    # calculation.
-    # =========================================================================
 
     RESEARCH_PREFIXES = (
         "ctx_",
@@ -115,12 +123,22 @@ class ResearchIntelligencePipeline:
         "csi_",
         "mdc_",
         "lei_",
+
+        "iz_",
+        "izl_",
+        "izctx_",
+
         "research_",
     )
 
     HINDSIGHT_PREFIXES = (
         "cslabel_",
+        "izlabel_",
     )
+
+    # =========================================================================
+    # Construction
+    # =========================================================================
 
     def __init__(
         self,
@@ -131,11 +149,10 @@ class ResearchIntelligencePipeline:
         candle_swing_engine: Any | None = None,
         decision_clarity_engine: Any | None = None,
         level_entry_engine: Any | None = None,
+        institutional_zones_engine: Any | None = None,
+        institutional_zone_lifecycle_engine: Any | None = None,
+        institutional_zone_context_engine: Any | None = None,
     ) -> None:
-
-        # =====================================================================
-        # Frozen canonical production pipeline
-        # =====================================================================
 
         self.production_pipeline: Any = (
             production_pipeline
@@ -146,10 +163,6 @@ class ResearchIntelligencePipeline:
             )
         )
 
-        # =====================================================================
-        # Market context
-        # =====================================================================
-
         self.market_context_engine: Any = (
             market_context_engine
             if market_context_engine is not None
@@ -158,10 +171,6 @@ class ResearchIntelligencePipeline:
                 "market_context_liquidity",
             )
         )
-
-        # =====================================================================
-        # Liquidity lifecycle
-        # =====================================================================
 
         self.liquidity_lifecycle_engine: Any = (
             liquidity_lifecycle_engine
@@ -172,10 +181,6 @@ class ResearchIntelligencePipeline:
             )
         )
 
-        # =====================================================================
-        # Liquidity structure intelligence
-        # =====================================================================
-
         self.liquidity_intelligence_engine: Any = (
             liquidity_intelligence_engine
             if liquidity_intelligence_engine is not None
@@ -184,10 +189,6 @@ class ResearchIntelligencePipeline:
                 "liquidity_structure_intelligence",
             )
         )
-
-        # =====================================================================
-        # Candle / swing intelligence
-        # =====================================================================
 
         self.candle_swing_engine: Any = (
             candle_swing_engine
@@ -198,10 +199,6 @@ class ResearchIntelligencePipeline:
             )
         )
 
-        # =====================================================================
-        # Market decision clarity
-        # =====================================================================
-
         self.decision_clarity_engine: Any = (
             decision_clarity_engine
             if decision_clarity_engine is not None
@@ -211,16 +208,39 @@ class ResearchIntelligencePipeline:
             )
         )
 
-        # =====================================================================
-        # Level entry intelligence
-        # =====================================================================
-
         self.level_entry_engine: Any = (
             level_entry_engine
             if level_entry_engine is not None
             else self._load(
                 "02_AI.Core.level_entry_intelligence",
                 "level_entry_intelligence",
+            )
+        )
+
+        self.institutional_zones_engine: Any = (
+            institutional_zones_engine
+            if institutional_zones_engine is not None
+            else self._load(
+                "02_AI.Core.institutional_zones",
+                "institutional_zones",
+            )
+        )
+
+        self.institutional_zone_lifecycle_engine: Any = (
+            institutional_zone_lifecycle_engine
+            if institutional_zone_lifecycle_engine is not None
+            else self._load(
+                "02_AI.Shadow.institutional_zone_lifecycle",
+                "institutional_zone_lifecycle",
+            )
+        )
+
+        self.institutional_zone_context_engine: Any = (
+            institutional_zone_context_engine
+            if institutional_zone_context_engine is not None
+            else self._load(
+                "02_AI.Shadow.institutional_zone_context",
+                "institutional_zone_context",
             )
         )
 
@@ -233,12 +253,6 @@ class ResearchIntelligencePipeline:
         module_name: str,
         attribute_name: str,
     ) -> Any:
-        """
-        Import one engine lazily.
-
-        Lazy importing keeps this shadow orchestration layer decoupled from
-        direct hard dependencies at module import time.
-        """
 
         module = importlib.import_module(
             module_name
@@ -266,9 +280,6 @@ class ResearchIntelligencePipeline:
         cls,
         data: pd.DataFrame,
     ) -> None:
-        """
-        Validate minimum live-safe research input contract.
-        """
 
         if not isinstance(
             data,
@@ -315,12 +326,6 @@ class ResearchIntelligencePipeline:
         cls,
         data: pd.DataFrame,
     ) -> pd.DataFrame:
-        """
-        Remove stale research and hindsight namespaces before replay.
-
-        This allows callers to accidentally pass an already-enriched shadow
-        dataframe without contaminating the next causal calculation.
-        """
 
         removable: list[Any] = []
 
@@ -345,19 +350,10 @@ class ResearchIntelligencePipeline:
                     column
                 )
 
-        if not removable:
-            return (
-                data
-                .copy()
-                .reset_index(
-                    drop=True
-                )
-            )
-
-        return (
-            data
-            .drop(
+        result = (
+            data.drop(
                 columns=removable,
+                errors="ignore",
             )
             .copy()
             .reset_index(
@@ -365,8 +361,10 @@ class ResearchIntelligencePipeline:
             )
         )
 
+        return result
+
     # =========================================================================
-    # Production protection helpers
+    # Production protection
     # =========================================================================
 
     @classmethod
@@ -374,9 +372,6 @@ class ResearchIntelligencePipeline:
         cls,
         canonical: pd.DataFrame,
     ) -> list[str]:
-        """
-        Return canonical columns that research stages may never change.
-        """
 
         protected: list[str] = []
 
@@ -408,37 +403,23 @@ class ResearchIntelligencePipeline:
         left: pd.Series,
         right: pd.Series,
     ) -> bool:
-        """
-        Compare two series after removing index differences.
-        """
 
-        left_values = (
+        return (
             left
             .reset_index(
                 drop=True
             )
-        )
-
-        right_values = (
-            right
-            .reset_index(
-                drop=True
+            .equals(
+                right.reset_index(
+                    drop=True
+                )
             )
-        )
-
-        return left_values.equals(
-            right_values
         )
 
     @staticmethod
     def _normalized_time(
         frame: pd.DataFrame,
     ) -> pd.Series:
-        """
-        Normalize timestamps only for alignment comparison.
-
-        This does not alter the timestamp representation returned to callers.
-        """
 
         converted: Any = pd.to_datetime(
             frame[
@@ -464,13 +445,6 @@ class ResearchIntelligencePipeline:
         enriched: pd.DataFrame,
         stage_name: str,
     ) -> None:
-        """
-        Verify row alignment and frozen-production invariants.
-        """
-
-        # ---------------------------------------------------------------------
-        # Row count
-        # ---------------------------------------------------------------------
 
         if len(
             canonical
@@ -483,19 +457,11 @@ class ResearchIntelligencePipeline:
                 f"{len(enriched)} != {len(canonical)}"
             )
 
-        # ---------------------------------------------------------------------
-        # Duplicate columns
-        # ---------------------------------------------------------------------
-
         if not enriched.columns.is_unique:
             raise RuntimeError(
                 "Research stage produced duplicate columns: "
                 f"{stage_name}"
             )
-
-        # ---------------------------------------------------------------------
-        # Time alignment
-        # ---------------------------------------------------------------------
 
         if (
             "time" in canonical.columns
@@ -503,29 +469,17 @@ class ResearchIntelligencePipeline:
             "time" in enriched.columns
         ):
 
-            canonical_time = (
-                cls._normalized_time(
-                    canonical
-                )
-            )
-
-            enriched_time = (
+            if not cls._normalized_time(
+                canonical
+            ).equals(
                 cls._normalized_time(
                     enriched
                 )
-            )
-
-            if not canonical_time.equals(
-                enriched_time
             ):
                 raise RuntimeError(
                     "Research/canonical time alignment mismatch "
                     f"after {stage_name}"
                 )
-
-        # ---------------------------------------------------------------------
-        # Protected production values
-        # ---------------------------------------------------------------------
 
         for column in cls._protected_columns(
             canonical
@@ -533,8 +487,8 @@ class ResearchIntelligencePipeline:
 
             if column not in enriched.columns:
                 raise RuntimeError(
-                    "Research stage removed protected canonical column "
-                    f"{column!r}: {stage_name}"
+                    "Research stage removed protected canonical "
+                    f"column {column!r}: {stage_name}"
                 )
 
             if not cls._same_series(
@@ -546,12 +500,60 @@ class ResearchIntelligencePipeline:
                 ],
             ):
                 raise RuntimeError(
-                    "Research stage modified protected canonical column "
-                    f"{column!r}: {stage_name}"
+                    "Research stage modified protected canonical "
+                    f"column {column!r}: {stage_name}"
                 )
 
     # =========================================================================
-    # Stage execution
+    # Append-only protection
+    # =========================================================================
+
+    @classmethod
+    def _assert_existing_columns_unchanged(
+        cls,
+        before: pd.DataFrame,
+        after: pd.DataFrame,
+        stage_name: str,
+    ) -> None:
+        """
+        Require a side-chain adapter to be append-only.
+
+        This protects MDC, LEI and every other already-calculated field,
+        not only canonical production fields.
+        """
+
+        if len(
+            before
+        ) != len(
+            after
+        ):
+            raise RuntimeError(
+                f"{stage_name} changed row count"
+            )
+
+        for column in before.columns:
+
+            if column not in after.columns:
+                raise RuntimeError(
+                    f"{stage_name} removed existing column "
+                    f"{column!r}"
+                )
+
+            if not cls._same_series(
+                before[
+                    column
+                ],
+                after[
+                    column
+                ],
+            ):
+                raise RuntimeError(
+                    f"{stage_name} modified existing column "
+                    f"{column!r}"
+                )
+
+    # =========================================================================
+    # One-input aligned stage
     # =========================================================================
 
     @staticmethod
@@ -560,9 +562,6 @@ class ResearchIntelligencePipeline:
         data: pd.DataFrame,
         stage_name: str,
     ) -> pd.DataFrame:
-        """
-        Run one research/production engine through its generate() contract.
-        """
 
         generate = getattr(
             engine,
@@ -598,6 +597,284 @@ class ResearchIntelligencePipeline:
         )
 
     # =========================================================================
+    # Zone side-chain execution
+    # =========================================================================
+
+    @staticmethod
+    def _run_zone_events(
+        engine: Any,
+        market: pd.DataFrame,
+    ) -> pd.DataFrame:
+
+        generate = getattr(
+            engine,
+            "generate",
+            None,
+        )
+
+        if not callable(
+            generate
+        ):
+            raise TypeError(
+                "institutional_zones does not expose callable generate()"
+            )
+
+        output: Any = generate(
+            market
+        )
+
+        if not isinstance(
+            output,
+            pd.DataFrame,
+        ):
+            raise TypeError(
+                "institutional_zones generate() "
+                "did not return a DataFrame"
+            )
+
+        return (
+            output
+            .copy()
+            .reset_index(
+                drop=True
+            )
+        )
+
+    @staticmethod
+    def _run_zone_lifecycle(
+        engine: Any,
+        market: pd.DataFrame,
+        zone_events: pd.DataFrame,
+    ) -> pd.DataFrame:
+
+        generate = getattr(
+            engine,
+            "generate",
+            None,
+        )
+
+        if not callable(
+            generate
+        ):
+            raise TypeError(
+                "institutional_zone_lifecycle does not "
+                "expose callable generate()"
+            )
+
+        output: Any = generate(
+            market,
+            zone_events,
+        )
+
+        if not isinstance(
+            output,
+            pd.DataFrame,
+        ):
+            raise TypeError(
+                "institutional_zone_lifecycle generate() "
+                "did not return a DataFrame"
+            )
+
+        return (
+            output
+            .copy()
+            .reset_index(
+                drop=True
+            )
+        )
+
+    @staticmethod
+    def _run_zone_context(
+        engine: Any,
+        market: pd.DataFrame,
+        zone_events: pd.DataFrame,
+        lifecycle: pd.DataFrame,
+    ) -> pd.DataFrame:
+
+        generate = getattr(
+            engine,
+            "generate",
+            None,
+        )
+
+        if not callable(
+            generate
+        ):
+            raise TypeError(
+                "institutional_zone_context does not "
+                "expose callable generate()"
+            )
+
+        output: Any = generate(
+            market,
+            zone_events,
+            lifecycle,
+        )
+
+        if not isinstance(
+            output,
+            pd.DataFrame,
+        ):
+            raise TypeError(
+                "institutional_zone_context generate() "
+                "did not return a DataFrame"
+            )
+
+        return (
+            output
+            .copy()
+            .reset_index(
+                drop=True
+            )
+        )
+
+    # =========================================================================
+    # Zone side-chain safety checks
+    # =========================================================================
+
+    @classmethod
+    def _assert_zone_events_safe(
+        cls,
+        zone_events: pd.DataFrame,
+    ) -> None:
+
+        cls._assert_no_hindsight(
+            zone_events
+        )
+
+        required = {
+            "iz_event_id",
+            "iz_event_flag",
+            "iz_live_safe",
+        }
+
+        missing = (
+            required
+            -
+            set(
+                zone_events.columns
+            )
+        )
+
+        if missing:
+            raise RuntimeError(
+                "Institutional-zone causal output missing: "
+                +
+                ", ".join(
+                    sorted(
+                        missing
+                    )
+                )
+            )
+
+        if not zone_events.empty:
+
+            live_safe = (
+                pd.to_numeric(
+                    zone_events[
+                        "iz_live_safe"
+                    ],
+                    errors="coerce",
+                )
+                .fillna(
+                    0
+                )
+                .eq(
+                    1
+                )
+            )
+
+            if not bool(
+                live_safe.all()
+            ):
+                raise RuntimeError(
+                    "Institutional-zone output is not live safe"
+                )
+
+            event_flag = (
+                pd.to_numeric(
+                    zone_events[
+                        "iz_event_flag"
+                    ],
+                    errors="coerce",
+                )
+                .fillna(
+                    0
+                )
+                .eq(
+                    1
+                )
+            )
+
+            if not bool(
+                event_flag.all()
+            ):
+                raise RuntimeError(
+                    "Institutional-zone output contains "
+                    "non-event rows"
+                )
+
+    @classmethod
+    def _assert_zone_lifecycle_safe(
+        cls,
+        lifecycle: pd.DataFrame,
+    ) -> None:
+
+        cls._assert_no_hindsight(
+            lifecycle
+        )
+
+        required = {
+            "izl_event_id",
+            "izl_state",
+            "izl_live_safe",
+        }
+
+        missing = (
+            required
+            -
+            set(
+                lifecycle.columns
+            )
+        )
+
+        if missing:
+            raise RuntimeError(
+                "Institutional-zone lifecycle output missing: "
+                +
+                ", ".join(
+                    sorted(
+                        missing
+                    )
+                )
+            )
+
+        if not lifecycle.empty:
+
+            live_safe = (
+                pd.to_numeric(
+                    lifecycle[
+                        "izl_live_safe"
+                    ],
+                    errors="coerce",
+                )
+                .fillna(
+                    0
+                )
+                .eq(
+                    1
+                )
+            )
+
+            if not bool(
+                live_safe.all()
+            ):
+                raise RuntimeError(
+                    "Institutional-zone lifecycle "
+                    "is not live safe"
+                )
+
+    # =========================================================================
     # Hindsight protection
     # =========================================================================
 
@@ -606,9 +883,6 @@ class ResearchIntelligencePipeline:
         cls,
         frame: pd.DataFrame,
     ) -> None:
-        """
-        Reject retrospective swing labels from the live-safe research chain.
-        """
 
         hindsight_columns = [
             column
@@ -627,8 +901,8 @@ class ResearchIntelligencePipeline:
 
         if hindsight_columns:
             raise RuntimeError(
-                "Retrospective cslabel_* columns are forbidden in "
-                "the causal research pipeline: "
+                "Retrospective research labels are forbidden "
+                "in the causal research pipeline: "
                 +
                 ", ".join(
                     hindsight_columns
@@ -636,7 +910,7 @@ class ResearchIntelligencePipeline:
             )
 
     # =========================================================================
-    # Final wide-frame composition
+    # Final composition
     # =========================================================================
 
     @staticmethod
@@ -644,12 +918,6 @@ class ResearchIntelligencePipeline:
         canonical: pd.DataFrame,
         enriched: pd.DataFrame,
     ) -> list[Any]:
-        """
-        Return only columns introduced by research stages.
-
-        Canonical columns are intentionally excluded because the final result
-        must use the exact canonical production values.
-        """
 
         canonical_columns = set(
             canonical.columns
@@ -667,18 +935,6 @@ class ResearchIntelligencePipeline:
         canonical: pd.DataFrame,
         enriched: pd.DataFrame,
     ) -> pd.DataFrame:
-        """
-        Compose frozen canonical output and research-only additions.
-
-        DataFrame.join() is used instead of repeated column assignment or
-        pd.concat(copy=False).
-
-        Advantages:
-        - avoids DataFrame fragmentation
-        - avoids the pandas/Pylance concat overload mismatch
-        - preserves deterministic RangeIndex alignment
-        - makes duplicate-column collisions fail visibly
-        """
 
         canonical_block = (
             canonical
@@ -696,17 +952,10 @@ class ResearchIntelligencePipeline:
         )
 
         if not research_columns:
-            return (
-                canonical_block
-                .copy()
-                .reset_index(
-                    drop=True
-                )
-            )
+            return canonical_block
 
         research_block = (
-            enriched
-            .loc[
+            enriched.loc[
                 :,
                 research_columns,
             ]
@@ -721,7 +970,6 @@ class ResearchIntelligencePipeline:
             how="left",
         )
 
-        # Deep copy consolidates the final wide dataframe.
         return (
             result
             .copy()
@@ -731,31 +979,30 @@ class ResearchIntelligencePipeline:
         )
 
     # =========================================================================
-    # Research metadata
+    # Metadata
     # =========================================================================
 
     @classmethod
     def _attach_metadata(
         cls,
         frame: pd.DataFrame,
-        stage_count: int,
     ) -> pd.DataFrame:
-        """
-        Attach all research-pipeline metadata as a single dataframe block.
-
-        This avoids repeated result[column] assignments and therefore avoids
-        pandas fragmentation warnings.
-        """
 
         metadata = pd.DataFrame(
             {
-                "research_pipeline_version": cls.VERSION,
+                "research_pipeline_version": (
+                    cls.VERSION
+                ),
 
-                "research_pipeline_mode": cls.MODE,
+                "research_pipeline_mode": (
+                    cls.MODE
+                ),
 
                 "research_stage_count": int(
-                    stage_count
+                    cls.TOTAL_RESEARCH_STAGE_COUNT
                 ),
+
+                "research_zone_context_attached": 1,
 
                 "research_trade_ready_unchanged": 1,
 
@@ -785,26 +1032,21 @@ class ResearchIntelligencePipeline:
         self,
         data: pd.DataFrame,
     ) -> pd.DataFrame:
-        """
-        Generate the full causal shadow research intelligence dataframe.
-        """
 
         self._validate_input(
             data
         )
 
         # =====================================================================
-        # 0. Strip stale research metadata
+        # 0. Remove stale research and hindsight metadata.
         # =====================================================================
 
-        raw = (
-            self._strip_prior_research_columns(
-                data
-            )
+        raw = self._strip_prior_research_columns(
+            data
         )
 
         # =====================================================================
-        # 1. Frozen canonical production baseline
+        # 1. Frozen canonical production pipeline.
         # =====================================================================
 
         canonical = self._run_stage(
@@ -814,10 +1056,10 @@ class ResearchIntelligencePipeline:
         )
 
         # =====================================================================
-        # 2-7. Research-only causal intelligence chain
+        # 2-7. Existing aligned causal research chain.
         # =====================================================================
 
-        stages: tuple[
+        aligned_stages: tuple[
             tuple[
                 str,
                 Any,
@@ -866,7 +1108,7 @@ class ResearchIntelligencePipeline:
         for (
             stage_name,
             engine,
-        ) in stages:
+        ) in aligned_stages:
 
             current = self._run_stage(
                 engine=engine,
@@ -874,36 +1116,135 @@ class ResearchIntelligencePipeline:
                 stage_name=stage_name,
             )
 
-            # -----------------------------------------------------------------
-            # Each individual stage must preserve canonical authority.
-            # -----------------------------------------------------------------
-
             self._assert_alignment(
                 canonical=canonical,
                 enriched=current,
                 stage_name=stage_name,
             )
 
-            # -----------------------------------------------------------------
-            # No retrospective labels may enter this chain.
-            # -----------------------------------------------------------------
-
             self._assert_no_hindsight(
                 current
             )
 
         # =====================================================================
-        # Final composition
+        # 8. Causal Institutional Zone events.
+        #
+        # Use raw market data so event positions map directly to original bars.
+        # =====================================================================
+
+        zone_events = self._run_zone_events(
+            engine=self.institutional_zones_engine,
+            market=raw,
+        )
+
+        self._assert_zone_events_safe(
+            zone_events
+        )
+
+        # =====================================================================
+        # 9. Causal Institutional Zone lifecycle.
+        # =====================================================================
+
+        zone_lifecycle = self._run_zone_lifecycle(
+            engine=self.institutional_zone_lifecycle_engine,
+            market=raw,
+            zone_events=zone_events,
+        )
+
+        self._assert_zone_lifecycle_safe(
+            zone_lifecycle
+        )
+
+        # =====================================================================
+        # 10. Bar-aligned Institutional Zone context.
+        #
+        # This is deliberately AFTER LEI.
+        # =====================================================================
+
+        pre_zone_context = (
+            current
+            .copy()
+            .reset_index(
+                drop=True
+            )
+        )
+
+        current = self._run_zone_context(
+            engine=self.institutional_zone_context_engine,
+            market=current,
+            zone_events=zone_events,
+            lifecycle=zone_lifecycle,
+        )
+
+        # Zone context must be append-only.
+        self._assert_existing_columns_unchanged(
+            before=pre_zone_context,
+            after=current,
+            stage_name="institutional_zone_context",
+        )
+
+        self._assert_alignment(
+            canonical=canonical,
+            enriched=current,
+            stage_name="institutional_zone_context",
+        )
+
+        self._assert_no_hindsight(
+            current
+        )
+
+        required_context = {
+            "izctx_live_safe",
+            "izctx_version",
+            "izctx_mode",
+        }
+
+        missing_context = (
+            required_context
+            -
+            set(
+                current.columns
+            )
+        )
+
+        if missing_context:
+            raise RuntimeError(
+                "Institutional-zone context missing columns: "
+                +
+                ", ".join(
+                    sorted(
+                        missing_context
+                    )
+                )
+            )
+
+        if not bool(
+            pd.to_numeric(
+                current[
+                    "izctx_live_safe"
+                ],
+                errors="coerce",
+            )
+            .fillna(
+                0
+            )
+            .eq(
+                1
+            )
+            .all()
+        ):
+            raise RuntimeError(
+                "Institutional-zone context is not live safe"
+            )
+
+        # =====================================================================
+        # Final wide-frame composition.
         # =====================================================================
 
         result = self._compose_final_result(
             canonical=canonical,
             enriched=current,
         )
-
-        # =====================================================================
-        # Final canonical protection before metadata
-        # =====================================================================
 
         self._assert_alignment(
             canonical=canonical,
@@ -916,18 +1257,15 @@ class ResearchIntelligencePipeline:
         )
 
         # =====================================================================
-        # Research pipeline metadata
+        # Research metadata.
         # =====================================================================
 
         result = self._attach_metadata(
-            frame=result,
-            stage_count=len(
-                stages
-            ),
+            result
         )
 
         # =====================================================================
-        # Final defensive checks
+        # Final defensive checks.
         # =====================================================================
 
         if not result.columns.is_unique:
@@ -948,10 +1286,6 @@ class ResearchIntelligencePipeline:
 
         return result
 
-
-# =============================================================================
-# Global research pipeline
-# =============================================================================
 
 research_intelligence_pipeline = (
     ResearchIntelligencePipeline()
