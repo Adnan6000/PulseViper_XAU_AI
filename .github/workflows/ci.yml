@@ -69,4 +69,6 @@ jobs:
             04_Testing/test_research_opportunity_quality.py \
             04_Testing/test_research_opportunity_weight_engine.py \
             04_Testing/test_research_weight_forward_ledger.py \
+            04_Testing/test_research_zone_context_outcome.py \
+            04_Testing/test_research_zone_context_forward_ledger.py \
             -q
