@@ -1,8 +1,16 @@
 """
-PulseViper XAU AI - Shadow/Paper Operation v1
+PulseViper XAU AI - Shadow/Paper Operation v1.1
 
-Runs the frozen canonical pipeline on CLOSED M1 candles, persists trade_ready
-signals, and updates 5/10/20-bar paper outcomes.
+Runs the frozen canonical pipeline on CLOSED M1 candles.
+
+Adds:
+- first-passage analysis
+- breakeven simulations
+- continuation / runner telemetry
+- post-entry BOS
+- swing hierarchy
+- structure evolution
+- regime evolution
 
 No orders are sent.
 """
@@ -21,7 +29,9 @@ import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
-if str(PROJECT_ROOT) not in sys.path:
+if str(
+    PROJECT_ROOT
+) not in sys.path:
 
     sys.path.insert(
         0,
@@ -141,12 +151,15 @@ def attach_regime(
     return result
 
 
-def number(
-    series: pd.Series,
+def numeric(
+    frame: pd.DataFrame,
+    column: str,
 ) -> pd.Series:
 
     return pd.to_numeric(
-        series,
+        frame[
+            column
+        ],
         errors="coerce",
     )
 
@@ -156,16 +169,14 @@ def median(
     column: str,
 ) -> float:
 
-    values = number(
-        frame[
-            column
-        ]
+    values = numeric(
+        frame,
+        column,
     ).dropna()
 
-    if len(
+    if not len(
         values
-    ) == 0:
-
+    ):
         return np.nan
 
     return float(
@@ -178,16 +189,14 @@ def percentage(
     column: str,
 ) -> float:
 
-    values = number(
-        frame[
-            column
-        ]
+    values = numeric(
+        frame,
+        column,
     ).dropna()
 
-    if len(
+    if not len(
         values
-    ) == 0:
-
+    ):
         return np.nan
 
     return float(
@@ -197,19 +206,30 @@ def percentage(
     )
 
 
-def dashboard_rows(
+def matured_only(
     ledger: pd.DataFrame,
 ) -> pd.DataFrame:
 
-    matured = ledger.loc[
+    return ledger.loc[
         ledger[
             "status"
-        ].astype(
+        ]
+        .astype(
             str
         )
-        ==
-        "MATURED_20"
+        .eq(
+            "MATURED_20"
+        )
     ].copy()
+
+
+def performance_dashboard(
+    ledger: pd.DataFrame,
+) -> pd.DataFrame:
+
+    matured = matured_only(
+        ledger
+    )
 
     rows: list[
         dict[
@@ -243,8 +263,9 @@ def dashboard_rows(
                     )
                     .str
                     .upper()
-                    ==
-                    direction
+                    .eq(
+                        direction
+                    )
                 ],
             )
         )
@@ -336,11 +357,478 @@ def dashboard_rows(
     return output
 
 
+def first_passage_dashboard(
+    ledger: pd.DataFrame,
+) -> pd.DataFrame:
+
+    matured = matured_only(
+        ledger
+    )
+
+    rows: list[
+        dict[
+            str,
+            Any,
+        ]
+    ] = []
+
+    for target in (
+        1,
+        2,
+        3,
+        5,
+    ):
+
+        values = (
+            matured[
+                f"fp_{target}_result"
+            ]
+            .fillna(
+                "UNKNOWN"
+            )
+            .astype(
+                str
+            )
+        )
+
+        profit = int(
+            values.eq(
+                "PROFIT_FIRST"
+            ).sum()
+        )
+
+        loss = int(
+            values.eq(
+                "LOSS_FIRST"
+            ).sum()
+        )
+
+        ambiguous = int(
+            values.eq(
+                "AMBIGUOUS_SAME_BAR"
+            ).sum()
+        )
+
+        neither = int(
+            values.eq(
+                "NEITHER"
+            ).sum()
+        )
+
+        resolved = (
+            profit
+            +
+            loss
+        )
+
+        rows.append(
+            {
+                "threshold": (
+                    f"±${target}"
+                ),
+
+                "n": len(
+                    matured
+                ),
+
+                "profit_first": (
+                    profit
+                ),
+
+                "loss_first": (
+                    loss
+                ),
+
+                "ambiguous": (
+                    ambiguous
+                ),
+
+                "neither": (
+                    neither
+                ),
+
+                "profit_first_resolved_pct": (
+                    round(
+                        profit
+                        /
+                        resolved
+                        *
+                        100.0,
+                        3,
+                    )
+                    if resolved
+                    else np.nan
+                ),
+            }
+        )
+
+    return pd.DataFrame(
+        rows
+    )
+
+
+def breakeven_dashboard(
+    ledger: pd.DataFrame,
+) -> pd.DataFrame:
+
+    matured = matured_only(
+        ledger
+    )
+
+    raw = (
+        numeric(
+            matured,
+            "net_20",
+        )
+        if len(
+            matured
+        )
+        else pd.Series(
+            dtype=float
+        )
+    )
+
+    rows: list[
+        dict[
+            str,
+            Any,
+        ]
+    ] = []
+
+    for target in (
+        1,
+        2,
+        3,
+        5,
+    ):
+
+        status = (
+            matured[
+                f"be_after_{target}_status"
+            ]
+            .fillna(
+                "UNKNOWN"
+            )
+            .astype(
+                str
+            )
+        )
+
+        simulated = (
+            numeric(
+                matured,
+                f"be_after_{target}_net_20",
+            )
+            if len(
+                matured
+            )
+            else pd.Series(
+                dtype=float
+            )
+        )
+
+        stopped = status.eq(
+            "STOPPED_BE"
+        )
+
+        rows.append(
+            {
+                "activate_after": (
+                    f"+${target}"
+                ),
+
+                "n": len(
+                    matured
+                ),
+
+                "activated": int(
+                    status.isin(
+                        [
+                            "STOPPED_BE",
+                            "HELD_20",
+                        ]
+                    ).sum()
+                ),
+
+                "stopped_be": int(
+                    stopped.sum()
+                ),
+
+                "held_20": int(
+                    status.eq(
+                        "HELD_20"
+                    ).sum()
+                ),
+
+                "not_activated": int(
+                    status.eq(
+                        "NOT_ACTIVATED"
+                    ).sum()
+                ),
+
+                "losers_saved": int(
+                    (
+                        stopped
+                        &
+                        raw.lt(
+                            0
+                        )
+                    ).sum()
+                )
+                if len(
+                    matured
+                )
+                else 0,
+
+                "positive_20_cut_to_be": int(
+                    (
+                        stopped
+                        &
+                        raw.gt(
+                            0
+                        )
+                    ).sum()
+                )
+                if len(
+                    matured
+                )
+                else 0,
+
+                "raw_net20_med": (
+                    round(
+                        float(
+                            raw.median()
+                        ),
+                        3,
+                    )
+                    if len(
+                        raw.dropna()
+                    )
+                    else np.nan
+                ),
+
+                "be_net20_med": (
+                    round(
+                        float(
+                            simulated.median()
+                        ),
+                        3,
+                    )
+                    if len(
+                        simulated.dropna()
+                    )
+                    else np.nan
+                ),
+
+                "median_delta": (
+                    round(
+                        float(
+                            (
+                                simulated
+                                -
+                                raw
+                            ).median()
+                        ),
+                        3,
+                    )
+                    if len(
+                        matured
+                    )
+                    else np.nan
+                ),
+            }
+        )
+
+    return pd.DataFrame(
+        rows
+    )
+
+
+def continuation_dashboard(
+    ledger: pd.DataFrame,
+) -> pd.DataFrame:
+
+    matured = matured_only(
+        ledger
+    )
+
+    rows: list[
+        dict[
+            str,
+            Any,
+        ]
+    ] = []
+
+    groups = [
+        (
+            "ALL",
+            matured,
+        )
+    ]
+
+    for direction in (
+        "BULLISH",
+        "BEARISH",
+    ):
+
+        groups.append(
+            (
+                direction,
+
+                matured.loc[
+                    matured[
+                        "direction"
+                    ]
+                    .astype(
+                        str
+                    )
+                    .str
+                    .upper()
+                    .eq(
+                        direction
+                    )
+                ],
+            )
+        )
+
+    for label, frame in groups:
+
+        directional_bos = (
+            numeric(
+                frame,
+                "directional_bos_count_20",
+            )
+            if len(
+                frame
+            )
+            else pd.Series(
+                dtype=float
+            )
+        )
+
+        opposing_bos = (
+            numeric(
+                frame,
+                "opposing_bos_count_20",
+            )
+            if len(
+                frame
+            )
+            else pd.Series(
+                dtype=float
+            )
+        )
+
+        rows.append(
+            {
+                "group": (
+                    label
+                ),
+
+                "n": len(
+                    frame
+                ),
+
+                "mfe20_med": median(
+                    frame,
+                    "mfe_20",
+                ),
+
+                "giveback20_med": median(
+                    frame,
+                    "giveback_20",
+                ),
+
+                "bars_to_mfe_med": median(
+                    frame,
+                    "bars_to_mfe_20",
+                ),
+
+                "ext_after_$1_med": median(
+                    frame,
+                    "extension_after_1_20",
+                ),
+
+                "ext_after_$2_med": median(
+                    frame,
+                    "extension_after_2_20",
+                ),
+
+                "dir_bos_any_pct": (
+                    round(
+                        float(
+                            directional_bos
+                            .gt(
+                                0
+                            )
+                            .mean()
+                            *
+                            100.0
+                        ),
+                        3,
+                    )
+                    if len(
+                        directional_bos
+                    )
+                    else np.nan
+                ),
+
+                "opp_bos_any_pct": (
+                    round(
+                        float(
+                            opposing_bos
+                            .gt(
+                                0
+                            )
+                            .mean()
+                            *
+                            100.0
+                        ),
+                        3,
+                    )
+                    if len(
+                        opposing_bos
+                    )
+                    else np.nan
+                ),
+
+                "structure_aligned20_pct": percentage(
+                    frame,
+                    "structure_aligned_20",
+                ),
+            }
+        )
+
+    output = pd.DataFrame(
+        rows
+    )
+
+    for column in output.columns:
+
+        if column not in (
+            "group",
+            "n",
+        ):
+
+            output[
+                column
+            ] = pd.to_numeric(
+                output[
+                    column
+                ],
+                errors="coerce",
+            ).round(
+                3
+            )
+
+    return output
+
+
 def main() -> None:
 
     parser = argparse.ArgumentParser(
         description=(
-            "PulseViper V1 shadow/paper operation"
+            "PulseViper V1 shadow/paper operation v1.1"
         )
     )
 
@@ -384,7 +872,7 @@ def main() -> None:
         )
 
     section(
-        "PulseViper V1 Shadow / Paper Operation"
+        "PulseViper V1 Shadow / Paper Operation v1.1"
     )
 
     print(
@@ -407,10 +895,8 @@ def main() -> None:
         "Production logic  : UNCHANGED"
     )
 
-    print()
-
     print(
-        "Fetching current MT5 M1 history..."
+        "\nFetching current MT5 M1 history..."
     )
 
     raw = fetcher.fetch(
@@ -425,10 +911,6 @@ def main() -> None:
         raise RuntimeError(
             "Need at least two bars"
         )
-
-    # MT5 copy_rates position zero may include the currently forming candle.
-    # Never allow a potentially incomplete candle to generate or mature
-    # a shadow signal.
 
     forming_time = pd.to_datetime(
         raw.iloc[
@@ -482,10 +964,8 @@ def main() -> None:
         )
     )
 
-    print()
-
     print(
-        "Running frozen canonical pipeline..."
+        "\nRunning frozen canonical pipeline..."
     )
 
     enriched = scalping_pipeline.generate(
@@ -501,11 +981,11 @@ def main() -> None:
         enriched,
     )
 
-    ledger_store = PaperLedger(
+    store = PaperLedger(
         args.ledger
     )
 
-    existing = ledger_store.load()
+    existing = store.load()
 
     capture_mode = (
         "BOOTSTRAP_BACKFILL"
@@ -514,30 +994,32 @@ def main() -> None:
         "LIVE_SHADOW"
     )
 
-    visible_signals = (
-        ledger_store.capture_signals(
-            enriched=enriched,
-            requested_symbol=args.symbol,
-            resolved_symbol=resolved_symbol,
-            timeframe="M1",
-        )
+    visible_signals = store.capture_signals(
+        enriched,
+        args.symbol,
+        resolved_symbol,
+        "M1",
     )
 
     (
         ledger,
         new_count,
-    ) = ledger_store.merge_new_signals(
-        existing=existing,
-        signals=visible_signals,
-        capture_mode=capture_mode,
+    ) = store.merge_new_signals(
+        existing,
+        visible_signals,
+        capture_mode,
     )
 
-    ledger = ledger_store.evaluate(
+    # Important:
+    # Evaluate against enriched causal frame, not raw OHLC only.
+    # This allows shadow-only observation of BOS / structure / regime.
+
+    ledger = store.evaluate(
         ledger,
-        closed,
+        enriched,
     )
 
-    ledger_store.save(
+    store.save(
         ledger
     )
 
@@ -545,29 +1027,42 @@ def main() -> None:
         "RUN STATUS"
     )
 
-    if ledger.empty:
-
-        statuses = pd.Series(
+    statuses = (
+        ledger[
+            "status"
+        ]
+        .astype(
+            str
+        )
+        .value_counts()
+        if not ledger.empty
+        else pd.Series(
             dtype=int
         )
-
-    else:
-
-        statuses = (
-            ledger[
-                "status"
-            ]
-            .astype(
-                str
-            )
-            .value_counts()
-        )
+    )
 
     matured_count = int(
         statuses.get(
             "MATURED_20",
             0,
         )
+    )
+
+    v11_count = (
+        int(
+            ledger[
+                "ledger_version"
+            ]
+            .astype(
+                str
+            )
+            .eq(
+                "1.1"
+            )
+            .sum()
+        )
+        if not ledger.empty
+        else 0
     )
 
     print(
@@ -593,6 +1088,13 @@ def main() -> None:
 
     print(
         (
+            "Ledger rows upgraded/evaluated v1.1    : "
+            f"{v11_count}"
+        )
+    )
+
+    print(
+        (
             "Matured 20-bar events                  : "
             f"{matured_count}"
         )
@@ -608,7 +1110,7 @@ def main() -> None:
     print(
         (
             "Ledger saved                           : "
-            f"{ledger_store.path}"
+            f"{store.path}"
         )
     )
 
@@ -616,12 +1118,46 @@ def main() -> None:
         "SHADOW PERFORMANCE DASHBOARD"
     )
 
-    dashboard = dashboard_rows(
-        ledger
+    print(
+        performance_dashboard(
+            ledger
+        ).to_string(
+            index=False
+        )
+    )
+
+    section(
+        "FIRST PASSAGE DASHBOARD"
     )
 
     print(
-        dashboard.to_string(
+        first_passage_dashboard(
+            ledger
+        ).to_string(
+            index=False
+        )
+    )
+
+    section(
+        "BREAKEVEN SIMULATION — RAW PRICE, BEFORE COSTS"
+    )
+
+    print(
+        breakeven_dashboard(
+            ledger
+        ).to_string(
+            index=False
+        )
+    )
+
+    section(
+        "CONTINUATION / RUNNER DASHBOARD"
+    )
+
+    print(
+        continuation_dashboard(
+            ledger
+        ).to_string(
             index=False
         )
     )
@@ -646,15 +1182,26 @@ def main() -> None:
             "confidence_score",
             "regime_state",
             "status",
-            "net_5",
-            "net_10",
             "net_20",
             "mfe_20",
             "mae_20",
-            "target_1_hit",
-            "target_2_hit",
-            "target_3_hit",
-            "target_5_hit",
+
+            "fp_1_result",
+            "fp_2_result",
+            "fp_3_result",
+            "fp_5_result",
+
+            "be_after_1_status",
+            "be_after_2_status",
+
+            "bars_to_mfe_20",
+            "giveback_20",
+
+            "directional_bos_count_20",
+            "opposing_bos_count_20",
+
+            "structure_bias_20",
+            "regime_state_20",
         ]
 
         latest = (
@@ -672,11 +1219,11 @@ def main() -> None:
         for column in (
             "entry_reference",
             "confidence_score",
-            "net_5",
-            "net_10",
             "net_20",
             "mfe_20",
             "mae_20",
+            "bars_to_mfe_20",
+            "giveback_20",
         ):
 
             latest[
@@ -702,45 +1249,45 @@ def main() -> None:
 
     print(
         (
-            "- BOOTSTRAP_BACKFILL = initial recent-history "
-            "ledger seed; not forward proof."
+            "- First passage asks whether +$X or -$X "
+            "was reached first after the signal."
         )
     )
 
     print(
         (
-            "- LIVE_SHADOW = signal first observed "
-            "after the ledger already existed."
+            "- AMBIGUOUS_SAME_BAR means M1 OHLC cannot "
+            "prove intrabar ordering; no guess is made."
         )
     )
 
     print(
         (
-            "- NET uses signal-bar close as the "
-            "paper reference and is direction-adjusted."
+            "- BE simulation activates after favorable "
+            "+$1/+2/+3/+5 and checks return to entry "
+            "from the NEXT candle onward."
         )
     )
 
     print(
         (
-            "- MFE/MAE are raw price excursions "
-            "before execution costs."
+            "- BE results are raw-price research only: "
+            "spread, commission, slippage and real fill "
+            "are not yet deducted."
         )
     )
 
     print(
         (
-            "- $1/$2/$3/$5 hit means that favorable "
-            "price excursion was reached within "
-            "20 closed M1 bars."
+            "- Continuation telemetry measures MFE extension, "
+            "giveback, BOS, swing scale, structure and regime."
         )
     )
 
     print(
         (
-            "- No order, lot size, stop loss, "
-            "or production trade decision is "
-            "changed by this runner."
+            "- No order, stop, lot size, trailing rule or "
+            "production trade decision is changed."
         )
     )
 

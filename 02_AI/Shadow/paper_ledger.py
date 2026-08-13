@@ -2,18 +2,47 @@
 ===============================================================================
 Module      : paper_ledger.py
 Project     : PulseViper XAU AI
-Version     : 1.0
-Purpose     : Persistent shadow/paper signal ledger and causal outcome tracker
+Version     : 1.1
+Purpose     : Shadow signal, first-passage, BE and continuation telemetry
 ===============================================================================
+
+v1.1
+----
+Adds research-only telemetry for:
+
+- symmetric first-passage ordering:
+      +$1 vs -$1
+      +$2 vs -$2
+      +$3 vs -$3
+      +$5 vs -$5
+
+- breakeven simulations activated after:
+      +$1
+      +$2
+      +$3
+      +$5
+
+- continuation / runner telemetry:
+      MFE timing
+      profit giveback
+      extension after target
+      directional/opposing BOS
+      internal/major BOS
+      internal/major swings
+      structure evolution
+      regime evolution
 
 Contract
 --------
-- Does not open trades.
-- Does not modify trade_ready.
-- Does not modify Confidence, SetupState, risk, or execution.
-- Uses the signal-bar CLOSE only as a paper reference price.
-- Evaluates outcomes only from bars that occur after the signal bar.
-- Generated CSV data is stored under 01_Data/Processed by default.
+- Does NOT open trades.
+- Does NOT modify trade_ready.
+- Does NOT modify Confidence.
+- Does NOT modify SetupState.
+- Does NOT modify BOS.
+- Does NOT modify risk or execution.
+- Uses signal-bar CLOSE only as paper reference price.
+- Evaluates only bars after the signal.
+- Never guesses intrabar order when one M1 candle hits both thresholds.
 """
 
 from __future__ import annotations
@@ -38,7 +67,7 @@ DEFAULT_LEDGER_PATH = (
 
 class PaperLedger:
 
-    VERSION = "1.0"
+    VERSION = "1.1"
 
     HORIZONS = (
         5,
@@ -118,13 +147,126 @@ class PaperLedger:
         )
     )
 
+    FIRST_PASSAGE_COLUMNS = tuple(
+        column
+        for target in TARGETS
+        for column in (
+            f"fp_{int(target)}_result",
+            f"fp_{int(target)}_bar",
+        )
+    )
+
+    BREAKEVEN_COLUMNS = tuple(
+        column
+        for target in TARGETS
+        for column in (
+            f"be_after_{int(target)}_status",
+            f"be_after_{int(target)}_activation_bar",
+            f"be_after_{int(target)}_exit_bar",
+            f"be_after_{int(target)}_net_20",
+        )
+    )
+
+    CONTINUATION_COLUMNS = (
+        "bars_to_mfe_20",
+        "giveback_20",
+        "net_to_mfe_ratio_20",
+
+        "directional_bos_count_20",
+        "opposing_bos_count_20",
+
+        "directional_bos_first_bar_20",
+        "opposing_bos_first_bar_20",
+
+        "directional_internal_bos_count_20",
+        "directional_major_bos_count_20",
+
+        "internal_swing_count_20",
+        "major_swing_count_20",
+
+        "structure_bias_5",
+        "structure_bias_10",
+        "structure_bias_20",
+
+        "structure_aligned_5",
+        "structure_aligned_10",
+        "structure_aligned_20",
+
+        "regime_state_5",
+        "regime_state_10",
+        "regime_state_20",
+
+        "regime_trend_5",
+        "regime_trend_10",
+        "regime_trend_20",
+
+        "regime_volatility_5",
+        "regime_volatility_10",
+        "regime_volatility_20",
+    )
+
+    EXTENSION_COLUMNS = tuple(
+        column
+        for target in TARGETS
+        for column in (
+            f"mfe_after_{int(target)}_20",
+            f"extension_after_{int(target)}_20",
+        )
+    )
+
     LEDGER_COLUMNS = (
         BASE_COLUMNS
         + OUTCOME_COLUMNS
         + TARGET_COLUMNS
+        + FIRST_PASSAGE_COLUMNS
+        + BREAKEVEN_COLUMNS
+        + CONTINUATION_COLUMNS
+        + EXTENSION_COLUMNS
         + (
             "positive_20",
         )
+    )
+
+    TEXT_COLUMNS = (
+        "event_id",
+        "capture_mode",
+        "requested_symbol",
+        "resolved_symbol",
+        "timeframe",
+        "direction",
+        "setup_state",
+        "confidence_grade",
+        "setup_bos_scope",
+        "regime_volatility",
+        "regime_trend",
+        "regime_state",
+        "regime_time_bucket_utc",
+        "pipeline_version",
+        "pipeline_mode",
+        "ledger_version",
+        "status",
+    ) + tuple(
+        f"fp_{int(target)}_result"
+        for target in TARGETS
+    ) + tuple(
+        f"be_after_{int(target)}_status"
+        for target in TARGETS
+    ) + (
+        "structure_bias_5",
+        "structure_bias_10",
+        "structure_bias_20",
+
+        "regime_state_5",
+        "regime_state_10",
+        "regime_state_20",
+
+        "regime_trend_5",
+        "regime_trend_10",
+        "regime_trend_20",
+
+        "regime_volatility_5",
+        "regime_volatility_10",
+        "regime_volatility_20",
     )
 
     def __init__(
@@ -145,8 +287,7 @@ class PaperLedger:
     ) -> float:
 
         try:
-
-            number = float(
+            value = float(
                 value
             )
 
@@ -154,16 +295,15 @@ class PaperLedger:
             TypeError,
             ValueError,
         ):
-
             return default
 
-        if not np.isfinite(
-            number
-        ):
-
-            return default
-
-        return number
+        return (
+            value
+            if np.isfinite(
+                value
+            )
+            else default
+        )
 
     @staticmethod
     def _text(
@@ -175,18 +315,15 @@ class PaperLedger:
             return default
 
         try:
-
             if pd.isna(
                 value
             ):
-
                 return default
 
         except (
             TypeError,
             ValueError,
         ):
-
             pass
 
         text = str(
@@ -203,35 +340,27 @@ class PaperLedger:
     def _timestamp(
         value: Any,
     ) -> pd.Timestamp | None:
-        """
-        Convert a value to a timezone-naive pandas Timestamp.
 
-        Invalid/missing values return None rather than pd.NaT so the static
-        return contract remains precise for Pylance/Pyright.
-        """
-
-        timestamp = pd.to_datetime(
+        value = pd.to_datetime(
             value,
             errors="coerce",
         )
 
         if pd.isna(
-            timestamp
+            value
         ):
-
             return None
 
-        result = pd.Timestamp(
-            timestamp
+        value = pd.Timestamp(
+            value
         )
 
-        if result.tzinfo is not None:
-
-            result = result.tz_convert(
+        if value.tzinfo is not None:
+            value = value.tz_convert(
                 None
             )
 
-        return result
+        return value
 
     @classmethod
     def _event_id(
@@ -282,13 +411,78 @@ class PaperLedger:
 
         result = frame.copy()
 
-        for column in cls.LEDGER_COLUMNS:
+        missing = [
+            column
+            for column in cls.LEDGER_COLUMNS
+            if column not in result.columns
+        ]
 
-            if column not in result.columns:
+        if missing:
 
+            additions: dict[
+                str,
+                pd.Series,
+            ] = {}
+
+            for column in missing:
+
+                if column in cls.TEXT_COLUMNS:
+
+                    additions[
+                        column
+                    ] = pd.Series(
+                        [None]
+                        *
+                        len(
+                            result
+                        ),
+                        index=result.index,
+                        dtype="object",
+                    )
+
+                else:
+
+                    additions[
+                        column
+                    ] = pd.Series(
+                        np.nan,
+                        index=result.index,
+                        dtype="float64",
+                    )
+
+            result = pd.concat(
+                [
+                    result,
+                    pd.DataFrame(
+                        additions,
+                        index=result.index,
+                    ),
+                ],
+                axis=1,
+            )
+
+        for column in cls.TEXT_COLUMNS:
+
+            result[
+                column
+            ] = (
                 result[
                     column
-                ] = np.nan
+                ]
+                .map(
+                    lambda value:
+                    None
+                    if pd.isna(
+                        value
+                    )
+                    else str(
+                        value
+                    )
+                )
+                .astype(
+                    "object"
+                )
+            )
 
         for column in (
             "signal_time",
@@ -320,7 +514,6 @@ class PaperLedger:
     ) -> pd.DataFrame:
 
         if not self.path.exists():
-
             return self._empty_frame()
 
         frame = pd.read_csv(
@@ -334,9 +527,7 @@ class PaperLedger:
         return (
             frame
             .drop_duplicates(
-                subset=[
-                    "event_id",
-                ],
+                "event_id",
                 keep="last",
             )
             .sort_values(
@@ -357,16 +548,12 @@ class PaperLedger:
             exist_ok=True,
         )
 
-        clean = self._normalize_columns(
-            frame
-        )
-
         clean = (
-            clean
+            self._normalize_columns(
+                frame
+            )
             .drop_duplicates(
-                subset=[
-                    "event_id",
-                ],
+                "event_id",
                 keep="last",
             )
             .sort_values(
@@ -379,7 +566,8 @@ class PaperLedger:
 
         temporary = self.path.with_suffix(
             self.path.suffix
-            + ".tmp"
+            +
+            ".tmp"
         )
 
         clean.to_csv(
@@ -411,7 +599,8 @@ class PaperLedger:
 
         missing = (
             required
-            - set(
+            -
+            set(
                 enriched.columns
             )
         )
@@ -420,14 +609,15 @@ class PaperLedger:
 
             raise ValueError(
                 "Missing shadow signal columns: "
-                + ", ".join(
+                +
+                ", ".join(
                     sorted(
                         missing
                     )
                 )
             )
 
-        trade_ready = (
+        ready = (
             pd.to_numeric(
                 enriched[
                     "trade_ready"
@@ -450,7 +640,7 @@ class PaperLedger:
         ] = []
 
         for _, row in enriched.loc[
-            trade_ready
+            ready
         ].iterrows():
 
             signal_time = self._timestamp(
@@ -470,45 +660,32 @@ class PaperLedger:
                         "NONE",
                     ),
                 ),
-                default="NONE",
+                "NONE",
             ).upper()
 
             if direction not in (
                 "BULLISH",
                 "BEARISH",
             ):
-
                 continue
 
-            event_id = self._event_id(
-                resolved_symbol=(
-                    resolved_symbol
-                ),
-                timeframe=(
-                    timeframe
-                ),
-                signal_time=(
-                    signal_time
-                ),
-                direction=(
-                    direction
-                ),
-            )
-
-            record: dict[
-                str,
-                Any,
-            ] = {
+            record: dict[str, Any] = {
                 column: np.nan
-                for column
-                in self.LEDGER_COLUMNS
-            }
+                for column in self.LEDGER_COLUMNS
+}
 
             record.update(
                 {
-                    "event_id": event_id,
+                    "event_id": self._event_id(
+                        resolved_symbol,
+                        timeframe,
+                        signal_time,
+                        direction,
+                    ),
 
-                    "signal_time": signal_time,
+                    "signal_time": (
+                        signal_time
+                    ),
 
                     "requested_symbol": (
                         requested_symbol
@@ -719,7 +896,6 @@ class PaperLedger:
             )
 
         if not rows:
-
             return self._empty_frame()
 
         return self._normalize_columns(
@@ -747,7 +923,6 @@ class PaperLedger:
         )
 
         if incoming.empty:
-
             return (
                 current,
                 0,
@@ -761,7 +936,6 @@ class PaperLedger:
             .astype(
                 str
             )
-            .tolist()
         )
 
         new_rows = incoming.loc[
@@ -777,7 +951,6 @@ class PaperLedger:
         ].copy()
 
         if new_rows.empty:
-
             return (
                 current,
                 0,
@@ -787,26 +960,22 @@ class PaperLedger:
             "capture_mode"
         ] = capture_mode
 
-        if current.empty:
-
-            combined = new_rows.copy()
-
-        else:
-
-            combined = pd.concat(
+        combined = (
+            new_rows
+            if current.empty
+            else pd.concat(
                 [
                     current,
                     new_rows,
                 ],
                 ignore_index=True,
             )
+        )
 
         combined = (
             combined
             .drop_duplicates(
-                subset=[
-                    "event_id",
-                ],
+                "event_id",
                 keep="last",
             )
             .sort_values(
@@ -827,11 +996,86 @@ class PaperLedger:
         )
 
     # =========================================================================
-    # Outcome calculations
+    # Price-path helpers
     # =========================================================================
 
     @staticmethod
+    def _favorable_series(
+        direction: str,
+        entry: float,
+        future: pd.DataFrame,
+    ) -> np.ndarray:
+
+        if direction == "BULLISH":
+
+            return (
+                pd.to_numeric(
+                    future[
+                        "high"
+                    ],
+                    errors="coerce",
+                )
+                .to_numpy(
+                    float
+                )
+                -
+                entry
+            )
+
+        return (
+            entry
+            -
+            pd.to_numeric(
+                future[
+                    "low"
+                ],
+                errors="coerce",
+            )
+            .to_numpy(
+                float
+            )
+        )
+
+    @staticmethod
+    def _adverse_series(
+        direction: str,
+        entry: float,
+        future: pd.DataFrame,
+    ) -> np.ndarray:
+
+        if direction == "BULLISH":
+
+            return (
+                entry
+                -
+                pd.to_numeric(
+                    future[
+                        "low"
+                    ],
+                    errors="coerce",
+                )
+                .to_numpy(
+                    float
+                )
+            )
+
+        return (
+            pd.to_numeric(
+                future[
+                    "high"
+                ],
+                errors="coerce",
+            )
+            .to_numpy(
+                float
+            )
+            -
+            entry
+        )
+
+    @classmethod
     def _directional_metrics(
+        cls,
         direction: str,
         entry: float,
         future: pd.DataFrame,
@@ -840,118 +1084,372 @@ class PaperLedger:
         float,
     ]:
 
-        high = pd.to_numeric(
-            future[
-                "high"
-            ],
-            errors="coerce",
-        ).to_numpy(
-            dtype=float
+        favorable = cls._favorable_series(
+            direction,
+            entry,
+            future,
         )
 
-        low = pd.to_numeric(
-            future[
-                "low"
-            ],
-            errors="coerce",
-        ).to_numpy(
-            dtype=float
+        adverse = cls._adverse_series(
+            direction,
+            entry,
+            future,
         )
-
-        if direction == "BULLISH":
-
-            mfe = (
-                np.nanmax(
-                    high
-                )
-                - entry
-            )
-
-            mae = (
-                entry
-                - np.nanmin(
-                    low
-                )
-            )
-
-        else:
-
-            mfe = (
-                entry
-                - np.nanmin(
-                    low
-                )
-            )
-
-            mae = (
-                np.nanmax(
-                    high
-                )
-                - entry
-            )
 
         return (
             max(
                 0.0,
                 float(
-                    mfe
+                    np.nanmax(
+                        favorable
+                    )
                 ),
             ),
 
             max(
                 0.0,
                 float(
-                    mae
+                    np.nanmax(
+                        adverse
+                    )
                 ),
             ),
         )
 
-    @staticmethod
+    @classmethod
     def _target_first_bar(
+        cls,
         direction: str,
         entry: float,
         future: pd.DataFrame,
         target: float,
     ) -> int | None:
 
-        if direction == "BULLISH":
+        positions = np.flatnonzero(
+            cls._favorable_series(
+                direction,
+                entry,
+                future,
+            )
+            >=
+            target
+        )
 
-            reached = (
-                pd.to_numeric(
-                    future[
-                        "high"
-                    ],
-                    errors="coerce",
+        if not positions.size:
+            return None
+
+        return int(
+            positions[
+                0
+            ]
+            +
+            1
+        )
+
+    @classmethod
+    def _first_passage(
+        cls,
+        direction: str,
+        entry: float,
+        future: pd.DataFrame,
+        threshold: float,
+    ) -> tuple[
+        str,
+        int | None,
+    ]:
+
+        favorable = cls._favorable_series(
+            direction,
+            entry,
+            future,
+        )
+
+        adverse = cls._adverse_series(
+            direction,
+            entry,
+            future,
+        )
+
+        for index in range(
+            len(
+                future
+            )
+        ):
+
+            favorable_hit = bool(
+                np.isfinite(
+                    favorable[
+                        index
+                    ]
                 )
+                and
+                favorable[
+                    index
+                ]
                 >=
-                entry
-                +
-                target
+                threshold
             )
 
-        else:
-
-            reached = (
-                pd.to_numeric(
-                    future[
-                        "low"
-                    ],
-                    errors="coerce",
+            adverse_hit = bool(
+                np.isfinite(
+                    adverse[
+                        index
+                    ]
                 )
-                <=
-                entry
-                -
-                target
+                and
+                adverse[
+                    index
+                ]
+                >=
+                threshold
             )
+
+            if (
+                favorable_hit
+                and
+                adverse_hit
+            ):
+
+                return (
+                    "AMBIGUOUS_SAME_BAR",
+                    index + 1,
+                )
+
+            if favorable_hit:
+
+                return (
+                    "PROFIT_FIRST",
+                    index + 1,
+                )
+
+            if adverse_hit:
+
+                return (
+                    "LOSS_FIRST",
+                    index + 1,
+                )
+
+        return (
+            "NEITHER",
+            None,
+        )
+
+    @classmethod
+    def _breakeven_simulation(
+        cls,
+        direction: str,
+        entry: float,
+        future20: pd.DataFrame,
+        activation_target: float,
+        net20: float,
+    ) -> tuple[
+        str,
+        int | None,
+        int | None,
+        float,
+    ]:
+        """
+        Activate BE when favorable price first reaches +activation_target.
+
+        BE stop checking starts from the NEXT candle.
+
+        We deliberately do not use the activation candle itself because
+        M1 OHLC does not reveal whether target or entry was touched first.
+        """
+
+        activation_bar = cls._target_first_bar(
+            direction,
+            entry,
+            future20,
+            activation_target,
+        )
+
+        if activation_bar is None:
+
+            return (
+                "NOT_ACTIVATED",
+                None,
+                None,
+                net20,
+            )
+
+        # activation_bar is 1-based.
+        # zero_based == activation_bar is the NEXT candle.
+
+        for zero_based in range(
+            activation_bar,
+            len(
+                future20
+            ),
+        ):
+
+            row = future20.iloc[
+                zero_based
+            ]
+
+            low = cls._numeric(
+                row.get(
+                    "low"
+                )
+            )
+
+            high = cls._numeric(
+                row.get(
+                    "high"
+                )
+            )
+
+            if direction == "BULLISH":
+
+                stop_hit = bool(
+                    np.isfinite(
+                        low
+                    )
+                    and
+                    low
+                    <=
+                    entry
+                )
+
+            else:
+
+                stop_hit = bool(
+                    np.isfinite(
+                        high
+                    )
+                    and
+                    high
+                    >=
+                    entry
+                )
+
+            if stop_hit:
+
+                return (
+                    "STOPPED_BE",
+                    activation_bar,
+                    zero_based + 1,
+                    0.0,
+                )
+
+        return (
+            "HELD_20",
+            activation_bar,
+            None,
+            net20,
+        )
+
+    @classmethod
+    def _bars_to_mfe(
+        cls,
+        direction: str,
+        entry: float,
+        future: pd.DataFrame,
+    ) -> int | None:
+
+        favorable = cls._favorable_series(
+            direction,
+            entry,
+            future,
+        )
+
+        if (
+            not favorable.size
+            or
+            not np.isfinite(
+                favorable
+            ).any()
+        ):
+            return None
+
+        return int(
+            np.nanargmax(
+                favorable
+            )
+            +
+            1
+        )
+
+    @classmethod
+    def _mfe_after_activation(
+        cls,
+        direction: str,
+        entry: float,
+        future20: pd.DataFrame,
+        activation_bar: int | None,
+    ) -> float:
+
+        if activation_bar is None:
+            return np.nan
+
+        remaining = future20.iloc[
+            max(
+                0,
+                activation_bar
+                -
+                1,
+            ):
+        ]
+
+        favorable = cls._favorable_series(
+            direction,
+            entry,
+            remaining,
+        )
+
+        if (
+            not favorable.size
+            or
+            not np.isfinite(
+                favorable
+            ).any()
+        ):
+            return np.nan
+
+        return max(
+            0.0,
+            float(
+                np.nanmax(
+                    favorable
+                )
+            ),
+        )
+
+    @staticmethod
+    def _structure_aligned(
+        direction: str,
+        bias: str,
+    ) -> int:
+
+        return int(
+            (
+                direction.upper(),
+                bias.upper(),
+            )
+            in (
+                (
+                    "BULLISH",
+                    "BULLISH",
+                ),
+                (
+                    "BEARISH",
+                    "BEARISH",
+                ),
+            )
+        )
+
+    @staticmethod
+    def _first_true_bar(
+        mask: pd.Series,
+    ) -> int | None:
 
         positions = np.flatnonzero(
-            reached.to_numpy(
+            mask.to_numpy(
                 dtype=bool
             )
         )
 
-        if positions.size == 0:
-
+        if not positions.size:
             return None
 
         return int(
@@ -963,7 +1461,7 @@ class PaperLedger:
         )
 
     # =========================================================================
-    # Causal outcome update
+    # Evaluation
     # =========================================================================
 
     def evaluate(
@@ -981,7 +1479,8 @@ class PaperLedger:
 
         missing = (
             required
-            - set(
+            -
+            set(
                 market.columns
             )
         )
@@ -990,7 +1489,8 @@ class PaperLedger:
 
             raise ValueError(
                 "Missing shadow outcome columns: "
-                + ", ".join(
+                +
+                ", ".join(
                     sorted(
                         missing
                     )
@@ -1002,7 +1502,6 @@ class PaperLedger:
         )
 
         if result.empty:
-
             return result
 
         data = market.copy()
@@ -1027,9 +1526,7 @@ class PaperLedger:
                 ]
             )
             .drop_duplicates(
-                subset=[
-                    "time",
-                ],
+                "time",
                 keep="last",
             )
             .sort_values(
@@ -1043,9 +1540,8 @@ class PaperLedger:
         time_to_position = {
             pd.Timestamp(
                 timestamp
-            ): position
-
-            for position, timestamp
+            ): index
+            for index, timestamp
             in enumerate(
                 data[
                     "time"
@@ -1076,17 +1572,17 @@ class PaperLedger:
                 ]
             )
 
-            if signal_time is None:
-
-                continue
-
-            position = time_to_position.get(
+            if (
+                signal_time is None
+                or
                 signal_time
-            )
-
-            if position is None:
-
+                not in time_to_position
+            ):
                 continue
+
+            position = time_to_position[
+                signal_time
+            ]
 
             direction = self._text(
                 result.at[
@@ -1099,7 +1595,6 @@ class PaperLedger:
                 "BULLISH",
                 "BEARISH",
             ):
-
                 continue
 
             entry = self._numeric(
@@ -1112,7 +1607,6 @@ class PaperLedger:
             if not np.isfinite(
                 entry
             ):
-
                 continue
 
             available = max(
@@ -1128,12 +1622,15 @@ class PaperLedger:
 
             result.at[
                 ledger_index,
+                "ledger_version",
+            ] = self.VERSION
+
+            result.at[
+                ledger_index,
                 "bars_available",
             ] = min(
                 available,
-                max(
-                    self.HORIZONS
-                ),
+                20,
             )
 
             result.at[
@@ -1141,26 +1638,21 @@ class PaperLedger:
                 "last_evaluated_time",
             ] = latest_time
 
-            if available >= 20:
-
-                status = "MATURED_20"
-
-            elif available >= 10:
-
-                status = "PARTIAL_10"
-
-            elif available >= 5:
-
-                status = "PARTIAL_5"
-
-            else:
-
-                status = "OPEN"
-
             result.at[
                 ledger_index,
                 "status",
-            ] = status
+            ] = (
+                "MATURED_20"
+                if available >= 20
+                else
+                "PARTIAL_10"
+                if available >= 10
+                else
+                "PARTIAL_5"
+                if available >= 5
+                else
+                "OPEN"
+            )
 
             signal_atr = self._numeric(
                 result.at[
@@ -1177,22 +1669,19 @@ class PaperLedger:
                 else -1.0
             )
 
+            # =================================================================
+            # Standard 5 / 10 / 20 outcomes
+            # =================================================================
+
             for horizon in self.HORIZONS:
 
                 if available < horizon:
-
                     continue
 
                 future = data.iloc[
-                    position
-                    +
-                    1
+                    position + 1
                     :
-                    position
-                    +
-                    horizon
-                    +
-                    1
+                    position + horizon + 1
                 ]
 
                 horizon_close = self._numeric(
@@ -1219,15 +1708,9 @@ class PaperLedger:
                     mfe,
                     mae,
                 ) = self._directional_metrics(
-                    direction=(
-                        direction
-                    ),
-                    entry=(
-                        entry
-                    ),
-                    future=(
-                        future
-                    ),
+                    direction,
+                    entry,
+                    future,
                 )
 
                 result.at[
@@ -1255,9 +1738,7 @@ class PaperLedger:
                         signal_atr
                     )
                     and
-                    signal_atr
-                    >
-                    0.0
+                    signal_atr > 0
                 ):
 
                     result.at[
@@ -1287,92 +1768,498 @@ class PaperLedger:
                         signal_atr
                     )
 
+            # =================================================================
+            # Target + first passage
+            # =================================================================
+
             target_window_size = min(
                 available,
                 20,
             )
 
-            if target_window_size > 0:
+            if target_window_size <= 0:
+                continue
 
-                future_for_targets = (
-                    data.iloc[
-                        position
-                        +
-                        1
-                        :
-                        position
-                        +
-                        target_window_size
-                        +
-                        1
-                    ]
+            future_targets = data.iloc[
+                position + 1
+                :
+                position
+                +
+                target_window_size
+                +
+                1
+            ]
+
+            for target in self.TARGETS:
+
+                name = int(
+                    target
                 )
 
-                for target in self.TARGETS:
+                first_bar = self._target_first_bar(
+                    direction,
+                    entry,
+                    future_targets,
+                    target,
+                )
 
-                    target_name = int(
-                        target
-                    )
+                if first_bar is not None:
 
-                    first_bar = self._target_first_bar(
-                        direction=(
-                            direction
-                        ),
-                        entry=(
-                            entry
-                        ),
-                        future=(
-                            future_for_targets
-                        ),
-                        target=(
-                            target
-                        ),
-                    )
-
-                    if first_bar is not None:
-
-                        result.at[
-                            ledger_index,
-                            f"target_{target_name}_hit",
-                        ] = 1
-
-                        result.at[
-                            ledger_index,
-                            f"target_{target_name}_bars",
-                        ] = first_bar
-
-                    elif available >= 20:
-
-                        result.at[
-                            ledger_index,
-                            f"target_{target_name}_hit",
-                        ] = 0
-
-                        result.at[
-                            ledger_index,
-                            f"target_{target_name}_bars",
-                        ] = np.nan
-
-            if available >= 20:
-
-                net20 = self._numeric(
                     result.at[
                         ledger_index,
-                        "net_20",
-                    ]
+                        f"target_{name}_hit",
+                    ] = 1
+
+                    result.at[
+                        ledger_index,
+                        f"target_{name}_bars",
+                    ] = first_bar
+
+                elif available >= 20:
+
+                    result.at[
+                        ledger_index,
+                        f"target_{name}_hit",
+                    ] = 0
+
+                    result.at[
+                        ledger_index,
+                        f"target_{name}_bars",
+                    ] = np.nan
+
+                (
+                    first_passage_result,
+                    first_passage_bar,
+                ) = self._first_passage(
+                    direction,
+                    entry,
+                    future_targets,
+                    target,
                 )
 
-                if np.isfinite(
-                    net20
+                if (
+                    first_passage_result
+                    !=
+                    "NEITHER"
+                    or
+                    available >= 20
                 ):
 
                     result.at[
                         ledger_index,
-                        "positive_20",
-                    ] = int(
+                        f"fp_{name}_result",
+                    ] = first_passage_result
+
+                    result.at[
+                        ledger_index,
+                        f"fp_{name}_bar",
+                    ] = (
+                        first_passage_bar
+                        if first_passage_bar
+                        is not None
+                        else np.nan
+                    )
+
+            if available < 20:
+                continue
+
+            future20 = data.iloc[
+                position + 1
+                :
+                position + 21
+            ]
+
+            net20 = self._numeric(
+                result.at[
+                    ledger_index,
+                    "net_20",
+                ]
+            )
+
+            mfe20 = self._numeric(
+                result.at[
+                    ledger_index,
+                    "mfe_20",
+                ]
+            )
+
+            if np.isfinite(
+                net20
+            ):
+
+                result.at[
+                    ledger_index,
+                    "positive_20",
+                ] = int(
+                    net20
+                    >
+                    0
+                )
+
+            # =================================================================
+            # Breakeven simulations
+            # =================================================================
+
+            for target in self.TARGETS:
+
+                name = int(
+                    target
+                )
+
+                (
+                    be_status,
+                    activation_bar,
+                    exit_bar,
+                    be_net,
+                ) = self._breakeven_simulation(
+                    direction,
+                    entry,
+                    future20,
+                    target,
+                    net20,
+                )
+
+                result.at[
+                    ledger_index,
+                    f"be_after_{name}_status",
+                ] = be_status
+
+                result.at[
+                    ledger_index,
+                    f"be_after_{name}_activation_bar",
+                ] = (
+                    activation_bar
+                    if activation_bar
+                    is not None
+                    else np.nan
+                )
+
+                result.at[
+                    ledger_index,
+                    f"be_after_{name}_exit_bar",
+                ] = (
+                    exit_bar
+                    if exit_bar
+                    is not None
+                    else np.nan
+                )
+
+                result.at[
+                    ledger_index,
+                    f"be_after_{name}_net_20",
+                ] = be_net
+
+                mfe_after = self._mfe_after_activation(
+                    direction,
+                    entry,
+                    future20,
+                    activation_bar,
+                )
+
+                result.at[
+                    ledger_index,
+                    f"mfe_after_{name}_20",
+                ] = mfe_after
+
+                if np.isfinite(
+                    mfe_after
+                ):
+
+                    result.at[
+                        ledger_index,
+                        f"extension_after_{name}_20",
+                    ] = max(
+                        0.0,
+                        mfe_after
+                        -
+                        target,
+                    )
+
+            # =================================================================
+            # Runner / continuation
+            # =================================================================
+
+            bars_to_mfe = self._bars_to_mfe(
+                direction,
+                entry,
+                future20,
+            )
+
+            result.at[
+                ledger_index,
+                "bars_to_mfe_20",
+            ] = (
+                bars_to_mfe
+                if bars_to_mfe
+                is not None
+                else np.nan
+            )
+
+            if (
+                np.isfinite(
+                    mfe20
+                )
+                and
+                np.isfinite(
+                    net20
+                )
+            ):
+
+                result.at[
+                    ledger_index,
+                    "giveback_20",
+                ] = (
+                    mfe20
+                    -
+                    net20
+                )
+
+                if mfe20 > 0:
+
+                    result.at[
+                        ledger_index,
+                        "net_to_mfe_ratio_20",
+                    ] = (
                         net20
-                        >
-                        0.0
+                        /
+                        mfe20
+                    )
+
+            # =================================================================
+            # Post-entry BOS
+            # =================================================================
+
+            if "bos_direction" in future20.columns:
+
+                bos_direction = (
+                    future20[
+                        "bos_direction"
+                    ]
+                    .astype(
+                        str
+                    )
+                    .str
+                    .upper()
+                )
+
+                same = bos_direction.eq(
+                    direction
+                )
+
+                opposite_direction = (
+                    "BEARISH"
+                    if direction
+                    ==
+                    "BULLISH"
+                    else
+                    "BULLISH"
+                )
+
+                opposite = bos_direction.eq(
+                    opposite_direction
+                )
+
+                result.at[
+                    ledger_index,
+                    "directional_bos_count_20",
+                ] = int(
+                    same.sum()
+                )
+
+                result.at[
+                    ledger_index,
+                    "opposing_bos_count_20",
+                ] = int(
+                    opposite.sum()
+                )
+
+                same_first = self._first_true_bar(
+                    same
+                )
+
+                opposite_first = self._first_true_bar(
+                    opposite
+                )
+
+                result.at[
+                    ledger_index,
+                    "directional_bos_first_bar_20",
+                ] = (
+                    same_first
+                    if same_first
+                    is not None
+                    else np.nan
+                )
+
+                result.at[
+                    ledger_index,
+                    "opposing_bos_first_bar_20",
+                ] = (
+                    opposite_first
+                    if opposite_first
+                    is not None
+                    else np.nan
+                )
+
+                if "internal_bos" in future20.columns:
+
+                    internal = (
+                        pd.to_numeric(
+                            future20[
+                                "internal_bos"
+                            ],
+                            errors="coerce",
+                        )
+                        .fillna(
+                            0
+                        )
+                        .eq(
+                            1
+                        )
+                    )
+
+                    result.at[
+                        ledger_index,
+                        "directional_internal_bos_count_20",
+                    ] = int(
+                        (
+                            same
+                            &
+                            internal
+                        ).sum()
+                    )
+
+                if "major_bos" in future20.columns:
+
+                    major = (
+                        pd.to_numeric(
+                            future20[
+                                "major_bos"
+                            ],
+                            errors="coerce",
+                        )
+                        .fillna(
+                            0
+                        )
+                        .eq(
+                            1
+                        )
+                    )
+
+                    result.at[
+                        ledger_index,
+                        "directional_major_bos_count_20",
+                    ] = int(
+                        (
+                            same
+                            &
+                            major
+                        ).sum()
+                    )
+
+            # =================================================================
+            # Post-entry swing expansion
+            # =================================================================
+
+            if "swing_scale" in future20.columns:
+
+                scales = (
+                    future20[
+                        "swing_scale"
+                    ]
+                    .astype(
+                        str
+                    )
+                    .str
+                    .upper()
+                )
+
+                result.at[
+                    ledger_index,
+                    "internal_swing_count_20",
+                ] = int(
+                    scales.eq(
+                        "INTERNAL"
+                    ).sum()
+                )
+
+                result.at[
+                    ledger_index,
+                    "major_swing_count_20",
+                ] = int(
+                    scales.eq(
+                        "MAJOR"
+                    ).sum()
+                )
+
+            # =================================================================
+            # Structure + regime snapshots
+            # =================================================================
+
+            for horizon in self.HORIZONS:
+
+                horizon_row = data.iloc[
+                    position
+                    +
+                    horizon
+                ]
+
+                if "structure_bias" in data.columns:
+
+                    bias = self._text(
+                        horizon_row.get(
+                            "structure_bias"
+                        ),
+                        "UNKNOWN",
+                    ).upper()
+
+                    result.at[
+                        ledger_index,
+                        f"structure_bias_{horizon}",
+                    ] = bias
+
+                    result.at[
+                        ledger_index,
+                        f"structure_aligned_{horizon}",
+                    ] = self._structure_aligned(
+                        direction,
+                        bias,
+                    )
+
+                if "regime_state" in data.columns:
+
+                    result.at[
+                        ledger_index,
+                        f"regime_state_{horizon}",
+                    ] = self._text(
+                        horizon_row.get(
+                            "regime_state"
+                        ),
+                        "UNKNOWN",
+                    )
+
+                if "regime_trend" in data.columns:
+
+                    result.at[
+                        ledger_index,
+                        f"regime_trend_{horizon}",
+                    ] = self._text(
+                        horizon_row.get(
+                            "regime_trend"
+                        ),
+                        "UNKNOWN",
+                    )
+
+                if "regime_volatility" in data.columns:
+
+                    result.at[
+                        ledger_index,
+                        f"regime_volatility_{horizon}",
+                    ] = self._text(
+                        horizon_row.get(
+                            "regime_volatility"
+                        ),
+                        "UNKNOWN",
                     )
 
         return result
