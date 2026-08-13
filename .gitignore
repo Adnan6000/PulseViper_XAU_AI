@@ -99,6 +99,10 @@ Logs/
 01_Data/Processed/*.parquet
 01_Data/Processed/*.feather
 
+# Forward-validation runtime boundary/state.
+# Must stay local and must never be committed as repository research evidence.
+01_Data/Processed/*.anchor.json
+
 01_Data/Labels/*.csv
 01_Data/Labels/*.parquet
 01_Data/Labels/*.feather

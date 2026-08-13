@@ -60,4 +60,10 @@ jobs:
             04_Testing/test_market_decision_clarity.py \
             04_Testing/test_level_entry_intelligence.py \
             04_Testing/test_research_intelligence_pipeline.py \
+            04_Testing/test_research_telemetry.py \
+            04_Testing/test_research_candidate_ledger.py \
+            04_Testing/test_research_candidate_episode.py \
+            04_Testing/test_research_opportunity_quality.py \
+            04_Testing/test_research_opportunity_weight_engine.py \
+            04_Testing/test_research_weight_forward_ledger.py \
             -q
