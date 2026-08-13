@@ -59,4 +59,5 @@ jobs:
             04_Testing/test_candle_swing_intelligence.py \
             04_Testing/test_market_decision_clarity.py \
             04_Testing/test_level_entry_intelligence.py \
+            04_Testing/test_research_intelligence_pipeline.py \
             -q
