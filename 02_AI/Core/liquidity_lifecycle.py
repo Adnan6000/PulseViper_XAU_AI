@@ -2,13 +2,13 @@
 ===============================================================================
 Module      : liquidity_lifecycle.py
 Project     : PulseViper XAU AI
-Version     : 1.1
+Version     : 1.2
 Purpose     : Causal Contextual Liquidity Lifecycle Engine
 ===============================================================================
 
 Research contract
 -----------------
-This module tracks the lifecycle of already-known market liquidity levels.
+This module tracks the lifecycle of already-known contextual liquidity levels.
 
 It does NOT:
 - open trades
@@ -43,16 +43,22 @@ BROKEN
 ACCEPTED_BEYOND
 RECLAIMED
 
-Important causality rule
-------------------------
-A liquidity level discovered/confirmed on candle i is registered on candle i,
-but candle i is NOT allowed to retrospectively test/sweep/break that level.
+Causality rules
+---------------
+1. Completed previous-period context (PDH/PDL/PWH/PWL/previous sessions) is
+   already known when the current period begins, so it may be evaluated on the
+   same row on which that contextual value first appears in this dataframe.
 
-Lifecycle evaluation begins from candle i + 1.
+2. Confirmed MarketStructure swings become known only on their confirmation
+   candle. They are registered on that candle but cannot be evaluated against
+   the same candle. Swing lifecycle evaluation begins on the next candle.
 
-This is especially important for confirmed MarketStructure swings because their
-origin price may be in the past, but the swing only becomes known on its causal
-confirmation candle.
+3. Static contextual sources rotate with their causal period. When a new PDH,
+   PDL, previous-session level, etc. replaces the prior one, the old contextual
+   instance is deactivated and no longer competes as current liquidity.
+
+4. Confirmed structural swings use swing_id identity, not only price identity.
+   Two separate swings at the same price therefore remain separate events.
 """
 
 from __future__ import annotations
@@ -66,18 +72,18 @@ import pandas as pd
 
 @dataclass
 class _LiquidityLevel:
-    """
-    Internal mutable research representation of one liquidity level.
-    """
+    """Internal mutable representation of one causal liquidity instance."""
 
     level_id: int
+    identity_key: str
     source: str
     side: str
     price: float
     first_seen_index: int
+    eligible_from_index: int
+    active: bool = True
 
     state: str = "UNTOUCHED"
-
     touches: int = 0
 
     first_touch_index: int = -1
@@ -92,66 +98,28 @@ class _LiquidityLevel:
 
 
 class LiquidityLifecycleMap:
-    """
-    Causal liquidity lifecycle research engine.
-    """
+    """Causal liquidity lifecycle research engine."""
 
-    VERSION = "1.1"
-
+    VERSION = "1.2"
     MODE = "CAUSAL_RESEARCH_METADATA_ONLY"
 
-    STATIC_CONTEXT_SOURCES = (
-        (
-            "PDH",
-            "HIGH",
-            "ctx_pdh",
-        ),
-        (
-            "PDL",
-            "LOW",
-            "ctx_pdl",
-        ),
-        (
-            "PWH",
-            "HIGH",
-            "ctx_pwh",
-        ),
-        (
-            "PWL",
-            "LOW",
-            "ctx_pwl",
-        ),
-        (
-            "PREV_ASIA_HIGH",
-            "HIGH",
-            "ctx_prev_asia_high",
-        ),
-        (
-            "PREV_ASIA_LOW",
-            "LOW",
-            "ctx_prev_asia_low",
-        ),
-        (
-            "PREV_LONDON_HIGH",
-            "HIGH",
-            "ctx_prev_london_high",
-        ),
-        (
-            "PREV_LONDON_LOW",
-            "LOW",
-            "ctx_prev_london_low",
-        ),
-        (
-            "PREV_NEW_YORK_HIGH",
-            "HIGH",
-            "ctx_prev_new_york_high",
-        ),
-        (
-            "PREV_NEW_YORK_LOW",
-            "LOW",
-            "ctx_prev_new_york_low",
-        ),
+    STATIC_CONTEXT_SOURCES: tuple[tuple[str, str, str], ...] = (
+        ("PDH", "HIGH", "ctx_pdh"),
+        ("PDL", "LOW", "ctx_pdl"),
+        ("PWH", "HIGH", "ctx_pwh"),
+        ("PWL", "LOW", "ctx_pwl"),
+        ("PREV_ASIA_HIGH", "HIGH", "ctx_prev_asia_high"),
+        ("PREV_ASIA_LOW", "LOW", "ctx_prev_asia_low"),
+        ("PREV_LONDON_HIGH", "HIGH", "ctx_prev_london_high"),
+        ("PREV_LONDON_LOW", "LOW", "ctx_prev_london_low"),
+        ("PREV_NEW_YORK_HIGH", "HIGH", "ctx_prev_new_york_high"),
+        ("PREV_NEW_YORK_LOW", "LOW", "ctx_prev_new_york_low"),
     )
+
+    WEEKLY_CONTEXT_SOURCES = {
+        "PWH",
+        "PWL",
+    }
 
     def __init__(
         self,
@@ -162,49 +130,25 @@ class LiquidityLifecycleMap:
         acceptance_closes: int = 2,
         equality_tolerance: float = 1e-9,
     ) -> None:
+        values = (
+            ("touch_buffer_atr", touch_buffer_atr),
+            ("sweep_buffer_atr", sweep_buffer_atr),
+            ("break_buffer_atr", break_buffer_atr),
+            ("reclaim_buffer_atr", reclaim_buffer_atr),
+        )
 
-        for (
-            name,
-            value,
-        ) in (
-            (
-                "touch_buffer_atr",
-                touch_buffer_atr,
-            ),
-            (
-                "sweep_buffer_atr",
-                sweep_buffer_atr,
-            ),
-            (
-                "break_buffer_atr",
-                break_buffer_atr,
-            ),
-            (
-                "reclaim_buffer_atr",
-                reclaim_buffer_atr,
-            ),
-        ):
-
-            if float(
-                value
-            ) < 0.0:
-
+        for name, value in values:
+            if float(value) < 0.0:
                 raise ValueError(
                     f"{name} cannot be negative"
                 )
 
-        if int(
-            acceptance_closes
-        ) < 1:
-
+        if int(acceptance_closes) < 1:
             raise ValueError(
                 "acceptance_closes must be at least one"
             )
 
-        if float(
-            equality_tolerance
-        ) < 0.0:
-
+        if float(equality_tolerance) < 0.0:
             raise ValueError(
                 "equality_tolerance cannot be negative"
             )
@@ -241,12 +185,10 @@ class LiquidityLifecycleMap:
     def _validate(
         df: pd.DataFrame,
     ) -> None:
-
         if not isinstance(
             df,
             pd.DataFrame,
         ):
-
             raise TypeError(
                 "LiquidityLifecycleMap input "
                 "must be a pandas DataFrame"
@@ -267,7 +209,6 @@ class LiquidityLifecycleMap:
         )
 
         if missing:
-
             raise ValueError(
                 "Missing required liquidity-lifecycle columns: "
                 +
@@ -283,10 +224,10 @@ class LiquidityLifecycleMap:
         value: Any,
     ) -> float:
         """
-        Safe pandas/numpy/Python scalar conversion.
+        Convert pandas/numpy/Python scalar to finite float safely.
 
-        Prevents Pylance Scalar -> float typing problems and rejects
-        complex / invalid / missing values.
+        This helper intentionally accepts Any so pandas Scalar unions do not
+        propagate Pylance float-conversion warnings through the engine.
         """
 
         if (
@@ -297,19 +238,16 @@ class LiquidityLifecycleMap:
                 complex,
             )
         ):
-
             return float(
                 "nan"
             )
 
         try:
-
             if bool(
                 pd.isna(
                     value
                 )
             ):
-
                 return float(
                     "nan"
                 )
@@ -318,13 +256,11 @@ class LiquidityLifecycleMap:
             TypeError,
             ValueError,
         ):
-
             return float(
                 "nan"
             )
 
         try:
-
             number = float(
                 value
             )
@@ -334,7 +270,6 @@ class LiquidityLifecycleMap:
             ValueError,
             OverflowError,
         ):
-
             return float(
                 "nan"
             )
@@ -342,7 +277,6 @@ class LiquidityLifecycleMap:
         if not np.isfinite(
             number
         ):
-
             return float(
                 "nan"
             )
@@ -354,7 +288,6 @@ class LiquidityLifecycleMap:
         df: pd.DataFrame,
         column: str,
     ) -> np.ndarray:
-
         return (
             pd.to_numeric(
                 df[
@@ -367,9 +300,143 @@ class LiquidityLifecycleMap:
             )
         )
 
+    @staticmethod
+    def _safe_text(
+        value: Any,
+        default: str = "NONE",
+    ) -> str:
+        if value is None:
+            return default
+
+        try:
+            if bool(
+                pd.isna(
+                    value
+                )
+            ):
+                return default
+
+        except (
+            TypeError,
+            ValueError,
+        ):
+            return default
+
+        text = (
+            str(
+                value
+            )
+            .strip()
+            .upper()
+        )
+
+        if not text:
+            return default
+
+        return text
+
     # =========================================================================
-    # Level registration
+    # Context identity / registration
     # =========================================================================
+
+    def _period_token(
+        self,
+        df: pd.DataFrame,
+        index: int,
+        source: str,
+        price: float,
+    ) -> str:
+        """
+        Return a causal token for the active contextual period.
+
+        With a time column:
+        - PDH/PDL and previous-session levels rotate daily.
+        - PWH/PWL rotate weekly.
+
+        Without time, price identity is used as a safe fallback. This keeps
+        deterministic standalone tests working even when no timestamp exists.
+        """
+
+        fallback = (
+            "PRICE:"
+            +
+            f"{round(float(price), 8):.8f}"
+        )
+
+        if "time" not in df.columns:
+            return fallback
+
+        raw_time: Any = (
+            df[
+                "time"
+            ]
+            .iat[
+                index
+            ]
+        )
+
+        try:
+            parsed: Any = pd.to_datetime(
+                raw_time,
+                utc=True,
+                errors="coerce",
+            )
+
+        except (
+            TypeError,
+            ValueError,
+            OverflowError,
+        ):
+            return fallback
+
+        if not isinstance(
+            parsed,
+            pd.Timestamp,
+        ):
+            return fallback
+
+        if pd.isna(
+            parsed
+        ):
+            return fallback
+
+        if source in self.WEEKLY_CONTEXT_SOURCES:
+            iso: Any = (
+                parsed
+                .isocalendar()
+            )
+
+            return (
+                f"{int(iso.year):04d}"
+                f"-W{int(iso.week):02d}"
+            )
+
+        return parsed.strftime(
+            "%Y-%m-%d"
+        )
+
+    @staticmethod
+    def _deactivate_position(
+        registry: list[
+            _LiquidityLevel
+        ],
+        position: int | None,
+    ) -> None:
+        if position is None:
+            return
+
+        if (
+            0
+            <=
+            position
+            <
+            len(
+                registry
+            )
+        ):
+            registry[
+                position
+            ].active = False
 
     def _register(
         self,
@@ -377,42 +444,66 @@ class LiquidityLifecycleMap:
             _LiquidityLevel
         ],
         lookup: dict[
-            tuple[
-                str,
-                str,
-                float,
-            ],
+            str,
             int,
         ],
         next_id: int,
+        identity_key: str,
         source: str,
         side: str,
         price: float,
         index: int,
-    ) -> int:
-
+        eligible_from_index: int,
+    ) -> tuple[
+        int,
+        int | None,
+    ]:
         if not np.isfinite(
             price
         ):
+            return (
+                next_id,
+                None,
+            )
 
-            return next_id
-
-        key = (
-            source,
-            side,
-            round(
-                price,
-                8,
-            ),
+        existing_position = (
+            lookup.get(
+                identity_key
+            )
         )
 
-        if key in lookup:
+        if existing_position is not None:
+            if (
+                0
+                <=
+                existing_position
+                <
+                len(
+                    registry
+                )
+            ):
+                registry[
+                    existing_position
+                ].active = True
 
-            return next_id
+                return (
+                    next_id,
+                    existing_position,
+                )
+
+            lookup.pop(
+                identity_key,
+                None,
+            )
+
+        position = len(
+            registry
+        )
 
         registry.append(
             _LiquidityLevel(
                 level_id=next_id,
+                identity_key=identity_key,
                 source=source,
                 side=side,
                 price=float(
@@ -421,17 +512,21 @@ class LiquidityLifecycleMap:
                 first_seen_index=int(
                     index
                 ),
+                eligible_from_index=int(
+                    eligible_from_index
+                ),
             )
         )
 
         lookup[
-            key
-        ] = next_id
+            identity_key
+        ] = position
 
         return (
             next_id
             +
-            1
+            1,
+            position,
         )
 
     def _register_context_levels(
@@ -442,18 +537,20 @@ class LiquidityLifecycleMap:
             _LiquidityLevel
         ],
         lookup: dict[
-            tuple[
-                str,
-                str,
-                float,
-            ],
+            str,
+            int,
+        ],
+        active_static: dict[
+            str,
             int,
         ],
         next_id: int,
     ) -> int:
-
         # ---------------------------------------------------------------------
-        # Previous day/week/session contextual levels
+        # Completed previous-period context.
+        #
+        # These values are already known for the current period and therefore
+        # are eligible on the same row where they first appear.
         # ---------------------------------------------------------------------
 
         for (
@@ -461,31 +558,105 @@ class LiquidityLifecycleMap:
             side,
             column,
         ) in self.STATIC_CONTEXT_SOURCES:
-
             if column not in df.columns:
-
                 continue
 
             price = self._safe_float(
                 df[
                     column
-                ].iat[
+                ]
+                .iat[
                     index
                 ]
             )
 
-            next_id = self._register(
+            previous_position = (
+                active_static.get(
+                    source
+                )
+            )
+
+            if not np.isfinite(
+                price
+            ):
+                self._deactivate_position(
+                    registry,
+                    previous_position,
+                )
+
+                active_static.pop(
+                    source,
+                    None,
+                )
+
+                continue
+
+            token = self._period_token(
+                df=df,
+                index=index,
+                source=source,
+                price=price,
+            )
+
+            identity_key = (
+                f"STATIC|{source}|"
+                f"{token}|"
+                f"{round(float(price), 8):.8f}"
+            )
+
+            if previous_position is not None:
+                if (
+                    0
+                    <=
+                    previous_position
+                    <
+                    len(
+                        registry
+                    )
+                ):
+                    previous_level = (
+                        registry[
+                            previous_position
+                        ]
+                    )
+
+                    if (
+                        previous_level.identity_key
+                        !=
+                        identity_key
+                    ):
+                        previous_level.active = False
+
+                        active_static.pop(
+                            source,
+                            None,
+                        )
+
+            (
+                next_id,
+                position,
+            ) = self._register(
                 registry=registry,
                 lookup=lookup,
                 next_id=next_id,
+                identity_key=identity_key,
                 source=source,
                 side=side,
                 price=price,
                 index=index,
+                eligible_from_index=index,
             )
 
+            if position is not None:
+                active_static[
+                    source
+                ] = position
+
         # ---------------------------------------------------------------------
-        # Confirmed causal MarketStructure swings
+        # Confirmed causal MarketStructure swings.
+        #
+        # swing_id is the unique identity.
+        # Evaluation starts on the next candle.
         # ---------------------------------------------------------------------
 
         swing_required = {
@@ -495,82 +666,106 @@ class LiquidityLifecycleMap:
             "swing_scale",
         }
 
-        if swing_required.issubset(
+        if not swing_required.issubset(
             df.columns
         ):
+            return next_id
 
-            swing_id = self._safe_float(
-                df[
-                    "swing_id"
-                ].iat[
-                    index
-                ]
+        swing_id_value = self._safe_float(
+            df[
+                "swing_id"
+            ]
+            .iat[
+                index
+            ]
+        )
+
+        swing_price = self._safe_float(
+            df[
+                "swing_price"
+            ]
+            .iat[
+                index
+            ]
+        )
+
+        swing_type = self._safe_text(
+            df[
+                "swing_type"
+            ]
+            .iat[
+                index
+            ]
+        )
+
+        swing_scale = self._safe_text(
+            df[
+                "swing_scale"
+            ]
+            .iat[
+                index
+            ]
+        )
+
+        if not (
+            np.isfinite(
+                swing_id_value
             )
-
-            swing_price = self._safe_float(
-                df[
-                    "swing_price"
-                ].iat[
-                    index
-                ]
+            and
+            int(
+                swing_id_value
             )
+            >
+            0
+            and
+            np.isfinite(
+                swing_price
+            )
+            and
+            swing_type
+            in {
+                "HIGH",
+                "LOW",
+            }
+            and
+            swing_scale
+            in {
+                "MICRO",
+                "INTERNAL",
+                "MAJOR",
+            }
+        ):
+            return next_id
 
-            swing_type = str(
-                df[
-                    "swing_type"
-                ].iat[
-                    index
-                ]
-            ).upper()
+        swing_id = int(
+            swing_id_value
+        )
 
-            swing_scale = str(
-                df[
-                    "swing_scale"
-                ].iat[
-                    index
-                ]
-            ).upper()
+        identity_key = (
+            f"SWING|{swing_id}"
+        )
 
-            if (
-                np.isfinite(
-                    swing_id
-                )
-                and
-                int(
-                    swing_id
-                )
-                >
-                0
-                and
-                np.isfinite(
-                    swing_price
-                )
-                and
-                swing_type
-                in {
-                    "HIGH",
-                    "LOW",
-                }
-                and
-                swing_scale
-                in {
-                    "MICRO",
-                    "INTERNAL",
-                    "MAJOR",
-                }
-            ):
-
-                next_id = self._register(
-                    registry=registry,
-                    lookup=lookup,
-                    next_id=next_id,
-                    source=(
-                        f"{swing_scale}_{swing_type}"
-                    ),
-                    side=swing_type,
-                    price=swing_price,
-                    index=index,
-                )
+        (
+            next_id,
+            _,
+        ) = self._register(
+            registry=registry,
+            lookup=lookup,
+            next_id=next_id,
+            identity_key=identity_key,
+            source=(
+                f"{swing_scale}_"
+                f"{swing_type}"
+            ),
+            side=swing_type,
+            price=swing_price,
+            index=index,
+            eligible_from_index=(
+                index
+                +
+                1
+            ),
+        )
 
         return next_id
 
@@ -587,7 +782,6 @@ class LiquidityLifecycleMap:
         float,
         float,
     ]:
-
         if (
             not np.isfinite(
                 atr
@@ -595,7 +789,6 @@ class LiquidityLifecycleMap:
             or
             atr <= 0.0
         ):
-
             return (
                 0.0,
                 0.0,
@@ -622,6 +815,71 @@ class LiquidityLifecycleMap:
         )
 
     # =========================================================================
+    # Touch geometry
+    # =========================================================================
+
+    def _range_overlaps_level(
+        self,
+        high: float,
+        low: float,
+        price: float,
+        buffer_value: float,
+    ) -> bool:
+        """
+        True only when the candle range actually overlaps the level zone.
+
+        This prevents candles trading completely beyond a level from being
+        counted as repeated touches merely because their high/low remains on
+        the far side of the level.
+        """
+
+        lower_bound = (
+            price
+            -
+            buffer_value
+            -
+            self.equality_tolerance
+        )
+
+        upper_bound = (
+            price
+            +
+            buffer_value
+            +
+            self.equality_tolerance
+        )
+
+        return (
+            high
+            >=
+            lower_bound
+            and
+            low
+            <=
+            upper_bound
+        )
+
+    @staticmethod
+    def _record_touch(
+        level: _LiquidityLevel,
+        index: int,
+    ) -> None:
+        level.touches += 1
+
+        if (
+            level.first_touch_index
+            <
+            0
+        ):
+            level.first_touch_index = (
+                index
+            )
+
+        level.last_touch_index = (
+            index
+        )
+
+    # =========================================================================
     # HIGH-side lifecycle
     # =========================================================================
 
@@ -637,21 +895,13 @@ class LiquidityLifecycleMap:
         break_buffer: float,
         reclaim_buffer: float,
     ) -> str | None:
+        price = level.price
 
-        _ = low
-
-        price = (
-            level.price
-        )
-
-        touched = (
-            high
-            >=
-            (
-                price
-                -
-                touch_buffer
-            )
+        touched = self._range_overlaps_level(
+            high=high,
+            low=low,
+            price=price,
+            buffer_value=touch_buffer,
         )
 
         swept = (
@@ -694,32 +944,13 @@ class LiquidityLifecycleMap:
             )
         )
 
-        event: str | None = None
-
         if touched:
-
-            level.touches += 1
-
-            if (
-                level.first_touch_index
-                <
-                0
-            ):
-
-                level.first_touch_index = (
-                    index
-                )
-
-            level.last_touch_index = (
-                index
+            self._record_touch(
+                level,
+                index,
             )
 
-        # ---------------------------------------------------------------------
-        # Previously broken/accepted high reclaimed back below.
-        # ---------------------------------------------------------------------
-
         if reclaimed:
-
             level.state = (
                 "RECLAIMED"
             )
@@ -729,7 +960,6 @@ class LiquidityLifecycleMap:
                 <
                 0
             ):
-
                 level.reclaim_index = (
                     index
                 )
@@ -740,17 +970,13 @@ class LiquidityLifecycleMap:
                 "RECLAIMED"
             )
 
-        # ---------------------------------------------------------------------
-        # Close decisively above high-side liquidity.
-        # ---------------------------------------------------------------------
-
         if beyond:
+            event: str | None = None
 
             if level.state not in {
                 "BROKEN",
                 "ACCEPTED_BEYOND",
             }:
-
                 level.state = (
                     "BROKEN"
                 )
@@ -760,7 +986,6 @@ class LiquidityLifecycleMap:
                     <
                     0
                 ):
-
                     level.break_index = (
                         index
                     )
@@ -776,13 +1001,11 @@ class LiquidityLifecycleMap:
                 >=
                 self.acceptance_closes
             ):
-
                 if (
                     level.state
                     !=
                     "ACCEPTED_BEYOND"
                 ):
-
                     level.state = (
                         "ACCEPTED_BEYOND"
                     )
@@ -792,7 +1015,6 @@ class LiquidityLifecycleMap:
                         <
                         0
                     ):
-
                         level.accept_index = (
                             index
                         )
@@ -805,12 +1027,7 @@ class LiquidityLifecycleMap:
 
         level.consecutive_beyond = 0
 
-        # ---------------------------------------------------------------------
-        # Wick through liquidity but close back below.
-        # ---------------------------------------------------------------------
-
         if swept:
-
             level.state = (
                 "SWEPT"
             )
@@ -820,7 +1037,6 @@ class LiquidityLifecycleMap:
                 <
                 0
             ):
-
                 level.sweep_index = (
                     index
                 )
@@ -829,10 +1045,6 @@ class LiquidityLifecycleMap:
                 "SWEPT"
             )
 
-        # ---------------------------------------------------------------------
-        # Simple interaction/touch.
-        # ---------------------------------------------------------------------
-
         if (
             touched
             and
@@ -840,7 +1052,6 @@ class LiquidityLifecycleMap:
             ==
             "UNTOUCHED"
         ):
-
             level.state = (
                 "TESTED"
             )
@@ -867,21 +1078,13 @@ class LiquidityLifecycleMap:
         break_buffer: float,
         reclaim_buffer: float,
     ) -> str | None:
+        price = level.price
 
-        _ = high
-
-        price = (
-            level.price
-        )
-
-        touched = (
-            low
-            <=
-            (
-                price
-                +
-                touch_buffer
-            )
+        touched = self._range_overlaps_level(
+            high=high,
+            low=low,
+            price=price,
+            buffer_value=touch_buffer,
         )
 
         swept = (
@@ -924,32 +1127,13 @@ class LiquidityLifecycleMap:
             )
         )
 
-        event: str | None = None
-
         if touched:
-
-            level.touches += 1
-
-            if (
-                level.first_touch_index
-                <
-                0
-            ):
-
-                level.first_touch_index = (
-                    index
-                )
-
-            level.last_touch_index = (
-                index
+            self._record_touch(
+                level,
+                index,
             )
 
-        # ---------------------------------------------------------------------
-        # Previously broken/accepted low reclaimed back above.
-        # ---------------------------------------------------------------------
-
         if reclaimed:
-
             level.state = (
                 "RECLAIMED"
             )
@@ -959,7 +1143,6 @@ class LiquidityLifecycleMap:
                 <
                 0
             ):
-
                 level.reclaim_index = (
                     index
                 )
@@ -970,17 +1153,13 @@ class LiquidityLifecycleMap:
                 "RECLAIMED"
             )
 
-        # ---------------------------------------------------------------------
-        # Close decisively below low-side liquidity.
-        # ---------------------------------------------------------------------
-
         if beyond:
+            event: str | None = None
 
             if level.state not in {
                 "BROKEN",
                 "ACCEPTED_BEYOND",
             }:
-
                 level.state = (
                     "BROKEN"
                 )
@@ -990,7 +1169,6 @@ class LiquidityLifecycleMap:
                     <
                     0
                 ):
-
                     level.break_index = (
                         index
                     )
@@ -1006,13 +1184,11 @@ class LiquidityLifecycleMap:
                 >=
                 self.acceptance_closes
             ):
-
                 if (
                     level.state
                     !=
                     "ACCEPTED_BEYOND"
                 ):
-
                     level.state = (
                         "ACCEPTED_BEYOND"
                     )
@@ -1022,7 +1198,6 @@ class LiquidityLifecycleMap:
                         <
                         0
                     ):
-
                         level.accept_index = (
                             index
                         )
@@ -1035,12 +1210,7 @@ class LiquidityLifecycleMap:
 
         level.consecutive_beyond = 0
 
-        # ---------------------------------------------------------------------
-        # Wick below liquidity but close back above.
-        # ---------------------------------------------------------------------
-
         if swept:
-
             level.state = (
                 "SWEPT"
             )
@@ -1050,7 +1220,6 @@ class LiquidityLifecycleMap:
                 <
                 0
             ):
-
                 level.sweep_index = (
                     index
                 )
@@ -1066,7 +1235,6 @@ class LiquidityLifecycleMap:
             ==
             "UNTOUCHED"
         ):
-
             level.state = (
                 "TESTED"
             )
@@ -1089,7 +1257,6 @@ class LiquidityLifecycleMap:
         current_price: float,
         side: str,
     ) -> _LiquidityLevel | None:
-
         candidates: list[
             tuple[
                 float,
@@ -1099,17 +1266,16 @@ class LiquidityLifecycleMap:
         ] = []
 
         for level in registry:
-
             if (
+                not level.active
+                or
                 level.side
                 !=
                 side
             ):
-
                 continue
 
             if side == "HIGH":
-
                 distance = (
                     level.price
                     -
@@ -1117,7 +1283,6 @@ class LiquidityLifecycleMap:
                 )
 
             else:
-
                 distance = (
                     current_price
                     -
@@ -1125,7 +1290,6 @@ class LiquidityLifecycleMap:
                 )
 
             if distance < 0.0:
-
                 continue
 
             candidates.append(
@@ -1137,16 +1301,99 @@ class LiquidityLifecycleMap:
             )
 
         if not candidates:
-
             return None
 
         return min(
             candidates,
             key=lambda item: (
-                item[0],
-                item[1],
+                item[
+                    0
+                ],
+                item[
+                    1
+                ],
             ),
-        )[2]
+        )[
+            2
+        ]
+
+    # =========================================================================
+    # ATR fallback
+    # =========================================================================
+
+    @staticmethod
+    def _atr_array(
+        df: pd.DataFrame,
+        high: np.ndarray,
+        low: np.ndarray,
+        close: np.ndarray,
+    ) -> np.ndarray:
+        if "atr" in df.columns:
+            return (
+                pd.to_numeric(
+                    df[
+                        "atr"
+                    ],
+                    errors="coerce",
+                )
+                .to_numpy(
+                    dtype=float
+                )
+            )
+
+        previous_close = (
+            pd.Series(
+                close,
+                dtype="float64",
+            )
+            .shift(
+                1
+            )
+        )
+
+        true_range = pd.concat(
+            [
+                pd.Series(
+                    high
+                    -
+                    low,
+                    dtype="float64",
+                ),
+
+                (
+                    pd.Series(
+                        high,
+                        dtype="float64",
+                    )
+                    -
+                    previous_close
+                ).abs(),
+
+                (
+                    pd.Series(
+                        low,
+                        dtype="float64",
+                    )
+                    -
+                    previous_close
+                ).abs(),
+            ],
+            axis=1,
+        ).max(
+            axis=1
+        )
+
+        return (
+            true_range
+            .rolling(
+                window=14,
+                min_periods=1,
+            )
+            .mean()
+            .to_numpy(
+                dtype=float
+            )
+        )
 
     # =========================================================================
     # Generate
@@ -1156,7 +1403,6 @@ class LiquidityLifecycleMap:
         self,
         data: pd.DataFrame,
     ) -> pd.DataFrame:
-
         self._validate(
             data
         )
@@ -1188,68 +1434,12 @@ class LiquidityLifecycleMap:
             "close",
         )
 
-        # ---------------------------------------------------------------------
-        # ATR
-        # ---------------------------------------------------------------------
-
-        if "atr" in df.columns:
-
-            atr = self._numeric_array(
-                df,
-                "atr",
-            )
-
-        else:
-
-            previous_close = (
-                pd.Series(
-                    close
-                )
-                .shift(
-                    1
-                )
-            )
-
-            true_range = pd.concat(
-                [
-                    pd.Series(
-                        high
-                        -
-                        low
-                    ),
-
-                    (
-                        pd.Series(
-                            high
-                        )
-                        -
-                        previous_close
-                    ).abs(),
-
-                    (
-                        pd.Series(
-                            low
-                        )
-                        -
-                        previous_close
-                    ).abs(),
-                ],
-                axis=1,
-            ).max(
-                axis=1
-            )
-
-            atr = (
-                true_range
-                .rolling(
-                    window=14,
-                    min_periods=1,
-                )
-                .mean()
-                .to_numpy(
-                    dtype=float
-                )
-            )
+        atr = self._atr_array(
+            df,
+            high,
+            low,
+            close,
+        )
 
         # ---------------------------------------------------------------------
         # Row outputs
@@ -1314,7 +1504,7 @@ class LiquidityLifecycleMap:
         )
 
         # ---------------------------------------------------------------------
-        # Primary event telemetry
+        # Primary event outputs
         # ---------------------------------------------------------------------
 
         event_type = np.full(
@@ -1342,7 +1532,7 @@ class LiquidityLifecycleMap:
         )
 
         # ---------------------------------------------------------------------
-        # Per-bar event counts
+        # Per-bar event counters
         # ---------------------------------------------------------------------
 
         touch_count = np.zeros(
@@ -1371,7 +1561,7 @@ class LiquidityLifecycleMap:
         )
 
         # ---------------------------------------------------------------------
-        # Registry state counts
+        # Registry state counters
         # ---------------------------------------------------------------------
 
         untouched_above_count = np.zeros(
@@ -1423,11 +1613,12 @@ class LiquidityLifecycleMap:
         ] = []
 
         lookup: dict[
-            tuple[
-                str,
-                str,
-                float,
-            ],
+            str,
+            int,
+        ] = {}
+
+        active_static: dict[
+            str,
             int,
         ] = {}
 
@@ -1440,7 +1631,6 @@ class LiquidityLifecycleMap:
         for i in range(
             row_count
         ):
-
             if not (
                 np.isfinite(
                     high[
@@ -1460,27 +1650,19 @@ class LiquidityLifecycleMap:
                     ]
                 )
             ):
-
                 continue
 
             # -----------------------------------------------------------------
-            # STEP 1
-            #
-            # Register contextual levels that are known by the close of this
-            # candle.
-            #
-            # Newly registered levels are deliberately NOT evaluated against
-            # this same candle.
+            # Register all context known by this candle close.
             # -----------------------------------------------------------------
 
-            next_id = (
-                self._register_context_levels(
-                    df=df,
-                    index=i,
-                    registry=registry,
-                    lookup=lookup,
-                    next_id=next_id,
-                )
+            next_id = self._register_context_levels(
+                df=df,
+                index=i,
+                registry=registry,
+                lookup=lookup,
+                active_static=active_static,
+                next_id=next_id,
             )
 
             (
@@ -1503,71 +1685,60 @@ class LiquidityLifecycleMap:
             ] = []
 
             # -----------------------------------------------------------------
-            # STEP 2
-            #
-            # Evaluate this candle against liquidity known BEFORE this candle.
+            # Evaluate only active and causally eligible levels.
             # -----------------------------------------------------------------
 
             for level in registry:
+                if not level.active:
+                    continue
 
                 if (
-                    level.first_seen_index
-                    >=
                     i
+                    <
+                    level.eligible_from_index
                 ):
-
                     continue
 
                 previous_touches = (
                     level.touches
                 )
 
-                if (
-                    level.side
-                    ==
-                    "HIGH"
-                ):
-
-                    event = (
-                        self._update_high_level(
-                            level=level,
-                            high=high[
-                                i
-                            ],
-                            low=low[
-                                i
-                            ],
-                            close=close[
-                                i
-                            ],
-                            index=i,
-                            touch_buffer=touch_buffer,
-                            sweep_buffer=sweep_buffer,
-                            break_buffer=break_buffer,
-                            reclaim_buffer=reclaim_buffer,
-                        )
+                if level.side == "HIGH":
+                    event = self._update_high_level(
+                        level=level,
+                        high=high[
+                            i
+                        ],
+                        low=low[
+                            i
+                        ],
+                        close=close[
+                            i
+                        ],
+                        index=i,
+                        touch_buffer=touch_buffer,
+                        sweep_buffer=sweep_buffer,
+                        break_buffer=break_buffer,
+                        reclaim_buffer=reclaim_buffer,
                     )
 
                 else:
-
-                    event = (
-                        self._update_low_level(
-                            level=level,
-                            high=high[
-                                i
-                            ],
-                            low=low[
-                                i
-                            ],
-                            close=close[
-                                i
-                            ],
-                            index=i,
-                            touch_buffer=touch_buffer,
-                            sweep_buffer=sweep_buffer,
-                            break_buffer=break_buffer,
-                            reclaim_buffer=reclaim_buffer,
-                        )
+                    event = self._update_low_level(
+                        level=level,
+                        high=high[
+                            i
+                        ],
+                        low=low[
+                            i
+                        ],
+                        close=close[
+                            i
+                        ],
+                        index=i,
+                        touch_buffer=touch_buffer,
+                        sweep_buffer=sweep_buffer,
+                        break_buffer=break_buffer,
+                        reclaim_buffer=reclaim_buffer,
                     )
 
                 if (
@@ -1575,13 +1746,11 @@ class LiquidityLifecycleMap:
                     >
                     previous_touches
                 ):
-
                     touch_count[
                         i
                     ] += 1
 
                 if event is None:
-
                     continue
 
                 priority = {
@@ -1603,35 +1772,30 @@ class LiquidityLifecycleMap:
                 )
 
                 if event == "SWEPT":
-
                     sweep_count[
                         i
                     ] += 1
 
                 elif event == "BROKEN":
-
                     break_count[
                         i
                     ] += 1
 
                 elif event == "ACCEPTED_BEYOND":
-
                     accept_count[
                         i
                     ] += 1
 
                 elif event == "RECLAIMED":
-
                     reclaim_count[
                         i
                     ] += 1
 
             # -----------------------------------------------------------------
-            # Choose primary lifecycle event for the candle.
+            # Primary lifecycle event.
             # -----------------------------------------------------------------
 
             if events:
-
                 (
                     _,
                     selected_event,
@@ -1655,24 +1819,18 @@ class LiquidityLifecycleMap:
 
                 event_source[
                     i
-                ] = (
-                    selected_level.source
-                )
+                ] = selected_level.source
 
                 event_side[
                     i
-                ] = (
-                    selected_level.side
-                )
+                ] = selected_level.side
 
                 event_price[
                     i
-                ] = (
-                    selected_level.price
-                )
+                ] = selected_level.price
 
             # -----------------------------------------------------------------
-            # Nearest high/low liquidity relative to current close.
+            # Nearest current active liquidity.
             # -----------------------------------------------------------------
 
             nearest_above = self._nearest(
@@ -1692,30 +1850,21 @@ class LiquidityLifecycleMap:
             )
 
             if nearest_above is not None:
-
                 nearest_above_price[
                     i
-                ] = (
-                    nearest_above.price
-                )
+                ] = nearest_above.price
 
                 nearest_above_source[
                     i
-                ] = (
-                    nearest_above.source
-                )
+                ] = nearest_above.source
 
                 nearest_above_state[
                     i
-                ] = (
-                    nearest_above.state
-                )
+                ] = nearest_above.state
 
                 nearest_above_touches[
                     i
-                ] = (
-                    nearest_above.touches
-                )
+                ] = nearest_above.touches
 
                 nearest_above_age[
                     i
@@ -1726,30 +1875,21 @@ class LiquidityLifecycleMap:
                 )
 
             if nearest_below is not None:
-
                 nearest_below_price[
                     i
-                ] = (
-                    nearest_below.price
-                )
+                ] = nearest_below.price
 
                 nearest_below_source[
                     i
-                ] = (
-                    nearest_below.source
-                )
+                ] = nearest_below.source
 
                 nearest_below_state[
                     i
-                ] = (
-                    nearest_below.state
-                )
+                ] = nearest_below.state
 
                 nearest_below_touches[
                     i
-                ] = (
-                    nearest_below.touches
-                )
+                ] = nearest_below.touches
 
                 nearest_below_age[
                     i
@@ -1760,23 +1900,25 @@ class LiquidityLifecycleMap:
                 )
 
             # -----------------------------------------------------------------
-            # Current state distribution
+            # Active registry distribution only.
+            #
+            # Expired PDH/session/etc instances are intentionally excluded.
             # -----------------------------------------------------------------
+
+            active_levels = [
+                level
+                for level in registry
+                if level.active
+            ]
 
             total_registered[
                 i
             ] = len(
-                registry
+                active_levels
             )
 
-            for level in registry:
-
-                if (
-                    level.state
-                    ==
-                    "UNTOUCHED"
-                ):
-
+            for level in active_levels:
+                if level.state == "UNTOUCHED":
                     if (
                         level.side
                         ==
@@ -1788,7 +1930,6 @@ class LiquidityLifecycleMap:
                             i
                         ]
                     ):
-
                         untouched_above_count[
                             i
                         ] += 1
@@ -1804,57 +1945,31 @@ class LiquidityLifecycleMap:
                             i
                         ]
                     ):
-
                         untouched_below_count[
                             i
                         ] += 1
 
-                elif (
-                    level.state
-                    ==
-                    "TESTED"
-                ):
-
+                elif level.state == "TESTED":
                     tested_count[
                         i
                     ] += 1
 
-                elif (
-                    level.state
-                    ==
-                    "SWEPT"
-                ):
-
+                elif level.state == "SWEPT":
                     swept_count[
                         i
                     ] += 1
 
-                elif (
-                    level.state
-                    ==
-                    "BROKEN"
-                ):
-
+                elif level.state == "BROKEN":
                     broken_count[
                         i
                     ] += 1
 
-                elif (
-                    level.state
-                    ==
-                    "ACCEPTED_BEYOND"
-                ):
-
+                elif level.state == "ACCEPTED_BEYOND":
                     accepted_count[
                         i
                     ] += 1
 
-                elif (
-                    level.state
-                    ==
-                    "RECLAIMED"
-                ):
-
+                elif level.state == "RECLAIMED":
                     reclaimed_count[
                         i
                     ] += 1
@@ -1968,7 +2083,7 @@ class LiquidityLifecycleMap:
         )
 
         # ---------------------------------------------------------------------
-        # Primary candle event
+        # Primary event
         # ---------------------------------------------------------------------
 
         result[
@@ -1988,7 +2103,7 @@ class LiquidityLifecycleMap:
         ] = event_price
 
         # ---------------------------------------------------------------------
-        # Per-bar event counts
+        # Per-bar event telemetry
         # ---------------------------------------------------------------------
 
         result[
@@ -2012,7 +2127,7 @@ class LiquidityLifecycleMap:
         ] = reclaim_count
 
         # ---------------------------------------------------------------------
-        # Registry state distribution
+        # Active registry distribution
         # ---------------------------------------------------------------------
 
         result[

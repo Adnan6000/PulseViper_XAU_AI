@@ -9,10 +9,14 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   offline-health:
-    name: Offline V1 Health
+    name: Offline V1 + Research Health
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -35,7 +39,7 @@ jobs:
             PyYAML \
             pytest
 
-      - name: Compile production Python
+      - name: Compile AI Python
         run: |
           python -m compileall -q 02_AI
 
@@ -43,10 +47,16 @@ jobs:
         run: |
           python -m compileall -q 04_Testing
 
-      - name: Run V1 offline tests
+      - name: Run offline V1 and research tests
         run: |
           python -m pytest \
             04_Testing/test_v1_health.py \
             04_Testing/test_market_regime.py \
             04_Testing/test_paper_ledger.py \
+            04_Testing/test_market_context_liquidity.py \
+            04_Testing/test_liquidity_lifecycle.py \
+            04_Testing/test_liquidity_structure_intelligence.py \
+            04_Testing/test_candle_swing_intelligence.py \
+            04_Testing/test_market_decision_clarity.py \
+            04_Testing/test_level_entry_intelligence.py \
             -q

@@ -2,14 +2,14 @@
 ===============================================================================
 Module      : level_entry_intelligence.py
 Project     : PulseViper XAU AI
-Version     : 1.0
+Version     : 1.1
 Purpose     : Causal Level-Specific Entry Intelligence
 ===============================================================================
 
 Research contract
 -----------------
-This module converts an already-resolved directional WATCH state into a
-structured entry candidate.
+This module converts resolved causal market context into a structured research
+entry candidate.
 
 It does NOT:
 - place trades
@@ -21,6 +21,7 @@ It does NOT:
 - use future candles
 - guarantee an entry
 - treat LONG_WATCH / SHORT_WATCH as an automatic trade
+- treat HOLD_BULLISH / HOLD_BEARISH as a fresh entry authorization
 
 Core principle
 --------------
@@ -57,6 +58,20 @@ RANGE_EDGE_REJECTION
 STRUCTURE_CONTINUATION
 GENERIC_CONTEXT_CONFIRMATION
 
+v1.1 corrections
+----------------
+1. BREAK_ACCEPTANCE uses role-flipped liquidity correctly:
+   - bullish acceptance above HIGH-side liquidity can reference that HIGH
+   - bearish acceptance below LOW-side liquidity can reference that LOW
+
+2. Event-driven entry families require their actual lifecycle event level.
+   They no longer silently substitute an unrelated nearest generic level when
+   the event level is missing or directionally incompatible.
+
+3. HOLD_BULLISH / HOLD_BEARISH preserve directional context but are not treated
+   as fresh WATCH authorization. A HOLD state requires a strong fresh trigger
+   before a new entry candidate may be produced.
+
 Important
 ---------
 This remains research/shadow intelligence only.
@@ -71,19 +86,40 @@ import pandas as pd
 
 
 class LevelEntryIntelligence:
-    VERSION = "1.0"
+    VERSION = "1.1"
 
-    MODE = "CAUSAL_RESEARCH_ENTRY_INTELLIGENCE"
+    MODE = (
+        "CAUSAL_RESEARCH_ENTRY_INTELLIGENCE"
+    )
 
-    LONG_STATES = {
+    FRESH_LONG_STATES = {
         "LONG_WATCH",
+    }
+
+    FRESH_SHORT_STATES = {
+        "SHORT_WATCH",
+    }
+
+    HOLD_LONG_STATES = {
         "HOLD_BULLISH",
     }
 
-    SHORT_STATES = {
-        "SHORT_WATCH",
+    HOLD_SHORT_STATES = {
         "HOLD_BEARISH",
     }
+
+    # Compatibility aggregates.
+    LONG_STATES = (
+        FRESH_LONG_STATES
+        |
+        HOLD_LONG_STATES
+    )
+
+    SHORT_STATES = (
+        FRESH_SHORT_STATES
+        |
+        HOLD_SHORT_STATES
+    )
 
     BLOCK_STATES = {
         "WAIT_CONFLICT",
@@ -117,8 +153,8 @@ class LevelEntryIntelligence:
         max_entry_distance_atr: float = 0.35,
         invalidation_buffer_atr: float = 0.10,
         minimum_trigger_strength: float = 1.0,
+        hold_reactivation_min_strength: float = 3.0,
     ) -> None:
-
         if max_entry_distance_atr < 0.0:
             raise ValueError(
                 "max_entry_distance_atr cannot be negative"
@@ -134,6 +170,12 @@ class LevelEntryIntelligence:
                 "minimum_trigger_strength cannot be negative"
             )
 
+        if hold_reactivation_min_strength < 0.0:
+            raise ValueError(
+                "hold_reactivation_min_strength "
+                "cannot be negative"
+            )
+
         self.max_entry_distance_atr = float(
             max_entry_distance_atr
         )
@@ -146,6 +188,10 @@ class LevelEntryIntelligence:
             minimum_trigger_strength
         )
 
+        self.hold_reactivation_min_strength = float(
+            hold_reactivation_min_strength
+        )
+
     # =========================================================================
     # Helpers
     # =========================================================================
@@ -154,7 +200,6 @@ class LevelEntryIntelligence:
     def _validate(
         data: pd.DataFrame,
     ) -> None:
-
         if not isinstance(
             data,
             pd.DataFrame,
@@ -191,10 +236,10 @@ class LevelEntryIntelligence:
     def _safe_float(
         value: Any,
     ) -> float:
-
         if (
             value is None
-            or isinstance(
+            or
+            isinstance(
                 value,
                 complex,
             )
@@ -204,7 +249,6 @@ class LevelEntryIntelligence:
             )
 
         try:
-
             if bool(
                 pd.isna(
                     value
@@ -223,7 +267,6 @@ class LevelEntryIntelligence:
             )
 
         try:
-
             number = float(
                 value
             )
@@ -254,14 +297,14 @@ class LevelEntryIntelligence:
         index: int,
         default: float = 0.0,
     ) -> float:
-
         if column not in df.columns:
             return default
 
         number = cls._safe_float(
             df[
                 column
-            ].iat[
+            ]
+            .iat[
                 index
             ]
         )
@@ -280,22 +323,47 @@ class LevelEntryIntelligence:
         index: int,
         default: str = "NONE",
     ) -> str:
-
         if column not in df.columns:
             return default
 
-        value = df[
-            column
-        ].iat[
-            index
-        ]
+        value: Any = (
+            df[
+                column
+            ]
+            .iat[
+                index
+            ]
+        )
 
         if value is None:
             return default
 
-        return str(
-            value
-        ).strip().upper()
+        try:
+            if bool(
+                pd.isna(
+                    value
+                )
+            ):
+                return default
+
+        except (
+            TypeError,
+            ValueError,
+        ):
+            return default
+
+        text = (
+            str(
+                value
+            )
+            .strip()
+            .upper()
+        )
+
+        if not text:
+            return default
+
+        return text
 
     @classmethod
     def _atr(
@@ -303,29 +371,30 @@ class LevelEntryIntelligence:
         df: pd.DataFrame,
         index: int,
     ) -> float:
-
         for column in (
             "csi_atr",
             "atr",
         ):
+            if column not in df.columns:
+                continue
 
-            if column in df.columns:
+            value = cls._number(
+                df,
+                column,
+                index,
+                default=np.nan,
+            )
 
-                value = cls._number(
-                    df,
-                    column,
-                    index,
-                    default=np.nan,
+            if (
+                np.isfinite(
+                    value
                 )
-
-                if (
-                    np.isfinite(
-                        value
-                    )
-                    and
-                    value > 0.0
-                ):
-                    return value
+                and
+                value
+                >
+                0.0
+            ):
+                return value
 
         return float(
             "nan"
@@ -342,7 +411,16 @@ class LevelEntryIntelligence:
     ) -> tuple[
         str,
         str,
+        bool,
     ]:
+        """
+        Return:
+            entry direction,
+            MDC state,
+            whether this is only a HOLD state.
+
+        HOLD preserves context but does not independently authorize a new entry.
+        """
 
         state = self._text(
             df,
@@ -359,35 +437,76 @@ class LevelEntryIntelligence:
         )
 
         if state in self.BLOCK_STATES:
-
             return (
                 "NONE",
                 state,
+                False,
             )
 
         if (
-            state in self.LONG_STATES
+            state
+            in
+            self.FRESH_LONG_STATES
             and
-            direction == "BULLISH"
+            direction
+            ==
+            "BULLISH"
         ):
             return (
                 "LONG",
                 state,
+                False,
             )
 
         if (
-            state in self.SHORT_STATES
+            state
+            in
+            self.FRESH_SHORT_STATES
             and
-            direction == "BEARISH"
+            direction
+            ==
+            "BEARISH"
         ):
             return (
                 "SHORT",
                 state,
+                False,
+            )
+
+        if (
+            state
+            in
+            self.HOLD_LONG_STATES
+            and
+            direction
+            ==
+            "BULLISH"
+        ):
+            return (
+                "LONG",
+                state,
+                True,
+            )
+
+        if (
+            state
+            in
+            self.HOLD_SHORT_STATES
+            and
+            direction
+            ==
+            "BEARISH"
+        ):
+            return (
+                "SHORT",
+                state,
+                True,
             )
 
         return (
             "NONE",
             state,
+            False,
         )
 
     # =========================================================================
@@ -404,7 +523,6 @@ class LevelEntryIntelligence:
         str,
         str,
     ]:
-
         event_price = self._number(
             df,
             "liq_event_price",
@@ -433,7 +551,6 @@ class LevelEntryIntelligence:
         if np.isfinite(
             event_price
         ):
-
             return (
                 event_price,
                 event_source,
@@ -464,9 +581,7 @@ class LevelEntryIntelligence:
         str,
         str,
     ]:
-
         if direction == "LONG":
-
             price = self._number(
                 df,
                 "liq_nearest_below_price",
@@ -487,7 +602,6 @@ class LevelEntryIntelligence:
             )
 
         else:
-
             price = self._number(
                 df,
                 "liq_nearest_above_price",
@@ -514,6 +628,151 @@ class LevelEntryIntelligence:
         )
 
     # =========================================================================
+    # Event compatibility / reference selection
+    # =========================================================================
+
+    @staticmethod
+    def _expected_event_contract(
+        direction: str,
+        family: str,
+    ) -> tuple[
+        str,
+        str,
+    ] | None:
+        """
+        Required lifecycle side/event for event-driven entry families.
+
+        Reversal:
+            LONG  -> LOW
+            SHORT -> HIGH
+
+        Break acceptance / role flip:
+            LONG  -> broken HIGH becomes support
+            SHORT -> broken LOW becomes resistance
+        """
+
+        if family == "SWEEP_RECLAIM":
+            if direction == "LONG":
+                return (
+                    "LOW",
+                    "SWEPT",
+                )
+
+            return (
+                "HIGH",
+                "SWEPT",
+            )
+
+        if family == "FAILED_BREAKOUT":
+            if direction == "LONG":
+                return (
+                    "LOW",
+                    "RECLAIMED",
+                )
+
+            return (
+                "HIGH",
+                "RECLAIMED",
+            )
+
+        if family == "BREAK_ACCEPTANCE":
+            if direction == "LONG":
+                return (
+                    "HIGH",
+                    "ACCEPTED_BEYOND",
+                )
+
+            return (
+                "LOW",
+                "ACCEPTED_BEYOND",
+            )
+
+        return None
+
+    def _select_reference(
+        self,
+        df: pd.DataFrame,
+        index: int,
+        direction: str,
+        family: str,
+    ) -> tuple[
+        float,
+        str,
+        str,
+    ]:
+        """
+        Return:
+            reference price,
+            source,
+            reference origin.
+        """
+
+        contract = self._expected_event_contract(
+            direction=direction,
+            family=family,
+        )
+
+        if contract is not None:
+            (
+                expected_side,
+                expected_event_type,
+            ) = contract
+
+            (
+                event_price,
+                event_source,
+                event_side,
+                event_type,
+            ) = self._event_reference(
+                df,
+                index,
+            )
+
+            if (
+                np.isfinite(
+                    event_price
+                )
+                and
+                event_side
+                ==
+                expected_side
+                and
+                event_type
+                ==
+                expected_event_type
+            ):
+                return (
+                    event_price,
+                    event_source,
+                    "EVENT_LEVEL",
+                )
+
+            # Event-driven setup cannot borrow an unrelated nearest level.
+            return (
+                float(
+                    "nan"
+                ),
+                "NONE",
+                "MISSING_EVENT_LEVEL",
+            )
+
+        (
+            reference_price,
+            reference_source,
+            _,
+        ) = self._nearest_reference(
+            df=df,
+            index=index,
+            direction=direction,
+        )
+
+        return (
+            reference_price,
+            reference_source,
+            "NEAREST_LEVEL",
+        )
+
+    # =========================================================================
     # Level classification
     # =========================================================================
 
@@ -522,36 +781,48 @@ class LevelEntryIntelligence:
         cls,
         source: str,
     ) -> str:
-
         if source in cls.EXTERNAL_SOURCES:
-            return "EXTERNAL"
+            return (
+                "EXTERNAL"
+            )
 
         if source in cls.INTERNAL_SOURCES:
-            return "INTERNAL"
+            return (
+                "INTERNAL"
+            )
 
-        return "UNKNOWN"
+        return (
+            "UNKNOWN"
+        )
 
     @staticmethod
     def _structure_scale(
         source: str,
     ) -> str:
-
         if source.startswith(
             "MAJOR_"
         ):
-            return "MAJOR"
+            return (
+                "MAJOR"
+            )
 
         if source.startswith(
             "INTERNAL_"
         ):
-            return "INTERNAL"
+            return (
+                "INTERNAL"
+            )
 
         if source.startswith(
             "MICRO_"
         ):
-            return "MICRO"
+            return (
+                "MICRO"
+            )
 
-        return "CONTEXT"
+        return (
+            "CONTEXT"
+        )
 
     # =========================================================================
     # Trigger classification
@@ -566,13 +837,6 @@ class LevelEntryIntelligence:
         str,
         float,
     ]:
-
-        interpretation = self._text(
-            df,
-            "liqintel_event_interpretation",
-            index,
-        )
-
         event_bias = self._text(
             df,
             "liqintel_event_bias",
@@ -671,11 +935,12 @@ class LevelEntryIntelligence:
         )
 
         if direction == "LONG":
-
             if (
                 trap
                 and
-                event_bias == "BULLISH"
+                event_bias
+                ==
+                "BULLISH"
             ):
                 return (
                     "SWEEP_RECLAIM",
@@ -685,7 +950,9 @@ class LevelEntryIntelligence:
             if (
                 failed_breakout
                 and
-                event_bias == "BULLISH"
+                event_bias
+                ==
+                "BULLISH"
             ):
                 return (
                     "FAILED_BREAKOUT",
@@ -695,7 +962,9 @@ class LevelEntryIntelligence:
             if (
                 accepted_breakout
                 and
-                event_bias == "BULLISH"
+                event_bias
+                ==
+                "BULLISH"
             ):
                 return (
                     "BREAK_ACCEPTANCE",
@@ -721,11 +990,12 @@ class LevelEntryIntelligence:
                 )
 
         if direction == "SHORT":
-
             if (
                 trap
                 and
-                event_bias == "BEARISH"
+                event_bias
+                ==
+                "BEARISH"
             ):
                 return (
                     "SWEEP_RECLAIM",
@@ -735,7 +1005,9 @@ class LevelEntryIntelligence:
             if (
                 failed_breakout
                 and
-                event_bias == "BEARISH"
+                event_bias
+                ==
+                "BEARISH"
             ):
                 return (
                     "FAILED_BREAKOUT",
@@ -745,7 +1017,9 @@ class LevelEntryIntelligence:
             if (
                 accepted_breakout
                 and
-                event_bias == "BEARISH"
+                event_bias
+                ==
+                "BEARISH"
             ):
                 return (
                     "BREAK_ACCEPTANCE",
@@ -788,7 +1062,6 @@ class LevelEntryIntelligence:
         int,
         str,
     ]:
-
         bos_direction = self._text(
             df,
             "bos_direction",
@@ -844,7 +1117,9 @@ class LevelEntryIntelligence:
 
         required_bias = (
             "BULLISH"
-            if direction == "LONG"
+            if direction
+            ==
+            "LONG"
             else
             "BEARISH"
         )
@@ -852,7 +1127,9 @@ class LevelEntryIntelligence:
         if (
             major_bos
             and
-            bos_direction == required_bias
+            bos_direction
+            ==
+            required_bias
         ):
             return (
                 1,
@@ -862,7 +1139,9 @@ class LevelEntryIntelligence:
         if (
             internal_bos
             and
-            bos_direction == required_bias
+            bos_direction
+            ==
+            required_bias
         ):
             return (
                 1,
@@ -872,7 +1151,9 @@ class LevelEntryIntelligence:
         if (
             breakout_accepted
             and
-            event_bias == required_bias
+            event_bias
+            ==
+            required_bias
         ):
             return (
                 1,
@@ -882,17 +1163,20 @@ class LevelEntryIntelligence:
         if (
             micro_bos
             and
-            bos_direction == required_bias
+            bos_direction
+            ==
+            required_bias
         ):
             return (
                 1,
                 "MICRO_BOS",
             )
 
+        # ---------------------------------------------------------------------
         # Candle confirmation remains weaker than structural confirmation.
+        # ---------------------------------------------------------------------
 
         if direction == "LONG":
-
             bullish_displacement = (
                 self._number(
                     df,
@@ -910,7 +1194,6 @@ class LevelEntryIntelligence:
                 )
 
         else:
-
             bearish_displacement = (
                 self._number(
                     df,
@@ -938,13 +1221,10 @@ class LevelEntryIntelligence:
 
     def _invalidation(
         self,
-        df: pd.DataFrame,
-        index: int,
         direction: str,
         reference_price: float,
         atr: float,
     ) -> float:
-
         if not np.isfinite(
             reference_price
         ):
@@ -952,23 +1232,25 @@ class LevelEntryIntelligence:
                 "nan"
             )
 
-        buffer_value = (
-            atr
-            *
-            self.invalidation_buffer_atr
-            if (
-                np.isfinite(
-                    atr
-                )
-                and
-                atr > 0.0
+        if (
+            np.isfinite(
+                atr
             )
-            else
+            and
+            atr
+            >
             0.0
-        )
+        ):
+            buffer_value = (
+                atr
+                *
+                self.invalidation_buffer_atr
+            )
+
+        else:
+            buffer_value = 0.0
 
         if direction == "LONG":
-
             return (
                 reference_price
                 -
@@ -994,7 +1276,6 @@ class LevelEntryIntelligence:
         int,
         float,
     ]:
-
         if (
             not np.isfinite(
                 close
@@ -1022,7 +1303,9 @@ class LevelEntryIntelligence:
                 atr
             )
             or
-            atr <= 0.0
+            atr
+            <=
+            0.0
         ):
             return (
                 1,
@@ -1054,7 +1337,6 @@ class LevelEntryIntelligence:
         self,
         data: pd.DataFrame,
     ) -> pd.DataFrame:
-
         self._validate(
             data
         )
@@ -1166,7 +1448,6 @@ class LevelEntryIntelligence:
         for i in range(
             row_count
         ):
-
             close = self._number(
                 df,
                 "close",
@@ -1182,6 +1463,7 @@ class LevelEntryIntelligence:
             (
                 direction,
                 decision_state,
+                is_hold_state,
             ) = self._decision_direction(
                 df,
                 i,
@@ -1191,14 +1473,16 @@ class LevelEntryIntelligence:
                 i
             ] = decision_state
 
-            if direction == "NONE":
+            # -----------------------------------------------------------------
+            # Direction / conflict gate.
+            # -----------------------------------------------------------------
 
+            if direction == "NONE":
                 if (
                     decision_state
                     ==
                     "WAIT_CONFLICT"
                 ):
-
                     status[
                         i
                     ] = (
@@ -1206,7 +1490,6 @@ class LevelEntryIntelligence:
                     )
 
                 else:
-
                     status[
                         i
                     ] = (
@@ -1220,68 +1503,43 @@ class LevelEntryIntelligence:
             ] = direction
 
             # -----------------------------------------------------------------
-            # First preference:
-            # actual liquidity event level on this candle.
+            # Trigger is classified before reference selection.
+            #
+            # This is required because BREAK_ACCEPTANCE uses role-flipped
+            # liquidity on the opposite lifecycle side from reversal entries.
             # -----------------------------------------------------------------
 
             (
-                event_price,
-                event_source,
-                event_side,
-                event_type,
-            ) = self._event_reference(
-                df,
-                i,
+                family,
+                trigger_strength,
+            ) = self._trigger(
+                df=df,
+                index=i,
+                direction=direction,
             )
 
-            expected_side = (
-                "LOW"
-                if direction == "LONG"
-                else
-                "HIGH"
+            family_output[
+                i
+            ] = family
+
+            trigger_strength_output[
+                i
+            ] = trigger_strength
+
+            # -----------------------------------------------------------------
+            # Select exact entry reference.
+            # -----------------------------------------------------------------
+
+            (
+                reference_price,
+                reference_source,
+                reference_origin,
+            ) = self._select_reference(
+                df=df,
+                index=i,
+                direction=direction,
+                family=family,
             )
-
-            use_event_level = (
-                np.isfinite(
-                    event_price
-                )
-                and
-                event_side == expected_side
-            )
-
-            if use_event_level:
-
-                reference_price = (
-                    event_price
-                )
-
-                reference_source = (
-                    event_source
-                )
-
-                reference_origin_output[
-                    i
-                ] = (
-                    "EVENT_LEVEL"
-                )
-
-            else:
-
-                (
-                    reference_price,
-                    reference_source,
-                    _nearest_state,
-                ) = self._nearest_reference(
-                    df,
-                    i,
-                    direction,
-                )
-
-                reference_origin_output[
-                    i
-                ] = (
-                    "NEAREST_LEVEL"
-                )
 
             level_price_output[
                 i
@@ -1290,6 +1548,10 @@ class LevelEntryIntelligence:
             level_source_output[
                 i
             ] = reference_source
+
+            reference_origin_output[
+                i
+            ] = reference_origin
 
             level_class_output[
                 i
@@ -1304,7 +1566,7 @@ class LevelEntryIntelligence:
             )
 
             # -----------------------------------------------------------------
-            # Location
+            # Location gate.
             # -----------------------------------------------------------------
 
             (
@@ -1327,7 +1589,6 @@ class LevelEntryIntelligence:
             if not np.isfinite(
                 reference_price
             ):
-
                 status[
                     i
                 ] = (
@@ -1337,7 +1598,6 @@ class LevelEntryIntelligence:
                 continue
 
             if location_valid != 1:
-
                 status[
                     i
                 ] = (
@@ -1347,34 +1607,18 @@ class LevelEntryIntelligence:
                 continue
 
             # -----------------------------------------------------------------
-            # Trigger
+            # Trigger gate.
             # -----------------------------------------------------------------
 
-            (
-                family,
-                trigger_strength,
-            ) = self._trigger(
-                df,
-                i,
-                direction,
-            )
-
-            family_output[
-                i
-            ] = family
-
-            trigger_strength_output[
-                i
-            ] = trigger_strength
-
             if (
-                family == "NONE"
+                family
+                ==
+                "NONE"
                 or
                 trigger_strength
                 <
                 self.minimum_trigger_strength
             ):
-
                 status[
                     i
                 ] = (
@@ -1384,16 +1628,38 @@ class LevelEntryIntelligence:
                 continue
 
             # -----------------------------------------------------------------
-            # Confirmation
+            # HOLD reactivation gate.
+            #
+            # HOLD_BULLISH / HOLD_BEARISH is directional memory. It cannot
+            # authorize a fresh candidate from only weak displacement/engulfing.
+            # -----------------------------------------------------------------
+
+            if (
+                is_hold_state
+                and
+                trigger_strength
+                <
+                self.hold_reactivation_min_strength
+            ):
+                status[
+                    i
+                ] = (
+                    "WAIT_TRIGGER"
+                )
+
+                continue
+
+            # -----------------------------------------------------------------
+            # Confirmation.
             # -----------------------------------------------------------------
 
             (
                 confirmation_flag,
                 confirmation_type,
             ) = self._confirmation(
-                df,
-                i,
-                direction,
+                df=df,
+                index=i,
+                direction=direction,
             )
 
             confirmation_flag_output[
@@ -1405,7 +1671,6 @@ class LevelEntryIntelligence:
             ] = confirmation_type
 
             if confirmation_flag != 1:
-
                 status[
                     i
                 ] = (
@@ -1415,12 +1680,10 @@ class LevelEntryIntelligence:
                 continue
 
             # -----------------------------------------------------------------
-            # Invalidation
+            # Objective invalidation.
             # -----------------------------------------------------------------
 
             invalidation = self._invalidation(
-                df=df,
-                index=i,
                 direction=direction,
                 reference_price=reference_price,
                 atr=atr,
@@ -1433,7 +1696,6 @@ class LevelEntryIntelligence:
             if not np.isfinite(
                 invalidation
             ):
-
                 status[
                     i
                 ] = (
@@ -1443,7 +1705,7 @@ class LevelEntryIntelligence:
                 continue
 
             # -----------------------------------------------------------------
-            # Candidate
+            # Research candidate.
             # -----------------------------------------------------------------
 
             candidate_flag_output[
@@ -1451,7 +1713,6 @@ class LevelEntryIntelligence:
             ] = 1
 
             if direction == "LONG":
-
                 status[
                     i
                 ] = (
@@ -1459,7 +1720,6 @@ class LevelEntryIntelligence:
                 )
 
             else:
-
                 status[
                     i
                 ] = (
