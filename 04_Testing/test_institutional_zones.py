@@ -13,81 +13,8 @@ def _load_module():
     return importlib.import_module(MODULE)
 
 
-def test_institutional_zones_import():
-    module = _load_module()
-
-    assert hasattr(module, "InstitutionalZone")
-    assert hasattr(module, "InstitutionalZonesEngine")
-    assert hasattr(module, "institutional_zones")
-
-
-def test_default_engine():
-    module = _load_module()
-
-    engine = module.institutional_zones
-
-    assert isinstance(
-        engine,
-        module.InstitutionalZonesEngine,
-    )
-
-
-def test_missing_required_columns():
-    module = _load_module()
-
-    engine = module.InstitutionalZonesEngine()
-
-    data = pd.DataFrame(
-        {
-            "open": [100.0],
-            "high": [105.0],
-            "close": [103.0],
-        }
-    )
-
-    with pytest.raises(ValueError):
-        engine.generate(data)
-
-
-def test_invalid_input_type():
-    module = _load_module()
-
-    engine = module.InstitutionalZonesEngine()
-
-    with pytest.raises(TypeError):
-        engine.generate([1, 2, 3])
-
-
-def test_empty_dataframe():
-    module = _load_module()
-
-    engine = module.InstitutionalZonesEngine()
-
-    data = pd.DataFrame(
-        columns=[
-            "open",
-            "high",
-            "low",
-            "close",
-        ]
-    )
-
-    result = engine.generate(data)
-
-    assert isinstance(result, pd.DataFrame)
-    assert result.empty
-
-
-def test_bullish_institutional_zone():
-    module = _load_module()
-
-    engine = module.InstitutionalZonesEngine(
-        {
-            "min_displacement_score": 20.0,
-        }
-    )
-
-    data = pd.DataFrame(
+def _bullish_data() -> pd.DataFrame:
+    return pd.DataFrame(
         {
             "open": [
                 100.0,
@@ -120,23 +47,9 @@ def test_bullish_institutional_zone():
         }
     )
 
-    result = engine.generate(data)
 
-    assert not result.empty
-    assert "BULLISH" in result["direction"].tolist()
-    assert "DEMAND" in result["zone_type"].tolist()
-
-
-def test_bearish_institutional_zone():
-    module = _load_module()
-
-    engine = module.InstitutionalZonesEngine(
-        {
-            "min_displacement_score": 20.0,
-        }
-    )
-
-    data = pd.DataFrame(
+def _bearish_data() -> pd.DataFrame:
+    return pd.DataFrame(
         {
             "open": [
                 100.0,
@@ -169,14 +82,104 @@ def test_bearish_institutional_zone():
         }
     )
 
-    result = engine.generate(data)
 
-    assert not result.empty
-    assert "BEARISH" in result["direction"].tolist()
-    assert "SUPPLY" in result["zone_type"].tolist()
+def test_institutional_zones_import():
+    module = _load_module()
+
+    assert hasattr(
+        module,
+        "InstitutionalZone",
+    )
+
+    assert hasattr(
+        module,
+        "InstitutionalZonesEngine",
+    )
+
+    assert hasattr(
+        module,
+        "institutional_zones",
+    )
 
 
-def test_zone_values_are_valid():
+def test_default_engine():
+    module = _load_module()
+
+    engine = module.institutional_zones
+
+    assert isinstance(
+        engine,
+        module.InstitutionalZonesEngine,
+    )
+
+
+def test_missing_required_columns():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine()
+
+    data = pd.DataFrame(
+        {
+            "open": [100.0],
+            "high": [105.0],
+            "close": [103.0],
+        }
+    )
+
+    with pytest.raises(
+        ValueError
+    ):
+        engine.generate(
+            data
+        )
+
+
+def test_invalid_input_type():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine()
+
+    with pytest.raises(
+        TypeError
+    ):
+        engine.generate(
+            [1, 2, 3]
+        )
+
+
+def test_empty_dataframe_returns_causal_schema():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine()
+
+    data = pd.DataFrame(
+        columns=[
+            "open",
+            "high",
+            "low",
+            "close",
+        ]
+    )
+
+    result = engine.generate(
+        data
+    )
+
+    assert isinstance(
+        result,
+        pd.DataFrame,
+    )
+
+    assert result.empty
+
+    assert list(
+        result.columns
+    ) == list(
+        engine.CAUSAL_OUTPUT_COLUMNS
+    )
+
+
+def test_bullish_institutional_zone():
     module = _load_module()
 
     engine = module.InstitutionalZonesEngine(
@@ -185,37 +188,203 @@ def test_zone_values_are_valid():
         }
     )
 
-    data = pd.DataFrame(
+    result = engine.generate(
+        _bullish_data()
+    )
+
+    assert not result.empty
+
+    assert (
+        "BULLISH"
+        in
+        result[
+            "iz_direction"
+        ].tolist()
+    )
+
+    assert (
+        "DEMAND"
+        in
+        result[
+            "iz_zone_type"
+        ].tolist()
+    )
+
+    assert bool(
+        result[
+            "iz_live_safe"
+        ]
+        .eq(
+            1
+        )
+        .all()
+    )
+
+    assert bool(
+        result[
+            "iz_mode"
+        ]
+        .eq(
+            engine.CAUSAL_MODE
+        )
+        .all()
+    )
+
+    assert bool(
+        (
+            result[
+                "iz_confirmation_position"
+            ]
+            >
+            result[
+                "iz_origin_position"
+            ]
+        ).all()
+    )
+
+
+def test_bearish_institutional_zone():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine(
         {
-            "open": [100, 98, 101, 104, 106],
-            "high": [101, 100, 104, 107, 108],
-            "low": [99, 96, 100, 103, 105],
-            "close": [100, 97, 103, 106, 107],
+            "min_displacement_score": 20.0,
         }
     )
 
-    result = engine.generate(data)
+    result = engine.generate(
+        _bearish_data()
+    )
 
-    if result.empty:
-        pytest.fail("Expected at least one institutional zone.")
-
-    assert (result["high"] > result["low"]).all()
-    assert (result["size"] > 0).all()
-    assert (result["midpoint"] > result["low"]).all()
-    assert (result["midpoint"] < result["high"]).all()
+    assert not result.empty
 
     assert (
-        result["strength"].between(0, 100).all()
+        "BEARISH"
+        in
+        result[
+            "iz_direction"
+        ].tolist()
     )
 
     assert (
-        result["displacement_score"]
-        .between(0, 100)
+        "SUPPLY"
+        in
+        result[
+            "iz_zone_type"
+        ].tolist()
+    )
+
+    assert bool(
+        result[
+            "iz_live_safe"
+        ]
+        .eq(
+            1
+        )
+        .all()
+    )
+
+    assert bool(
+        (
+            result[
+                "iz_confirmation_position"
+            ]
+            >
+            result[
+                "iz_origin_position"
+            ]
+        ).all()
+    )
+
+
+def test_causal_zone_values_are_valid():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine(
+        {
+            "min_displacement_score": 20.0,
+        }
+    )
+
+    result = engine.generate(
+        _bullish_data()
+    )
+
+    if result.empty:
+        pytest.fail(
+            "Expected at least one causal institutional-zone event."
+        )
+
+    assert bool(
+        (
+            result[
+                "iz_zone_high"
+            ]
+            >
+            result[
+                "iz_zone_low"
+            ]
+        ).all()
+    )
+
+    assert bool(
+        (
+            result[
+                "iz_zone_size"
+            ]
+            >
+            0.0
+        ).all()
+    )
+
+    assert bool(
+        (
+            result[
+                "iz_zone_midpoint"
+            ]
+            >
+            result[
+                "iz_zone_low"
+            ]
+        ).all()
+    )
+
+    assert bool(
+        (
+            result[
+                "iz_zone_midpoint"
+            ]
+            <
+            result[
+                "iz_zone_high"
+            ]
+        ).all()
+    )
+
+    assert bool(
+        result[
+            "iz_strength"
+        ]
+        .between(
+            0.0,
+            100.0,
+        )
+        .all()
+    )
+
+    assert bool(
+        result[
+            "iz_displacement_score"
+        ]
+        .between(
+            0.0,
+            100.0,
+        )
         .all()
     )
 
 
-def test_strength_is_clamped():
+def test_causal_strength_is_clamped():
     module = _load_module()
 
     engine = module.InstitutionalZonesEngine(
@@ -224,22 +393,30 @@ def test_strength_is_clamped():
         }
     )
 
-    data = pd.DataFrame(
-        {
-            "open": [100, 98, 101, 104, 106],
-            "high": [101, 100, 104, 107, 108],
-            "low": [99, 96, 100, 103, 105],
-            "close": [100, 97, 103, 106, 107],
-        }
+    result = engine.generate(
+        _bullish_data()
     )
 
-    result = engine.generate(data)
-
     if result.empty:
-        pytest.fail("Expected zones.")
+        pytest.fail(
+            "Expected causal institutional-zone events."
+        )
 
-    assert result["strength"].min() >= 0
-    assert result["strength"].max() <= 100
+    assert (
+        result[
+            "iz_strength"
+        ].min()
+        >=
+        0.0
+    )
+
+    assert (
+        result[
+            "iz_strength"
+        ].max()
+        <=
+        100.0
+    )
 
 
 def test_generate_does_not_modify_input():
@@ -251,18 +428,15 @@ def test_generate_does_not_modify_input():
         }
     )
 
-    data = pd.DataFrame(
-        {
-            "open": [100, 98, 101, 104, 106],
-            "high": [101, 100, 104, 107, 108],
-            "low": [99, 96, 100, 103, 105],
-            "close": [100, 97, 103, 106, 107],
-        }
+    data = _bullish_data()
+
+    original = data.copy(
+        deep=True
     )
 
-    original = data.copy(deep=True)
-
-    engine.generate(data)
+    engine.generate(
+        data
+    )
 
     pd.testing.assert_frame_equal(
         data,
@@ -270,7 +444,7 @@ def test_generate_does_not_modify_input():
     )
 
 
-def test_generate_alias_matches_detect():
+def test_generate_alias_matches_generate_causal():
     module = _load_module()
 
     engine = module.InstitutionalZonesEngine(
@@ -279,22 +453,137 @@ def test_generate_alias_matches_detect():
         }
     )
 
-    data = pd.DataFrame(
+    data = _bullish_data()
+
+    generated = engine.generate(
+        data
+    )
+
+    causal = engine.generate_causal(
+        data
+    )
+
+    pd.testing.assert_frame_equal(
+        generated.reset_index(
+            drop=True
+        ),
+        causal.reset_index(
+            drop=True
+        ),
+    )
+
+
+def test_detect_preserves_explicit_retrospective_legacy_schema():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine(
         {
-            "open": [100, 98, 101, 104, 106],
-            "high": [101, 100, 104, 107, 108],
-            "low": [99, 96, 100, 103, 105],
-            "close": [100, 97, 103, 106, 107],
+            "min_displacement_score": 20.0,
         }
     )
 
-    detected = engine.detect(data)
-    generated = engine.generate(data)
-
-    pd.testing.assert_frame_equal(
-        detected.reset_index(drop=True),
-        generated.reset_index(drop=True),
+    result = engine.detect(
+        _bullish_data()
     )
+
+    assert list(
+        result.columns
+    ) == list(
+        engine.OUTPUT_COLUMNS
+    )
+
+    assert not any(
+        str(
+            column
+        ).startswith(
+            "iz_"
+        )
+        for column
+        in result.columns
+    )
+
+    if not result.empty:
+
+        assert bool(
+            result[
+                "strength"
+            ]
+            .between(
+                0.0,
+                100.0,
+            )
+            .all()
+        )
+
+        assert bool(
+            (
+                result[
+                    "high"
+                ]
+                >
+                result[
+                    "low"
+                ]
+            ).all()
+        )
+
+
+def test_generate_research_is_explicit_hindsight_namespace():
+    module = _load_module()
+
+    engine = module.InstitutionalZonesEngine(
+        {
+            "min_displacement_score": 20.0,
+        }
+    )
+
+    result = engine.generate_research(
+        _bullish_data()
+    )
+
+    assert all(
+        str(
+            column
+        ).startswith(
+            "izlabel_"
+        )
+        for column
+        in result.columns
+    )
+
+    assert (
+        "izlabel_live_safe"
+        in
+        result.columns
+    )
+
+    assert (
+        "izlabel_mode"
+        in
+        result.columns
+    )
+
+    if not result.empty:
+
+        assert bool(
+            result[
+                "izlabel_live_safe"
+            ]
+            .eq(
+                0
+            )
+            .all()
+        )
+
+        assert bool(
+            result[
+                "izlabel_mode"
+            ]
+            .eq(
+                engine.RESEARCH_MODE
+            )
+            .all()
+        )
 
 
 def test_zone_dataclass_to_dict():
@@ -321,23 +610,51 @@ def test_zone_dataclass_to_dict():
 
     result = zone.to_dict()
 
-    assert isinstance(result, dict)
-    assert result["direction"] == "BULLISH"
-    assert result["zone_type"] == "DEMAND"
-    assert result["strength"] == 75.0
+    assert isinstance(
+        result,
+        dict,
+    )
+
+    assert (
+        result[
+            "direction"
+        ]
+        ==
+        "BULLISH"
+    )
+
+    assert (
+        result[
+            "zone_type"
+        ]
+        ==
+        "DEMAND"
+    )
+
+    assert (
+        result[
+            "strength"
+        ]
+        ==
+        75.0
+    )
 
 
 def test_invalid_config():
     module = _load_module()
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError
+    ):
         module.InstitutionalZonesEngine(
             {
                 "min_body_ratio": -1,
             }
         )
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError
+    ):
         module.InstitutionalZonesEngine(
             {
                 "lookahead": 0,
@@ -357,13 +674,35 @@ def test_no_false_zone_from_small_body():
 
     data = pd.DataFrame(
         {
-            "open": [100, 100.0, 101, 102],
-            "high": [105, 105, 105, 106],
-            "low": [95, 95, 99, 101],
-            "close": [100.1, 100.1, 104, 105],
+            "open": [
+                100,
+                100.0,
+                101,
+                102,
+            ],
+            "high": [
+                105,
+                105,
+                105,
+                106,
+            ],
+            "low": [
+                95,
+                95,
+                99,
+                101,
+            ],
+            "close": [
+                100.1,
+                100.1,
+                104,
+                105,
+            ],
         }
     )
 
-    result = engine.generate(data)
+    result = engine.generate(
+        data
+    )
 
     assert result.empty

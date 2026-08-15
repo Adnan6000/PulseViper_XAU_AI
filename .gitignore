@@ -103,6 +103,11 @@ Logs/
 # Must stay local and must never be committed as repository research evidence.
 01_Data/Processed/*.anchor.json
 
+# Forward/demo execution evidence runtime journal and writer lock.
+# These are local auditable runtime artifacts, not repository source/evidence.
+01_Data/Processed/*.journal.jsonl
+01_Data/Processed/*.journal.jsonl.lock
+
 01_Data/Labels/*.csv
 01_Data/Labels/*.parquet
 01_Data/Labels/*.feather
@@ -135,3 +140,5 @@ project_structure.txt
 *.tmp
 *.temp
 ~*
+# Local canonical datasets and trained model artifacts
+01_Data/Canonical/
