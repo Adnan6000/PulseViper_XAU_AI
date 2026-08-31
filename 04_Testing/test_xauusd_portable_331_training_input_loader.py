@@ -5,13 +5,14 @@ import importlib
 import json
 
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import pytest
 
 
-loader_module = importlib.import_module(
+loader_module: Any = importlib.import_module(
     "02_AI.Dataset.portable_331_training_input_loader"
 )
 
@@ -367,7 +368,316 @@ def test_validate_split_series_rejects_noncontiguous_train_layout(
         )
 
 
-def test_all_currently_unauthorized_accessors_fail_closed(
+def test_target_class_normalization_accepts_labels_and_numeric_ids(
+) -> None:
+
+    series = pd.Series(
+        [
+            "SHORT",
+            "NO_TRADE",
+            "LONG",
+            -1,
+            0.0,
+            "1",
+        ],
+        dtype=object,
+    )
+
+    result = (
+        Portable331TrainingInputLoader
+        ._normalize_target_class_array(
+            series
+        )
+    )
+
+    expected = np.asarray(
+        [
+            -1,
+            0,
+            1,
+            -1,
+            0,
+            1,
+        ],
+        dtype=np.int8,
+    )
+
+    assert (
+        result.dtype
+        ==
+        np.dtype(
+            np.int8
+        )
+    )
+
+    assert np.array_equal(
+        result,
+        expected,
+    )
+
+
+def test_target_class_normalization_rejects_unknown_class(
+) -> None:
+
+    series = pd.Series(
+        [
+            "SHORT",
+            "SIDEWAYS",
+            "LONG",
+        ],
+        dtype=object,
+    )
+
+    with pytest.raises(
+        Portable331TrainingInputLoaderError,
+        match=(
+            "TRAIN_TARGET_CLASS_INVALID"
+        ),
+    ):
+
+        (
+            Portable331TrainingInputLoader
+            ._normalize_target_class_array(
+                series
+            )
+        )
+
+
+def test_target_tradeable_normalization_accepts_binary_forms(
+) -> None:
+
+    series = pd.Series(
+        [
+            0,
+            1,
+            False,
+            True,
+            "0",
+            "1.0",
+        ],
+        dtype=object,
+    )
+
+    result = (
+        Portable331TrainingInputLoader
+        ._normalize_target_tradeable_array(
+            series
+        )
+    )
+
+    expected = np.asarray(
+        [
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+        ],
+        dtype=np.int8,
+    )
+
+    assert np.array_equal(
+        result,
+        expected,
+    )
+
+
+def test_validate_train_target_frame_confirms_linkage_and_fingerprint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    monkeypatch.setattr(
+        Portable331TrainingInputLoader,
+        "EXPECTED_TRAIN_ROWS",
+        3,
+    )
+
+    frame = pd.DataFrame(
+        {
+            "decision_time": [
+                "2026-01-01T00:00:00+00:00",
+                "2026-01-01T00:05:00+00:00",
+                "2026-01-01T00:10:00+00:00",
+            ],
+            "target_class": [
+                "SHORT",
+                "NO_TRADE",
+                "LONG",
+            ],
+            "target_tradeable": [
+                1,
+                0,
+                1,
+            ],
+        }
+    )
+
+    (
+        decision_time,
+        target_class,
+        target_tradeable,
+        fingerprint,
+    ) = (
+        Portable331TrainingInputLoader
+        ._validate_train_target_frame(
+            frame
+        )
+    )
+
+    assert np.array_equal(
+        target_class,
+        np.asarray(
+            [
+                -1,
+                0,
+                1,
+            ],
+            dtype=np.int8,
+        ),
+    )
+
+    assert np.array_equal(
+        target_tradeable,
+        np.asarray(
+            [
+                1,
+                0,
+                1,
+            ],
+            dtype=np.int8,
+        ),
+    )
+
+    assert (
+        decision_time.shape
+        ==
+        (
+            3,
+        )
+    )
+
+    assert (
+        len(
+            fingerprint
+        )
+        ==
+        64
+    )
+
+    repeated = (
+        Portable331TrainingInputLoader
+        ._train_target_fingerprint(
+            decision_time=(
+                decision_time
+            ),
+            target_class=(
+                target_class
+            ),
+            target_tradeable=(
+                target_tradeable
+            ),
+        )
+    )
+
+    assert (
+        fingerprint
+        ==
+        repeated
+    )
+
+
+def test_validate_train_target_frame_rejects_tradeable_linkage_mismatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    monkeypatch.setattr(
+        Portable331TrainingInputLoader,
+        "EXPECTED_TRAIN_ROWS",
+        3,
+    )
+
+    frame = pd.DataFrame(
+        {
+            "decision_time": [
+                "2026-01-01T00:00:00+00:00",
+                "2026-01-01T00:05:00+00:00",
+                "2026-01-01T00:10:00+00:00",
+            ],
+            "target_class": [
+                -1,
+                0,
+                1,
+            ],
+            "target_tradeable": [
+                1,
+                1,
+                1,
+            ],
+        }
+    )
+
+    with pytest.raises(
+        Portable331TrainingInputLoaderError,
+        match=(
+            "TRAIN_TARGET_TRADEABLE_LINKAGE_MISMATCH"
+        ),
+    ):
+
+        (
+            Portable331TrainingInputLoader
+            ._validate_train_target_frame(
+                frame
+            )
+        )
+
+
+def test_validate_train_target_frame_rejects_duplicate_decision_time(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    monkeypatch.setattr(
+        Portable331TrainingInputLoader,
+        "EXPECTED_TRAIN_ROWS",
+        3,
+    )
+
+    frame = pd.DataFrame(
+        {
+            "decision_time": [
+                "2026-01-01T00:00:00+00:00",
+                "2026-01-01T00:00:00+00:00",
+                "2026-01-01T00:10:00+00:00",
+            ],
+            "target_class": [
+                -1,
+                0,
+                1,
+            ],
+            "target_tradeable": [
+                1,
+                0,
+                1,
+            ],
+        }
+    )
+
+    with pytest.raises(
+        Portable331TrainingInputLoaderError,
+        match=(
+            "TRAIN_TARGET_DUPLICATE_DECISION_TIME"
+        ),
+    ):
+
+        (
+            Portable331TrainingInputLoader
+            ._validate_train_target_frame(
+                frame
+            )
+        )
+
+
+def test_currently_unauthorized_accessors_remain_fail_closed(
     tmp_path: Path,
 ) -> None:
 
@@ -380,10 +690,6 @@ def test_all_currently_unauthorized_accessors_fail_closed(
     )
 
     unauthorized = [
-        (
-            loader.load_train_targets,
-            "TRAIN_TARGET_ACCESS_NOT_AUTHORIZED",
-        ),
         (
             loader.load_train_supervised,
             "SUPERVISED_TRAIN_INPUT_ACCESS_NOT_AUTHORIZED",

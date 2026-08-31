@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 
 from dataclasses import dataclass
@@ -40,6 +41,26 @@ class Portable331TrainFeatureBatch:
     X: np.ndarray
 
 
+@dataclass(
+    frozen=True
+)
+class Portable331TrainTargetBatch:
+    dataset_id: str
+    dataset_sha256: str
+    manifest_sha256: str
+    training_contract_version: str
+    trainer_input_contract_version: str
+    trainer_input_contract_fingerprint_sha256: str
+    target_access_contract_version: str
+    target_access_contract_fingerprint_sha256: str
+    target_columns: tuple[str, ...]
+    train_target_fingerprint_sha256: str
+    row_count: int
+    decision_time: np.ndarray
+    target_class: np.ndarray
+    target_tradeable: np.ndarray
+
+
 class Portable331TrainingInputLoader:
     """
     Architecture-neutral loader for the frozen portable XAUUSD 331-feature
@@ -51,7 +72,8 @@ class Portable331TrainingInputLoader:
     - manifest-first validation
     - full-file structural access limited to dataset_split
     - TRAIN feature values only
-    - no TRAIN target values yet
+    - TRAIN target_class and target_tradeable values only
+    - no supervised feature/target combination yet
     - no VALIDATION feature/target values
     - no TEST feature/target values
     - no scaler fit
@@ -61,7 +83,7 @@ class Portable331TrainingInputLoader:
     """
 
     VERSION = (
-        "1.0"
+        "1.1"
     )
 
     TRAINER_INPUT_CONTRACT_VERSION = (
@@ -70,6 +92,14 @@ class Portable331TrainingInputLoader:
 
     TRAINER_INPUT_CONTRACT_FINGERPRINT_SHA256 = (
         "b192ce16291fe9ddca9ead9561224fb942c331d1f30fc1b53cee396efa5accdf"
+    )
+
+    TARGET_ACCESS_CONTRACT_VERSION = (
+        "XAUUSD_PORTABLE_331_TRAIN_TARGET_ACCESS_V1"
+    )
+
+    TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256 = (
+        "a640b9cda2522b734515a2cdf05259abbf77e4c6488afd635aedc21f62458266"
     )
 
     PORTABLE_FEATURE_CONTRACT = (
@@ -166,7 +196,23 @@ class Portable331TrainingInputLoader:
         "LONG": 1,
     }
 
+    TARGET_CLASS_ALLOWED_VALUES = {
+        -1,
+        0,
+        1,
+    }
+
+    TARGET_TRADEABLE_ALLOWED_VALUES = {
+        0,
+        1,
+    }
+
     REQUIRED_MODEL_TARGET_COLUMNS = (
+        "target_class",
+        "target_tradeable",
+    )
+
+    TRAIN_TARGET_COLUMNS = (
         "target_class",
         "target_tradeable",
     )
@@ -323,7 +369,7 @@ class Portable331TrainingInputLoader:
 
         try:
 
-            return int(
+            result = int(
                 value
             )
 
@@ -341,6 +387,8 @@ class Portable331TrainingInputLoader:
                     )
                 )
             ) from exc
+
+        return result
 
     @staticmethod
     def _feature_columns_sha256(
@@ -415,12 +463,414 @@ class Portable331TrainingInputLoader:
                 )
             )
 
-        result = np.asarray(
+        return np.asarray(
             numeric,
             dtype=np.float64,
         )
 
-        return result
+    @classmethod
+    def _normalize_target_class_array(
+        cls,
+        series: pd.Series,
+    ) -> np.ndarray:
+
+        values: list[
+            int
+        ] = []
+
+        raw_values = (
+            series.tolist()
+        )
+
+        for (
+            row_index,
+            raw_value,
+        ) in enumerate(
+            raw_values
+        ):
+
+            if raw_value is None:
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_CLASS_MISSING:"
+                            f"{row_index}"
+                        )
+                    )
+                )
+
+            normalized: int
+
+            if isinstance(
+                raw_value,
+                str,
+            ):
+
+                token = (
+                    raw_value
+                    .strip()
+                    .upper()
+                )
+
+                if not token:
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_CLASS_EMPTY:"
+                                f"{row_index}"
+                            )
+                        )
+                    )
+
+                if (
+                    token
+                    in
+                    cls.EXPECTED_TARGET_CLASS_MAPPING
+                ):
+
+                    normalized = (
+                        cls.EXPECTED_TARGET_CLASS_MAPPING[
+                            token
+                        ]
+                    )
+
+                else:
+
+                    try:
+
+                        numeric = float(
+                            token
+                        )
+
+                    except ValueError as exc:
+
+                        raise (
+                            Portable331TrainingInputLoaderError(
+                                (
+                                    "TRAIN_TARGET_CLASS_INVALID:"
+                                    f"{row_index}:"
+                                    f"{raw_value}"
+                                )
+                            )
+                        ) from exc
+
+                    if (
+                        not math.isfinite(
+                            numeric
+                        )
+                        or
+                        not numeric.is_integer()
+                    ):
+                        raise (
+                            Portable331TrainingInputLoaderError(
+                                (
+                                    "TRAIN_TARGET_CLASS_INVALID:"
+                                    f"{row_index}:"
+                                    f"{raw_value}"
+                                )
+                            )
+                        )
+
+                    normalized = int(
+                        numeric
+                    )
+
+            elif isinstance(
+                raw_value,
+                (
+                    bool,
+                    np.bool_,
+                ),
+            ):
+
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_CLASS_BOOLEAN:"
+                            f"{row_index}"
+                        )
+                    )
+                )
+
+            elif isinstance(
+                raw_value,
+                (
+                    int,
+                    np.integer,
+                ),
+            ):
+
+                normalized = int(
+                    raw_value
+                )
+
+            elif isinstance(
+                raw_value,
+                (
+                    float,
+                    np.floating,
+                ),
+            ):
+
+                numeric = float(
+                    raw_value
+                )
+
+                if not math.isfinite(
+                    numeric
+                ):
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_CLASS_NONFINITE:"
+                                f"{row_index}"
+                            )
+                        )
+                    )
+
+                if not numeric.is_integer():
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_CLASS_NONINTEGER:"
+                                f"{row_index}:"
+                                f"{numeric}"
+                            )
+                        )
+                    )
+
+                normalized = int(
+                    numeric
+                )
+
+            else:
+
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_CLASS_TYPE_INVALID:"
+                            f"{row_index}:"
+                            f"{type(raw_value).__name__}"
+                        )
+                    )
+                )
+
+            if (
+                normalized
+                not in
+                cls.TARGET_CLASS_ALLOWED_VALUES
+            ):
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_CLASS_DOMAIN_INVALID:"
+                            f"{row_index}:"
+                            f"{normalized}"
+                        )
+                    )
+                )
+
+            values.append(
+                normalized
+            )
+
+        return np.asarray(
+            values,
+            dtype=np.int8,
+        )
+
+    @classmethod
+    def _normalize_target_tradeable_array(
+        cls,
+        series: pd.Series,
+    ) -> np.ndarray:
+
+        values: list[
+            int
+        ] = []
+
+        raw_values = (
+            series.tolist()
+        )
+
+        for (
+            row_index,
+            raw_value,
+        ) in enumerate(
+            raw_values
+        ):
+
+            if raw_value is None:
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_TRADEABLE_MISSING:"
+                            f"{row_index}"
+                        )
+                    )
+                )
+
+            normalized: int
+
+            if isinstance(
+                raw_value,
+                str,
+            ):
+
+                token = (
+                    raw_value
+                    .strip()
+                )
+
+                if not token:
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_TRADEABLE_EMPTY:"
+                                f"{row_index}"
+                            )
+                        )
+                    )
+
+                try:
+
+                    numeric = float(
+                        token
+                    )
+
+                except ValueError as exc:
+
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_TRADEABLE_INVALID:"
+                                f"{row_index}:"
+                                f"{raw_value}"
+                            )
+                        )
+                    ) from exc
+
+                if (
+                    not math.isfinite(
+                        numeric
+                    )
+                    or
+                    not numeric.is_integer()
+                ):
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_TRADEABLE_INVALID:"
+                                f"{row_index}:"
+                                f"{raw_value}"
+                            )
+                        )
+                    )
+
+                normalized = int(
+                    numeric
+                )
+
+            elif isinstance(
+                raw_value,
+                (
+                    bool,
+                    np.bool_,
+                ),
+            ):
+
+                normalized = int(
+                    bool(
+                        raw_value
+                    )
+                )
+
+            elif isinstance(
+                raw_value,
+                (
+                    int,
+                    np.integer,
+                ),
+            ):
+
+                normalized = int(
+                    raw_value
+                )
+
+            elif isinstance(
+                raw_value,
+                (
+                    float,
+                    np.floating,
+                ),
+            ):
+
+                numeric = float(
+                    raw_value
+                )
+
+                if not math.isfinite(
+                    numeric
+                ):
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_TRADEABLE_NONFINITE:"
+                                f"{row_index}"
+                            )
+                        )
+                    )
+
+                if not numeric.is_integer():
+                    raise (
+                        Portable331TrainingInputLoaderError(
+                            (
+                                "TRAIN_TARGET_TRADEABLE_NONINTEGER:"
+                                f"{row_index}:"
+                                f"{numeric}"
+                            )
+                        )
+                    )
+
+                normalized = int(
+                    numeric
+                )
+
+            else:
+
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_TRADEABLE_TYPE_INVALID:"
+                            f"{row_index}:"
+                            f"{type(raw_value).__name__}"
+                        )
+                    )
+                )
+
+            if (
+                normalized
+                not in
+                cls.TARGET_TRADEABLE_ALLOWED_VALUES
+            ):
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_TRADEABLE_DOMAIN_INVALID:"
+                            f"{row_index}:"
+                            f"{normalized}"
+                        )
+                    )
+                )
+
+            values.append(
+                normalized
+            )
+
+        return np.asarray(
+            values,
+            dtype=np.int8,
+        )
 
     @classmethod
     def _train_input_fingerprint(
@@ -473,7 +923,7 @@ class Portable331TrainingInputLoader:
             b"\0"
         )
 
-        for decision_time in (
+        decision_times = (
             train_frame[
                 "decision_time"
             ]
@@ -481,6 +931,10 @@ class Portable331TrainingInputLoader:
                 str
             )
             .tolist()
+        )
+
+        for decision_time in (
+            decision_times
         ):
 
             digest.update(
@@ -548,6 +1002,238 @@ class Portable331TrainingInputLoader:
             )
 
         return digest.hexdigest()
+
+    @classmethod
+    def _train_target_fingerprint(
+        cls,
+        *,
+        decision_time: np.ndarray,
+        target_class: np.ndarray,
+        target_tradeable: np.ndarray,
+    ) -> str:
+
+        if (
+            decision_time.shape
+            !=
+            target_class.shape
+            or
+            decision_time.shape
+            !=
+            target_tradeable.shape
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "TRAIN_TARGET_FINGERPRINT_SHAPE_MISMATCH"
+                )
+            )
+
+        digest = hashlib.sha256()
+
+        digest.update(
+            b"XAUUSD_PORTABLE_331_TRAIN_TARGET_FINGERPRINT_V1\0"
+        )
+
+        normalized_decision_time = (
+            decision_time
+            .astype(
+                str
+            )
+            .tolist()
+        )
+
+        for value in (
+            normalized_decision_time
+        ):
+
+            digest.update(
+                str(
+                    value
+                ).encode(
+                    "utf-8"
+                )
+            )
+
+            digest.update(
+                b"\n"
+            )
+
+        digest.update(
+            b"target_class\0"
+        )
+
+        digest.update(
+            np.asarray(
+                target_class,
+                dtype=np.int8,
+            ).tobytes(
+                order="C"
+            )
+        )
+
+        digest.update(
+            b"target_tradeable\0"
+        )
+
+        digest.update(
+            np.asarray(
+                target_tradeable,
+                dtype=np.int8,
+            ).tobytes(
+                order="C"
+            )
+        )
+
+        return digest.hexdigest()
+
+    @classmethod
+    def _validate_train_target_frame(
+        cls,
+        frame: pd.DataFrame,
+    ) -> tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        str,
+    ]:
+
+        required_columns = [
+            "decision_time",
+            *cls.TRAIN_TARGET_COLUMNS,
+        ]
+
+        missing_columns = [
+            column
+            for column
+            in required_columns
+            if (
+                column
+                not in
+                frame.columns
+            )
+        ]
+
+        if missing_columns:
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "TRAIN_TARGET_COLUMNS_MISSING:"
+                        f"{missing_columns}"
+                    )
+                )
+            )
+
+        if (
+            len(
+                frame
+            )
+            !=
+            cls.EXPECTED_TRAIN_ROWS
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "TRAIN_TARGET_ROW_COUNT_MISMATCH:"
+                        f"{len(frame)}:"
+                        f"{cls.EXPECTED_TRAIN_ROWS}"
+                    )
+                )
+            )
+
+        if bool(
+            frame[
+                "decision_time"
+            ]
+            .duplicated()
+            .any()
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "TRAIN_TARGET_DUPLICATE_DECISION_TIME"
+                )
+            )
+
+        target_class = (
+            cls._normalize_target_class_array(
+                frame[
+                    "target_class"
+                ]
+            )
+        )
+
+        target_tradeable = (
+            cls._normalize_target_tradeable_array(
+                frame[
+                    "target_tradeable"
+                ]
+            )
+        )
+
+        expected_tradeable = (
+            (
+                target_class
+                !=
+                0
+            )
+            .astype(
+                np.int8,
+                copy=False,
+            )
+        )
+
+        linkage_mismatch_count = int(
+            np.count_nonzero(
+                target_tradeable
+                !=
+                expected_tradeable
+            )
+        )
+
+        if (
+            linkage_mismatch_count
+            !=
+            0
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "TRAIN_TARGET_TRADEABLE_LINKAGE_MISMATCH:"
+                        f"{linkage_mismatch_count}"
+                    )
+                )
+            )
+
+        decision_time = (
+            frame[
+                "decision_time"
+            ]
+            .astype(
+                str
+            )
+            .to_numpy(
+                copy=True
+            )
+        )
+
+        target_fingerprint = (
+            cls._train_target_fingerprint(
+                decision_time=(
+                    decision_time
+                ),
+                target_class=(
+                    target_class
+                ),
+                target_tradeable=(
+                    target_tradeable
+                ),
+            )
+        )
+
+        return (
+            decision_time,
+            target_class,
+            target_tradeable,
+            target_fingerprint,
+        )
 
     @classmethod
     def _numeric_matrix(
@@ -1191,14 +1877,10 @@ class Portable331TrainingInputLoader:
                 )
             )
 
-        observed_feature_sha256 = (
+        if (
             cls._feature_columns_sha256(
                 feature_columns
             )
-        )
-
-        if (
-            observed_feature_sha256
             !=
             cls.EXPECTED_FEATURE_COLUMNS_SHA256
         ):
@@ -1666,6 +2348,12 @@ class Portable331TrainingInputLoader:
             "trainer_input_contract_fingerprint_sha256": (
                 self.TRAINER_INPUT_CONTRACT_FINGERPRINT_SHA256
             ),
+            "target_access_contract_version": (
+                self.TARGET_ACCESS_CONTRACT_VERSION
+            ),
+            "target_access_contract_fingerprint_sha256": (
+                self.TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256
+            ),
             "feature_count": (
                 len(
                     feature_columns
@@ -1934,11 +2622,179 @@ class Portable331TrainingInputLoader:
 
     def load_train_targets(
         self,
-    ) -> None:
+    ) -> Portable331TrainTargetBatch:
 
-        raise (
-            Portable331TrainingInputLoaderError(
-                "TRAIN_TARGET_ACCESS_NOT_AUTHORIZED"
+        (
+            dataset_path,
+            manifest_path,
+            manifest,
+        ) = (
+            self._discover_exact_artifact()
+        )
+
+        dataset_sha256 = (
+            PortableTrainingFeatureProjector
+            ._sha256_file(
+                dataset_path
+            )
+        )
+
+        manifest_sha256 = (
+            PortableTrainingFeatureProjector
+            ._sha256_file(
+                manifest_path
+            )
+        )
+
+        if (
+            dataset_sha256
+            !=
+            self.EXPECTED_DATASET_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "PORTABLE_DATASET_HASH_CHANGED"
+                )
+            )
+
+        if (
+            manifest_sha256
+            !=
+            self.EXPECTED_MANIFEST_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "PORTABLE_MANIFEST_HASH_CHANGED"
+                )
+            )
+
+        (
+            _feature_columns,
+            target_columns,
+        ) = (
+            self._validate_manifest(
+                manifest
+            )
+        )
+
+        self._validate_split_structure(
+            dataset_path
+        )
+
+        for target_column in (
+            self.TRAIN_TARGET_COLUMNS
+        ):
+
+            if (
+                target_column
+                not in
+                target_columns
+            ):
+                raise (
+                    Portable331TrainingInputLoaderError(
+                        (
+                            "TRAIN_TARGET_COLUMN_NOT_DECLARED:"
+                            f"{target_column}"
+                        )
+                    )
+                )
+
+        usecols = [
+            "decision_time",
+            *self.TRAIN_TARGET_COLUMNS,
+        ]
+
+        try:
+
+            frame = pd.read_csv(
+                dataset_path,
+                usecols=(
+                    usecols
+                ),
+                nrows=(
+                    self.EXPECTED_TRAIN_ROWS
+                ),
+            )
+
+        except Exception as exc:
+
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "TRAIN_TARGET_READ_FAILED"
+                )
+            ) from exc
+
+        frame = frame[
+            usecols
+        ].copy()
+
+        (
+            decision_time,
+            target_class,
+            target_tradeable,
+            target_fingerprint,
+        ) = (
+            self._validate_train_target_frame(
+                frame
+            )
+        )
+
+        decision_time.setflags(
+            write=False
+        )
+
+        target_class.setflags(
+            write=False
+        )
+
+        target_tradeable.setflags(
+            write=False
+        )
+
+        return (
+            Portable331TrainTargetBatch(
+                dataset_id=(
+                    self.EXPECTED_DATASET_ID
+                ),
+                dataset_sha256=(
+                    dataset_sha256
+                ),
+                manifest_sha256=(
+                    manifest_sha256
+                ),
+                training_contract_version=(
+                    self.PORTABLE_FEATURE_CONTRACT
+                ),
+                trainer_input_contract_version=(
+                    self.TRAINER_INPUT_CONTRACT_VERSION
+                ),
+                trainer_input_contract_fingerprint_sha256=(
+                    self.TRAINER_INPUT_CONTRACT_FINGERPRINT_SHA256
+                ),
+                target_access_contract_version=(
+                    self.TARGET_ACCESS_CONTRACT_VERSION
+                ),
+                target_access_contract_fingerprint_sha256=(
+                    self.TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256
+                ),
+                target_columns=(
+                    self.TRAIN_TARGET_COLUMNS
+                ),
+                train_target_fingerprint_sha256=(
+                    target_fingerprint
+                ),
+                row_count=(
+                    self.EXPECTED_TRAIN_ROWS
+                ),
+                decision_time=(
+                    decision_time
+                ),
+                target_class=(
+                    target_class
+                ),
+                target_tradeable=(
+                    target_tradeable
+                ),
             )
         )
 
