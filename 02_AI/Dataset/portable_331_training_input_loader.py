@@ -61,6 +61,39 @@ class Portable331TrainTargetBatch:
     target_tradeable: np.ndarray
 
 
+@dataclass(
+    frozen=True
+)
+class Portable331TrainSupervisedBatch:
+    dataset_id: str
+    dataset_sha256: str
+    manifest_sha256: str
+    training_contract_version: str
+
+    trainer_input_contract_version: str
+    trainer_input_contract_fingerprint_sha256: str
+
+    target_access_contract_version: str
+    target_access_contract_fingerprint_sha256: str
+
+    supervised_batch_contract_version: str
+    supervised_batch_contract_fingerprint_sha256: str
+
+    feature_columns: tuple[str, ...]
+    feature_columns_sha256: str
+    train_input_fingerprint_sha256: str
+
+    target_columns: tuple[str, ...]
+    train_target_fingerprint_sha256: str
+
+    row_count: int
+
+    decision_time: np.ndarray
+    X: np.ndarray
+    target_class: np.ndarray
+    target_tradeable: np.ndarray
+
+
 class Portable331TrainingInputLoader:
     """
     Architecture-neutral loader for the frozen portable XAUUSD 331-feature
@@ -73,7 +106,8 @@ class Portable331TrainingInputLoader:
     - full-file structural access limited to dataset_split
     - TRAIN feature values only
     - TRAIN target_class and target_tradeable values only
-    - no supervised feature/target combination yet
+    - TRAIN supervised alignment-only batch authorized
+    - no additional dataset read inside supervised combination
     - no VALIDATION feature/target values
     - no TEST feature/target values
     - no scaler fit
@@ -83,7 +117,7 @@ class Portable331TrainingInputLoader:
     """
 
     VERSION = (
-        "1.1"
+        "1.2"
     )
 
     TRAINER_INPUT_CONTRACT_VERSION = (
@@ -100,6 +134,14 @@ class Portable331TrainingInputLoader:
 
     TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256 = (
         "a640b9cda2522b734515a2cdf05259abbf77e4c6488afd635aedc21f62458266"
+    )
+
+    SUPERVISED_BATCH_CONTRACT_VERSION = (
+        "XAUUSD_PORTABLE_331_TRAIN_SUPERVISED_BATCH_V1"
+    )
+
+    SUPERVISED_BATCH_CONTRACT_FINGERPRINT_SHA256 = (
+        "1e7bd0751234282d4081ef87783de8633aac815a2f6aa13010fbb5a06156aec4"
     )
 
     PORTABLE_FEATURE_CONTRACT = (
@@ -172,6 +214,10 @@ class Portable331TrainingInputLoader:
 
     EXPECTED_TRAIN_INPUT_FINGERPRINT_SHA256 = (
         "9ffb72759499cfc202e88cfdbd61b42cee5b5c7cbb7db5870470453caa5ed2c5"
+    )
+
+    EXPECTED_TRAIN_TARGET_FINGERPRINT_SHA256 = (
+        "bc063a790e70cdbc931b2170ccfef883634b40ee7336a529a32bda0eaf0babe3"
     )
 
     EXPECTED_FEATURE_CONTRACT_DESIGN_FINGERPRINT_SHA256 = (
@@ -1451,6 +1497,645 @@ class Portable331TrainingInputLoader:
 
         return split_rows
 
+    @classmethod
+    def _combine_train_batches(
+        cls,
+        *,
+        feature_batch: Portable331TrainFeatureBatch,
+        target_batch: Portable331TrainTargetBatch,
+    ) -> Portable331TrainSupervisedBatch:
+
+        if (
+            feature_batch.dataset_id
+            !=
+            cls.EXPECTED_DATASET_ID
+            or
+            target_batch.dataset_id
+            !=
+            cls.EXPECTED_DATASET_ID
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_DATASET_ID_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.dataset_sha256
+            !=
+            cls.EXPECTED_DATASET_SHA256
+            or
+            target_batch.dataset_sha256
+            !=
+            cls.EXPECTED_DATASET_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_DATASET_SHA256_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.manifest_sha256
+            !=
+            cls.EXPECTED_MANIFEST_SHA256
+            or
+            target_batch.manifest_sha256
+            !=
+            cls.EXPECTED_MANIFEST_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_MANIFEST_SHA256_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.training_contract_version
+            !=
+            cls.PORTABLE_FEATURE_CONTRACT
+            or
+            target_batch.training_contract_version
+            !=
+            cls.PORTABLE_FEATURE_CONTRACT
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_FEATURE_CONTRACT_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.trainer_input_contract_version
+            !=
+            cls.TRAINER_INPUT_CONTRACT_VERSION
+            or
+            target_batch.trainer_input_contract_version
+            !=
+            cls.TRAINER_INPUT_CONTRACT_VERSION
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TRAINER_INPUT_CONTRACT_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.trainer_input_contract_fingerprint_sha256
+            !=
+            cls.TRAINER_INPUT_CONTRACT_FINGERPRINT_SHA256
+            or
+            target_batch.trainer_input_contract_fingerprint_sha256
+            !=
+            cls.TRAINER_INPUT_CONTRACT_FINGERPRINT_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TRAINER_INPUT_FINGERPRINT_MISMATCH"
+                )
+            )
+
+        if (
+            target_batch.target_access_contract_version
+            !=
+            cls.TARGET_ACCESS_CONTRACT_VERSION
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_ACCESS_CONTRACT_MISMATCH"
+                )
+            )
+
+        if (
+            target_batch.target_access_contract_fingerprint_sha256
+            !=
+            cls.TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_ACCESS_FINGERPRINT_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.row_count
+            !=
+            cls.EXPECTED_TRAIN_ROWS
+            or
+            target_batch.row_count
+            !=
+            cls.EXPECTED_TRAIN_ROWS
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_ROW_COUNT_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.row_count
+            !=
+            target_batch.row_count
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_COMPONENT_ROW_COUNT_MISMATCH"
+                )
+            )
+
+        if (
+            len(
+                feature_batch.feature_columns
+            )
+            !=
+            cls.EXPECTED_FEATURE_COUNT
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_FEATURE_COUNT_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.feature_columns_sha256
+            !=
+            cls.EXPECTED_FEATURE_COLUMNS_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_FEATURE_COLUMNS_SHA256_MISMATCH"
+                )
+            )
+
+        recomputed_feature_columns_sha256 = (
+            cls._feature_columns_sha256(
+                feature_batch.feature_columns
+            )
+        )
+
+        if (
+            recomputed_feature_columns_sha256
+            !=
+            cls.EXPECTED_FEATURE_COLUMNS_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_RECOMPUTED_FEATURE_COLUMNS_SHA256_MISMATCH"
+                )
+            )
+
+        if (
+            feature_batch.train_input_fingerprint_sha256
+            !=
+            cls.EXPECTED_TRAIN_INPUT_FINGERPRINT_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TRAIN_INPUT_FINGERPRINT_MISMATCH"
+                )
+            )
+
+        if (
+            target_batch.target_columns
+            !=
+            cls.TRAIN_TARGET_COLUMNS
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_COLUMNS_MISMATCH"
+                )
+            )
+
+        if (
+            target_batch.train_target_fingerprint_sha256
+            !=
+            cls.EXPECTED_TRAIN_TARGET_FINGERPRINT_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TRAIN_TARGET_FINGERPRINT_MISMATCH"
+                )
+            )
+
+        feature_decision_time = (
+            feature_batch.decision_time
+        )
+
+        target_decision_time = (
+            target_batch.decision_time
+        )
+
+        X = (
+            feature_batch.X
+        )
+
+        target_class = (
+            target_batch.target_class
+        )
+
+        target_tradeable = (
+            target_batch.target_tradeable
+        )
+
+        if not isinstance(
+            feature_decision_time,
+            np.ndarray,
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_FEATURE_DECISION_TIME_NOT_ARRAY"
+                )
+            )
+
+        if not isinstance(
+            target_decision_time,
+            np.ndarray,
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_DECISION_TIME_NOT_ARRAY"
+                )
+            )
+
+        if not isinstance(
+            X,
+            np.ndarray,
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_X_NOT_ARRAY"
+                )
+            )
+
+        if not isinstance(
+            target_class,
+            np.ndarray,
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_CLASS_NOT_ARRAY"
+                )
+            )
+
+        if not isinstance(
+            target_tradeable,
+            np.ndarray,
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_TRADEABLE_NOT_ARRAY"
+                )
+            )
+
+        expected_vector_shape = (
+            cls.EXPECTED_TRAIN_ROWS,
+        )
+
+        expected_matrix_shape = (
+            cls.EXPECTED_TRAIN_ROWS,
+            cls.EXPECTED_FEATURE_COUNT,
+        )
+
+        if (
+            feature_decision_time.shape
+            !=
+            expected_vector_shape
+            or
+            target_decision_time.shape
+            !=
+            expected_vector_shape
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_DECISION_TIME_SHAPE_MISMATCH"
+                )
+            )
+
+        if (
+            X.shape
+            !=
+            expected_matrix_shape
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_X_SHAPE_MISMATCH:"
+                        f"{X.shape}"
+                    )
+                )
+            )
+
+        if (
+            target_class.shape
+            !=
+            expected_vector_shape
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_TARGET_CLASS_SHAPE_MISMATCH:"
+                        f"{target_class.shape}"
+                    )
+                )
+            )
+
+        if (
+            target_tradeable.shape
+            !=
+            expected_vector_shape
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_TARGET_TRADEABLE_SHAPE_MISMATCH:"
+                        f"{target_tradeable.shape}"
+                    )
+                )
+            )
+
+        if (
+            X.dtype
+            !=
+            np.dtype(
+                np.float64
+            )
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_X_DTYPE_MISMATCH:"
+                        f"{X.dtype}"
+                    )
+                )
+            )
+
+        if (
+            target_class.dtype
+            !=
+            np.dtype(
+                np.int8
+            )
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_TARGET_CLASS_DTYPE_MISMATCH:"
+                        f"{target_class.dtype}"
+                    )
+                )
+            )
+
+        if (
+            target_tradeable.dtype
+            !=
+            np.dtype(
+                np.int8
+            )
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_TARGET_TRADEABLE_DTYPE_MISMATCH:"
+                        f"{target_tradeable.dtype}"
+                    )
+                )
+            )
+
+        if (
+            bool(
+                feature_decision_time.flags.writeable
+            )
+            or
+            bool(
+                target_decision_time.flags.writeable
+            )
+            or
+            bool(
+                X.flags.writeable
+            )
+            or
+            bool(
+                target_class.flags.writeable
+            )
+            or
+            bool(
+                target_tradeable.flags.writeable
+            )
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_ARRAY_NOT_READ_ONLY"
+                )
+            )
+
+        feature_decision_time_string = (
+            feature_decision_time.astype(
+                str
+            )
+        )
+
+        target_decision_time_string = (
+            target_decision_time.astype(
+                str
+            )
+        )
+
+        if not bool(
+            np.array_equal(
+                feature_decision_time_string,
+                target_decision_time_string,
+            )
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_DECISION_TIME_ALIGNMENT_MISMATCH"
+                )
+            )
+
+        if (
+            int(
+                np.unique(
+                    feature_decision_time_string
+                ).size
+            )
+            !=
+            cls.EXPECTED_TRAIN_ROWS
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_DECISION_TIME_NOT_UNIQUE"
+                )
+            )
+
+        if not bool(
+            np.isfinite(
+                X
+            ).all()
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_X_NONFINITE"
+                )
+            )
+
+        if not bool(
+            np.isin(
+                target_class,
+                np.asarray(
+                    sorted(
+                        cls.TARGET_CLASS_ALLOWED_VALUES
+                    ),
+                    dtype=np.int8,
+                ),
+            ).all()
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_CLASS_DOMAIN_INVALID"
+                )
+            )
+
+        if not bool(
+            np.isin(
+                target_tradeable,
+                np.asarray(
+                    sorted(
+                        cls.TARGET_TRADEABLE_ALLOWED_VALUES
+                    ),
+                    dtype=np.int8,
+                ),
+            ).all()
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_TARGET_TRADEABLE_DOMAIN_INVALID"
+                )
+            )
+
+        expected_tradeable = (
+            (
+                target_class
+                !=
+                0
+            )
+            .astype(
+                np.int8,
+                copy=False,
+            )
+        )
+
+        linkage_mismatch_count = int(
+            np.count_nonzero(
+                target_tradeable
+                !=
+                expected_tradeable
+            )
+        )
+
+        if (
+            linkage_mismatch_count
+            !=
+            0
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    (
+                        "SUPERVISED_TARGET_TRADEABLE_LINKAGE_MISMATCH:"
+                        f"{linkage_mismatch_count}"
+                    )
+                )
+            )
+
+        recomputed_target_fingerprint = (
+            cls._train_target_fingerprint(
+                decision_time=(
+                    target_decision_time
+                ),
+                target_class=(
+                    target_class
+                ),
+                target_tradeable=(
+                    target_tradeable
+                ),
+            )
+        )
+
+        if (
+            recomputed_target_fingerprint
+            !=
+            cls.EXPECTED_TRAIN_TARGET_FINGERPRINT_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "SUPERVISED_RECOMPUTED_TARGET_FINGERPRINT_MISMATCH"
+                )
+            )
+
+        return (
+            Portable331TrainSupervisedBatch(
+                dataset_id=(
+                    cls.EXPECTED_DATASET_ID
+                ),
+                dataset_sha256=(
+                    cls.EXPECTED_DATASET_SHA256
+                ),
+                manifest_sha256=(
+                    cls.EXPECTED_MANIFEST_SHA256
+                ),
+                training_contract_version=(
+                    cls.PORTABLE_FEATURE_CONTRACT
+                ),
+                trainer_input_contract_version=(
+                    cls.TRAINER_INPUT_CONTRACT_VERSION
+                ),
+                trainer_input_contract_fingerprint_sha256=(
+                    cls.TRAINER_INPUT_CONTRACT_FINGERPRINT_SHA256
+                ),
+                target_access_contract_version=(
+                    cls.TARGET_ACCESS_CONTRACT_VERSION
+                ),
+                target_access_contract_fingerprint_sha256=(
+                    cls.TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256
+                ),
+                supervised_batch_contract_version=(
+                    cls.SUPERVISED_BATCH_CONTRACT_VERSION
+                ),
+                supervised_batch_contract_fingerprint_sha256=(
+                    cls.SUPERVISED_BATCH_CONTRACT_FINGERPRINT_SHA256
+                ),
+                feature_columns=(
+                    feature_batch.feature_columns
+                ),
+                feature_columns_sha256=(
+                    feature_batch.feature_columns_sha256
+                ),
+                train_input_fingerprint_sha256=(
+                    feature_batch.train_input_fingerprint_sha256
+                ),
+                target_columns=(
+                    target_batch.target_columns
+                ),
+                train_target_fingerprint_sha256=(
+                    target_batch.train_target_fingerprint_sha256
+                ),
+                row_count=(
+                    cls.EXPECTED_TRAIN_ROWS
+                ),
+                decision_time=(
+                    feature_decision_time
+                ),
+                X=(
+                    X
+                ),
+                target_class=(
+                    target_class
+                ),
+                target_tradeable=(
+                    target_tradeable
+                ),
+            )
+        )
+
     def _search_roots(
         self,
     ) -> list[Path]:
@@ -2354,6 +3039,12 @@ class Portable331TrainingInputLoader:
             "target_access_contract_fingerprint_sha256": (
                 self.TARGET_ACCESS_CONTRACT_FINGERPRINT_SHA256
             ),
+            "supervised_batch_contract_version": (
+                self.SUPERVISED_BATCH_CONTRACT_VERSION
+            ),
+            "supervised_batch_contract_fingerprint_sha256": (
+                self.SUPERVISED_BATCH_CONTRACT_FINGERPRINT_SHA256
+            ),
             "feature_count": (
                 len(
                     feature_columns
@@ -2361,6 +3052,12 @@ class Portable331TrainingInputLoader:
             ),
             "feature_columns_sha256": (
                 self.EXPECTED_FEATURE_COLUMNS_SHA256
+            ),
+            "train_input_fingerprint_sha256": (
+                self.EXPECTED_TRAIN_INPUT_FINGERPRINT_SHA256
+            ),
+            "train_target_fingerprint_sha256": (
+                self.EXPECTED_TRAIN_TARGET_FINGERPRINT_SHA256
             ),
             "target_columns_present_in_manifest": (
                 list(
@@ -2739,6 +3436,17 @@ class Portable331TrainingInputLoader:
             )
         )
 
+        if (
+            target_fingerprint
+            !=
+            self.EXPECTED_TRAIN_TARGET_FINGERPRINT_SHA256
+        ):
+            raise (
+                Portable331TrainingInputLoaderError(
+                    "TRAIN_TARGET_FINGERPRINT_MISMATCH"
+                )
+            )
+
         decision_time.setflags(
             write=False
         )
@@ -2800,11 +3508,24 @@ class Portable331TrainingInputLoader:
 
     def load_train_supervised(
         self,
-    ) -> None:
+    ) -> Portable331TrainSupervisedBatch:
 
-        raise (
-            Portable331TrainingInputLoaderError(
-                "SUPERVISED_TRAIN_INPUT_ACCESS_NOT_AUTHORIZED"
+        feature_batch = (
+            self.load_train_features()
+        )
+
+        target_batch = (
+            self.load_train_targets()
+        )
+
+        return (
+            self._combine_train_batches(
+                feature_batch=(
+                    feature_batch
+                ),
+                target_batch=(
+                    target_batch
+                ),
             )
         )
 
