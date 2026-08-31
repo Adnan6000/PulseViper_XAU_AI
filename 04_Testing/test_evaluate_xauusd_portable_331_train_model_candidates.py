@@ -18,6 +18,24 @@ REGISTRY_PATH = (
     / "xauusd_portable_331_train_model_candidate_registry_design.json"
 )
 
+EXPECTED_FOLD_METRICS = (
+    "balanced_accuracy_3class",
+    "macro_f1_3class",
+    "directional_macro_f1_short_long",
+    "short_precision",
+    "short_recall",
+    "short_f1",
+    "no_trade_precision",
+    "no_trade_recall",
+    "no_trade_f1",
+    "long_precision",
+    "long_recall",
+    "long_f1",
+    "log_loss_3class",
+    "multiclass_brier",
+    "predicted_trade_coverage",
+)
+
 spec = importlib.util.spec_from_file_location(
     "xauusd_portable_candidate_evaluator",
     MODULE_PATH,
@@ -259,9 +277,7 @@ def test_target_tradeable_linkage_is_fail_closed():
         _,
     ) = _synthetic_train_matrix()
 
-    broken = (
-        y_tradeable.copy()
-    )
+    broken = y_tradeable.copy()
 
     broken[0] = (
         0
@@ -338,6 +354,15 @@ def test_flat_and_hierarchical_candidates_pass_synthetic_walk_forward():
                 "fold_reports"
             ]
         ) == 4
+
+        for fold_report in report[
+            "fold_reports"
+        ]:
+            assert tuple(
+                fold_report[
+                    "metrics"
+                ].keys()
+            ) == EXPECTED_FOLD_METRICS
 
         assert (
             report[
@@ -432,6 +457,194 @@ def test_hierarchical_probability_contract_sums_to_one():
         1.0,
         atol=1e-9,
         rtol=1e-9,
+    )
+
+
+def test_fold_metric_contract_is_exact_and_brier_semantics_are_correct():
+    y_true = np.asarray(
+        [-1, 0, 1, -1, 0, 1],
+        dtype=np.int8,
+    )
+
+    probabilities = np.zeros(
+        (
+            y_true.shape[0],
+            3,
+        ),
+        dtype=np.float64,
+    )
+
+    class_to_column = {
+        -1: 0,
+        0: 1,
+        1: 2,
+    }
+
+    for row_index, label in enumerate(
+        y_true
+    ):
+        probabilities[
+            row_index,
+            class_to_column[
+                int(label)
+            ],
+        ] = 1.0
+
+    metrics = (
+        candidate_evaluator
+        .compute_fold_metrics(
+            y_true,
+            probabilities,
+        )
+    )
+
+    assert tuple(
+        metrics.keys()
+    ) == EXPECTED_FOLD_METRICS
+
+    assert (
+        tuple(
+            candidate_evaluator
+            .REQUIRED_FOLD_METRICS
+        )
+        == EXPECTED_FOLD_METRICS
+    )
+
+    assert (
+        metrics[
+            "balanced_accuracy_3class"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "macro_f1_3class"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "directional_macro_f1_short_long"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "short_precision"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "short_recall"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "short_f1"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "no_trade_precision"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "no_trade_recall"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "no_trade_f1"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "long_precision"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "long_recall"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "long_f1"
+        ]
+        == pytest.approx(
+            1.0
+        )
+    )
+
+    assert (
+        metrics[
+            "log_loss_3class"
+        ]
+        == pytest.approx(
+            0.0,
+            abs=1e-12,
+        )
+    )
+
+    assert (
+        metrics[
+            "multiclass_brier"
+        ]
+        == pytest.approx(
+            0.0,
+            abs=1e-12,
+        )
+    )
+
+    assert (
+        metrics[
+            "predicted_trade_coverage"
+        ]
+        == pytest.approx(
+            4.0 / 6.0
+        )
     )
 
 
