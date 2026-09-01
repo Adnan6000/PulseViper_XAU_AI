@@ -1,0 +1,152 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_C04_FULL_TRAIN_MODEL_FIT_V1",
+  "artifact_identity": {
+    "candidate_registry_fingerprint_sha256": "b8088bb34ce8940f7de5946fbb9b0fd20f40d7cc93a76b76fd7975591f00066c",
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc",
+    "research_protocol_fingerprint_sha256": "69e51e1b249b9da68cbf6f6778a8ae10f9f33f7082a07e5073a1ba731fa1640d",
+    "train_input_fingerprint_sha256": "9ffb72759499cfc202e88cfdbd61b42cee5b5c7cbb7db5870470453caa5ed2c5",
+    "train_target_fingerprint_sha256": "bc063a790e70cdbc931b2170ccfef883634b40ee7336a529a32bda0eaf0babe3",
+    "walk_forward_evaluation_fingerprint_sha256": "15516174ba6f3d8932425b20dcde33db25c040e0901c86af39796f97847ac7ed",
+    "winner_config_fingerprint_sha256": "f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3",
+    "winner_freeze_canonical_sha256": "f40f625b510623fe0227dd6ac9b5b01af9c94b24fd2037cc5163bd3aa8843aae"
+  },
+  "decision": {
+    "full_train_fit_completed": true,
+    "live_authorized": false,
+    "model_artifact_frozen": true,
+    "next_action": "RUN_ONE_TIME_UNTOUCHED_PORTABLE_VALIDATION_USING_ONLY_THE_FROZEN_MODEL_ARTIFACT_WITHOUT_REFIT_OR_TUNING",
+    "shadow_authorized": false,
+    "status": "FROZEN_C04_FULL_TRAIN_MODEL_ARTIFACT_CREATED",
+    "test_access_authorized": false,
+    "test_accessed_in_this_gate": false,
+    "validation_access_authorized_next": true,
+    "validation_accessed_in_this_gate": false,
+    "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+  },
+  "fit": {
+    "artifact_reload_validation": {
+      "class_order": [
+        -1,
+        0,
+        1
+      ],
+      "n_features_in": 331,
+      "structural_probability_rows_sum_to_one": true,
+      "structural_probability_sanity_rows": 128,
+      "structural_probability_shape": [
+        128,
+        3
+      ],
+      "structural_probability_values_finite": true,
+      "tree_count": 500
+    },
+    "candidate_config": {
+      "architecture": "FLAT_3CLASS",
+      "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+      "estimator": {
+        "bootstrap": false,
+        "class_weight": "balanced",
+        "implementation": "sklearn.ensemble.ExtraTreesClassifier",
+        "max_depth": 10,
+        "max_features": 0.35,
+        "min_samples_leaf": 25,
+        "n_estimators": 500,
+        "n_jobs": -1,
+        "random_state": 271828
+      },
+      "family": "EXTRA_TREES",
+      "preprocessing": {
+        "standard_scaler": false
+      },
+      "probability_class_order": [
+        -1,
+        0,
+        1
+      ]
+    },
+    "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+    "fit_feature_count": 331,
+    "fit_rows": 69966,
+    "fit_target": "target_class",
+    "sample_weight_supplied": false,
+    "scaler_fit_performed": false,
+    "structural_validation": {
+      "class_order": [
+        -1,
+        0,
+        1
+      ],
+      "n_features_in": 331,
+      "structural_probability_rows_sum_to_one": true,
+      "structural_probability_sanity_rows": 128,
+      "structural_probability_shape": [
+        128,
+        3
+      ],
+      "structural_probability_values_finite": true,
+      "tree_count": 500
+    },
+    "training_metrics_computed": false
+  },
+  "model_record": {
+    "candidate_config_fingerprint_sha256": "f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3",
+    "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc",
+    "model_artifact_filename": "xauusd_portable_331_c04_full_train_model.joblib",
+    "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "probability_class_order": [
+      -1,
+      0,
+      1
+    ],
+    "serialization": "joblib",
+    "train_input_fingerprint_sha256": "9ffb72759499cfc202e88cfdbd61b42cee5b5c7cbb7db5870470453caa5ed2c5",
+    "train_rows": 69966,
+    "train_target_fingerprint_sha256": "bc063a790e70cdbc931b2170ccfef883634b40ee7336a529a32bda0eaf0babe3"
+  },
+  "model_record_fingerprint": {
+    "canonicalization": "JSON_SORT_KEYS_COMPACT_UTF8_SHA256",
+    "sha256": "bd6d76f92d3c6274bed756683f4263b9cce9a3f0e5ffbb8bd4ba3fcbe6f6ff74"
+  },
+  "research_scope": "FIT_EXACT_FROZEN_C04_ON_FULL_69966_ROW_TRAIN_ONLY_AND_FREEZE_MODEL_ARTIFACT_WITHOUT_HOLDOUT_ACCESS",
+  "runtime": {
+    "completed_utc": "2026-09-01T07:21:56.797232+00:00",
+    "joblib_version": "1.5.3",
+    "numpy_version": "2.5.1",
+    "platform": "Windows-10-10.0.19045-SP0",
+    "python_version": "3.12.10",
+    "sklearn_version": "1.9.0",
+    "started_utc": "2026-09-01T07:11:37.100857+00:00"
+  },
+  "scientific_policy": {
+    "candidate_added_after_results": false,
+    "candidate_registry_changed": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "fit_scope": "FULL_FROZEN_TRAIN_ONLY",
+    "hyperparameters_changed_after_results": false,
+    "live_authorized": false,
+    "model_fit_performed_in_this_gate": true,
+    "orders_sent": false,
+    "portable_test_feature_values_loaded": false,
+    "portable_test_target_values_loaded": false,
+    "portable_validation_feature_values_loaded": false,
+    "portable_validation_target_values_loaded": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "scaler_fit_performed": false,
+    "shadow_authorized": false,
+    "threshold_search_performed": false,
+    "training_metrics_computed": false,
+    "winner_changed_after_freeze": false
+  },
+  "valid": true,
+  "warnings": []
+}
