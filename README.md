@@ -1,797 +1,759 @@
 # PulseViper XAU AI
 
-> **Symbol-Isolated Gold Trading Intelligence & Machine-Learning Research System**
+A research-first, safety-gated Python framework for **XAUUSD / XAUUSDm machine-learning research, broker-portable feature generation, shadow trading, risk management, and MetaTrader 5 execution**.
 
-PulseViper XAU AI is a modular quantitative research system currently focused on **XAUUSD (Gold)**.
-
-The project combines:
-
-- MetaTrader 5 broker data
-- strict instrument identity isolation
-- causal multi-timeframe feature engineering
-- market structure intelligence
-- liquidity research
-- institutional-zone analysis
-- risk and execution-friction research
-- immutable dataset lineage
-- supervised machine learning
-- shadow / DEMO execution evidence
-- controlled future model-inference architecture
-
-The current development environment is connected to an **Exness DEMO account** for research, broker validation, dataset construction, and forward evidence collection.
-
-> **Live trading is not currently authorized by the research, dataset, model, or shadow pipelines.**
+> **Current status:** Research / validation stage
+> **Frozen model:** C04 constrained ExtraTrees, 331 portable features
+> **Untouched VALIDATION:** Passed and permanently consumed
+> **Final TEST:** Not yet consumed
+> **Shadow deployment:** Not yet authorized
+> **Live trading:** Not authorized
 
 ---
 
-## Project Mission
+## Table of Contents
 
-The long-term objective of PulseViper is to build an AI system that understands Gold as a market rather than simply predicting the next candle.
-
-The system is being designed to reason about:
-
-- market structure
-- multi-timeframe alignment
-- volatility
-- liquidity
-- displacement
-- Fair Value Gaps
-- institutional zones
-- execution conditions
-- risk
-- uncertainty
-- tradeability
-
-The AI must also be capable of concluding:
-
-```text
-NO_TRADE
-```
-
-when market conditions are uncertain, noisy, conflicting, or operationally unsuitable.
+1. [What Is PulseViper?](#what-is-pulseviper)
+2. [Project Philosophy](#project-philosophy)
+3. [Current Research Status](#current-research-status)
+4. [System Overview](#system-overview)
+5. [Repository Structure](#repository-structure)
+6. [Machine-Learning Pipeline](#machine-learning-pipeline)
+7. [Current Frozen Model](#current-frozen-model)
+8. [Validation Result](#validation-result)
+9. [Quick Start for Students](#quick-start-for-students)
+10. [Development Workflow](#development-workflow)
+11. [Testing](#testing)
+12. [Protected Research Boundaries](#protected-research-boundaries)
+13. [Documentation](#documentation)
+14. [Remaining Roadmap](#remaining-roadmap)
+15. [Security and Secrets](#security-and-secrets)
+16. [Important Disclaimer](#important-disclaimer)
 
 ---
 
-# Core Engineering Rules
+# What Is PulseViper?
 
-PulseViper currently follows these rules.
+PulseViper is an engineering and research project focused on developing a reproducible XAUUSD machine-learning trading system.
 
-## 1. Symbol Isolation
+The project is not only a model.
 
-Algorithms may be reusable across instruments.
-
-However, the following must never silently mix across symbols:
-
-- historical data
-- feature contracts
-- learned models
-- scalers
-- model evaluation
-- execution statistics
-- journals
-- broker calibration
-- risk calibration
-- performance history
-
-Current canonical instrument:
+It includes multiple independent layers:
 
 ```text
-XAUUSD
+Market / Broker Data
+        ↓
+Multi-Timeframe Processing
+        ↓
+Portable Feature Generation
+        ↓
+331-Feature Contract
+        ↓
+Machine-Learning Model
+        ↓
+Prediction / Signal
+        ↓
+Trading Safety Checks
+        ↓
+Risk Management
+        ↓
+Shadow / Execution Layer
 ```
 
-Current asset class:
+Each layer has its own responsibility.
 
-```text
-METAL
-```
+A good ML result does **not** automatically authorize live trading.
 
 ---
 
-## 2. Exact Broker Identity
+# Project Philosophy
 
-Broker symbols are explicitly mapped to canonical instruments.
+PulseViper follows several core engineering principles.
 
-Current verified Exness DEMO Gold contract:
+## 1. Research must be reproducible
 
-```text
-Canonical Symbol : XAUUSD
-Asset Class      : METAL
-Broker            : EXNESS
-Broker Symbol     : XAUUSDm
-Base Currency     : XAU
-Profit Currency   : USD
-Environment       : DEMO
-Live Authorized   : false
-```
+Important datasets, feature contracts, models, experiments, and decisions are identified using SHA256 fingerprints.
 
-Current verified contract specification:
+For example, the current frozen model artifact has a specific SHA256.
 
-```text
-EXNESS_XAUUSD_SPEC_D133951851B554C9
-```
-
-Broker-like names are not accepted through wildcard guessing.
-
-A symbol with a Gold-like description but incompatible metadata must fail closed.
+Changing the artifact means it is no longer the same experiment.
 
 ---
 
-## 3. Causal Feature Generation
-
-A model feature may use:
+## 2. TRAIN, VALIDATION, and TEST have different jobs
 
 ```text
-current market information
-past information
-already-confirmed historical events
-completed higher-timeframe bars
+TRAIN
+    Used for fitting and model research
+
+VALIDATION
+    Used once after research decisions are frozen
+
+TEST
+    Final untouched estimate of generalization
 ```
 
-A model feature must not use:
-
-```text
-future candle highs/lows
-future target outcomes
-future-confirmed pivots projected backward
-retrospective labels
-hindsight rankings
-```
-
-Future market information is allowed only inside clearly separated supervised target / outcome columns.
+TEST must never become another tuning dataset.
 
 ---
 
-## 4. NO_TRADE Is a Real Decision
+## 3. Protected holdouts are one-time scientific assets
 
-The system must not force LONG or SHORT predictions.
+The current VALIDATION split has already been consumed.
 
-The model architecture treats:
+It may not be rerun for performance-driven tuning.
+
+The final TEST split is still protected.
+
+---
+
+## 4. Execution safety is separate from ML research
+
+The following runtime areas are treated as frozen unless a dedicated engineering task explicitly authorizes modification:
+
+* MT5 order/execution semantics
+* RiskEngine
+* `trade_ready`
+* account protection
+* broker-aware sizing
+* core execution logic
+* shadow execution semantics
+
+Research code should not modify these components just to improve model metrics.
+
+---
+
+## 5. Fail closed
+
+When artifact identity, feature order, dataset identity, protected-data state, or scientific provenance cannot be proven, the preferred behavior is to stop rather than continue with uncertain state.
+
+---
+
+# Current Research Status
+
+The current portable ML experiment has completed the following stages:
 
 ```text
-LONG
-SHORT
-NO_TRADE
-```
+Portable feature research             ✅
+331-feature contract                   ✅
+Portable TRAIN dataset                 ✅
+TRAIN input loader                     ✅
+Target loader                          ✅
+Supervised TRAIN batch                 ✅
+TRAIN-only research protocol           ✅
+Frozen six-model candidate registry    ✅
+4-fold purged walk-forward evaluation  ✅
+TRAIN-internal winner selection        ✅
+Full TRAIN model fit                   ✅
+Model artifact verification            ✅
+VALIDATION protocol freeze             ✅
+One-time VALIDATION infrastructure     ✅
+Untouched VALIDATION                   ✅ PASSED
+VALIDATION result freeze               ✅
 
-as meaningful outcomes.
-
-The next research architecture will separate:
-
-```text
-TRADEABLE vs NO_TRADE
-```
-
-from:
-
-```text
-LONG vs SHORT
+Final untouched TEST                   ⏳ NEXT
+Final research verdict                 ⏳
+Production broker feature parity       ⏳
+Frozen-model inference integration     ⏳
+Shadow deployment                      ⏳
+Forward shadow validation              ⏳
+Live promotion                         ⛔ NOT AUTHORIZED
 ```
 
 ---
 
-## 5. DEMO Before REAL
+# System Overview
 
-The current broker environment is used for DEMO research.
-
-A context containing:
+A simplified research-to-production flow is:
 
 ```text
-execution_environment = REAL
+Historical XAUUSD Data
+        ↓
+Feature Pipeline
+        ↓
+Portable Projection
+        ↓
+331 Ordered Features
+        ↓
+Frozen Target Labels
+        ↓
+TRAIN Dataset
+        ↓
+Purged Walk-Forward Research
+        ↓
+Frozen Candidate Winner
+        ↓
+Full TRAIN Fit
+        ↓
+Untouched VALIDATION
+        ↓
+Final TEST
+        ↓
+Production Feature Parity
+        ↓
+Shadow Inference
+        ↓
+Forward Validation
+        ↓
+Possible Live Promotion
 ```
 
-must never automatically mean:
+The current project is between:
 
 ```text
-live_authorized = true
+VALIDATION RESULT FROZEN
+        ↓
+FINAL TEST
 ```
-
-Real-account authorization requires a future, explicit safety boundary.
-
----
-
-# Current System Architecture
-
-```text
-MetaTrader 5 / Exness DEMO
-            |
-            v
-Broker & Instrument Attestation
-            |
-            v
-Canonical InstrumentContext
-            |
-            v
-Multi-Timeframe Historical Data
-            |
-            v
-Canonical Immutable Datasets
-            |
-            v
-Causal Feature Engineering
-            |
-            v
-Gold Market Intelligence
-            |
-            v
-Future-Only Supervised Targets
-            |
-            v
-Chronological Dataset Splits
-            |
-            v
-Model Training
-            |
-            v
-Offline Evaluation
-            |
-            v
-Future Shadow Inference
-            |
-            v
-Controlled DEMO Validation
-```
-
----
-
-# Instrument Identity Architecture
-
-The central identity implementation is:
-
-```text
-02_AI/Common/instrument_context.py
-```
-
-Important identity fields include:
-
-```text
-canonical_symbol
-asset_class
-broker_id
-broker_symbol
-account_scope_id
-execution_environment
-contract_spec_id
-data_schema_version
-feature_contract_version
-```
-
-The system also generates deterministic fingerprints for:
-
-- instrument identity
-- learning scope
-- execution scope
-
-This allows future BTC, NASDAQ, or other instruments to use shared algorithms without silently contaminating XAUUSD state.
-
----
-
-# Canonical Data Pipeline
-
-Primary modules:
-
-```text
-02_AI/Dataset/broker_instrument_context_binding.py
-02_AI/Dataset/mt5_read_only_instrument_attestation_adapter.py
-02_AI/Dataset/instrument_frame_guard.py
-02_AI/Dataset/history_manager.py
-02_AI/Dataset/export_dataset.py
-```
-
-Canonical datasets are:
-
-- identity stamped
-- symbol validated
-- broker-context validated
-- content addressed
-- SHA256 verified
-- immutable
-- accompanied by manifests
-
-Generated canonical data is stored locally under:
-
-```text
-01_Data/Canonical/
-```
-
-This directory is intentionally excluded from Git.
-
----
-
-# Verified Exness DEMO Historical Data
-
-A real Exness DEMO XAUUSD history build successfully materialized:
-
-| Timeframe | Rows |
-|---|---:|
-| M1 | 100,000 |
-| M5 | 100,000 |
-| M15 | 100,000 |
-| M30 | 100,000 |
-| H1 | 56,723 |
-| H4 | 16,045 |
-| D1 | 3,872 |
-
-The lower H1/H4/D1 counts reflect actual broker-available history.
-
-The system does not fabricate missing history to reach a requested row count.
-
----
-
-# Market Intelligence Layer
-
-PulseViper currently contains research engines for:
-
-- adaptive swing detection
-- HH / HL / LH / LL structure
-- market structure bias
-- Break of Structure
-- BOS memory
-- liquidity
-- liquidity sweeps
-- sweep validation
-- displacement
-- Fair Value Gaps
-- FVG mitigation
-- FVG quality
-- institutional zones
-- market regime
-- candle / swing intelligence
-- market decision clarity
-- setup state
-- confidence research
-- risk intelligence
-
-Important implementation rule:
-
-> Causal engine outputs and retrospective research labels must remain explicitly separated.
-
----
-
-# Base Technical Features
-
-The current central feature registry includes trend, momentum, volatility, and candle features.
-
-## Trend
-
-- EMA20
-- EMA50
-- EMA200
-- EMA distances
-- EMA slopes
-- trend strength
-- trend direction
-
-## Momentum
-
-- RSI14
-- RSI slope
-- MACD
-- MACD signal
-- MACD histogram
-- ROC10
-- Momentum10
-
-## Volatility
-
-- true range
-- ATR14
-- ATR percentage
-- candle range
-- average range
-- volatility ratio
-- rolling standard deviation
-
-## Candle Context
-
-- body size
-- candle range
-- wick sizes
-- wick ratios
-- bullish / bearish state
-- doji
-- marubozu
-- pinbar
-- bullish engulfing
-- bearish engulfing
-- inside bar
-- outside bar
-- expansion
-- compression
-
----
-
-# Machine-Learning Research
-
-Machine learning is already operational as a research pipeline.
-
-Three experiment generations have been created.
-
----
-
-## Training Matrix V1
-
-Training contract:
-
-```text
-XAUUSD_MTF_TRAINING_V1
-```
-
-Verified:
-
-```text
-Rows              : 99,945
-Feature Count     : 270
-Base Timeframe    : M5
-Context Timeframes: M15, M30, H1, H4, D1
-```
-
-Chronological splits:
-
-```text
-TRAIN       : 69,966
-VALIDATION  : 14,983
-TEST        : 14,996
-```
-
-Higher-timeframe features become available only after their source candle has completed.
-
-V1 demonstrated that the full causal dataset and model-training pipeline worked, but its target produced too few NO_TRADE samples.
-
----
-
-## Training Matrix V2
-
-Training contract:
-
-```text
-XAUUSD_MTF_TRAINING_V2
-```
-
-V2 retained the same causal 270-feature matrix but redesigned the supervised target.
-
-Current calibrated directional target:
-
-```text
-Profit Excursion      : 1.25 ATR
-Max Adverse Excursion : 0.75 ATR
-```
-
-Class distribution:
-
-```text
-SHORT     : 25,519
-NO_TRADE  : 48,623
-LONG      : 25,803
-```
-
-Approximate percentages:
-
-```text
-SHORT     : 25.5%
-NO_TRADE  : 48.6%
-LONG      : 25.8%
-```
-
-The distribution remains highly stable across TRAIN, VALIDATION, and TEST.
-
----
-
-## Training Matrix V3
-
-Training contract:
-
-```text
-XAUUSD_MTF_TRAINING_V3
-```
-
-V3 retained the V2 target contract and added:
-
-```text
-63 causal Gold-domain features
-```
-
-Total V3 feature count:
-
-```text
-333
-```
-
-V3 domain features include information derived from:
-
-- market regime
-- adaptive market structure
-- BOS
-- FVG
-- causal institutional-zone confirmation events
-
----
-
-# Model Research Results
-
-Model artifacts are stored locally and are not committed to Git.
-
-Every build records:
-
-- training dataset identity
-- feature order
-- model ID
-- model SHA256
-- scaler SHA256
-- manifest SHA256
-- learning-scope fingerprint
-- evaluation metrics
-
----
-
-## XAUUSD_MODEL_v1
-
-Test metrics approximately:
-
-```text
-Accuracy          : 47.76%
-Balanced Accuracy : 33.66%
-Macro F1          : 33.27%
-```
-
-NO_TRADE recall:
-
-```text
-1.35%
-```
-
-Conclusion:
-
-```text
-Target formulation unsuitable.
-Model not promoted.
-```
-
----
-
-## XAUUSD_MODEL_v2
-
-Test metrics:
-
-```text
-Accuracy          : 37.55%
-Balanced Accuracy : 34.97%
-Macro F1          : 32.96%
-```
-
-NO_TRADE recall:
-
-```text
-48.16%
-```
-
-Conclusion:
-
-```text
-NO_TRADE target improved substantially.
-Overall predictive edge remained weak.
-Model not promoted.
-```
-
----
-
-## XAUUSD_MODEL_v3
-
-Test metrics:
-
-```text
-Accuracy          : 38.42%
-Balanced Accuracy : 34.56%
-Macro F1          : 33.06%
-```
-
-Per-class recall:
-
-```text
-SHORT     : 12.19%
-NO_TRADE  : 53.02%
-LONG      : 38.47%
-```
-
-Conclusion:
-
-```text
-Gold-domain features improved NO_TRADE recognition,
-but did not create sufficient directional predictive edge.
-Model not promoted.
-```
-
----
-
-# Next Model Architecture
-
-The next research direction is hierarchical classification.
-
-```text
-                Market State
-                     |
-                     v
-        +--------------------------+
-        | Stage A                  |
-        | TRADEABLE vs NO_TRADE    |
-        +--------------------------+
-                     |
-              if TRADEABLE
-                     |
-                     v
-        +--------------------------+
-        | Stage B                  |
-        | LONG vs SHORT            |
-        +--------------------------+
-```
-
-Combined probabilities can later be expressed as:
-
-```text
-P(LONG)
-=
-P(TRADEABLE)
-*
-P(LONG | TRADEABLE)
-```
-
-and:
-
-```text
-P(SHORT)
-=
-P(TRADEABLE)
-*
-P(SHORT | TRADEABLE)
-```
-
-This design separates two different questions:
-
-```text
-Should the system trade?
-```
-
-from:
-
-```text
-If trading, what direction?
-```
-
----
-
-# Shadow / Execution Evidence
-
-The repository contains substantial research-only infrastructure inside:
-
-```text
-02_AI/Shadow/
-```
-
-including:
-
-- account protection
-- broker-aware risk
-- execution-friction modeling
-- compounding research
-- paper ledgers
-- research candidate ledgers
-- opportunity-quality research
-- forward execution evidence capture
-- forward DEMO execution evidence journal
-- read-only fill telemetry
-- completed-fill telemetry
-- realized execution-cost accounting
-- realized-fill telemetry bridge
-- exactly-once realized-fill observation coordination
-
-These components do not independently grant live execution permission.
-
----
-
-# Validation History
-
-A trusted full regression checkpoint completed with:
-
-```text
-1005 passed
-14 warnings
-```
-
-The warnings were existing `datetime.utcnow()` deprecation warnings in the historical downloader.
-
-Later major focused gates also passed for:
-
-- instrument identity
-- frame isolation
-- broker binding
-- read-only MT5 attestation
-- Exness DEMO Gold context
-- canonical history
-- forward execution evidence
-- realized-fill coordination
-- training matrix V1
-- target V2
-- feature enrichment V3
-- model V1/V2/V3 artifact generation
-
-Successful training does not imply model acceptance.
-
-Predictive quality is evaluated separately.
 
 ---
 
 # Repository Structure
 
+The main repository areas are conceptually:
+
 ```text
 PulseViper_XAU_AI/
-|
-+-- 01_Data/
-|   +-- Raw/
-|   +-- Backups/
-|
-+-- 02_AI/
-|   +-- Common/
-|   +-- Config/
-|   +-- Core/
-|   +-- Database/
-|   +-- Dataset/
-|   +-- Features/
-|   +-- Memory/
-|   +-- Models/
-|   +-- Objects/
-|   +-- Shadow/
-|   +-- Utils/
-|
-+-- 04_Testing/
-|
-+-- 05_Documentation/
-|
-+-- config.yaml
-+-- pyproject.toml
-+-- requirements.txt
-+-- README.md
+│
+├── 01_Data/
+│   └── Data-related resources
+│
+├── 02_AI/
+│   ├── Dataset/
+│   ├── feature/data infrastructure
+│   ├── model-related code
+│   ├── risk/runtime components
+│   └── execution-related components
+│
+├── 04_Testing/
+│   ├── unit tests
+│   ├── integration tests
+│   ├── research runners
+│   ├── evidence generators
+│   └── scientific contract checks
+│
+├── 05_Documentation/
+│   ├── Developer_Guide.md
+│   ├── Architecture.md
+│   ├── Development_Roadmap.md
+│   ├── Feature_List.md
+│   ├── Module_List.md
+│   ├── Trading_Rules.md
+│   ├── Testing_Guide.md
+│   ├── Research_Evidence_Index.md
+│   ├── Troubleshooting.md
+│   └── Version_History.md
+│
+├── config.yaml
+├── requirements.txt
+└── README.md
 ```
 
----
-
-# Documentation Authority
-
-Documentation is intended to explain the system.
-
-It is **not** the authoritative completion record.
-
-For actual implementation status, priority should be given to:
-
-1. source code
-2. automated test output
-3. broker attestation
-4. immutable manifests
-5. real DEMO operation output
-6. Git history
-
-A roadmap item is not considered complete merely because a document marks it complete.
+See `05_Documentation/Developer_Guide.md` before making substantial changes.
 
 ---
 
-# Author
+# Machine-Learning Pipeline
 
-## Muhammad Adnan
+## Target Classes
 
-**BSIT Graduate | Full Stack Software Engineer | Certified Ethical Hacker (CEH) | Forex Trader**
-
-GitHub:
+The main classifier uses three classes:
 
 ```text
-@Adnan6000
+-1 = SHORT
+ 0 = NO_TRADE
+ 1 = LONG
+```
+
+The binary tradeability relationship must remain:
+
+```python
+target_tradeable = (target_class != 0)
 ```
 
 ---
 
-# Risk Disclaimer
+## Frozen Portable Feature Count
 
-PulseViper XAU AI is a quantitative-research and software-development project.
+Current model input:
 
-Nothing in this repository constitutes financial advice, investment advice, or a guarantee of profitability.
+```text
+331 features
+```
 
-Trading Gold, Forex, CFDs, or any leveraged financial product can result in substantial financial loss.
+Frozen ordered feature-list fingerprint:
 
-Any future REAL-account deployment should require strong independent validation, execution-friction analysis, out-of-sample testing, walk-forward testing, controlled DEMO forward evidence, account-protection verification, and an explicit live-authorization architecture.
+```text
+65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2
+```
+
+Feature order matters.
+
+Two matrices may both contain 331 columns and still represent completely different model inputs if their column order differs.
+
+---
+
+## Frozen TRAIN Dataset
+
+```text
+Dataset ID:
+portable_cff75b0686383a3ab6f8352b
+
+TRAIN rows:
+69,966
+
+Feature count:
+331
+```
+
+Dataset SHA256:
+
+```text
+cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07
+```
+
+Manifest SHA256:
+
+```text
+1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc
+```
+
+---
+
+# Current Frozen Model
+
+TRAIN-internal winner:
+
+```text
+C04_FLAT_EXTRA_TREES_CONSTRAINED
+```
+
+Model family:
+
+```text
+sklearn.ensemble.ExtraTreesClassifier
+```
+
+Frozen configuration:
+
+```python
+ExtraTreesClassifier(
+    n_estimators=500,
+    max_depth=10,
+    max_features=0.35,
+    min_samples_leaf=25,
+    bootstrap=False,
+    class_weight="balanced",
+    random_state=271828,
+    n_jobs=-1,
+)
+```
+
+Frozen candidate configuration fingerprint:
+
+```text
+f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3
+```
+
+Model artifact:
+
+```text
+xauusd_portable_331_c04_full_train_model.joblib
+```
+
+Artifact SHA256:
+
+```text
+48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769
+```
+
+Prediction class order:
+
+```text
+[-1, 0, 1]
+```
+
+Prediction rule:
+
+```python
+probabilities = model.predict_proba(X)
+prediction = model.classes_[probabilities.argmax(axis=1)]
+```
+
+No post-validation threshold tuning or probability calibration is allowed for this frozen experiment.
+
+---
+
+# Validation Result
+
+The frozen C04 model completed its first and only untouched VALIDATION evaluation.
+
+Status:
+
+```text
+ONE_TIME_VALIDATION_ACCEPTED
+```
+
+Important metrics:
+
+| Metric                   |   Result |
+| ------------------------ | -------: |
+| Balanced accuracy        | 0.376568 |
+| Macro-F1                 | 0.348904 |
+| Directional macro-F1     | 0.336403 |
+| SHORT precision          | 0.329373 |
+| SHORT recall             | 0.319050 |
+| SHORT F1                 | 0.324129 |
+| LONG precision           | 0.259975 |
+| LONG recall              | 0.529249 |
+| LONG F1                  | 0.348676 |
+| NO_TRADE recall          | 0.281404 |
+| Predicted trade coverage | 0.754121 |
+| Log-loss                 | 1.097919 |
+| Multiclass Brier         | 0.666429 |
+
+All predeclared hard validation requirements passed.
+
+Validation result fingerprint:
+
+```text
+ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1
+```
+
+Validation-result freeze fingerprint:
+
+```text
+521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c
+```
+
+Important:
+
+```text
+validation_consumed = true
+validation_rerun_authorized = false
+```
+
+---
+
+# Quick Start for Students
+
+## Step 1 — Clone the repository
+
+```powershell
+git clone https://github.com/Adnan6000/PulseViper_XAU_AI.git
+cd PulseViper_XAU_AI
+```
+
+---
+
+## Step 2 — Create a virtual environment
+
+Windows:
+
+```powershell
+python -m venv .venv
+```
+
+Activate:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+---
+
+## Step 3 — Install dependencies
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+---
+
+## Step 4 — Read the documentation
+
+Recommended order:
+
+```text
+README.md
+        ↓
+05_Documentation/Developer_Guide.md
+        ↓
+05_Documentation/Architecture.md
+        ↓
+05_Documentation/Feature_List.md
+        ↓
+05_Documentation/Module_List.md
+        ↓
+05_Documentation/Testing_Guide.md
+        ↓
+05_Documentation/Research_Evidence_Index.md
+```
+
+---
+
+## Step 5 — Do not start with live execution
+
+A new developer should begin with:
+
+1. reading tests;
+2. running focused synthetic tests;
+3. understanding research evidence;
+4. modifying isolated research utilities;
+5. only later working on runtime integration.
+
+---
+
+# Development Workflow
+
+PulseViper uses finite engineering gates.
+
+Typical workflow:
+
+```text
+Understand contract
+        ↓
+Design change
+        ↓
+Implement
+        ↓
+py_compile
+        ↓
+Focused pytest
+        ↓
+Synthetic / integration verification
+        ↓
+Authorized real operation
+        ↓
+Freeze evidence
+        ↓
+Update documentation
+        ↓
+Git commit
+```
+
+Example:
+
+```powershell
+python -m py_compile 04_Testing\exact_script.py
+```
+
+Then:
+
+```powershell
+python -m pytest 04_Testing\test_exact_script.py -q
+```
+
+Use exact filenames.
+
+Do not use placeholder commands such as:
+
+```text
+python SCRIPT_NAME.py
+```
+
+---
+
+# Testing
+
+Different tests protect different things.
+
+## Syntax check
+
+```powershell
+python -m py_compile path\to\file.py
+```
+
+## Focused unit test
+
+```powershell
+python -m pytest path\to\test_file.py -q
+```
+
+## Integration test
+
+Used to verify contracts between real modules.
+
+## Synthetic scientific test
+
+Used to verify model/ledger/data-boundary behavior without consuming protected holdout data.
+
+## Real protected-data evaluation
+
+Only run after:
+
+```text
+protocol frozen
+        +
+implementation tested
+        +
+preflight passed
+        +
+explicit execution authorization
+```
+
+See:
+
+```text
+05_Documentation/Testing_Guide.md
+```
+
+---
+
+# Protected Research Boundaries
+
+Do not casually perform any of the following:
+
+* rerun consumed VALIDATION for performance improvement;
+* inspect TEST during model development;
+* add a candidate after seeing candidate results;
+* change thresholds after VALIDATION;
+* calibrate probabilities after VALIDATION for this experiment;
+* reorder the 331 model features;
+* replace the frozen C04 model without creating a new experiment lineage;
+* change target semantics while retaining old fingerprints;
+* alter RiskEngine to improve ML backtest results.
+
+When uncertain, stop and inspect the relevant contract/evidence file.
+
+---
+
+# Documentation
+
+New contributors should use:
+
+## `05_Documentation/Developer_Guide.md`
+
+Detailed student/developer onboarding manual.
+
+## `05_Documentation/Architecture.md`
+
+System components and data flow.
+
+## `05_Documentation/Development_Roadmap.md`
+
+Completed, current, and remaining engineering gates.
+
+## `05_Documentation/Feature_List.md`
+
+Feature families, portability rules, and input contract.
+
+## `05_Documentation/Module_List.md`
+
+Important Python modules and their responsibilities.
+
+## `05_Documentation/Trading_Rules.md`
+
+Trading, risk, and execution boundaries.
+
+## `05_Documentation/Testing_Guide.md`
+
+How to test safely.
+
+## `05_Documentation/Research_Evidence_Index.md`
+
+Human-readable index of scientific JSON reports and fingerprints.
+
+## `05_Documentation/Troubleshooting.md`
+
+Common project errors and fixes.
+
+## `05_Documentation/Version_History.md`
+
+Major engineering and research milestones.
+
+---
+
+# Remaining Roadmap
+
+Immediate next milestone:
+
+```text
+Final one-time TEST infrastructure
+        ↓
+Dry preflight
+        ↓
+First and only TEST evaluation
+        ↓
+Final research verdict
+```
+
+After research completion:
+
+```text
+Production broker feature parity
+        ↓
+Broker-time canonicalization
+        ↓
+D1 reconstruction
+        ↓
+Frozen-model inference adapter
+        ↓
+Shadow integration
+        ↓
+Forward unseen-market validation
+        ↓
+Production safety review
+        ↓
+Possible live promotion decision
+```
+
+The current project must not be described as live-ready.
+
+---
+
+# Security and Secrets
+
+Never commit:
+
+* MT5 account passwords;
+* private API keys;
+* access tokens;
+* personal credentials;
+* production secrets.
+
+Use environment variables or local `.env` files.
+
+`.env.example` should contain example names only, not real credentials.
+
+Before committing:
+
+```powershell
+git status --short
+```
+
+Review every staged file.
+
+---
+
+# Important Disclaimer
+
+PulseViper is a research and engineering project involving financial-market data and trading infrastructure.
+
+Historical TRAIN, VALIDATION, TEST, or shadow results do not guarantee future profitability.
+
+Any eventual live deployment requires independent risk review, broker testing, forward validation, operational safeguards, and explicit authorization.
+
+Current state:
+
+```text
+live_authorized = false
+```
+
+---
+
+# Where Should I Start?
+
+If you are a new student or developer:
+
+```text
+1. Read this README
+2. Read 05_Documentation/Developer_Guide.md
+3. Understand Architecture.md
+4. Run focused tests
+5. Study Research_Evidence_Index.md
+6. Pick one isolated development task
+7. Never bypass protected-data or runtime safety boundaries
+```
+
+The project is designed so that a developer should be able to understand **why** a component exists before changing **how** it works.
