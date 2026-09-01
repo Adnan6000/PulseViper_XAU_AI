@@ -1,0 +1,102 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_RESULT_FREEZE_V1",
+  "decision": {
+    "candidate_change_authorized": false,
+    "live_authorized": false,
+    "model_refit_authorized": false,
+    "next_action": "IMPLEMENT_AND_SYNTHETICALLY_TEST_ONE_SHOT_PORTABLE_TEST_RUNNER_BEFORE_FIRST_AND_ONLY_TEST_READ",
+    "probability_calibration_authorized": false,
+    "shadow_authorized": false,
+    "status": "ONE_TIME_VALIDATION_RESULT_FROZEN_ACCEPTED",
+    "test_access_performed": false,
+    "test_execution_authorized": false,
+    "test_runner_implementation_authorized_next": true,
+    "threshold_change_authorized": false,
+    "validation_accepted": true,
+    "validation_consumed": true,
+    "validation_rerun_authorized": false,
+    "validation_result_frozen": true,
+    "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+  },
+  "freeze_fingerprint": {
+    "canonicalization": "JSON_SORT_KEYS_COMPACT_UTF8_SHA256",
+    "sha256": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c"
+  },
+  "freeze_record": {
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "ledger_canonical_sha256": "8a6ba31f4dd1c9dd51032ba79539ebb914e2ea58c57c7f912675b3613e498487",
+    "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "model_verification_record_fingerprint_sha256": "a2759a429b90998a7d24c8b217e570813e36dcf43df5de6cf98daf875b8678ef",
+    "portable_loader_source_sha256": "49c86c269f2742fec7c6991eaf7a8a9c0466066a3db230a80375ba2e2c33680c",
+    "preflight_fingerprint_sha256": "5ee6d0948d93f83f7969662e103066f1a09d7b081883290aba104b52f0038f41",
+    "test_access_authorized_next": true,
+    "test_access_performed": false,
+    "validation_consumed": true,
+    "validation_feature_count": 331,
+    "validation_gate_result": {
+      "accepted": true,
+      "hard_checks": {
+        "all_required_metrics_finite": true,
+        "balanced_accuracy_floor_pass": true,
+        "directional_macro_f1_floor_pass": true,
+        "long_recall_positive": true,
+        "macro_f1_floor_pass": true,
+        "maximum_trade_coverage_pass": true,
+        "minimum_trade_coverage_pass": true,
+        "required_target_classes_present": true,
+        "short_recall_positive": true
+      },
+      "probability_metrics": {
+        "hard_gate": false,
+        "log_loss_3class": 1.0979186095143678,
+        "multiclass_brier": 0.6664287278633827,
+        "role": "REPORT_ONLY_NO_POST_HOC_CALIBRATION"
+      }
+    },
+    "validation_metrics": {
+      "balanced_accuracy_3class": 0.37656763760203776,
+      "directional_macro_f1_short_long": 0.33640257616029445,
+      "log_loss_3class": 1.0979186095143678,
+      "long_f1": 0.348675799086758,
+      "long_precision": 0.25997548685823235,
+      "long_recall": 0.529248683116163,
+      "macro_f1_3class": 0.34890395261998247,
+      "multiclass_brier": 0.6664287278633827,
+      "no_trade_f1": 0.3739067055393586,
+      "no_trade_precision": 0.5570032573289903,
+      "no_trade_recall": 0.2814042786615469,
+      "predicted_trade_coverage": 0.7541213375158513,
+      "short_f1": 0.32412935323383085,
+      "short_precision": 0.3293731041456016,
+      "short_recall": 0.3190499510284035
+    },
+    "validation_protocol_fingerprint_sha256": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+    "validation_rerun_authorized": false,
+    "validation_result_fingerprint_sha256": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1",
+    "validation_row_count": 14983,
+    "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+  },
+  "research_scope": "FREEZE_CONSUMED_ONE_TIME_VALIDATION_RESULT_AND_LEDGER_BEFORE_ANY_PORTABLE_TEST_READ",
+  "scientific_policy": {
+    "candidate_registry_changed": false,
+    "dataset_rows_loaded_in_this_gate": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "live_authorized": false,
+    "model_artifact_modified": false,
+    "model_fit_performed": false,
+    "model_refit_performed": false,
+    "orders_sent": false,
+    "portable_test_feature_values_loaded": false,
+    "portable_test_metrics_computed": false,
+    "portable_test_target_values_loaded": false,
+    "portable_validation_feature_values_loaded_in_this_gate": false,
+    "portable_validation_target_values_loaded_in_this_gate": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "shadow_authorized": false,
+    "threshold_search_performed": false,
+    "winner_changed": false
+  },
+  "valid": true
+}
