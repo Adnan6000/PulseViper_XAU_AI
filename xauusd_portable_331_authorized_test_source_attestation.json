@@ -1,0 +1,43 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_AUTHORIZED_TEST_SOURCE_IMPLEMENTATION_V1",
+  "attestation_fingerprint": "9ca12875a3552dae0570b782548ae69dbf90831ccb2cf44e09e42f9f887f2cc3",
+  "bindings": {
+    "authorized_test_source_sha256": "27a0497ff8282cd0c1c8b9d88b3886515fc581fd00de9427dd72abe03f788eaf",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "loader_source_sha256": "49c86c269f2742fec7c6991eaf7a8a9c0466066a3db230a80375ba2e2c33680c",
+    "test_core_source_sha256": "46a2b98293ae1afbb2f53a87881b5376e0550aeb132c5261e7f1aed93492b259",
+    "test_protocol_fingerprint": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+    "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+    "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1"
+  },
+  "decision": {
+    "authorized_test_source_implemented": true,
+    "candidate_change_authorized": false,
+    "live_authorized": false,
+    "model_refit_authorized": false,
+    "next_action": "IMPLEMENT_ONE_SHOT_TEST_RUNNER_AND_DRY_PREFLIGHT_WITHOUT_READING_TEST_VALUES",
+    "one_shot_test_runner_implementation_authorized_next": true,
+    "probability_calibration_authorized": false,
+    "shadow_authorized": false,
+    "test_execution_authorized": false,
+    "test_values_accessed": false,
+    "threshold_change_authorized": false,
+    "validation_rerun_authorized": false
+  },
+  "status": "AUTHORIZED_TEST_SOURCE_IMPLEMENTED_NOT_REAL_EXECUTED",
+  "valid": true,
+  "verified_properties": {
+    "bounded_reader_receives_test_range_only": true,
+    "bounded_row_range_required": true,
+    "exact_331_feature_order_required": true,
+    "frozen_feature_sha_required": true,
+    "original_public_holdout_accessors_modified": false,
+    "real_test_values_accessed": false,
+    "returned_rows_must_all_be_test": true,
+    "split_structure_only_before_read": true,
+    "target_class_only": true,
+    "test_is_final_contiguous_block": true,
+    "validation_value_reread_performed": false
+  }
+}
