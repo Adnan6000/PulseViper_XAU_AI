@@ -1,0 +1,56 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_CORE_IMPLEMENTATION_V1",
+  "decision": {
+    "live_authorized": false,
+    "next_action": "SYNTHETICALLY_VALIDATE_LEDGER_CONSUMPTION_METRICS_AND_GATE_BEFORE_WIRING_REAL_VALIDATION_SOURCE",
+    "real_validation_execution_authorized": false,
+    "real_validation_metrics_computed": false,
+    "real_validation_values_loaded": false,
+    "shadow_authorized": false,
+    "status": "ONE_TIME_VALIDATION_CORE_IMPLEMENTED_NOT_REAL_EXECUTED",
+    "synthetic_testing_authorized": true,
+    "test_access_authorized": false
+  },
+  "implementation": {
+    "conservative_consumption_boundary_present": true,
+    "frozen_acceptance_gate_present": true,
+    "frozen_metric_contract_present": true,
+    "frozen_model_inference_validation_present": true,
+    "ledger_created_before_read_boundary": true,
+    "one_time_access_ledger_present": true,
+    "post_read_rerun_blocked": true,
+    "pre_read_failure_recovery_supported": true,
+    "real_validation_data_source_wired": false,
+    "test_access_path_present": false,
+    "validation_batch_contract_present": true
+  },
+  "protocol": {
+    "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_PROTOCOL_DESIGN_V1",
+    "contract_fingerprint_sha256": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+    "contract_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_PROTOCOL_V1"
+  },
+  "research_scope": "IMPLEMENTATION_ATTESTATION_ONLY_WITHOUT_VALIDATION_OR_TEST_VALUE_ACCESS",
+  "scientific_policy": {
+    "candidate_registry_changed": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "live_authorized": false,
+    "model_artifact_modified": false,
+    "model_fit_performed": false,
+    "model_refit_performed": false,
+    "orders_sent": false,
+    "portable_test_feature_values_loaded": false,
+    "portable_test_metrics_computed": false,
+    "portable_test_target_values_loaded": false,
+    "portable_validation_feature_values_loaded": false,
+    "portable_validation_metrics_computed": false,
+    "portable_validation_target_values_loaded": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "shadow_authorized": false,
+    "threshold_search_performed": false,
+    "train_feature_values_loaded": false,
+    "train_target_values_loaded": false
+  },
+  "valid": true
+}
