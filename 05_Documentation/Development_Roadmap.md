@@ -1,480 +1,1180 @@
-# PulseViper XAU AI
-## Development Roadmap
+# PulseViper XAU AI — Development Roadmap
 
-> This roadmap is planning guidance.
->
-> It is not an authoritative completion record.
+## 1. Purpose
 
----
+This document is the live engineering roadmap for PulseViper XAU AI.
 
-# Phase 1 — Core Market Intelligence
+It tells a developer:
 
-## Implemented Research Areas
+* what has already been completed;
+* what is currently frozen;
+* what is safe to work on;
+* what remains;
+* which tasks depend on other tasks;
+* which tasks require protected data;
+* and approximately how much engineering effort remains.
 
-- adaptive market structure
-- swing confirmation
-- HH / HL / LH / LL
-- BOS
-- liquidity research
-- liquidity sweeps
-- displacement
-- Fair Value Gaps
-- FVG mitigation
-- FVG quality
-- institutional zones
-- market regime
-- candle / swing intelligence
-- setup-state intelligence
-- confidence research
-- risk research
-
-Status:
-
-```text
-IMPLEMENTED / EXISTING
-```
-
-Further calibration may still be required.
+This roadmap should be updated whenever a major engineering or research gate is completed.
 
 ---
 
-# Phase 2 — Shadow & Risk Infrastructure
-
-Implemented areas include:
-
-- broker-aware risk
-- account protection
-- execution-aware admission
-- compounding planning
-- lifecycle accounting
-- execution-friction modeling
-- paper ledger
-- research candidate ledger
-- research telemetry
-- forward execution evidence
-- historical fill telemetry
-- completed-fill telemetry
-- realized execution-cost accounting
-
-Status:
+# 2. Status Legend
 
 ```text
-IMPLEMENTED / RESEARCH-VALIDATED IN MULTIPLE GATES
+✅ COMPLETE
+🟢 READY / AUTHORIZED NEXT
+🟡 PARTIAL / IN PROGRESS
+🔴 BLOCKED / PROTECTED
+⬜ NOT STARTED
+⛔ NOT AUTHORIZED
 ```
 
 ---
 
-# Phase 3 — Instrument Isolation
+# 3. Current Project Position
 
-Implemented:
-
-- canonical symbol identity
-- asset-class identity
-- explicit broker aliases
-- exact broker-symbol identity
-- contract-spec identity
-- account/environment identity
-- learning namespace
-- execution namespace
-- deterministic fingerprints
-- fail-closed context validation
-- DataFrame identity stamping
-
-Status:
+Current high-level state:
 
 ```text
-GREEN
+Portable ML Research
+        ↓
+TRAIN research
+        ✅
+        ↓
+Frozen C04 winner
+        ✅
+        ↓
+Full TRAIN fit
+        ✅
+        ↓
+Untouched VALIDATION
+        ✅ PASSED
+        ↓
+VALIDATION freeze
+        ✅
+        ↓
+FINAL TEST
+        🟢 NEXT
+        ↓
+Production portability
+        ⬜
+        ↓
+Shadow integration
+        ⬜
+        ↓
+Forward shadow validation
+        ⬜
+        ↓
+Live promotion
+        ⛔
+```
+
+Current frozen model:
+
+```text
+C04_FLAT_EXTRA_TREES_CONSTRAINED
+```
+
+Current feature contract:
+
+```text
+331 ordered portable features
+```
+
+Current live status:
+
+```text
+live_authorized = false
 ```
 
 ---
 
-# Phase 4 — Exness DEMO XAUUSD Attestation
+# 4. Overall Completion Estimate
+
+Approximate engineering maturity:
+
+| Area                              | Approximate State |
+| --------------------------------- | ----------------: |
+| Core runtime / risk foundation    |            90–95% |
+| Portable feature research         |            90–95% |
+| Historical ML research pipeline   |              95%+ |
+| TRAIN model research              |              100% |
+| Untouched VALIDATION              |              100% |
+| Final TEST                        |           Pending |
+| Production broker portability     |            55–65% |
+| Frozen-model production inference |            30–40% |
+| Shadow integration                |            30–40% |
+| Forward shadow validation         |             Early |
+| Safe live promotion readiness     |           ~50–60% |
+
+These percentages are engineering estimates, not scientific metrics.
+
+---
+
+# 5. Remaining Engineering Time Estimate
+
+Approximate active engineering effort from the current state:
+
+| Remaining Area                        | Estimated Active Work |
+| ------------------------------------- | --------------------: |
+| Final TEST infrastructure + execution |             2–4 hours |
+| Final research verdict/report         |             1–2 hours |
+| Documentation/evidence cleanup        |             3–5 hours |
+| Production broker portability         |           12–20 hours |
+| Frozen inference + shadow integration |            8–14 hours |
+| Production safety / monitoring        |            8–12 hours |
+
+Approximate remaining active engineering:
+
+```text
+35–55 focused hours
+```
+
+A realistic focused development schedule is approximately:
+
+```text
+5–8 working days
+```
+
+However, full project completion requires genuine future unseen market data.
+
+Therefore expected calendar duration is more realistically:
+
+```text
+3–6 weeks
+```
+
+The longer calendar estimate is mainly due to forward-shadow observation, not coding speed.
+
+---
+
+# 6. Phase 1 — Core Runtime Foundation
+
+**Status: ✅ COMPLETE / PROTECTED**
+
+Completed areas include:
+
+* [x] MetaTrader/runtime structure
+* [x] trading permission concepts
+* [x] RiskEngine
+* [x] `trade_ready`
+* [x] account protection
+* [x] broker-aware sizing
+* [x] execution semantics
+* [x] shadow execution concepts
+* [x] separation between ML research and execution
+
+Current rule:
+
+> Do not modify the runtime simply to improve ML metrics.
+
+Protected areas include:
+
+```text
+RiskEngine
+trade_ready
+account protection
+broker-aware sizing
+MT5 order semantics
+core execution
+shadow execution semantics
+```
+
+---
+
+# 7. Phase 2 — Feature Pipeline Research
+
+**Status: ✅ MAJOR RESEARCH COMPLETE**
+
+Completed:
+
+* [x] existing feature pipeline analyzed
+* [x] broker-sensitive features investigated
+* [x] portable feature strategy designed
+* [x] portable feature contract created
+* [x] final portable feature count frozen
+* [x] ordered feature contract frozen
+* [x] feature fingerprint frozen
+* [x] dataset integration verified
+
+Current feature count:
+
+```text
+331
+```
+
+Frozen ordered feature fingerprint:
+
+```text
+65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2
+```
+
+Still required for production:
+
+* [ ] prove same semantic features on a different broker
+* [ ] canonicalize broker timestamps
+* [ ] reconstruct D1 consistently
+* [ ] test missing-bar behavior
+* [ ] test session transitions
+* [ ] compare historical vs production feature generation
+* [ ] enforce feature fingerprint at inference
+
+---
+
+# 8. Phase 3 — Portable Dataset Infrastructure
+
+**Status: ✅ COMPLETE**
+
+Completed:
+
+* [x] exact portable artifact discovery
+* [x] manifest validation
+* [x] dataset identity validation
+* [x] split structure validation
+* [x] TRAIN feature loader
+* [x] TRAIN target loader
+* [x] supervised TRAIN batch
+* [x] feature/target row alignment
+* [x] chronology validation
+* [x] tradeability linkage
+* [x] original VALIDATION access fail-closed
+* [x] original TEST access fail-closed
+
+Frozen TRAIN dataset:
+
+```text
+dataset_id:
+portable_cff75b0686383a3ab6f8352b
+
+TRAIN rows:
+69,966
+
+features:
+331
+```
+
+Dataset SHA256:
+
+```text
+cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07
+```
+
+Manifest SHA256:
+
+```text
+1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc
+```
+
+---
+
+# 9. Phase 4 — Frozen Target Contract
+
+**Status: ✅ COMPLETE**
+
+Target classes:
+
+```text
+-1 = SHORT
+ 0 = NO_TRADE
+ 1 = LONG
+```
+
+Frozen directional-excursion parameters:
+
+```text
+profit_atr = 1.25
+max_adverse_atr = 0.75
+```
+
+Required linkage:
+
+```python
+target_tradeable = (target_class != 0).astype("int8")
+```
+
+Changing target semantics requires:
+
+```text
+new target contract
+        +
+new dataset lineage
+        +
+new model experiment
+```
+
+---
+
+# 10. Phase 5 — TRAIN Research Protocol
+
+**Status: ✅ COMPLETE**
+
+Frozen model research protocol includes:
+
+* [x] TRAIN-only model research
+* [x] chronological folds
+* [x] expanding window
+* [x] no shuffle
+* [x] four folds
+* [x] twelve-row purge
+* [x] no portable VALIDATION during selection
+* [x] no TEST during selection
+* [x] no grid search
+* [x] no Bayesian optimization
+* [x] no threshold tuning
+* [x] no calibration
+* [x] no results-driven feature selection
+
+Research protocol fingerprint:
+
+```text
+69e51e1b249b9da68cbf6f6778a8ae10f9f33f7082a07e5073a1ba731fa1640d
+```
+
+---
+
+# 11. Phase 6 — Candidate Registry
+
+**Status: ✅ COMPLETE**
+
+Exactly six candidates were frozen before real candidate evaluation.
+
+* [x] C01 balanced Logistic Regression
+* [x] C02 balanced Logistic Regression
+* [x] C03 constrained HistGradientBoosting
+* [x] C04 constrained ExtraTrees
+* [x] C05 hierarchical Logistic Regression
+* [x] C06 hierarchical HGB + Logistic Regression
+
+Candidate registry fingerprint:
+
+```text
+b8088bb34ce8940f7de5946fbb9b0fd20f40d7cc93a76b76fd7975591f00066c
+```
+
+Important rule:
+
+> Do not add Candidate 7 to this frozen experiment after seeing results.
+
+A new candidate belongs to a new research lineage.
+
+---
+
+# 12. Phase 7 — Candidate Evaluator
+
+**Status: ✅ COMPLETE**
+
+Completed:
+
+* [x] input validation
+* [x] fold validation
+* [x] probability validation
+* [x] flat model support
+* [x] hierarchical model support
+* [x] fold-local scaling where required
+* [x] fold-local weighting where required
+* [x] exact class order
+* [x] 15-metric contract
+* [x] eligibility rules
+* [x] frozen winner selection
+* [x] dummy-prior diagnostic
+* [x] synthetic tests
+* [x] package/runtime import tests
+* [x] integration attestation
+
+---
+
+# 13. Phase 8 — Real TRAIN Walk-Forward
+
+**Status: ✅ COMPLETE**
+
+All frozen candidates were evaluated on:
+
+```text
+6 candidates
+×
+4 chronological TRAIN folds
+```
+
+Winner:
+
+```text
+C04_FLAT_EXTRA_TREES_CONSTRAINED
+```
+
+Important C04 TRAIN statistics:
+
+```text
+Mean directional macro-F1:
+0.3105791161393638
+
+Worst-fold directional macro-F1:
+0.25365034089349603
+
+Mean balanced accuracy:
+0.35438789335022963
+
+Mean macro-F1:
+0.2846765787595467
+```
+
+Walk-forward evaluation fingerprint:
+
+```text
+15516174ba6f3d8932425b20dcde33db25c040e0901c86af39796f97847ac7ed
+```
+
+---
+
+# 14. Phase 9 — Winner Freeze
+
+**Status: ✅ COMPLETE**
+
+Frozen winner:
+
+```text
+C04_FLAT_EXTRA_TREES_CONSTRAINED
+```
+
+Frozen candidate configuration fingerprint:
+
+```text
+f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3
+```
+
+Winner was frozen before full TRAIN fitting.
+
+No VALIDATION or TEST values were required for this decision.
+
+---
+
+# 15. Phase 10 — Full TRAIN Fit
+
+**Status: ✅ COMPLETE**
+
+C04 was fitted on all:
+
+```text
+69,966 TRAIN rows
+```
+
+using:
+
+```text
+331 features
+```
+
+Frozen model artifact:
+
+```text
+xauusd_portable_331_c04_full_train_model.joblib
+```
+
+Artifact SHA256:
+
+```text
+48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769
+```
+
+Model record fingerprint:
+
+```text
+bd6d76f92d3c6274bed756683f4263b9cce9a3f0e5ffbb8bd4ba3fcbe6f6ff74
+```
+
+---
+
+# 16. Phase 11 — Model Artifact Verification
+
+**Status: ✅ COMPLETE**
 
 Verified:
 
-```text
-Broker          : EXNESS
-Broker Symbol   : XAUUSDm
-Canonical       : XAUUSD
-Asset Class     : METAL
-Base Currency   : XAU
-Profit Currency : USD
-Environment     : DEMO
-Live Authorized : false
-```
+* [x] model file SHA
+* [x] ExtraTrees model type
+* [x] 331 input features
+* [x] class order `[-1, 0, 1]`
+* [x] 500 trees
+* [x] exact frozen hyperparameters
+* [x] full TRAIN provenance chain
+* [x] no holdout access during verification
 
-Contract identity:
+Verification record fingerprint:
 
 ```text
-EXNESS_XAUUSD_SPEC_D133951851B554C9
-```
-
-Status:
-
-```text
-GREEN
+a2759a429b90998a7d24c8b217e570813e36dcf43df5de6cf98daf875b8678ef
 ```
 
 ---
 
-# Phase 5 — Canonical Historical Data
+# 17. Phase 12 — VALIDATION Acceptance Protocol
 
-Implemented:
+**Status: ✅ COMPLETE**
 
-- exact broker-symbol fetching
-- strict history validation
-- identity-stamped datasets
-- immutable CSV persistence
-- immutable manifests
-- SHA256 verification
-- contract-aware namespace isolation
+Acceptance criteria were frozen before the first real VALIDATION value read.
 
-Verified real DEMO history:
+Protocol fingerprint:
 
 ```text
-M1  : 100,000
-M5  : 100,000
-M15 : 100,000
-M30 : 100,000
-H1  : 56,723
-H4  : 16,045
-D1  : 3,872
+ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea
 ```
 
-Status:
+Hard checks included:
+
+* [x] all required metrics finite
+* [x] all target classes present
+* [x] directional macro-F1 floor
+* [x] balanced accuracy floor
+* [x] macro-F1 floor
+* [x] SHORT recall positive
+* [x] LONG recall positive
+* [x] minimum trade coverage
+* [x] maximum trade coverage
+
+Report-only metrics:
 
 ```text
-GREEN
+log-loss
+multiclass Brier
+```
+
+No post-hoc calibration was allowed.
+
+---
+
+# 18. Phase 13 — One-Time VALIDATION Infrastructure
+
+**Status: ✅ COMPLETE**
+
+Completed:
+
+* [x] one-time access ledger
+* [x] pre-read reservation
+* [x] consumed-read boundary
+* [x] pre-read failure recovery
+* [x] post-read rerun blocking
+* [x] validation batch contract
+* [x] metric reuse from frozen evaluator
+* [x] synthetic pass test
+* [x] synthetic rejection test
+* [x] synthetic technical-failure tests
+* [x] bounded VALIDATION source
+* [x] TEST rows protected
+* [x] dry preflight
+* [x] preflight fingerprint
+
+Preflight fingerprint:
+
+```text
+5ee6d0948d93f83f7969662e103066f1a09d7b081883290aba104b52f0038f41
 ```
 
 ---
 
-# Phase 6 — Training Matrix V1
+# 19. Phase 14 — Real Untouched VALIDATION
 
-Implemented:
-
-```text
-Contract        : XAUUSD_MTF_TRAINING_V1
-Rows            : 99,945
-Base Timeframe  : M5
-Context         : M15, M30, H1, H4, D1
-Features        : 270
-```
-
-Also implemented:
-
-- completed-bar HTF alignment
-- future-only targets
-- chronological split
-- purge gaps
-- immutable training artifacts
-
-Status:
-
-```text
-GREEN
-```
-
----
-
-# Phase 7 — Target Calibration V2
-
-Implemented target:
-
-```text
-Profit Threshold      : 1.25 ATR
-Max Adverse Excursion : 0.75 ATR
-```
+**Status: ✅ PASSED AND CONSUMED**
 
 Result:
 
 ```text
-SHORT     ~25.5%
-NO_TRADE  ~48.6%
-LONG      ~25.8%
+ONE_TIME_VALIDATION_ACCEPTED
 ```
 
-Status:
+Metrics:
+
+| Metric               |   Result |
+| -------------------- | -------: |
+| Balanced accuracy    | 0.376568 |
+| Macro-F1             | 0.348904 |
+| Directional macro-F1 | 0.336403 |
+| SHORT precision      | 0.329373 |
+| SHORT recall         | 0.319050 |
+| SHORT F1             | 0.324129 |
+| NO_TRADE precision   | 0.557003 |
+| NO_TRADE recall      | 0.281404 |
+| NO_TRADE F1          | 0.373907 |
+| LONG precision       | 0.259975 |
+| LONG recall          | 0.529249 |
+| LONG F1              | 0.348676 |
+| Trade coverage       | 0.754121 |
+| Log-loss             | 1.097919 |
+| Brier                | 0.666429 |
+
+Result fingerprint:
 
 ```text
-GREEN
+ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1
 ```
 
-Target should remain frozen unless later evidence provides a strong reason to change it.
-
----
-
-# Phase 8 — Gold Domain Features V3
-
-Added:
+Current rule:
 
 ```text
-63 causal Gold-domain features
-```
-
-Including:
-
-- regime
-- adaptive structure
-- BOS
-- FVG
-- institutional-zone confirmations
-
-Total:
-
-```text
-333 features
-```
-
-Status:
-
-```text
-GREEN
+validation_consumed = true
+validation_rerun_authorized = false
 ```
 
 ---
 
-# Phase 9 — Model Training Infrastructure
+# 20. Phase 15 — VALIDATION Result Freeze
 
-Implemented:
+**Status: ✅ COMPLETE**
 
-- exact training artifact discovery
-- dataset hash verification
-- explicit feature ordering
-- TRAIN-only scaling
-- TRAIN-only fitting
-- class probabilities
-- confidence
-- entropy uncertainty
-- validation/test evaluation
-- immutable model artifacts
-
-Current model experiments:
+Freeze fingerprint:
 
 ```text
-XAUUSD_MODEL_v1
-XAUUSD_MODEL_v2
-XAUUSD_MODEL_v3
+521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c
 ```
 
-Infrastructure status:
+Current decision:
 
 ```text
-GREEN
-```
+validation_result_frozen = true
+validation_accepted = true
+validation_consumed = true
+validation_rerun_authorized = false
 
-Predictive quality status:
+test_runner_implementation_authorized_next = true
+test_execution_authorized = false
 
-```text
-NOT ACCEPTED
+shadow_authorized = false
+live_authorized = false
 ```
 
 ---
 
-# Current Priority — Hierarchical Model V4
+# 21. Phase 16 — Final Untouched TEST
 
-The next major model experiment should separate:
+**Status: 🟢 IMMEDIATE NEXT ENGINEERING GATE**
+
+The TEST split is still protected.
+
+Required implementation:
+
+* [ ] one-time TEST access contract
+* [ ] TEST-specific ledger
+* [ ] bounded TEST source
+* [ ] frozen model verification before TEST read
+* [ ] synthetic source tests
+* [ ] synthetic ledger tests
+* [ ] TEST dry preflight
+* [ ] freeze TEST preflight fingerprint
+* [ ] first and only real TEST read
+* [ ] compute exact same evaluation metrics
+* [ ] persist TEST result
+* [ ] freeze TEST result
+* [ ] prohibit rerun
+
+Important:
+
+> TEST does not select a new model.
+
+It evaluates the already frozen model.
+
+---
+
+# 22. TEST Success Criteria Philosophy
+
+The final TEST should answer:
+
+> Does C04 still show acceptable generalization on the final untouched holdout?
+
+It should not answer:
+
+> Which parameters should we change next?
+
+If TEST is weak, the current model lineage should be closed and a new research iteration designed.
+
+Do not tune C04 against TEST.
+
+---
+
+# 23. Phase 17 — Final Historical Research Verdict
+
+**Status: ⬜ PENDING TEST**
+
+After TEST:
+
+* [ ] compare TRAIN walk-forward
+* [ ] compare VALIDATION
+* [ ] compare TEST
+* [ ] directional degradation analysis
+* [ ] class-recall stability
+* [ ] trade-coverage stability
+* [ ] probability-quality review
+* [ ] document limitations
+* [ ] freeze final historical research verdict
+
+Possible state:
 
 ```text
-Question 1:
-Is this market state worth trading?
+RESEARCH_ACCEPTED_FOR_SHADOW
 ```
 
-from:
+This is different from:
 
 ```text
-Question 2:
-If tradeable, which direction?
+LIVE_READY
 ```
 
 ---
 
-## Stage A — Tradeability
+# 24. Phase 18 — Production Broker Portability
 
-Classes:
+**Status: 🟡 PARTIAL**
 
-```text
-TRADEABLE
-NO_TRADE
-```
+Major remaining engineering block.
 
-Primary metrics:
+Required work:
 
-- balanced accuracy
-- F1
-- precision
-- recall
-- calibration
-- confidence coverage
+* [ ] broker symbol mapping
+* [ ] XAUUSD/XAUUSDm normalization
+* [ ] broker server-time analysis
+* [ ] canonical timestamp definition
+* [ ] session boundary normalization
+* [ ] D1 candle reconstruction
+* [ ] MTF synchronization
+* [ ] missing-bar handling
+* [ ] stale-bar detection
+* [ ] warm-up window definition
+* [ ] 331-feature generation
+* [ ] feature-order enforcement
+* [ ] feature fingerprint validation
+* [ ] replay parity testing
 
----
-
-## Stage B — Direction
-
-Training subset:
-
-```text
-TRADEABLE samples only
-```
-
-Classes:
+Estimated active effort:
 
 ```text
-LONG
-SHORT
-```
-
-Primary metrics:
-
-- balanced accuracy
-- LONG recall
-- SHORT recall
-- precision
-- directional stability
-
-Status:
-
-```text
-NEXT
+12–20 hours
 ```
 
 ---
 
-# Following Priority — Higher-Timeframe Domain Intelligence
+# 25. Phase 19 — Production Feature Parity
 
-Current V3 Gold-domain features are primarily base-timeframe domain context.
+**Status: ⬜ PENDING**
 
-Future work should test whether causal domain features from:
+The key question:
 
 ```text
-M15
-H1
-H4
+Does production generate the same feature semantics
+that the historical model was trained on?
 ```
 
-improve generalization.
+Required evidence:
 
-Only features demonstrating real out-of-sample benefit should be retained.
+* [ ] same feature count
+* [ ] same ordered columns
+* [ ] same formulas
+* [ ] same units
+* [ ] same timezone semantics
+* [ ] same D1 semantics
+* [ ] finite values
+* [ ] deterministic replay
+* [ ] acceptable broker-to-broker differences
 
-Status:
+---
+
+# 26. Phase 20 — Frozen Model Inference Adapter
+
+**Status: ⬜ PENDING**
+
+Required:
+
+* [ ] verify model artifact SHA at startup
+* [ ] verify model class
+* [ ] verify class order
+* [ ] verify feature count
+* [ ] verify feature-column fingerprint
+* [ ] reject non-finite inputs
+* [ ] reject stale inputs
+* [ ] call `predict_proba`
+* [ ] use frozen argmax
+* [ ] no runtime threshold tuning
+* [ ] structured inference log
+
+Expected inference flow:
 
 ```text
-PLANNED
+Portable 331 Features
+        ↓
+Feature Contract Check
+        ↓
+Model SHA Check
+        ↓
+predict_proba
+        ↓
+argmax
+        ↓
+SHORT / NO_TRADE / LONG
 ```
 
 ---
 
-# Following Priority — Liquidity Calibration
+# 27. Phase 21 — Shadow Integration
 
-Existing liquidity logic requires careful ML calibration.
+**Status: ⬜ PENDING**
 
-Future work:
+Required:
 
-- ATR-normalized distances
-- volatility-aware tolerance
-- regime-aware liquidity
-- causal sweep lifecycle
-- session-sensitive liquidity
-- pool age
-- mitigation state
+* [ ] connect inference to shadow decision path
+* [ ] preserve RiskEngine
+* [ ] preserve sizing logic
+* [ ] preserve trade readiness checks
+* [ ] no live orders
+* [ ] log probabilities
+* [ ] log predicted class
+* [ ] log feature identity
+* [ ] log hypothetical trade
+* [ ] log hypothetical SL/TP
+* [ ] log spread/cost context
 
-Absolute thresholds should not be blindly inserted into long-history Gold models.
-
-Status:
+Estimated active effort:
 
 ```text
-PLANNED
+8–14 hours
 ```
 
 ---
 
-# Following Priority — Execution-Aware Learning
+# 28. Phase 22 — Forward Shadow Validation
 
-Future learning datasets may incorporate:
+**Status: ⬜ PENDING**
 
-- actual spread
-- forward slippage
-- commission
-- MFE
-- MAE
-- realized R
-- stop outcome
-- target outcome
-- time to resolution
+This phase requires real future time.
 
-Forward broker evidence should remain distinct from reconstructed historical execution estimates.
+Measure:
 
-Status:
+* [ ] unseen market period
+* [ ] directional performance
+* [ ] SHORT/LONG balance
+* [ ] prediction distribution
+* [ ] trade coverage
+* [ ] high-volatility behavior
+* [ ] low-volatility behavior
+* [ ] trending regimes
+* [ ] ranging regimes
+* [ ] session transitions
+* [ ] spread expansion
+* [ ] missing data
+* [ ] feature drift
+* [ ] prediction drift
+* [ ] hypothetical costs
+* [ ] hypothetical drawdown
+* [ ] hypothetical expectancy
+
+Expected calendar observation:
 
 ```text
-PLANNED
+approximately 2–4+ weeks
+```
+
+depending on required market coverage.
+
+---
+
+# 29. Phase 23 — Production Safety and Monitoring
+
+**Status: ⬜ PENDING**
+
+Before live promotion:
+
+* [ ] model SHA startup enforcement
+* [ ] feature SHA startup enforcement
+* [ ] symbol validation
+* [ ] timezone validation
+* [ ] stale-data kill condition
+* [ ] missing-bar protection
+* [ ] non-finite feature protection
+* [ ] inference exception handling
+* [ ] feature drift monitoring
+* [ ] prediction drift monitoring
+* [ ] spread protection
+* [ ] operational audit log
+* [ ] shadow/live mode separation
+* [ ] emergency kill switch
+* [ ] rollback procedure
+
+Estimated active effort:
+
+```text
+8–12 hours
 ```
 
 ---
 
-# Shadow Model Inference
+# 30. Phase 24 — Live Promotion Decision
 
-Once an offline model demonstrates meaningful edge:
+**Status: ⛔ NOT AUTHORIZED**
 
-- load exact model artifact
-- load exact scaler
-- validate exact feature contract
-- validate exact instrument scope
-- build causal real-time features
-- output probabilities
-- journal inference
-- collect forward outcomes
-
-Initial inference stage:
+Required before live:
 
 ```text
-NO ORDER EXECUTION
+[ ] Final TEST acceptable
+[ ] Final research verdict frozen
+[ ] New-broker feature parity proven
+[ ] Production inference verified
+[ ] Shadow integration stable
+[ ] Forward unseen-market evidence acceptable
+[ ] Costs reviewed
+[ ] Drawdown reviewed
+[ ] RiskEngine verified
+[ ] Failure behavior tested
+[ ] Kill switch tested
+[ ] Explicit live promotion decision
 ```
 
-Status:
+Only after all required gates:
 
 ```text
-BLOCKED BY MODEL QUALITY
+live_authorized = true
 ```
 
----
-
-# Controlled DEMO Decision Integration
-
-Only after successful shadow inference:
-
-- integrate model probabilities
-- preserve deterministic risk rules
-- preserve NO_TRADE
-- preserve broker identity checks
-- preserve account protection
-- preserve execution evidence
-
-Status:
+Current:
 
 ```text
-FUTURE
+live_authorized = false
 ```
 
 ---
 
-# REAL Account Consideration
+# 31. Documentation Roadmap
 
-Not currently authorized.
+Documentation should also be treated as engineering work.
 
-Requirements should include:
+Current documentation refresh plan:
 
-- strong out-of-sample evidence
-- walk-forward stability
-- forward DEMO evidence
-- execution-friction validation
-- calibration stability
-- failure-mode tests
-- account-protection proof
-- explicit live authorization
-- fail-closed deployment architecture
+```text
+README.md
+    ✅ planned/current refresh
 
-Status:
+Developer_Guide.md
+    ✅ planned/current refresh
+
+Architecture.md
+    ✅ planned/current refresh
+
+Module_List.md
+    ✅ planned/current refresh
+
+Development_Roadmap.md
+    ✅ THIS DOCUMENT
+
+Feature_List.md
+    ✅ paired with this gate
+
+Testing_Guide.md
+    ⬜ NEXT DOC GATE
+
+Research_Evidence_Index.md
+    ⬜ NEXT DOC GATE
+
+Troubleshooting.md
+    ⬜
+
+Trading_Rules.md
+    ⬜ refresh
+
+Version_History.md
+    ⬜ refresh
+```
+
+After all documentation is updated:
+
+* [ ] review links
+* [ ] review fingerprints
+* [ ] review current project status
+* [ ] review Git history
+* [ ] commit docs
+* [ ] controlled GitHub push
+
+---
+
+# 32. Recommended Development Order From Here
+
+The preferred sequence is:
+
+```text
+1. Finish documentation baseline
+2. Final TEST infrastructure
+3. Final TEST
+4. Final historical research verdict
+5. Production broker portability
+6. Production feature parity
+7. Frozen inference adapter
+8. Shadow integration
+9. Forward shadow validation
+10. Production safety review
+11. Live promotion decision
+```
+
+The ordering is important.
+
+For example, there is little value integrating a model into shadow production before its final untouched TEST result is known.
+
+---
+
+# 33. New Student Roadmap
+
+A new student should progress in stages.
+
+## Stage A — Learn
+
+* [ ] read README
+* [ ] read Developer Guide
+* [ ] read Architecture
+* [ ] read this Roadmap
+* [ ] understand TRAIN/VALIDATION/TEST
+
+## Stage B — Observe
+
+* [ ] run existing focused tests
+* [ ] inspect evidence JSON
+* [ ] trace a feature through code
+* [ ] trace model provenance
+
+## Stage C — Contribute Safely
+
+Start with:
+
+* [ ] documentation
+* [ ] synthetic tests
+* [ ] report generators
+* [ ] non-production research tools
+
+Then later:
+
+* [ ] feature research
+* [ ] portability
+* [ ] model research
+
+Protected runtime work should come last.
+
+---
+
+# 34. New Feature Development Roadmap
+
+If a student wants to add a feature:
+
+```text
+Feature idea
+    ↓
+Define exact formula
+    ↓
+Define timeframe
+    ↓
+Define units
+    ↓
+Check leakage
+    ↓
+Check broker portability
+    ↓
+Write tests
+    ↓
+Create new feature contract
+    ↓
+Create new dataset lineage
+    ↓
+Create new model experiment
+```
+
+Do not edit the frozen 331 experiment in place.
+
+---
+
+# 35. New Model Development Roadmap
+
+If a future developer wants a new model:
+
+```text
+New research question
+    ↓
+TRAIN-only protocol
+    ↓
+Frozen finite candidate registry
+    ↓
+Walk-forward evaluation
+    ↓
+Winner freeze
+    ↓
+Full TRAIN fit
+    ↓
+Artifact verification
+    ↓
+Frozen validation criteria
+    ↓
+Untouched VALIDATION
+    ↓
+Untouched TEST
+```
+
+Do not start from TEST.
+
+---
+
+# 36. Definition of Project Completion
+
+PulseViper should not be considered fully complete when:
+
+```text
+model.fit() works
+```
+
+A production-grade milestone requires:
+
+```text
+research reproducibility
++
+generalization evidence
++
+broker portability
++
+runtime correctness
++
+shadow evidence
++
+forward evidence
++
+operational safety
+```
+
+---
+
+# 37. Current Bottom Line
+
+Completed:
+
+```text
+Historical portable ML research:
+nearly complete
+
+Untouched VALIDATION:
+PASSED
+
+Model artifact:
+frozen and verified
+```
+
+Immediate next research task:
+
+```text
+Final untouched TEST infrastructure
+```
+
+Largest remaining engineering task:
+
+```text
+Production broker feature parity
++
+shadow integration
+```
+
+Largest remaining calendar-time task:
+
+```text
+Forward shadow validation
+```
+
+Current live state:
 
 ```text
 NOT AUTHORIZED
