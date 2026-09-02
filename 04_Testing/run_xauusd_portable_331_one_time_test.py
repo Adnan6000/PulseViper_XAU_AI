@@ -22,20 +22,31 @@ from sklearn.metrics import (
 )
 
 
-ANALYSIS_VERSION = "XAUUSD_PORTABLE_331_ONE_TIME_TEST_RUNNER_V1"
+ANALYSIS_VERSION = (
+    "XAUUSD_PORTABLE_331_ONE_TIME_TEST_PRE_READ_RECOVERY_RUNNER_V1"
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+TESTING_DIR = REPO_ROOT / "04_Testing"
 
 CORE_PATH = (
-    REPO_ROOT
-    / "04_Testing"
+    TESTING_DIR
     / "xauusd_portable_331_one_time_test_core.py"
 )
 
 SOURCE_PATH = (
-    REPO_ROOT
-    / "04_Testing"
+    TESTING_DIR
     / "xauusd_portable_331_authorized_test_source.py"
+)
+
+VALIDATION_SOURCE_PATH = (
+    TESTING_DIR
+    / "xauusd_portable_331_authorized_validation_source.py"
+)
+
+INTEGRATION_RUNNER_PATH = (
+    TESTING_DIR
+    / "run_xauusd_portable_331_candidate_evaluator_integration.py"
 )
 
 LOADER_PATH = (
@@ -75,9 +86,19 @@ MODEL_PATH = (
     / "xauusd_portable_331_c04_full_train_model.joblib"
 )
 
-DEFAULT_PREFLIGHT_PATH = (
+ORIGINAL_PREFLIGHT_PATH = (
     REPO_ROOT
     / "xauusd_portable_331_one_time_test_preflight.json"
+)
+
+ORIGINAL_FAILED_RESULT_PATH = (
+    REPO_ROOT
+    / "xauusd_portable_331_one_time_test_result.json"
+)
+
+DEFAULT_RECOVERY_PREFLIGHT_PATH = (
+    REPO_ROOT
+    / "xauusd_portable_331_one_time_test_recovery_preflight.json"
 )
 
 DEFAULT_LEDGER_PATH = (
@@ -85,14 +106,18 @@ DEFAULT_LEDGER_PATH = (
     / "xauusd_portable_331_one_time_test_access_ledger.json"
 )
 
-DEFAULT_RESULT_PATH = (
+DEFAULT_RECOVERY_RESULT_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_one_time_test_result.json"
+    / "xauusd_portable_331_one_time_test_recovery_result.json"
 )
 
 
 EXPECTED_WINNER_ID = (
     "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+)
+
+EXPECTED_ORIGINAL_PREFLIGHT_FINGERPRINT = (
+    "0050ce2bea50ddafa4e9a698fff3affa7ac24fc0f1a0185871ac86cfca127057"
 )
 
 EXPECTED_TEST_PROTOCOL_FINGERPRINT = (
@@ -131,12 +156,27 @@ EXPECTED_CLASS_ORDER = [
     1,
 ]
 
-EXPECTED_SPLIT_COLUMN = "dataset_split"
-EXPECTED_TARGET_COLUMN = "target_class"
+EXPECTED_SPLIT_COLUMN = (
+    "dataset_split"
+)
+
+EXPECTED_TARGET_COLUMN = (
+    "target_class"
+)
+
+EXPECTED_PRE_READ_ERROR_TYPE = (
+    "ImportError"
+)
+
+EXPECTED_PRE_READ_ERROR_TEXT = (
+    "attempted relative import with no known parent package"
+)
 
 
-class OneTimeTestRunnerError(RuntimeError):
-    """Raised when one-shot TEST safety cannot be proven."""
+class OneTimeTestRecoveryRunnerError(
+    RuntimeError
+):
+    """Raised when safe TEST recovery cannot be proven."""
 
 
 def _canonical_json(
@@ -170,17 +210,76 @@ def _sha256_file(
     ).hexdigest()
 
 
+def _json_safe(
+    value: Any,
+) -> Any:
+    if isinstance(
+        value,
+        np.ndarray,
+    ):
+        return [
+            _json_safe(
+                item
+            )
+            for item
+            in value.tolist()
+        ]
+
+    if isinstance(
+        value,
+        np.generic,
+    ):
+        return value.item()
+
+    if isinstance(
+        value,
+        Mapping,
+    ):
+        return {
+            str(
+                key
+            ): _json_safe(
+                child
+            )
+            for (
+                key,
+                child,
+            )
+            in value.items()
+        }
+
+    if isinstance(
+        value,
+        (
+            list,
+            tuple,
+        ),
+    ):
+        return [
+            _json_safe(
+                child
+            )
+            for child
+            in value
+        ]
+
+    return value
+
+
 def _read_json_auto(
     path: Path,
 ) -> dict[str, Any]:
     if not path.is_file():
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             f"REQUIRED_JSON_MISSING:{path}"
         )
 
     raw = path.read_bytes()
 
-    last_error: Exception | None = None
+    last_error: (
+        Exception
+        | None
+    ) = None
 
     for encoding in (
         "utf-8",
@@ -198,7 +297,7 @@ def _read_json_auto(
                 value,
                 dict,
             ):
-                raise OneTimeTestRunnerError(
+                raise OneTimeTestRecoveryRunnerError(
                     f"JSON_ROOT_NOT_OBJECT:{path}"
                 )
 
@@ -210,14 +309,19 @@ def _read_json_auto(
         ) as exc:
             last_error = exc
 
-    raise OneTimeTestRunnerError(
-        f"JSON_DECODE_FAILED:{path}:{last_error}"
+    raise OneTimeTestRecoveryRunnerError(
+        "JSON_DECODE_FAILED:"
+        f"{path}:"
+        f"{last_error}"
     )
 
 
 def _write_json_atomic(
     path: Path,
-    document: Mapping[str, Any],
+    document: Mapping[
+        str,
+        Any,
+    ],
 ) -> None:
     path.parent.mkdir(
         parents=True,
@@ -226,7 +330,9 @@ def _write_json_atomic(
 
     payload = (
         json.dumps(
-            document,
+            _json_safe(
+                document
+            ),
             indent=2,
             sort_keys=True,
             ensure_ascii=False,
@@ -255,7 +361,7 @@ def _load_module(
     module_name: str,
 ) -> ModuleType:
     if not path.is_file():
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             f"MODULE_SOURCE_MISSING:{path}"
         )
 
@@ -271,7 +377,7 @@ def _load_module(
         spec is None
         or spec.loader is None
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             f"MODULE_IMPORT_SPEC_FAILED:{path}"
         )
 
@@ -283,20 +389,35 @@ def _load_module(
     )
 
     sys.modules[
-        spec.name
+        module_name
     ] = module
 
-    spec.loader.exec_module(
-        module
-    )
+    try:
+        spec.loader.exec_module(
+            module
+        )
+
+    except Exception:
+        sys.modules.pop(
+            module_name,
+            None,
+        )
+
+        raise
 
     return module
 
 
 def _required_mapping(
-    document: Mapping[str, Any],
+    document: Mapping[
+        str,
+        Any,
+    ],
     key: str,
-) -> Mapping[str, Any]:
+) -> Mapping[
+    str,
+    Any,
+]:
     value = document.get(
         key
     )
@@ -305,7 +426,7 @@ def _required_mapping(
         value,
         Mapping,
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             f"REQUIRED_MAPPING_MISSING:{key}"
         )
 
@@ -355,14 +476,19 @@ def _contains_scalar(
             is expected
         )
 
-    return node == expected
+    return (
+        node
+        == expected
+    )
 
 
 def _values_for_key(
     node: Any,
     key: str,
 ) -> list[Any]:
-    values: list[Any] = []
+    values: list[
+        Any
+    ] = []
 
     if isinstance(
         node,
@@ -372,7 +498,10 @@ def _values_for_key(
             child_key,
             child,
         ) in node.items():
-            if child_key == key:
+            if (
+                child_key
+                == key
+            ):
                 values.append(
                     child
                 )
@@ -400,13 +529,18 @@ def _values_for_key(
 
 
 def _require_key_value(
-    document: Mapping[str, Any],
+    document: Mapping[
+        str,
+        Any,
+    ],
     key: str,
     expected: Any,
 ) -> None:
-    values = _values_for_key(
-        document,
-        key,
+    values = (
+        _values_for_key(
+            document,
+            key,
+        )
     )
 
     if isinstance(
@@ -433,7 +567,7 @@ def _require_key_value(
         )
 
     if not matched:
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "REQUIRED_STATE_MISSING:"
             f"{key}="
             f"{expected!r};"
@@ -443,7 +577,10 @@ def _require_key_value(
 
 
 def _require_scalar(
-    document: Mapping[str, Any],
+    document: Mapping[
+        str,
+        Any,
+    ],
     expected: Any,
     label: str,
 ) -> None:
@@ -451,30 +588,278 @@ def _require_scalar(
         document,
         expected,
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "REQUIRED_IDENTITY_MISSING:"
             f"{label}:"
             f"{expected}"
         )
 
 
-def _validate_ledger_state_before_execution(
-    ledger_path: Path,
-    result_path: Path,
+def _validate_model_contract(
+    model: Any,
+) -> None:
+    classes = getattr(
+        model,
+        "classes_",
+        None,
+    )
+
+    if classes is None:
+        raise OneTimeTestRecoveryRunnerError(
+            "Frozen model classes_ missing."
+        )
+
+    class_order = [
+        int(
+            value
+        )
+        for value
+        in np.asarray(
+            classes
+        ).tolist()
+    ]
+
+    if (
+        class_order
+        != EXPECTED_CLASS_ORDER
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "Frozen model class "
+            "order mismatch:"
+            f"{class_order}"
+        )
+
+    n_features = getattr(
+        model,
+        "n_features_in_",
+        None,
+    )
+
+    if (
+        n_features is not None
+        and int(
+            n_features
+        )
+        != EXPECTED_FEATURE_COUNT
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "Frozen model feature-count "
+            "mismatch:"
+            f"{n_features}"
+        )
+
+
+def _validate_original_pre_read_failure(
+    *,
+    original_preflight_path: Path = (
+        ORIGINAL_PREFLIGHT_PATH
+    ),
+    original_failure_path: Path = (
+        ORIGINAL_FAILED_RESULT_PATH
+    ),
+    ledger_path: Path = (
+        DEFAULT_LEDGER_PATH
+    ),
 ) -> dict[str, Any]:
-    if result_path.exists():
+    if ledger_path.exists():
+        raise OneTimeTestRecoveryRunnerError(
+            "RECOVERY_FORBIDDEN_TEST_"
+            "LEDGER_ALREADY_EXISTS"
+        )
+
+    original_preflight = (
+        _read_json_auto(
+            original_preflight_path
+        )
+    )
+
+    if (
+        original_preflight.get(
+            "valid"
+        )
+        is not True
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_PREFLIGHT_NOT_VALID"
+        )
+
+    fingerprint = (
+        _required_mapping(
+            original_preflight,
+            "preflight_fingerprint",
+        )
+    )
+
+    if (
+        fingerprint.get(
+            "sha256"
+        )
+        != (
+            EXPECTED_ORIGINAL_PREFLIGHT_FINGERPRINT
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_PREFLIGHT_"
+            "FINGERPRINT_MISMATCH"
+        )
+
+    if (
+        _canonical_sha256(
+            _required_mapping(
+                original_preflight,
+                "preflight_record",
+            )
+        )
+        != (
+            EXPECTED_ORIGINAL_PREFLIGHT_FINGERPRINT
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_PREFLIGHT_CONTENT_"
+            "FINGERPRINT_MISMATCH"
+        )
+
+    failure = (
+        _read_json_auto(
+            original_failure_path
+        )
+    )
+
+    if (
+        failure.get(
+            "valid"
+        )
+        is not False
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_FAILURE_MUST_BE_"
+            "VALID_FALSE"
+        )
+
+    if (
+        failure.get(
+            "reason"
+        )
+        != (
+            "ONE_TIME_REAL_TEST_EXECUTION_FAILED"
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_FAILURE_REASON_MISMATCH"
+        )
+
+    if (
+        failure.get(
+            "error_type"
+        )
+        != EXPECTED_PRE_READ_ERROR_TYPE
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_FAILURE_ERROR_"
+            "TYPE_MISMATCH"
+        )
+
+    if (
+        EXPECTED_PRE_READ_ERROR_TEXT
+        not in str(
+            failure.get(
+                "error",
+                "",
+            )
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_FAILURE_ERROR_"
+            "TEXT_MISMATCH"
+        )
+
+    if (
+        failure.get(
+            "ledger_state"
+        )
+        is not None
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "ORIGINAL_FAILURE_LEDGER_"
+            "STATE_NOT_NULL"
+        )
+
+    _require_key_value(
+        failure,
+        "validation_reread_authorized",
+        False,
+    )
+
+    _require_key_value(
+        failure,
+        "test_rerun_authorized",
+        False,
+    )
+
+    _require_key_value(
+        failure,
+        "shadow_authorized",
+        False,
+    )
+
+    _require_key_value(
+        failure,
+        "live_authorized",
+        False,
+    )
+
+    return {
+        "original_preflight_sha256": (
+            _sha256_file(
+                original_preflight_path
+            )
+        ),
+        "original_failure_sha256": (
+            _sha256_file(
+                original_failure_path
+            )
+        ),
+        (
+            "original_failure_"
+            "canonical_sha256"
+        ): (
+            _canonical_sha256(
+                failure
+            )
+        ),
+        "original_failure_error_type": (
+            failure.get(
+                "error_type"
+            )
+        ),
+        "original_failure_error": (
+            failure.get(
+                "error"
+            )
+        ),
+        (
+            "ledger_absent_after_"
+            "original_failure"
+        ): True,
+    }
+
+
+def _validate_ledger_state_for_recovery(
+    ledger_path: Path,
+    recovery_result_path: Path,
+) -> dict[str, Any]:
+    if recovery_result_path.exists():
         return {
             "state": (
-                "RESULT_ALREADY_EXISTS"
+                "RECOVERY_RESULT_ALREADY_EXISTS"
             ),
             (
-                "execution_recovery_allowed"
+                "recovery_execution_allowed"
             ): False,
+            "test_read_attempt_count": None,
             (
-                "test_read_attempt_count"
-            ): None,
-            (
-                "holdout_consumed_for_rerun_policy"
+                "holdout_consumed_for_"
+                "rerun_policy"
             ): None,
         }
 
@@ -484,63 +869,56 @@ def _validate_ledger_state_before_execution(
                 "ABSENT"
             ),
             (
-                "execution_recovery_allowed"
+                "recovery_execution_allowed"
             ): True,
+            "test_read_attempt_count": 0,
             (
-                "test_read_attempt_count"
-            ): 0,
-            (
-                "holdout_consumed_for_rerun_policy"
+                "holdout_consumed_for_"
+                "rerun_policy"
             ): False,
         }
 
-    ledger = _read_json_auto(
-        ledger_path
-    )
-
-    attempts = ledger.get(
-        "test_read_attempt_count"
-    )
-
-    consumed = ledger.get(
-        "holdout_consumed_for_rerun_policy"
-    )
-
-    status = ledger.get(
-        "status"
-    )
-
-    recoverable = (
-        status
-        == "PRE_READ_TECHNICAL_FAILURE"
-        and attempts == 0
-        and consumed is False
+    ledger = (
+        _read_json_auto(
+            ledger_path
+        )
     )
 
     return {
         "state": str(
-            status
+            ledger.get(
+                "status"
+            )
         ),
         (
-            "execution_recovery_allowed"
-        ): recoverable,
+            "recovery_execution_allowed"
+        ): False,
+        "test_read_attempt_count": (
+            ledger.get(
+                "test_read_attempt_count"
+            )
+        ),
         (
-            "test_read_attempt_count"
-        ): attempts,
-        (
-            "holdout_consumed_for_rerun_policy"
-        ): consumed,
+            "holdout_consumed_for_"
+            "rerun_policy"
+        ): (
+            ledger.get(
+                "holdout_consumed_for_rerun_policy"
+            )
+        ),
     }
 
 
 def _validate_attestation_chain(
     *,
     ledger_path: Path,
-    result_path: Path,
+    recovery_result_path: Path,
 ) -> dict[str, Any]:
     required_files = [
         CORE_PATH,
         SOURCE_PATH,
+        VALIDATION_SOURCE_PATH,
+        INTEGRATION_RUNNER_PATH,
         LOADER_PATH,
         PROTOCOL_PATH,
         CORE_ATTESTATION_PATH,
@@ -548,6 +926,8 @@ def _validate_attestation_chain(
         VALIDATION_RESULT_PATH,
         VALIDATION_FREEZE_PATH,
         MODEL_PATH,
+        ORIGINAL_PREFLIGHT_PATH,
+        ORIGINAL_FAILED_RESULT_PATH,
     ]
 
     missing = [
@@ -560,8 +940,8 @@ def _validate_attestation_chain(
     ]
 
     if missing:
-        raise OneTimeTestRunnerError(
-            "REQUIRED_PREFLIGHT_FILE_MISSING:"
+        raise OneTimeTestRecoveryRunnerError(
+            "REQUIRED_RECOVERY_FILE_MISSING:"
             f"{missing}"
         )
 
@@ -575,7 +955,7 @@ def _validate_attestation_chain(
         actual_model_sha256
         != EXPECTED_MODEL_ARTIFACT_SHA256
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "MODEL_ARTIFACT_SHA256_MISMATCH:"
             f"expected="
             f"{EXPECTED_MODEL_ARTIFACT_SHA256};"
@@ -593,7 +973,7 @@ def _validate_attestation_chain(
         actual_loader_sha256
         != EXPECTED_LOADER_SOURCE_SHA256
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "LOADER_SOURCE_SHA256_MISMATCH:"
             f"expected="
             f"{EXPECTED_LOADER_SOURCE_SHA256};"
@@ -613,8 +993,22 @@ def _validate_attestation_chain(
         )
     )
 
-    protocol = _read_json_auto(
-        PROTOCOL_PATH
+    validation_source_sha256 = (
+        _sha256_file(
+            VALIDATION_SOURCE_PATH
+        )
+    )
+
+    integration_runner_sha256 = (
+        _sha256_file(
+            INTEGRATION_RUNNER_PATH
+        )
+    )
+
+    protocol = (
+        _read_json_auto(
+            PROTOCOL_PATH
+        )
     )
 
     core_attestation = (
@@ -649,13 +1043,17 @@ def _validate_attestation_chain(
         or protocol.get(
             "status"
         )
-        != "ONE_TIME_TEST_PROTOCOL_FROZEN"
+        != (
+            "ONE_TIME_TEST_PROTOCOL_FROZEN"
+        )
         or protocol.get(
             "protocol_fingerprint"
         )
-        != EXPECTED_TEST_PROTOCOL_FINGERPRINT
+        != (
+            EXPECTED_TEST_PROTOCOL_FINGERPRINT
+        )
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "FROZEN_TEST_PROTOCOL_MISMATCH"
         )
 
@@ -684,7 +1082,7 @@ def _validate_attestation_chain(
             "IMPLEMENTED_NOT_REAL_EXECUTED"
         )
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "TEST_CORE_ATTESTATION_INVALID"
         )
 
@@ -725,7 +1123,7 @@ def _validate_attestation_chain(
             "IMPLEMENTED_NOT_REAL_EXECUTED"
         )
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "TEST_SOURCE_ATTESTATION_INVALID"
         )
 
@@ -769,8 +1167,8 @@ def _validate_attestation_chain(
         validation_result,
         EXPECTED_MODEL_VERIFICATION_RECORD_SHA256,
         (
-            "inherited_model_verification_"
-            "record_fingerprint"
+            "inherited_model_"
+            "verification_record_fingerprint"
         ),
     )
 
@@ -801,7 +1199,10 @@ def _validate_attestation_chain(
     _require_scalar(
         validation_freeze,
         EXPECTED_VALIDATION_RESULT_FINGERPRINT,
-        "bound_validation_result_fingerprint",
+        (
+            "bound_validation_result_"
+            "fingerprint"
+        ),
     )
 
     _require_key_value(
@@ -859,6 +1260,16 @@ def _validate_attestation_chain(
         "source_source_sha256": (
             source_source_sha256
         ),
+        (
+            "validation_source_sha256"
+        ): (
+            validation_source_sha256
+        ),
+        (
+            "integration_runner_sha256"
+        ): (
+            integration_runner_sha256
+        ),
         "loader_source_sha256": (
             actual_loader_sha256
         ),
@@ -866,34 +1277,211 @@ def _validate_attestation_chain(
             actual_model_sha256
         ),
         "ledger_state": (
-            _validate_ledger_state_before_execution(
+            _validate_ledger_state_for_recovery(
                 ledger_path,
-                result_path,
+                recovery_result_path,
             )
         ),
     }
 
 
-def build_preflight(
-    *,
-    ledger_path: Path = DEFAULT_LEDGER_PATH,
-    result_path: Path = DEFAULT_RESULT_PATH,
-) -> dict[str, Any]:
-    chain = (
-        _validate_attestation_chain(
-            ledger_path=ledger_path,
-            result_path=result_path,
+def _load_loader_class_via_proven_path() -> type:
+    validation_source = (
+        _load_module(
+            VALIDATION_SOURCE_PATH,
+            (
+                "xauusd_test_recovery_"
+                "validation_source"
+            ),
         )
     )
 
-    ledger_state = chain[
-        "ledger_state"
-    ]
+    helper = getattr(
+        validation_source,
+        "_load_loader_class",
+        None,
+    )
 
-    execution_recovery_allowed = (
-        ledger_state[
-            "execution_recovery_allowed"
-        ]
+    if not callable(
+        helper
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "VALIDATION_SOURCE_LOADER_"
+            "HELPER_MISSING"
+        )
+
+    loader_class = (
+        helper()
+    )
+
+    if not isinstance(
+        loader_class,
+        type,
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "LOADER_HELPER_DID_NOT_"
+            "RETURN_CLASS"
+        )
+
+    if (
+        loader_class.__name__
+        != (
+            "Portable331TrainingInputLoader"
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "UNEXPECTED_LOADER_CLASS:"
+            f"{loader_class.__name__}"
+        )
+
+    return loader_class
+
+
+def _probe_pre_read_dependencies() -> dict[str, Any]:
+    core = (
+        _load_module(
+            CORE_PATH,
+            (
+                "xauusd_test_recovery_"
+                "probe_core"
+            ),
+        )
+    )
+
+    source_module = (
+        _load_module(
+            SOURCE_PATH,
+            (
+                "xauusd_test_recovery_"
+                "probe_source"
+            ),
+        )
+    )
+
+    if not callable(
+        getattr(
+            core,
+            "execute_one_time_test",
+            None,
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "TEST_CORE_EXECUTION_"
+            "FUNCTION_MISSING"
+        )
+
+    if not isinstance(
+        getattr(
+            core,
+            "TestAccessLedger",
+            None,
+        ),
+        type,
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "TEST_CORE_LEDGER_CLASS_MISSING"
+        )
+
+    if not isinstance(
+        getattr(
+            source_module,
+            "AuthorizedBoundedTestSource",
+            None,
+        ),
+        type,
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "AUTHORIZED_BOUNDED_TEST_"
+            "SOURCE_CLASS_MISSING"
+        )
+
+    loader_class = (
+        _load_loader_class_via_proven_path()
+    )
+
+    model = (
+        joblib.load(
+            MODEL_PATH
+        )
+    )
+
+    _validate_model_contract(
+        model
+    )
+
+    return {
+        "core_import_probe": True,
+        "test_source_import_probe": True,
+        "proven_loader_import_probe": True,
+        "loader_class_name": (
+            loader_class.__name__
+        ),
+        "model_deserialization_probe": True,
+        "model_class_name": (
+            type(
+                model
+            ).__name__
+        ),
+        "model_class_order": (
+            EXPECTED_CLASS_ORDER
+        ),
+        "model_feature_count": (
+            EXPECTED_FEATURE_COUNT
+        ),
+        (
+            "dataset_structural_read_"
+            "performed"
+        ): False,
+        "test_values_loaded": False,
+    }
+
+
+def build_recovery_preflight(
+    *,
+    ledger_path: Path = (
+        DEFAULT_LEDGER_PATH
+    ),
+    recovery_result_path: Path = (
+        DEFAULT_RECOVERY_RESULT_PATH
+    ),
+) -> dict[str, Any]:
+    chain = (
+        _validate_attestation_chain(
+            ledger_path=(
+                ledger_path
+            ),
+            recovery_result_path=(
+                recovery_result_path
+            ),
+        )
+    )
+
+    failure_evidence = (
+        _validate_original_pre_read_failure(
+            ledger_path=(
+                ledger_path
+            )
+        )
+    )
+
+    probe = (
+        _probe_pre_read_dependencies()
+    )
+
+    ledger_state = cast(
+        Mapping[
+            str,
+            Any,
+        ],
+        chain[
+            "ledger_state"
+        ],
+    )
+
+    recovery_allowed = (
+        ledger_state.get(
+            "recovery_execution_allowed"
+        )
         is True
     )
 
@@ -902,17 +1490,26 @@ def build_preflight(
             EXPECTED_WINNER_ID
         ),
         (
-            "test_protocol_fingerprint_sha256"
+            "original_preflight_"
+            "fingerprint_sha256"
+        ): (
+            EXPECTED_ORIGINAL_PREFLIGHT_FINGERPRINT
+        ),
+        (
+            "test_protocol_"
+            "fingerprint_sha256"
         ): (
             EXPECTED_TEST_PROTOCOL_FINGERPRINT
         ),
         (
-            "validation_result_fingerprint_sha256"
+            "validation_result_"
+            "fingerprint_sha256"
         ): (
             EXPECTED_VALIDATION_RESULT_FINGERPRINT
         ),
         (
-            "validation_freeze_fingerprint_sha256"
+            "validation_freeze_"
+            "fingerprint_sha256"
         ): (
             EXPECTED_VALIDATION_FREEZE_FINGERPRINT
         ),
@@ -925,7 +1522,9 @@ def build_preflight(
         ): (
             EXPECTED_MODEL_VERIFICATION_RECORD_SHA256
         ),
-        "portable_loader_source_sha256": (
+        (
+            "portable_loader_source_sha256"
+        ): (
             EXPECTED_LOADER_SOURCE_SHA256
         ),
         "feature_columns_sha256": (
@@ -950,7 +1549,31 @@ def build_preflight(
             ]
         ),
         (
-            "core_attestation_canonical_sha256"
+            "proven_validation_source_sha256"
+        ): (
+            chain[
+                "validation_source_sha256"
+            ]
+        ),
+        (
+            "proven_integration_runner_sha256"
+        ): (
+            chain[
+                "integration_runner_sha256"
+            ]
+        ),
+        (
+            "recovery_runner_source_sha256"
+        ): (
+            _sha256_file(
+                Path(
+                    __file__
+                ).resolve()
+            )
+        ),
+        (
+            "core_attestation_"
+            "canonical_sha256"
         ): (
             _canonical_sha256(
                 chain[
@@ -959,7 +1582,8 @@ def build_preflight(
             )
         ),
         (
-            "source_attestation_canonical_sha256"
+            "source_attestation_"
+            "canonical_sha256"
         ): (
             _canonical_sha256(
                 chain[
@@ -968,7 +1592,8 @@ def build_preflight(
             )
         ),
         (
-            "validation_result_canonical_sha256"
+            "validation_result_"
+            "canonical_sha256"
         ): (
             _canonical_sha256(
                 chain[
@@ -977,7 +1602,8 @@ def build_preflight(
             )
         ),
         (
-            "validation_freeze_canonical_sha256"
+            "validation_freeze_"
+            "canonical_sha256"
         ): (
             _canonical_sha256(
                 chain[
@@ -985,35 +1611,42 @@ def build_preflight(
                 ]
             )
         ),
+        **failure_evidence,
         "ledger_filename": (
             ledger_path.name
         ),
-        "result_filename": (
-            result_path.name
+        "recovery_result_filename": (
+            recovery_result_path.name
         ),
         "ledger_state": (
-            ledger_state[
+            ledger_state.get(
                 "state"
-            ]
+            )
         ),
         (
-            "ledger_execution_recovery_allowed"
+            "recovery_execution_allowed"
         ): (
-            execution_recovery_allowed
+            recovery_allowed
         ),
         (
-            "test_read_attempt_count_before_execution"
+            "test_read_attempt_count_"
+            "before_recovery"
         ): (
-            ledger_state[
+            ledger_state.get(
                 "test_read_attempt_count"
-            ]
+            )
         ),
         (
-            "holdout_consumed_before_execution"
+            "holdout_consumed_"
+            "before_recovery"
         ): (
-            ledger_state[
+            ledger_state.get(
                 "holdout_consumed_for_rerun_policy"
-            ]
+            )
+        ),
+        "loader_resolution_policy": (
+            "PROVEN_VALIDATION_SOURCE_"
+            "LOAD_LOADER_CLASS_HELPER"
         ),
         "prediction_rule": (
             "ARGMAX_FROZEN_MODEL_PROBABILITIES"
@@ -1034,6 +1667,9 @@ def build_preflight(
         "candidate_change_allowed": False,
         "feature_change_allowed": False,
         "target_change_allowed": False,
+        "pre_read_dependency_probe": (
+            probe
+        ),
     }
 
     preflight_fingerprint = (
@@ -1048,9 +1684,8 @@ def build_preflight(
         ),
         "valid": True,
         "research_scope": (
-            "FINAL_DRY_PREFLIGHT_BEFORE_"
-            "FIRST_AND_ONLY_REAL_PORTABLE_"
-            "TEST_READ"
+            "PRE_READ_TECHNICAL_RECOVERY_"
+            "WITHOUT_TEST_VALUE_ACCESS"
         ),
         "preflight_record": (
             preflight_record
@@ -1065,42 +1700,67 @@ def build_preflight(
         },
         "decision": {
             "status": (
-                "ONE_TIME_TEST_DRY_PREFLIGHT_READY"
-                if execution_recovery_allowed
+                "ONE_TIME_TEST_PRE_READ_"
+                "RECOVERY_PREFLIGHT_READY"
+                if recovery_allowed
                 else (
-                    "ONE_TIME_TEST_EXECUTION_BLOCKED"
+                    "ONE_TIME_TEST_PRE_READ_"
+                    "RECOVERY_BLOCKED"
                 )
             ),
-            "dry_preflight_completed": True,
-            "real_test_executed": False,
-            "real_test_values_loaded": False,
-            "real_test_metrics_computed": False,
             (
-                "real_test_execution_authorized_next"
+                "original_test_attempt_"
+                "failed_pre_read"
+            ): True,
+            (
+                "original_failure_preserved"
+            ): True,
+            (
+                "test_consumption_boundary_"
+                "crossed"
+            ): False,
+            (
+                "dry_recovery_preflight_"
+                "completed"
+            ): True,
+            (
+                "real_test_executed_in_"
+                "recovery"
+            ): False,
+            (
+                "real_test_values_loaded_in_"
+                "recovery"
+            ): False,
+            (
+                "real_test_metrics_computed_in_"
+                "recovery"
+            ): False,
+            (
+                "recovery_execution_"
+                "authorized_next"
             ): (
-                execution_recovery_allowed
+                recovery_allowed
             ),
+            "test_rerun_authorized": False,
             (
                 "validation_reread_authorized"
             ): False,
-            "test_consumed": False,
-            "test_rerun_authorized": False,
             "shadow_authorized": False,
             "live_authorized": False,
             "next_action": (
-                "FREEZE_THIS_PREFLIGHT_FINGERPRINT_"
-                "THEN_EXECUTE_EXACTLY_ONE_REAL_TEST_RUN"
-                if execution_recovery_allowed
+                "FREEZE_RECOVERY_PREFLIGHT_"
+                "THEN_CONSIDER_SINGLE_RECOVERED_"
+                "TEST_EXECUTION"
+                if recovery_allowed
                 else (
-                    "STOP_TEST_EXECUTION_BECAUSE_"
-                    "LEDGER_OR_RESULT_STATE_IS_"
-                    "NOT_PRISTINE"
+                    "STOP_RECOVERY_EXECUTION"
                 )
             ),
         },
         "scientific_policy": {
             (
-                "dataset_structural_read_performed"
+                "dataset_structural_read_"
+                "performed"
             ): False,
             "train_feature_values_loaded": False,
             "train_target_values_loaded": False,
@@ -1117,25 +1777,30 @@ def build_preflight(
                 "computed"
             ): False,
             (
-                "portable_test_feature_values_loaded"
+                "portable_test_feature_"
+                "values_loaded"
             ): False,
             (
-                "portable_test_target_values_loaded"
+                "portable_test_target_"
+                "values_loaded"
             ): False,
             (
-                "portable_test_metrics_computed"
+                "portable_test_metrics_"
+                "computed"
             ): False,
             "model_fit_performed": False,
             "model_refit_performed": False,
             "threshold_search_performed": False,
             (
-                "probability_calibration_performed"
+                "probability_calibration_"
+                "performed"
             ): False,
             "feature_selection_performed": False,
             "candidate_registry_changed": False,
             "model_artifact_modified": False,
             (
-                "execution_integration_modified"
+                "execution_integration_"
+                "modified"
             ): False,
             "risk_engine_modified": False,
             "orders_sent": False,
@@ -1145,15 +1810,17 @@ def build_preflight(
     }
 
 
-def validate_stored_preflight(
+def validate_stored_recovery_preflight(
     *,
     preflight_path: Path,
     expected_fingerprint: str,
     ledger_path: Path,
-    result_path: Path,
+    recovery_result_path: Path,
 ) -> dict[str, Any]:
-    stored = _read_json_auto(
-        preflight_path
+    stored = (
+        _read_json_auto(
+            preflight_path
+        )
     )
 
     if (
@@ -1162,9 +1829,9 @@ def validate_stored_preflight(
         )
         != ANALYSIS_VERSION
     ):
-        raise OneTimeTestRunnerError(
-            "Stored preflight analysis "
-            "version mismatch."
+        raise OneTimeTestRecoveryRunnerError(
+            "Stored recovery preflight "
+            "analysis version mismatch."
         )
 
     if (
@@ -1173,13 +1840,16 @@ def validate_stored_preflight(
         )
         is not True
     ):
-        raise OneTimeTestRunnerError(
-            "Stored preflight must be valid=true."
+        raise OneTimeTestRecoveryRunnerError(
+            "Stored recovery preflight "
+            "must be valid=true."
         )
 
-    fingerprint = _required_mapping(
-        stored,
-        "preflight_fingerprint",
+    fingerprint = (
+        _required_mapping(
+            stored,
+            "preflight_fingerprint",
+        )
     )
 
     if (
@@ -1188,9 +1858,10 @@ def validate_stored_preflight(
         )
         != expected_fingerprint
     ):
-        raise OneTimeTestRunnerError(
-            "Expected preflight fingerprint "
-            "does not match stored preflight."
+        raise OneTimeTestRecoveryRunnerError(
+            "Expected recovery preflight "
+            "fingerprint does not match "
+            "stored preflight."
         )
 
     preflight_record = (
@@ -1206,47 +1877,53 @@ def validate_stored_preflight(
         )
         != expected_fingerprint
     ):
-        raise OneTimeTestRunnerError(
-            "Stored preflight content "
-            "fingerprint mismatch."
+        raise OneTimeTestRecoveryRunnerError(
+            "Stored recovery preflight "
+            "content fingerprint mismatch."
         )
 
-    decision = _required_mapping(
-        stored,
-        "decision",
+    decision = (
+        _required_mapping(
+            stored,
+            "decision",
+        )
     )
 
     if (
         decision.get(
-            "real_test_execution_authorized_next"
+            "recovery_execution_authorized_next"
         )
         is not True
     ):
-        raise OneTimeTestRunnerError(
-            "Stored preflight does not authorize "
-            "one-time TEST execution."
+        raise OneTimeTestRecoveryRunnerError(
+            "Stored recovery preflight "
+            "does not authorize recovered "
+            "TEST execution."
         )
 
-    current = build_preflight(
-        ledger_path=ledger_path,
-        result_path=result_path,
+    current = (
+        build_recovery_preflight(
+            ledger_path=(
+                ledger_path
+            ),
+            recovery_result_path=(
+                recovery_result_path
+            ),
+        )
     )
 
-    current_fingerprint = (
+    if (
         current[
             "preflight_fingerprint"
         ][
             "sha256"
         ]
-    )
-
-    if (
-        current_fingerprint
         != expected_fingerprint
     ):
-        raise OneTimeTestRunnerError(
-            "Current provenance/ledger state "
-            "differs from frozen dry preflight."
+        raise OneTimeTestRecoveryRunnerError(
+            "Current provenance/ledger "
+            "state differs from frozen "
+            "recovery preflight."
         )
 
     if (
@@ -1255,36 +1932,13 @@ def validate_stored_preflight(
         ]
         != preflight_record
     ):
-        raise OneTimeTestRunnerError(
-            "Current preflight record differs "
-            "from frozen preflight."
+        raise OneTimeTestRecoveryRunnerError(
+            "Current recovery preflight "
+            "record differs from frozen "
+            "preflight."
         )
 
     return stored
-
-
-def _load_loader_class() -> type:
-    module = _load_module(
-        LOADER_PATH,
-        "xauusd_test_runner_loader",
-    )
-
-    loader_class = getattr(
-        module,
-        "Portable331TrainingInputLoader",
-        None,
-    )
-
-    if not isinstance(
-        loader_class,
-        type,
-    ):
-        raise OneTimeTestRunnerError(
-            "Portable331TrainingInputLoader "
-            "class missing."
-        )
-
-    return loader_class
 
 
 class ArtifactBoundedTestSource:
@@ -1294,7 +1948,7 @@ class ArtifactBoundedTestSource:
         *,
         core_module: Any,
         source_module: Any,
-        loader_class: type | None = None,
+        loader_class: type,
         read_csv: Callable[
             ...,
             pd.DataFrame,
@@ -1314,8 +1968,6 @@ class ArtifactBoundedTestSource:
 
         self.loader_class = (
             loader_class
-            if loader_class is not None
-            else _load_loader_class()
         )
 
         self.read_csv = (
@@ -1323,15 +1975,20 @@ class ArtifactBoundedTestSource:
         )
 
         self.last_evidence: (
-            dict[str, Any]
+            dict[
+                str,
+                Any,
+            ]
             | None
         ) = None
 
     def load(
         self,
     ) -> Any:
-        loader = self.loader_class(
-            self.canonical_root
+        loader = (
+            self.loader_class(
+                self.canonical_root
+            )
         )
 
         try:
@@ -1345,7 +2002,7 @@ class ArtifactBoundedTestSource:
             )
 
         except Exception as exc:
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Cannot discover exact frozen "
                 "portable artifact."
             ) from exc
@@ -1362,7 +2019,7 @@ class ArtifactBoundedTestSource:
             )
 
         except Exception as exc:
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Frozen portable manifest "
                 "validation failed."
             ) from exc
@@ -1381,7 +2038,7 @@ class ArtifactBoundedTestSource:
             )
             != EXPECTED_FEATURE_COUNT
         ):
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Manifest feature count "
                 "must equal 331."
             )
@@ -1396,7 +2053,7 @@ class ArtifactBoundedTestSource:
                 feature_columns
             )
         ):
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Manifest feature columns "
                 "contain duplicates."
             )
@@ -1410,7 +2067,7 @@ class ArtifactBoundedTestSource:
             )
 
         except Exception as exc:
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Cannot recompute manifest "
                 "feature-column SHA256."
             ) from exc
@@ -1419,7 +2076,7 @@ class ArtifactBoundedTestSource:
             feature_sha
             != EXPECTED_FEATURE_COLUMNS_SHA256
         ):
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Manifest feature-column "
                 "SHA256 mismatch."
             )
@@ -1436,7 +2093,7 @@ class ArtifactBoundedTestSource:
             EXPECTED_TARGET_COLUMN
             not in normalized_target_columns
         ):
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Frozen manifest target_class "
                 "column missing."
             )
@@ -1451,7 +2108,7 @@ class ArtifactBoundedTestSource:
             )
 
         except Exception as exc:
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Cannot perform structural "
                 "dataset_split read."
             ) from exc
@@ -1464,7 +2121,7 @@ class ArtifactBoundedTestSource:
                 EXPECTED_SPLIT_COLUMN
             ]
         ):
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Structural split read loaded "
                 "unexpected columns."
             )
@@ -1477,7 +2134,7 @@ class ArtifactBoundedTestSource:
             )
 
         except Exception as exc:
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Existing loader split "
                 "validation failed."
             ) from exc
@@ -1504,8 +2161,11 @@ class ArtifactBoundedTestSource:
             stop: int,
             columns: Sequence[str],
         ) -> pd.DataFrame:
-            if stop <= start:
-                raise OneTimeTestRunnerError(
+            if (
+                stop
+                <= start
+            ):
+                raise OneTimeTestRecoveryRunnerError(
                     "Invalid bounded TEST "
                     "row range."
                 )
@@ -1518,7 +2178,8 @@ class ArtifactBoundedTestSource:
                     ),
                     skiprows=range(
                         1,
-                        start + 1,
+                        start
+                        + 1,
                     ),
                     nrows=(
                         stop
@@ -1528,7 +2189,7 @@ class ArtifactBoundedTestSource:
                 )
 
             except Exception as exc:
-                raise OneTimeTestRunnerError(
+                raise OneTimeTestRecoveryRunnerError(
                     "Cannot load bounded "
                     "TEST block."
                 ) from exc
@@ -1544,7 +2205,7 @@ class ArtifactBoundedTestSource:
                 )
 
             except Exception as exc:
-                raise OneTimeTestRunnerError(
+                raise OneTimeTestRecoveryRunnerError(
                     "Cannot normalize bounded "
                     "TEST target_class."
                 ) from exc
@@ -1605,7 +2266,7 @@ class ArtifactBoundedTestSource:
         )
 
         if not read_evidence:
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Bounded TEST reader "
                 "evidence missing."
             )
@@ -1678,8 +2339,8 @@ class ArtifactBoundedTestSource:
                     ]
                 ),
                 (
-                    "parser_reads_final_test_"
-                    "block_only"
+                    "parser_reads_final_"
+                    "test_block_only"
                 ): True,
                 (
                     "validation_feature_"
@@ -1708,53 +2369,9 @@ def _predict_probabilities(
     np.ndarray,
     Sequence[int],
 ]:
-    classes = getattr(
-        model,
-        "classes_",
-        None,
+    _validate_model_contract(
+        model
     )
-
-    if classes is None:
-        raise OneTimeTestRunnerError(
-            "Frozen model classes_ missing."
-        )
-
-    class_order = [
-        int(
-            value
-        )
-        for value
-        in np.asarray(
-            classes
-        ).tolist()
-    ]
-
-    if (
-        class_order
-        != EXPECTED_CLASS_ORDER
-    ):
-        raise OneTimeTestRunnerError(
-            "Frozen model class order mismatch:"
-            f"{class_order}"
-        )
-
-    n_features = getattr(
-        model,
-        "n_features_in_",
-        None,
-    )
-
-    if (
-        n_features is not None
-        and int(
-            n_features
-        )
-        != EXPECTED_FEATURE_COUNT
-    ):
-        raise OneTimeTestRunnerError(
-            "Frozen model feature-count mismatch:"
-            f"{n_features}"
-        )
 
     probabilities = np.asarray(
         model.predict_proba(
@@ -1765,7 +2382,7 @@ def _predict_probabilities(
 
     return (
         probabilities,
-        class_order,
+        EXPECTED_CLASS_ORDER,
     )
 
 
@@ -1799,9 +2416,9 @@ def evaluate_test_metrics(
             EXPECTED_CLASS_ORDER
         )
     ):
-        raise OneTimeTestRunnerError(
-            "Metric evaluator "
-            "probability shape mismatch."
+        raise OneTimeTestRecoveryRunnerError(
+            "Metric evaluator probability "
+            "shape mismatch."
         )
 
     predictions = (
@@ -1877,7 +2494,7 @@ def evaluate_test_metrics(
             3,
         )
     ):
-        raise OneTimeTestRunnerError(
+        raise OneTimeTestRecoveryRunnerError(
             "Per-class metric vector "
             "shape mismatch."
         )
@@ -1912,7 +2529,7 @@ def evaluate_test_metrics(
             target_value
             not in class_to_index
         ):
-            raise OneTimeTestRunnerError(
+            raise OneTimeTestRecoveryRunnerError(
                 "Metric evaluator target class "
                 "outside frozen domain."
             )
@@ -2027,7 +2644,9 @@ def evaluate_test_metrics(
         "multiclass_brier": (
             brier
         ),
-        "predicted_trade_coverage": float(
+        (
+            "predicted_trade_coverage"
+        ): float(
             np.mean(
                 predictions
                 != 0
@@ -2036,51 +2655,168 @@ def evaluate_test_metrics(
     }
 
 
-def execute_one_time_test(
+def _prepare_execution_dependencies() -> dict[str, Any]:
+    core = (
+        _load_module(
+            CORE_PATH,
+            (
+                "xauusd_test_recovery_"
+                "execution_core"
+            ),
+        )
+    )
+
+    source_module = (
+        _load_module(
+            SOURCE_PATH,
+            (
+                "xauusd_test_recovery_"
+                "execution_source"
+            ),
+        )
+    )
+
+    if not callable(
+        getattr(
+            core,
+            "execute_one_time_test",
+            None,
+        )
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "TEST_CORE_EXECUTION_"
+            "FUNCTION_MISSING"
+        )
+
+    if not isinstance(
+        getattr(
+            core,
+            "TestAccessLedger",
+            None,
+        ),
+        type,
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "TEST_CORE_LEDGER_CLASS_MISSING"
+        )
+
+    if not isinstance(
+        getattr(
+            source_module,
+            "AuthorizedBoundedTestSource",
+            None,
+        ),
+        type,
+    ):
+        raise OneTimeTestRecoveryRunnerError(
+            "AUTHORIZED_BOUNDED_TEST_"
+            "SOURCE_CLASS_MISSING"
+        )
+
+    loader_class = (
+        _load_loader_class_via_proven_path()
+    )
+
+    protocol = (
+        _read_json_auto(
+            PROTOCOL_PATH
+        )
+    )
+
+    model = (
+        joblib.load(
+            MODEL_PATH
+        )
+    )
+
+    _validate_model_contract(
+        model
+    )
+
+    return {
+        "core": (
+            core
+        ),
+        "source_module": (
+            source_module
+        ),
+        "loader_class": (
+            loader_class
+        ),
+        "protocol": (
+            protocol
+        ),
+        "model": (
+            model
+        ),
+    }
+
+
+def execute_recovered_one_time_test(
     *,
-    expected_preflight_fingerprint: str,
-    canonical_root: Path = REPO_ROOT,
+    expected_recovery_preflight_fingerprint: str,
+    canonical_root: Path = (
+        REPO_ROOT
+    ),
     preflight_path: Path = (
-        DEFAULT_PREFLIGHT_PATH
+        DEFAULT_RECOVERY_PREFLIGHT_PATH
     ),
     ledger_path: Path = (
         DEFAULT_LEDGER_PATH
     ),
-    result_path: Path = (
-        DEFAULT_RESULT_PATH
+    recovery_result_path: Path = (
+        DEFAULT_RECOVERY_RESULT_PATH
     ),
 ) -> dict[str, Any]:
-    validate_stored_preflight(
+    validate_stored_recovery_preflight(
         preflight_path=(
             preflight_path
         ),
         expected_fingerprint=(
-            expected_preflight_fingerprint
+            expected_recovery_preflight_fingerprint
         ),
         ledger_path=(
             ledger_path
         ),
-        result_path=(
-            result_path
+        recovery_result_path=(
+            recovery_result_path
         ),
     )
 
-    core = _load_module(
-        CORE_PATH,
-        "xauusd_test_execution_core",
+    # All dependency import/deserialization
+    # checks happen before ledger creation.
+    dependencies = (
+        _prepare_execution_dependencies()
     )
 
-    source_module = _load_module(
-        SOURCE_PATH,
-        "xauusd_test_execution_source",
+    core = (
+        dependencies[
+            "core"
+        ]
     )
 
-    protocol = _read_json_auto(
-        PROTOCOL_PATH
+    source_module = (
+        dependencies[
+            "source_module"
+        ]
     )
 
-    model = joblib.load(
-        MODEL_PATH
+    loader_class = (
+        dependencies[
+            "loader_class"
+        ]
+    )
+
+    protocol = (
+        dependencies[
+            "protocol"
+        ]
+    )
+
+    model = (
+        dependencies[
+            "model"
+        ]
     )
 
     adapter = (
@@ -2091,6 +2827,9 @@ def execute_one_time_test(
             ),
             source_module=(
                 source_module
+            ),
+            loader_class=(
+                loader_class
             ),
         )
     )
@@ -2130,6 +2869,10 @@ def execute_one_time_test(
         )
     )
 
+    ledger_final = (
+        ledger.read()
+    )
+
     source_evidence = (
         adapter.last_evidence
     )
@@ -2138,48 +2881,94 @@ def execute_one_time_test(
         source_evidence,
         Mapping,
     ):
-        raise OneTimeTestRunnerError(
-            "TEST source evidence missing "
-            "after one-time execution."
-        )
+        source_evidence = {
+            "available": False,
+        }
 
-    decision = _required_mapping(
-        core_result,
-        "decision",
+    ledger_status = str(
+        ledger_final.get(
+            "status"
+        )
     )
 
-    accepted = (
-        decision.get(
-            "test_accepted"
-        )
-        is True
+    accepted: (
+        bool
+        | None
     )
 
-    ledger_final = (
-        ledger.read()
+    if (
+        ledger_status
+        == "TEST_COMPLETE_ACCEPTED"
+    ):
+        accepted = True
+
+    elif (
+        ledger_status
+        == "TEST_COMPLETE_REJECTED"
+    ):
+        accepted = False
+
+    else:
+        accepted = None
+
+    safe_core_result = (
+        _json_safe(
+            core_result
+        )
+    )
+
+    safe_ledger = (
+        _json_safe(
+            ledger_final
+        )
+    )
+
+    safe_source_evidence = (
+        _json_safe(
+            dict(
+                source_evidence
+            )
+        )
     )
 
     result_record = {
         (
-            "preflight_fingerprint_sha256"
+            "recovery_preflight_"
+            "fingerprint_sha256"
         ): (
-            expected_preflight_fingerprint
+            expected_recovery_preflight_fingerprint
+        ),
+        (
+            "original_preflight_"
+            "fingerprint_sha256"
+        ): (
+            EXPECTED_ORIGINAL_PREFLIGHT_FINGERPRINT
+        ),
+        (
+            "original_failed_result_sha256"
+        ): (
+            _sha256_file(
+                ORIGINAL_FAILED_RESULT_PATH
+            )
         ),
         "winner_candidate_id": (
             EXPECTED_WINNER_ID
         ),
         (
-            "test_protocol_fingerprint_sha256"
+            "test_protocol_"
+            "fingerprint_sha256"
         ): (
             EXPECTED_TEST_PROTOCOL_FINGERPRINT
         ),
         (
-            "validation_result_fingerprint_sha256"
+            "validation_result_"
+            "fingerprint_sha256"
         ): (
             EXPECTED_VALIDATION_RESULT_FINGERPRINT
         ),
         (
-            "validation_freeze_fingerprint_sha256"
+            "validation_freeze_"
+            "fingerprint_sha256"
         ): (
             EXPECTED_VALIDATION_FREEZE_FINGERPRINT
         ),
@@ -2187,51 +2976,36 @@ def execute_one_time_test(
             EXPECTED_MODEL_ARTIFACT_SHA256
         ),
         (
-            "model_verification_record_"
-            "fingerprint_sha256"
+            "portable_loader_source_sha256"
         ): (
-            EXPECTED_MODEL_VERIFICATION_RECORD_SHA256
-        ),
-        "portable_loader_source_sha256": (
             EXPECTED_LOADER_SOURCE_SHA256
         ),
         "feature_columns_sha256": (
             EXPECTED_FEATURE_COLUMNS_SHA256
         ),
-        "test_row_count": (
-            core_result.get(
-                "test_row_count"
-            )
+        "ledger_final": (
+            safe_ledger
         ),
-        "test_feature_count": (
-            EXPECTED_FEATURE_COUNT
+        "ledger_final_status": (
+            ledger_status
         ),
-        "test_metrics": (
-            core_result.get(
-                "metrics"
-            )
+        "source_evidence": (
+            safe_source_evidence
         ),
-        "test_hard_checks": (
-            core_result.get(
-                "hard_checks"
+        "core_result": (
+            safe_core_result
+        ),
+        (
+            "core_result_canonical_sha256"
+        ): (
+            _canonical_sha256(
+                safe_core_result
             )
         ),
         (
-            "core_test_result_fingerprint"
+            "test_accepted_from_"
+            "ledger_status"
         ): (
-            core_result.get(
-                "result_fingerprint"
-            )
-        ),
-        "source_evidence": dict(
-            source_evidence
-        ),
-        "ledger_final_status": (
-            ledger_final.get(
-                "status"
-            )
-        ),
-        "test_accepted": (
             accepted
         ),
     }
@@ -2248,9 +3022,9 @@ def execute_one_time_test(
         ),
         "valid": True,
         "research_scope": (
-            "FIRST_AND_ONLY_REAL_UNTOUCHED_"
-            "PORTABLE_TEST_EVALUATION_OF_"
-            "VERIFIED_FROZEN_C04"
+            "RECOVERED_FIRST_AND_ONLY_REAL_"
+            "PORTABLE_TEST_EVALUATION_AFTER_"
+            "PRE_READ_TECHNICAL_FAILURE"
         ),
         "result_record": (
             result_record
@@ -2263,15 +3037,17 @@ def execute_one_time_test(
                 result_fingerprint
             ),
         },
-        "core_result": (
-            core_result
-        ),
         "decision": {
             "status": (
                 "ONE_TIME_TEST_ACCEPTED"
-                if accepted
+                if accepted is True
                 else (
                     "ONE_TIME_TEST_REJECTED"
+                    if accepted is False
+                    else (
+                        "ONE_TIME_TEST_CONSUMED_"
+                        "WITH_NONFINAL_LEDGER_STATUS"
+                    )
                 )
             ),
             "test_consumed": True,
@@ -2289,43 +3065,43 @@ def execute_one_time_test(
             "model_refit_authorized": False,
             "threshold_change_authorized": False,
             (
-                "probability_calibration_authorized"
+                "probability_calibration_"
+                "authorized"
             ): False,
             "candidate_change_authorized": False,
             "shadow_authorized": False,
             "live_authorized": False,
             "next_action": (
-                "FREEZE_TEST_RESULT_AND_BUILD_"
-                "FINAL_HISTORICAL_RESEARCH_VERDICT"
-                if accepted
-                else (
-                    "FREEZE_TEST_REJECTION_AND_CLOSE_"
-                    "CURRENT_RESEARCH_LINEAGE_"
-                    "NO_SHADOW_NO_LIVE"
-                )
+                "FREEZE_RECOVERED_TEST_RESULT_"
+                "AND_BUILD_FINAL_HISTORICAL_"
+                "RESEARCH_VERDICT"
             ),
         },
         "scientific_policy": {
             (
+                "original_pre_read_failure_"
+                "preserved"
+            ): True,
+            (
                 "portable_validation_"
                 "reread_performed"
             ): False,
-            (
-                "portable_test_consumed"
-            ): True,
+            "portable_test_consumed": True,
             (
                 "portable_test_rerun_allowed"
             ): False,
             "model_refit_performed": False,
             "threshold_search_performed": False,
             (
-                "probability_calibration_performed"
+                "probability_calibration_"
+                "performed"
             ): False,
             "feature_selection_performed": False,
             "candidate_changed": False,
             "model_artifact_modified": False,
             (
-                "execution_integration_modified"
+                "execution_integration_"
+                "modified"
             ): False,
             "risk_engine_modified": False,
             "orders_sent": False,
@@ -2335,7 +3111,7 @@ def execute_one_time_test(
     }
 
     _write_json_atomic(
-        result_path,
+        recovery_result_path,
         report,
     )
 
@@ -2345,19 +3121,22 @@ def execute_one_time_test(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Dry-preflight or explicitly execute "
-            "the first and only real portable "
-            "TEST evaluation."
+            "Freeze a pre-read TEST recovery "
+            "preflight, or explicitly perform "
+            "the single recovered TEST execution."
         )
     )
 
     parser.add_argument(
-        "--execute-one-time-test",
+        "--execute-one-time-test-recovery",
         action="store_true",
     )
 
     parser.add_argument(
-        "--expected-preflight-fingerprint",
+        (
+            "--expected-recovery-"
+            "preflight-fingerprint"
+        ),
         type=str,
         default=None,
     )
@@ -2365,14 +3144,16 @@ def main() -> int:
     parser.add_argument(
         "--canonical-root",
         type=Path,
-        default=REPO_ROOT,
+        default=(
+            REPO_ROOT
+        ),
     )
 
     parser.add_argument(
-        "--preflight-output",
+        "--recovery-preflight-output",
         type=Path,
         default=(
-            DEFAULT_PREFLIGHT_PATH
+            DEFAULT_RECOVERY_PREFLIGHT_PATH
         ),
     )
 
@@ -2385,30 +3166,34 @@ def main() -> int:
     )
 
     parser.add_argument(
-        "--result-output",
+        "--recovery-result-output",
         type=Path,
         default=(
-            DEFAULT_RESULT_PATH
+            DEFAULT_RECOVERY_RESULT_PATH
         ),
     )
 
-    args = parser.parse_args()
+    args = (
+        parser.parse_args()
+    )
 
     if not (
-        args.execute_one_time_test
+        args.execute_one_time_test_recovery
     ):
         try:
-            report = build_preflight(
-                ledger_path=(
-                    args.ledger
-                ),
-                result_path=(
-                    args.result_output
-                ),
+            report = (
+                build_recovery_preflight(
+                    ledger_path=(
+                        args.ledger
+                    ),
+                    recovery_result_path=(
+                        args.recovery_result_output
+                    ),
+                )
             )
 
             _write_json_atomic(
-                args.preflight_output,
+                args.recovery_preflight_output,
                 report,
             )
 
@@ -2419,8 +3204,8 @@ def main() -> int:
                 ),
                 "valid": False,
                 "reason": (
-                    "ONE_TIME_TEST_DRY_"
-                    "PREFLIGHT_FAILED"
+                    "ONE_TIME_TEST_PRE_READ_"
+                    "RECOVERY_PREFLIGHT_FAILED"
                 ),
                 "error_type": (
                     type(
@@ -2453,7 +3238,7 @@ def main() -> int:
             }
 
             _write_json_atomic(
-                args.preflight_output,
+                args.recovery_preflight_output,
                 failure,
             )
 
@@ -2477,7 +3262,8 @@ def main() -> int:
                     ),
                     "valid": True,
                     (
-                        "preflight_fingerprint_sha256"
+                        "recovery_preflight_"
+                        "fingerprint_sha256"
                     ): (
                         report[
                             "preflight_fingerprint"
@@ -2504,7 +3290,7 @@ def main() -> int:
         return 0
 
     if not (
-        args.expected_preflight_fingerprint
+        args.expected_recovery_preflight_fingerprint
     ):
         print(
             json.dumps(
@@ -2514,7 +3300,7 @@ def main() -> int:
                     ),
                     "valid": False,
                     "reason": (
-                        "EXPECTED_PREFLIGHT_"
+                        "EXPECTED_RECOVERY_PREFLIGHT_"
                         "FINGERPRINT_REQUIRED"
                     ),
                     "test_executed": False,
@@ -2531,27 +3317,31 @@ def main() -> int:
         return 2
 
     try:
-        report = execute_one_time_test(
-            expected_preflight_fingerprint=(
-                args
-                .expected_preflight_fingerprint
-            ),
-            canonical_root=(
-                args.canonical_root
-            ),
-            preflight_path=(
-                args.preflight_output
-            ),
-            ledger_path=(
-                args.ledger
-            ),
-            result_path=(
-                args.result_output
-            ),
+        report = (
+            execute_recovered_one_time_test(
+                expected_recovery_preflight_fingerprint=(
+                    args
+                    .expected_recovery_preflight_fingerprint
+                ),
+                canonical_root=(
+                    args.canonical_root
+                ),
+                preflight_path=(
+                    args.recovery_preflight_output
+                ),
+                ledger_path=(
+                    args.ledger
+                ),
+                recovery_result_path=(
+                    args.recovery_result_output
+                ),
+            )
         )
 
     except Exception as exc:
-        ledger_state: Any = None
+        ledger_state: Any = (
+            None
+        )
 
         if args.ledger.exists():
             try:
@@ -2572,8 +3362,8 @@ def main() -> int:
             ),
             "valid": False,
             "reason": (
-                "ONE_TIME_REAL_TEST_"
-                "EXECUTION_FAILED"
+                "ONE_TIME_RECOVERED_REAL_"
+                "TEST_EXECUTION_FAILED"
             ),
             "error_type": (
                 type(
@@ -2586,6 +3376,12 @@ def main() -> int:
             "ledger_state": (
                 ledger_state
             ),
+            (
+                "original_failure_preserved"
+            ): (
+                ORIGINAL_FAILED_RESULT_PATH
+                .is_file()
+            ),
             "scientific_policy": {
                 (
                     "validation_reread_authorized"
@@ -2597,7 +3393,7 @@ def main() -> int:
         }
 
         _write_json_atomic(
-            args.result_output,
+            args.recovery_result_output,
             failure,
         )
 
@@ -2629,18 +3425,11 @@ def main() -> int:
                         "sha256"
                     ]
                 ),
-                "test_metrics": (
+                "ledger_final_status": (
                     report[
                         "result_record"
                     ][
-                        "test_metrics"
-                    ]
-                ),
-                "test_hard_checks": (
-                    report[
-                        "result_record"
-                    ][
-                        "test_hard_checks"
+                        "ledger_final_status"
                     ]
                 ),
                 "decision": (

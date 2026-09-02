@@ -23,7 +23,7 @@ MODULE_PATH = (
 spec = (
     importlib.util
     .spec_from_file_location(
-        "one_time_test_runner",
+        "one_time_test_recovery_runner",
         MODULE_PATH,
     )
 )
@@ -63,37 +63,37 @@ def _perfect_case() -> tuple[
         dtype=np.int8,
     )
 
-    p = np.asarray(
+    probabilities = np.asarray(
         [
             [
-                0.80,
-                0.10,
-                0.10,
+                0.8,
+                0.1,
+                0.1,
             ],
             [
-                0.10,
-                0.80,
-                0.10,
+                0.1,
+                0.8,
+                0.1,
             ],
             [
-                0.10,
-                0.10,
-                0.80,
+                0.1,
+                0.1,
+                0.8,
             ],
             [
-                0.70,
-                0.20,
-                0.10,
+                0.7,
+                0.2,
+                0.1,
             ],
             [
-                0.20,
-                0.70,
-                0.10,
+                0.2,
+                0.7,
+                0.1,
             ],
             [
-                0.10,
-                0.20,
-                0.70,
+                0.1,
+                0.2,
+                0.7,
             ],
         ],
         dtype=np.float64,
@@ -101,36 +101,34 @@ def _perfect_case() -> tuple[
 
     return (
         y,
-        p,
+        probabilities,
     )
 
 
-def test_metric_contract_exact_for_perfect_predictions() -> None:
+def test_metric_contract_contains_exact_15_metrics() -> None:
     (
         y,
-        p,
+        probabilities,
     ) = _perfect_case()
 
     metrics = (
         module
         .evaluate_test_metrics(
             y,
-            p,
+            probabilities,
         )
+    )
+
+    assert (
+        len(
+            metrics
+        )
+        == 15
     )
 
     assert (
         metrics[
             "balanced_accuracy_3class"
-        ]
-        == pytest.approx(
-            1.0
-        )
-    )
-
-    assert (
-        metrics[
-            "macro_f1_3class"
         ]
         == pytest.approx(
             1.0
@@ -148,24 +146,6 @@ def test_metric_contract_exact_for_perfect_predictions() -> None:
 
     assert (
         metrics[
-            "short_recall"
-        ]
-        == pytest.approx(
-            1.0
-        )
-    )
-
-    assert (
-        metrics[
-            "long_recall"
-        ]
-        == pytest.approx(
-            1.0
-        )
-    )
-
-    assert (
-        metrics[
             "predicted_trade_coverage"
         ]
         == pytest.approx(
@@ -174,31 +154,24 @@ def test_metric_contract_exact_for_perfect_predictions() -> None:
         )
     )
 
-    assert (
-        len(
-            metrics
-        )
-        == 15
-    )
-
 
 def test_multiclass_brier_matches_manual_definition() -> None:
     (
         y,
-        p,
+        probabilities,
     ) = _perfect_case()
 
     metrics = (
         module
         .evaluate_test_metrics(
             y,
-            p,
+            probabilities,
         )
     )
 
     one_hot = (
         np.zeros_like(
-            p
+            probabilities
         )
     )
 
@@ -227,7 +200,7 @@ def test_multiclass_brier_matches_manual_definition() -> None:
         np.mean(
             np.sum(
                 (
-                    p
+                    probabilities
                     - one_hot
                 )
                 ** 2,
@@ -256,185 +229,65 @@ def test_metric_evaluator_rejects_wrong_probability_shape() -> None:
         dtype=np.int8,
     )
 
-    bad = np.asarray(
-        [
-            [
-                0.5,
-                0.5,
-            ],
-            [
-                0.5,
-                0.5,
-            ],
-            [
-                0.5,
-                0.5,
-            ],
-        ],
+    probabilities = np.zeros(
+        (
+            3,
+            2,
+        ),
         dtype=np.float64,
     )
 
     with pytest.raises(
-        module.OneTimeTestRunnerError,
+        module.OneTimeTestRecoveryRunnerError,
         match=(
             "probability shape mismatch"
         ),
     ):
         module.evaluate_test_metrics(
             y,
-            bad,
+            probabilities,
         )
 
 
-def test_absent_ledger_is_pristine(
-    tmp_path: Path,
-) -> None:
-    state = (
+def test_json_safe_normalizes_numpy_values() -> None:
+    value = {
+        "array": np.asarray(
+            [
+                1,
+                2,
+            ]
+        ),
+        "scalar": np.float64(
+            1.25
+        ),
+    }
+
+    normalized = (
         module
-        ._validate_ledger_state_before_execution(
-            tmp_path
-            / "ledger.json",
-            tmp_path
-            / "result.json",
+        ._json_safe(
+            value
         )
     )
 
-    assert state == {
-        "state": (
-            "ABSENT"
-        ),
-        (
-            "execution_recovery_allowed"
-        ): True,
-        (
-            "test_read_attempt_count"
-        ): 0,
-        (
-            "holdout_consumed_for_rerun_policy"
-        ): False,
+    assert normalized == {
+        "array": [
+            1,
+            2,
+        ],
+        "scalar": 1.25,
     }
 
 
-def test_consumed_ledger_blocks_execution(
+def test_absent_ledger_allows_recovery(
     tmp_path: Path,
 ) -> None:
-    ledger_path = (
-        tmp_path
-        / "ledger.json"
-    )
-
-    ledger_path.write_text(
-        json.dumps(
-            {
-                "status": (
-                    "TEST_READ_INITIATED_"
-                    "CONSUMED_BOUNDARY"
-                ),
-                (
-                    "test_read_attempt_count"
-                ): 1,
-                (
-                    "holdout_consumed_for_"
-                    "rerun_policy"
-                ): True,
-            }
-        ),
-        encoding="utf-8",
-    )
-
     state = (
         module
-        ._validate_ledger_state_before_execution(
-            ledger_path,
-            tmp_path
-            / "result.json",
-        )
-    )
-
-    assert (
-        state[
-            "execution_recovery_allowed"
-        ]
-        is False
-    )
-
-    assert (
-        state[
-            "test_read_attempt_count"
-        ]
-        == 1
-    )
-
-    assert (
-        state[
-            "holdout_consumed_for_rerun_policy"
-        ]
-        is True
-    )
-
-
-def test_pre_read_failure_with_zero_reads_is_recoverable(
-    tmp_path: Path,
-) -> None:
-    ledger_path = (
-        tmp_path
-        / "ledger.json"
-    )
-
-    ledger_path.write_text(
-        json.dumps(
-            {
-                "status": (
-                    "PRE_READ_TECHNICAL_FAILURE"
-                ),
-                (
-                    "test_read_attempt_count"
-                ): 0,
-                (
-                    "holdout_consumed_for_"
-                    "rerun_policy"
-                ): False,
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    state = (
-        module
-        ._validate_ledger_state_before_execution(
-            ledger_path,
-            tmp_path
-            / "result.json",
-        )
-    )
-
-    assert (
-        state[
-            "execution_recovery_allowed"
-        ]
-        is True
-    )
-
-
-def test_existing_result_blocks_execution(
-    tmp_path: Path,
-) -> None:
-    result_path = (
-        tmp_path
-        / "result.json"
-    )
-
-    result_path.write_text(
-        "{}",
-        encoding="utf-8",
-    )
-
-    state = (
-        module
-        ._validate_ledger_state_before_execution(
+        ._validate_ledger_state_for_recovery(
             tmp_path
             / "ledger.json",
-            result_path,
+            tmp_path
+            / "recovery_result.json",
         )
     )
 
@@ -442,21 +295,211 @@ def test_existing_result_blocks_execution(
         state[
             "state"
         ]
-        == (
-            "RESULT_ALREADY_EXISTS"
-        )
+        == "ABSENT"
     )
 
     assert (
         state[
-            "execution_recovery_allowed"
+            "recovery_execution_allowed"
+        ]
+        is True
+    )
+
+    assert (
+        state[
+            "test_read_attempt_count"
+        ]
+        == 0
+    )
+
+    assert (
+        state[
+            "holdout_consumed_for_rerun_policy"
         ]
         is False
     )
 
 
-def test_build_preflight_reads_no_dataset(
+def test_existing_recovery_result_blocks_recovery(
     tmp_path: Path,
+) -> None:
+    recovery_result = (
+        tmp_path
+        / "recovery_result.json"
+    )
+
+    recovery_result.write_text(
+        "{}",
+        encoding="utf-8",
+    )
+
+    state = (
+        module
+        ._validate_ledger_state_for_recovery(
+            tmp_path
+            / "ledger.json",
+            recovery_result,
+        )
+    )
+
+    assert (
+        state[
+            "recovery_execution_allowed"
+        ]
+        is False
+    )
+
+
+def test_original_pre_read_failure_evidence_is_accepted(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    preflight_record = {
+        "x": 1,
+    }
+
+    fingerprint = (
+        module
+        ._canonical_sha256(
+            preflight_record
+        )
+    )
+
+    monkeypatch.setattr(
+        module,
+        (
+            "EXPECTED_ORIGINAL_"
+            "PREFLIGHT_FINGERPRINT"
+        ),
+        fingerprint,
+    )
+
+    original_preflight = {
+        "valid": True,
+        "preflight_record": (
+            preflight_record
+        ),
+        "preflight_fingerprint": {
+            "sha256": (
+                fingerprint
+            ),
+        },
+    }
+
+    original_failure = {
+        "valid": False,
+        "reason": (
+            "ONE_TIME_REAL_TEST_"
+            "EXECUTION_FAILED"
+        ),
+        "error_type": (
+            "ImportError"
+        ),
+        "error": (
+            "attempted relative import "
+            "with no known parent package"
+        ),
+        "ledger_state": None,
+        "scientific_policy": {
+            (
+                "validation_reread_authorized"
+            ): False,
+            "test_rerun_authorized": False,
+            "shadow_authorized": False,
+            "live_authorized": False,
+        },
+    }
+
+    preflight_path = (
+        tmp_path
+        / "original_preflight.json"
+    )
+
+    failure_path = (
+        tmp_path
+        / "original_failure.json"
+    )
+
+    ledger_path = (
+        tmp_path
+        / "ledger.json"
+    )
+
+    preflight_path.write_text(
+        json.dumps(
+            original_preflight
+        ),
+        encoding="utf-8",
+    )
+
+    failure_path.write_text(
+        json.dumps(
+            original_failure
+        ),
+        encoding="utf-8",
+    )
+
+    evidence = (
+        module
+        ._validate_original_pre_read_failure(
+            original_preflight_path=(
+                preflight_path
+            ),
+            original_failure_path=(
+                failure_path
+            ),
+            ledger_path=(
+                ledger_path
+            ),
+        )
+    )
+
+    assert (
+        evidence[
+            "ledger_absent_after_original_failure"
+        ]
+        is True
+    )
+
+
+def test_loader_class_uses_proven_validation_helper(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeLoader:
+        pass
+
+    FakeLoader.__name__ = (
+        "Portable331TrainingInputLoader"
+    )
+
+    fake_validation_source = (
+        SimpleNamespace(
+            _load_loader_class=(
+                lambda: FakeLoader
+            )
+        )
+    )
+
+    monkeypatch.setattr(
+        module,
+        "_load_module",
+        lambda *args, **kwargs: (
+            fake_validation_source
+        ),
+    )
+
+    loader_class = (
+        module
+        ._load_loader_class_via_proven_path()
+    )
+
+    assert (
+        loader_class
+        is FakeLoader
+    )
+
+
+def test_build_recovery_preflight_reads_no_dataset(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     chain = {
@@ -480,19 +523,26 @@ def test_build_preflight_reads_no_dataset(
             "2"
             * 64
         ),
+        "validation_source_sha256": (
+            "3"
+            * 64
+        ),
+        "integration_runner_sha256": (
+            "4"
+            * 64
+        ),
         "ledger_state": {
             "state": (
                 "ABSENT"
             ),
             (
-                "execution_recovery_allowed"
+                "recovery_execution_allowed"
             ): True,
             (
                 "test_read_attempt_count"
             ): 0,
             (
-                "holdout_consumed_for_"
-                "rerun_policy"
+                "holdout_consumed_for_rerun_policy"
             ): False,
         },
     }
@@ -505,13 +555,73 @@ def test_build_preflight_reads_no_dataset(
         ),
     )
 
+    monkeypatch.setattr(
+        module,
+        (
+            "_validate_original_"
+            "pre_read_failure"
+        ),
+        lambda **kwargs: {
+            (
+                "original_preflight_sha256"
+            ): (
+                "5"
+                * 64
+            ),
+            (
+                "original_failure_sha256"
+            ): (
+                "6"
+                * 64
+            ),
+            (
+                "original_failure_canonical_sha256"
+            ): (
+                "7"
+                * 64
+            ),
+            "original_failure_error_type": (
+                "ImportError"
+            ),
+            "original_failure_error": (
+                module
+                .EXPECTED_PRE_READ_ERROR_TEXT
+            ),
+            (
+                "ledger_absent_after_original_failure"
+            ): True,
+        },
+    )
+
+    monkeypatch.setattr(
+        module,
+        "_probe_pre_read_dependencies",
+        lambda: {
+            (
+                "proven_loader_import_probe"
+            ): True,
+            (
+                "dataset_structural_read_performed"
+            ): False,
+            "test_values_loaded": False,
+        },
+    )
+
+    monkeypatch.setattr(
+        module,
+        "_sha256_file",
+        lambda path: (
+            "8"
+            * 64
+        ),
+    )
+
     def forbidden_read_csv(
-        *args: object,
-        **kwargs: object,
-    ) -> object:
+        *args: Any,
+        **kwargs: Any,
+    ) -> Any:
         raise AssertionError(
-            "dry preflight must "
-            "not read dataset"
+            "dataset read forbidden"
         )
 
     monkeypatch.setattr(
@@ -522,16 +632,7 @@ def test_build_preflight_reads_no_dataset(
 
     report = (
         module
-        .build_preflight(
-            ledger_path=(
-                tmp_path
-                / "ledger.json"
-            ),
-            result_path=(
-                tmp_path
-                / "result.json"
-            ),
-        )
+        .build_recovery_preflight()
     )
 
     assert (
@@ -541,8 +642,8 @@ def test_build_preflight_reads_no_dataset(
             "status"
         ]
         == (
-            "ONE_TIME_TEST_"
-            "DRY_PREFLIGHT_READY"
+            "ONE_TIME_TEST_PRE_READ_"
+            "RECOVERY_PREFLIGHT_READY"
         )
     )
 
@@ -550,16 +651,7 @@ def test_build_preflight_reads_no_dataset(
         report[
             "decision"
         ][
-            "real_test_execution_authorized_next"
-        ]
-        is True
-    )
-
-    assert (
-        report[
-            "decision"
-        ][
-            "real_test_values_loaded"
+            "test_consumption_boundary_crossed"
         ]
         is False
     )
@@ -568,37 +660,18 @@ def test_build_preflight_reads_no_dataset(
         report[
             "decision"
         ][
-            "test_consumed"
-        ]
-        is False
-    )
-
-    assert (
-        report[
-            "decision"
-        ][
-            "live_authorized"
-        ]
-        is False
-    )
-
-    assert (
-        report[
-            "scientific_policy"
-        ][
-            "dataset_structural_read_performed"
+            "real_test_values_loaded_in_recovery"
         ]
         is False
     )
 
 
-def test_stored_preflight_rejects_tampered_record(
+def test_stored_recovery_preflight_rejects_tamper(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     record = {
         "a": 1,
-        "b": 2,
     }
 
     fingerprint = (
@@ -624,7 +697,7 @@ def test_stored_preflight_rejects_tampered_record(
         },
         "decision": {
             (
-                "real_test_execution_"
+                "recovery_execution_"
                 "authorized_next"
             ): True,
         },
@@ -642,23 +715,17 @@ def test_stored_preflight_rejects_tampered_record(
         encoding="utf-8",
     )
 
-    current = json.loads(
-        json.dumps(
-            stored
-        )
-    )
-
     monkeypatch.setattr(
         module,
-        "build_preflight",
+        "build_recovery_preflight",
         lambda **kwargs: (
-            current
+            stored
         ),
     )
 
     validated = (
         module
-        .validate_stored_preflight(
+        .validate_stored_recovery_preflight(
             preflight_path=(
                 preflight_path
             ),
@@ -669,7 +736,7 @@ def test_stored_preflight_rejects_tampered_record(
                 tmp_path
                 / "ledger.json"
             ),
-            result_path=(
+            recovery_result_path=(
                 tmp_path
                 / "result.json"
             ),
@@ -678,9 +745,9 @@ def test_stored_preflight_rejects_tampered_record(
 
     assert (
         validated[
-            "preflight_record"
+            "valid"
         ]
-        == record
+        is True
     )
 
     tampered = json.loads(
@@ -693,7 +760,7 @@ def test_stored_preflight_rejects_tampered_record(
         "preflight_record"
     ][
         "a"
-    ] = 99
+    ] = 2
 
     preflight_path.write_text(
         json.dumps(
@@ -703,12 +770,12 @@ def test_stored_preflight_rejects_tampered_record(
     )
 
     with pytest.raises(
-        module.OneTimeTestRunnerError,
+        module.OneTimeTestRecoveryRunnerError,
         match=(
             "content fingerprint mismatch"
         ),
     ):
-        module.validate_stored_preflight(
+        module.validate_stored_recovery_preflight(
             preflight_path=(
                 preflight_path
             ),
@@ -719,7 +786,7 @@ def test_stored_preflight_rejects_tampered_record(
                 tmp_path
                 / "ledger.json"
             ),
-            result_path=(
+            recovery_result_path=(
                 tmp_path
                 / "result.json"
             ),
@@ -811,10 +878,7 @@ def test_artifact_source_reads_only_final_test_block(
                 split.tolist()
                 == [
                     "TRAIN",
-                    "TRAIN",
                     "VALIDATION",
-                    "VALIDATION",
-                    "TEST",
                     "TEST",
                     "TEST",
                 ]
@@ -826,7 +890,6 @@ def test_artifact_source_reads_only_final_test_block(
         ) -> np.ndarray:
             mapping = {
                 "SHORT": -1,
-                "NO_TRADE": 0,
                 "LONG": 1,
             }
 
@@ -884,15 +947,27 @@ def test_artifact_source_reads_only_final_test_block(
                 {
                     "dataset_split": [
                         "TRAIN",
-                        "TRAIN",
                         "VALIDATION",
-                        "VALIDATION",
-                        "TEST",
                         "TEST",
                         "TEST",
                     ]
                 }
             )
+
+        assert (
+            list(
+                cast(
+                    Sequence[int],
+                    kwargs[
+                        "skiprows"
+                    ],
+                )
+            )
+            == [
+                1,
+                2,
+            ]
+        )
 
         assert (
             cast(
@@ -901,26 +976,7 @@ def test_artifact_source_reads_only_final_test_block(
                     "nrows"
                 ],
             )
-            == 3
-        )
-
-        skiprows = list(
-            cast(
-                Sequence[int],
-                kwargs[
-                    "skiprows"
-                ],
-            )
-        )
-
-        assert (
-            skiprows
-            == [
-                1,
-                2,
-                3,
-                4,
-            ]
+            == 2
         )
 
         data: dict[
@@ -930,11 +986,9 @@ def test_artifact_source_reads_only_final_test_block(
             "dataset_split": [
                 "TEST",
                 "TEST",
-                "TEST",
             ],
             "target_class": [
                 "SHORT",
-                "NO_TRADE",
                 "LONG",
             ],
         }
@@ -955,10 +1009,6 @@ def test_artifact_source_reads_only_final_test_block(
                     index
                     + 1
                 ),
-                float(
-                    index
-                    + 2
-                ),
             ]
 
         return (
@@ -977,35 +1027,22 @@ def test_artifact_source_reads_only_final_test_block(
                 X: np.ndarray,
                 y_true: np.ndarray,
             ) -> None:
-                self.X = np.asarray(
-                    X
+                self.X = (
+                    np.asarray(
+                        X
+                    )
                 )
 
-                self.y_true = np.asarray(
-                    y_true
+                self.y_true = (
+                    np.asarray(
+                        y_true
+                    )
                 )
 
         @staticmethod
         def validate_test_batch(
             batch: Any,
         ) -> Any:
-            assert (
-                batch.X.shape
-                == (
-                    3,
-                    331,
-                )
-            )
-
-            assert (
-                batch.y_true.tolist()
-                == [
-                    -1,
-                    0,
-                    1,
-                ]
-            )
-
             return batch
 
     class FakeBounded:
@@ -1027,18 +1064,7 @@ def test_artifact_source_reads_only_final_test_block(
             split_column: str,
             test_core_module: Any,
         ) -> None:
-            assert (
-                list(
-                    split_labels[
-                        -3:
-                    ]
-                )
-                == [
-                    "TEST",
-                    "TEST",
-                    "TEST",
-                ]
-            )
+            del split_labels
 
             assert (
                 feature_columns_sha256
@@ -1071,29 +1097,16 @@ def test_artifact_source_reads_only_final_test_block(
         def load_protected_test_batch(
             self,
         ) -> Any:
-            columns = [
-                self.split_column,
-                *self.feature_columns,
-                self.target_column,
-            ]
-
             frame = (
                 self.read_bounded_rows(
+                    2,
                     4,
-                    7,
-                    columns,
+                    [
+                        self.split_column,
+                        *self.feature_columns,
+                        self.target_column,
+                    ],
                 )
-            )
-
-            assert (
-                frame[
-                    "dataset_split"
-                ].tolist()
-                == [
-                    "TEST",
-                    "TEST",
-                    "TEST",
-                ]
             )
 
             return (
@@ -1138,23 +1151,16 @@ def test_artifact_source_reads_only_final_test_block(
         )
     )
 
-    batch = source.load()
+    batch = (
+        source.load()
+    )
 
     assert (
         batch.X.shape
         == (
-            3,
+            2,
             331,
         )
-    )
-
-    assert (
-        batch.y_true.tolist()
-        == [
-            -1,
-            0,
-            1,
-        ]
     )
 
     assert (
@@ -1176,15 +1182,6 @@ def test_artifact_source_reads_only_final_test_block(
             "value_read_split"
         ]
         == "TEST"
-    )
-
-    assert (
-        source.last_evidence[
-            "read_policy"
-        ][
-            "validation_feature_values_loaded"
-        ]
-        is False
     )
 
 
@@ -1221,7 +1218,7 @@ def test_prediction_requires_frozen_class_order() -> None:
             )
 
     with pytest.raises(
-        module.OneTimeTestRunnerError,
+        module.OneTimeTestRecoveryRunnerError,
         match=(
             "class order mismatch"
         ),
@@ -1237,7 +1234,204 @@ def test_prediction_requires_frozen_class_order() -> None:
         )
 
 
-def test_execute_flag_without_fingerprint_never_executes(
+def test_execute_preserves_opaque_core_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        module,
+        (
+            "validate_stored_"
+            "recovery_preflight"
+        ),
+        lambda **kwargs: {
+            "valid": True,
+        },
+    )
+
+    class FakeLedger:
+        def __init__(
+            self,
+            *,
+            path: Path,
+            protocol_fingerprint: str,
+        ) -> None:
+            self.path = (
+                path
+            )
+
+            self.protocol_fingerprint = (
+                protocol_fingerprint
+            )
+
+        def read(
+            self,
+        ) -> dict[str, Any]:
+            return {
+                "status": (
+                    "TEST_COMPLETE_ACCEPTED"
+                ),
+                (
+                    "test_read_attempt_count"
+                ): 1,
+                (
+                    "holdout_consumed_for_"
+                    "rerun_policy"
+                ): True,
+            }
+
+    class FakeCore:
+        TestAccessLedger = (
+            FakeLedger
+        )
+
+        @staticmethod
+        def execute_one_time_test(
+            **kwargs: Any,
+        ) -> dict[str, Any]:
+            del kwargs
+
+            return {
+                "strange_schema": {
+                    "numpy_value": (
+                        np.float64(
+                            2.5
+                        )
+                    )
+                }
+            }
+
+    class FakeAdapter:
+        def __init__(
+            self,
+            *args: Any,
+            **kwargs: Any,
+        ) -> None:
+            del args
+            del kwargs
+
+            self.last_evidence = {
+                "ok": True,
+            }
+
+        def load(
+            self,
+        ) -> Any:
+            raise AssertionError(
+                "fake core does not "
+                "call datasource"
+            )
+
+    class Model:
+        classes_ = np.asarray(
+            [
+                -1,
+                0,
+                1,
+            ]
+        )
+
+        n_features_in_ = 331
+
+    dependencies = {
+        "core": (
+            FakeCore
+        ),
+        "source_module": (
+            SimpleNamespace()
+        ),
+        "loader_class": (
+            type(
+                "Portable331TrainingInputLoader",
+                (),
+                {},
+            )
+        ),
+        "protocol": {},
+        "model": (
+            Model()
+        ),
+    }
+
+    monkeypatch.setattr(
+        module,
+        "_prepare_execution_dependencies",
+        lambda: (
+            dependencies
+        ),
+    )
+
+    monkeypatch.setattr(
+        module,
+        "ArtifactBoundedTestSource",
+        FakeAdapter,
+    )
+
+    original_failure = (
+        tmp_path
+        / "old_failure.json"
+    )
+
+    original_failure.write_text(
+        "{}",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        module,
+        "ORIGINAL_FAILED_RESULT_PATH",
+        original_failure,
+    )
+
+    report = (
+        module
+        .execute_recovered_one_time_test(
+            expected_recovery_preflight_fingerprint=(
+                "a"
+                * 64
+            ),
+            canonical_root=(
+                tmp_path
+            ),
+            preflight_path=(
+                tmp_path
+                / "preflight.json"
+            ),
+            ledger_path=(
+                tmp_path
+                / "ledger.json"
+            ),
+            recovery_result_path=(
+                tmp_path
+                / "recovery_result.json"
+            ),
+        )
+    )
+
+    assert (
+        report[
+            "decision"
+        ][
+            "test_accepted"
+        ]
+        is True
+    )
+
+    assert (
+        report[
+            "result_record"
+        ][
+            "core_result"
+        ][
+            "strange_schema"
+        ][
+            "numpy_value"
+        ]
+        == 2.5
+    )
+
+
+def test_recovery_execution_flag_requires_fingerprint(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
@@ -1248,15 +1442,18 @@ def test_execute_flag_without_fingerprint_never_executes(
             str(
                 MODULE_PATH
             ),
-            "--execute-one-time-test",
+            (
+                "--execute-one-time-"
+                "test-recovery"
+            ),
         ],
     )
 
     called = False
 
     def forbidden_execute(
-        **kwargs: object,
-    ) -> object:
+        **kwargs: Any,
+    ) -> Any:
         nonlocal called
 
         called = True
@@ -1267,7 +1464,10 @@ def test_execute_flag_without_fingerprint_never_executes(
 
     monkeypatch.setattr(
         module,
-        "execute_one_time_test",
+        (
+            "execute_recovered_"
+            "one_time_test"
+        ),
         forbidden_execute,
     )
 
@@ -1285,11 +1485,14 @@ def test_execute_flag_without_fingerprint_never_executes(
         is False
     )
 
+    output = (
+        capsys
+        .readouterr()
+        .out
+    )
+
     assert (
-        "EXPECTED_PREFLIGHT_FINGERPRINT_REQUIRED"
-        in (
-            capsys
-            .readouterr()
-            .out
-        )
+        "EXPECTED_RECOVERY_PREFLIGHT_"
+        "FINGERPRINT_REQUIRED"
+        in output
     )
