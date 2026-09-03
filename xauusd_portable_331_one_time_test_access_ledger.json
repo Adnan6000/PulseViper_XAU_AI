@@ -1,0 +1,40 @@
+{
+  "events": [
+    {
+      "event": "RESERVED_BEFORE_READ",
+      "holdout_consumed_for_rerun_policy": false,
+      "test_read_attempt_count": 0
+    },
+    {
+      "event": "TEST_READ_INITIATED_CONSUMED_BOUNDARY",
+      "holdout_consumed_for_rerun_policy": true,
+      "test_read_attempt_count": 1
+    },
+    {
+      "event": "TEST_VALUES_LOADED",
+      "row_count": 14996
+    },
+    {
+      "event": "TEST_COMPLETE_ACCEPTED",
+      "result_fingerprint": "3f029e5a1fb17cd5cf2344bef589f1dba85ca93bff322d469fa819a109c7727d",
+      "test_accepted": true
+    }
+  ],
+  "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+  "holdout_consumed_for_rerun_policy": true,
+  "ledger_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_ACCESS_LEDGER_V1",
+  "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+  "result_fingerprint": "3f029e5a1fb17cd5cf2344bef589f1dba85ca93bff322d469fa819a109c7727d",
+  "status": "TEST_COMPLETE_ACCEPTED",
+  "technical_failure": null,
+  "test_accepted": true,
+  "test_metrics_computed": true,
+  "test_protocol_fingerprint": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+  "test_read_attempt_count": 1,
+  "test_row_count": 14996,
+  "test_values_loaded": true,
+  "valid": true,
+  "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+  "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1",
+  "validation_values_reread": false
+}

@@ -1,0 +1,191 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_PRE_READ_RECOVERY_RUNNER_V1",
+  "decision": {
+    "candidate_change_authorized": false,
+    "current_frozen_lineage_may_be_tuned_from_test": false,
+    "live_authorized": false,
+    "model_refit_authorized": false,
+    "next_action": "FREEZE_RECOVERED_TEST_RESULT_AND_BUILD_FINAL_HISTORICAL_RESEARCH_VERDICT",
+    "probability_calibration_authorized": false,
+    "shadow_authorized": false,
+    "status": "ONE_TIME_TEST_ACCEPTED",
+    "test_accepted": true,
+    "test_consumed": true,
+    "test_rerun_authorized": false,
+    "threshold_change_authorized": false,
+    "validation_reread_authorized": false
+  },
+  "research_scope": "RECOVERED_FIRST_AND_ONLY_REAL_PORTABLE_TEST_EVALUATION_AFTER_PRE_READ_TECHNICAL_FAILURE",
+  "result_fingerprint": {
+    "canonicalization": "JSON_SORT_KEYS_COMPACT_UTF8_SHA256",
+    "sha256": "b616845398dba270ed9425da8809d8d91b6ae9def99ec269a71fcc059f389713"
+  },
+  "result_record": {
+    "core_result": {
+      "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_RESULT_V1",
+      "bindings": {
+        "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+        "feature_count": 331,
+        "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+        "probability_class_order": [
+          -1,
+          0,
+          1
+        ],
+        "test_protocol_fingerprint": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+        "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+        "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1"
+      },
+      "decision": {
+        "current_frozen_lineage_may_be_tuned_from_test": false,
+        "live_authorized": false,
+        "next_action": "FREEZE_ONE_TIME_TEST_RESULT_AND_BUILD_FINAL_RESEARCH_VERDICT",
+        "shadow_authorized": false,
+        "test_accepted": true,
+        "test_consumed": true,
+        "test_rerun_authorized": false
+      },
+      "hard_checks": {
+        "all_required_metrics_finite": true,
+        "balanced_accuracy_3class_floor": true,
+        "directional_macro_f1_short_long_floor": true,
+        "long_recall_positive": true,
+        "macro_f1_3class_floor": true,
+        "predicted_trade_coverage_max": true,
+        "predicted_trade_coverage_min": true,
+        "short_recall_positive": true
+      },
+      "metrics": {
+        "balanced_accuracy_3class": 0.3631546042122576,
+        "directional_macro_f1_short_long": 0.3099743677556729,
+        "log_loss_3class": 1.0981851177692825,
+        "long_f1": 0.34774870973482824,
+        "long_precision": 0.2586366644606221,
+        "long_recall": 0.5305457507466739,
+        "macro_f1_3class": 0.33798200233279513,
+        "multiclass_brier": 0.6665659696520733,
+        "no_trade_f1": 0.39399727148703956,
+        "no_trade_precision": 0.580074986609534,
+        "no_trade_recall": 0.2983060184547583,
+        "predicted_trade_coverage": 0.7510002667377967,
+        "short_f1": 0.2722000257765176,
+        "short_precision": 0.28486646884273,
+        "short_recall": 0.26061204343534056
+      },
+      "result_fingerprint": "3f029e5a1fb17cd5cf2344bef589f1dba85ca93bff322d469fa819a109c7727d",
+      "scientific_policy": {
+        "candidate_change_performed": false,
+        "feature_change_performed": false,
+        "live_authorized": false,
+        "model_refit_performed": false,
+        "probability_calibration_performed": false,
+        "shadow_authorized": false,
+        "target_change_performed": false,
+        "test_consumed": true,
+        "test_rerun_authorized": false,
+        "threshold_change_performed": false,
+        "validation_values_reread": false
+      },
+      "status": "ONE_TIME_TEST_ACCEPTED",
+      "test_row_count": 14996,
+      "valid": true
+    },
+    "core_result_canonical_sha256": "960b042be0eb1def17262e75e8622aad57b490238fc23e48fd9326090eb16dd2",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "ledger_final": {
+      "events": [
+        {
+          "event": "RESERVED_BEFORE_READ",
+          "holdout_consumed_for_rerun_policy": false,
+          "test_read_attempt_count": 0
+        },
+        {
+          "event": "TEST_READ_INITIATED_CONSUMED_BOUNDARY",
+          "holdout_consumed_for_rerun_policy": true,
+          "test_read_attempt_count": 1
+        },
+        {
+          "event": "TEST_VALUES_LOADED",
+          "row_count": 14996
+        },
+        {
+          "event": "TEST_COMPLETE_ACCEPTED",
+          "result_fingerprint": "3f029e5a1fb17cd5cf2344bef589f1dba85ca93bff322d469fa819a109c7727d",
+          "test_accepted": true
+        }
+      ],
+      "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+      "holdout_consumed_for_rerun_policy": true,
+      "ledger_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_ACCESS_LEDGER_V1",
+      "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+      "result_fingerprint": "3f029e5a1fb17cd5cf2344bef589f1dba85ca93bff322d469fa819a109c7727d",
+      "status": "TEST_COMPLETE_ACCEPTED",
+      "technical_failure": null,
+      "test_accepted": true,
+      "test_metrics_computed": true,
+      "test_protocol_fingerprint": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+      "test_read_attempt_count": 1,
+      "test_row_count": 14996,
+      "test_values_loaded": true,
+      "valid": true,
+      "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+      "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1",
+      "validation_values_reread": false
+    },
+    "ledger_final_status": "TEST_COMPLETE_ACCEPTED",
+    "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "original_failed_result_sha256": "84557a8399d89f81cd1db15b7489fcc60805b1b61fd9bfbae2a850ceb4066110",
+    "original_preflight_fingerprint_sha256": "0050ce2bea50ddafa4e9a698fff3affa7ac24fc0f1a0185871ac86cfca127057",
+    "portable_loader_source_sha256": "49c86c269f2742fec7c6991eaf7a8a9c0466066a3db230a80375ba2e2c33680c",
+    "recovery_preflight_fingerprint_sha256": "cc9316f5483fd3cd92344d6600b6848657e73cadde02905d92b30591c2386d6f",
+    "source_evidence": {
+      "dataset_path_name": "pv_portable_xauusd_cff75b0686383a3ab6f8352b.csv",
+      "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+      "feature_count": 331,
+      "manifest_path_name": "pv_portable_xauusd_cff75b0686383a3ab6f8352b.manifest.json",
+      "read_policy": {
+        "parser_reads_final_test_block_only": true,
+        "structural_read_columns": [
+          "dataset_split"
+        ],
+        "train_feature_values_loaded": false,
+        "train_target_values_loaded": false,
+        "validation_feature_values_loaded": false,
+        "validation_target_values_loaded": false,
+        "value_read_rows": 14996,
+        "value_read_split": "TEST",
+        "value_read_start_data_row": 84949,
+        "value_read_stop_exclusive": 99945
+      },
+      "split_window": {
+        "test_rows": 14996,
+        "test_start": 84949,
+        "test_stop_exclusive": 99945
+      },
+      "target_column": "target_class"
+    },
+    "test_accepted_from_ledger_status": true,
+    "test_protocol_fingerprint_sha256": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+    "validation_freeze_fingerprint_sha256": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+    "validation_result_fingerprint_sha256": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1",
+    "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+  },
+  "scientific_policy": {
+    "candidate_changed": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "live_authorized": false,
+    "model_artifact_modified": false,
+    "model_refit_performed": false,
+    "orders_sent": false,
+    "original_pre_read_failure_preserved": true,
+    "portable_test_consumed": true,
+    "portable_test_rerun_allowed": false,
+    "portable_validation_reread_performed": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "shadow_authorized": false,
+    "threshold_search_performed": false
+  },
+  "valid": true
+}
