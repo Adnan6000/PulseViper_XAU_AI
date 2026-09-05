@@ -1,6 +1,6 @@
 """
 Automated unit tests for 02_AI/Config/settings.py
-Path: 04_Testing/test_config.py
+Path: 04_Testing/ai/config/test_config.py
 """
 
 import importlib

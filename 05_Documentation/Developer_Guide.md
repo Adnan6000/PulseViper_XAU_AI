@@ -1975,3 +1975,17 @@ Do not compensate by adding `02_AI` itself to `sys.path` and importing
 `Domain.module`; that creates a second module identity and path-dependent
 behavior.
 <!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## Structural Test Relocation Rule
+
+Tests must be made independent of their current filesystem depth before moving.
+
+Post-move reference scans must distinguish the moved file itself from true
+external consumers: both its old source path and corresponding new target path
+must be excluded when checking external references to the old identity.
+
+Human-readable path metadata may be corrected after relocation, but such a
+change must be recorded separately from byte-identical movement and verified
+not to alter executable Python semantics.
+<!-- V2-READY-18-RELOCATION:END -->

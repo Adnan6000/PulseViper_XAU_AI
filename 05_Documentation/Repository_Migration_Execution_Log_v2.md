@@ -139,3 +139,41 @@ test-depth dependence rather than shifting it to a new parent index.
 - VALIDATION rerun: no
 - one-time TEST rerun: no
 <!-- V2-DATABASE-IMPORT-NORMALIZATION-05:END -->
+
+<!-- V2-READY-18-RELOCATION-06:START -->
+## Gate V2-READY-18-RELOCATION-06
+
+- Baseline: `71ea821`
+- Files relocated: 18
+- Original staged rename similarity: 18 x `R100`
+- Original move byte identity: passed
+- Post-move executable-code edits: 0
+- Post-move path-metadata corrections: 1
+- Corrected file: `04_Testing/ai/config/test_config.py`
+- Corrected field: human-readable `Path:` docstring header
+- Executable AST identity after docstring normalization: passed
+- Target collisions: 0
+- CI rewrites required: 0
+- True external old full-path/dotted references: 0
+- Non-operational basename-only references: 1 BOS comment
+- Project verification interpreter: `.venv\Scripts\python.exe`
+- `py_compile`: 18 passed
+- focused pytest at new paths: passed
+- frozen compatibility files checked: 33
+- source-aligned test population after gate: 77
+- READY migrations executed after gate: 77
+- remaining READY repository-root special case: 1
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+
+Recovery history:
+
+The first post-move scanner incorrectly classified the moved config test as an
+external consumer of its own former path because the corresponding new target
+was not excluded.
+
+A subsequent metadata correction initially used literal full-AST equality.
+That check was too strict because module docstring text is itself represented
+as an AST constant. The corrected verification normalizes docstrings before
+comparing executable AST structure.
+<!-- V2-READY-18-RELOCATION-06:END -->

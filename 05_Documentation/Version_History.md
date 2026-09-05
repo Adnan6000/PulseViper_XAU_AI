@@ -1314,3 +1314,17 @@ instead of adding `02_AI` to `sys.path` and importing `Database.database`.
 The test remains at its original path pending the coordinated 18-file
 source-aligned relocation gate.
 <!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## 18-File Source-Aligned READY Relocation
+
+Eighteen READY tests moved into their source-aligned test domains.
+
+The initial moves were `R100`. A stale human-readable path header in the moved
+config test was then corrected with executable AST identity preserved after
+docstring normalization.
+
+The corrected reference audit found zero true external old-path consumers.
+
+Source-aligned test population: 77.
+<!-- V2-READY-18-RELOCATION:END -->

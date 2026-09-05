@@ -1690,3 +1690,21 @@ itself to be placed on `sys.path`, is no longer used by this READY test.
 This keeps test imports aligned with the repository-wide `02_AI.<Domain>`
 module naming contract.
 <!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## Current Source-Aligned Test Ownership
+
+- Common: 2
+- Config: 1
+- Core: 22
+- Database: 4
+- Dataset: 10
+- Features: 1
+- Memory: 1
+- Objects: 1
+- Shadow: 35
+
+Total: 77 source-aligned tests.
+
+The only remaining READY loose test is `test_v1_health.py`.
+<!-- V2-READY-18-RELOCATION:END -->

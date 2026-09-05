@@ -1518,3 +1518,21 @@ No production database code was changed.
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## Verification of 18-File READY Relocation
+
+Verification covered 18 original `R100` moves, all new-path `py_compile`,
+focused pytest under the project `.venv`, frozen 33-file identity, zero true
+external old-path/dotted-module consumers, and zero old filesystem paths.
+
+One pre-existing config-test `Path:` docstring header was corrected after the
+move. Because docstrings are represented in Python ASTs, executable semantic
+identity was checked after normalizing docstring values rather than requiring
+literal full-AST equality.
+
+The one remaining basename-only BOS reference is a comment and is not an
+operational path dependency.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-READY-18-RELOCATION:END -->

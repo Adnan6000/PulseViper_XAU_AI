@@ -794,3 +794,16 @@ and must not be moved, rewritten, or executed merely for repository cleanup.
 
 Repository restructuring does not authorize live or shadow deployment.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## Source-Aligned READY Test Layout
+
+The V2 READY migration now has 77 source-aligned tests under
+`04_Testing/ai/<domain>/`.
+
+The latest gate relocated 18 bootstrap-clean/import-normalized tests. The
+original moves were `R100`; one human-readable path header in the config test
+was corrected afterward without changing executable Python semantics.
+
+`test_v1_health.py` is the only remaining READY location-sensitive test.
+<!-- V2-READY-18-RELOCATION:END -->

@@ -1328,3 +1328,17 @@ The 18 relocation-ready tests contain no test-file-depth repository bootstrap
 dependency. `test_database.py` also no longer depends on a legacy `02_AI`
 `sys.path` insertion.
 <!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## READY Relocation Status
+
+The coordinated 18-file source-aligned relocation is complete.
+
+READY status is now:
+
+- executed source-aligned migrations: 77;
+- pending repository-root abstraction: 1.
+
+Normal mechanical relocation is complete. The remaining READY file is
+`test_v1_health.py`.
+<!-- V2-READY-18-RELOCATION:END -->

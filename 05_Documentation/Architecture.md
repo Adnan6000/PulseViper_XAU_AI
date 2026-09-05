@@ -1767,3 +1767,20 @@ This removes the final import-path exception among the 18 relocation-ready
 READY tests. Those files can now move without parent-depth or local `sys.path`
 adjustments.
 <!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->
+
+<!-- V2-READY-18-RELOCATION:START -->
+## READY Test Relocation Completion
+
+Eighteen previously loose READY tests now live in source-aligned
+`04_Testing/ai/<domain>/` ownership.
+
+The corrected post-move reference audit found zero true external old-path or
+old-dotted-module consumers.
+
+The first scanner pass had incorrectly treated a moved file's own new target
+as an external consumer. The recovery logic now excludes both sides of the
+same logical relocation.
+
+The source-aligned READY population is 77 tests. `test_v1_health.py` remains
+the only READY root-sensitive exception.
+<!-- V2-READY-18-RELOCATION:END -->

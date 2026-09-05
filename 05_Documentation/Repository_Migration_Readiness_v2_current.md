@@ -6,44 +6,38 @@ The frozen V2 manifest remains historical decision evidence and is not rewritten
 
 ## Current summary
 
-- Executed READY migrations: 59
-- Pending relocation-ready: 18
+- Executed READY migrations: 77
 - Pending repository-root abstraction: 1
 - Review required: 77
 - Frozen stay: 18
 - Support stay: 1
 
-## Relocation-ready bootstrap state
+## Source-aligned READY execution
 
-Seventeen tests use `04_Testing/conftest.py` as their shared pytest repository-root bootstrap authority.
+All 18 previously relocation-ready tests now live under `04_Testing/ai/<domain>/`.
 
-`04_Testing/test_database.py` has additionally been normalized away from its legacy `Database.database` import and now resolves the canonical `02_AI.Database.database` module without adding `02_AI` to `sys.path`.
+The original `git mv` operations were 18 staged `R100` renames.
 
-All 18 files are now independent of their current filesystem depth and ready for a dedicated source-aligned relocation gate.
+One moved file, `ai/config/test_config.py`, contained a pre-existing human-readable `Path:` header for its former location. That metadata line was corrected after the move. Executable AST identity was verified after normalizing docstrings.
 
-## Pending relocation-ready files
+The corrected reference audit found zero true external old full-path or old dotted-module consumers.
 
-- `04_Testing/test_backup.py` -> `04_Testing/ai/database/test_backup.py`
-- `04_Testing/test_bos.py` -> `04_Testing/ai/core/test_bos.py`
-- `04_Testing/test_bos_memory.py` -> `04_Testing/ai/memory/test_bos_memory.py`
-- `04_Testing/test_config.py` -> `04_Testing/ai/config/test_config.py`
-- `04_Testing/test_database.py` -> `04_Testing/ai/database/test_database.py`
-- `04_Testing/test_enums.py` -> `04_Testing/ai/common/test_enums.py`
-- `04_Testing/test_exporter.py` -> `04_Testing/ai/dataset/test_exporter.py`
-- `04_Testing/test_feature_list.py` -> `04_Testing/ai/features/test_feature_list.py`
-- `04_Testing/test_fetcher.py` -> `04_Testing/ai/dataset/test_fetcher.py`
-- `04_Testing/test_fvg.py` -> `04_Testing/ai/core/test_fvg.py`
-- `04_Testing/test_history_cleaner.py` -> `04_Testing/ai/dataset/test_history_cleaner.py`
-- `04_Testing/test_history_downloader.py` -> `04_Testing/ai/dataset/test_history_downloader.py`
-- `04_Testing/test_history_manager.py` -> `04_Testing/ai/dataset/test_history_manager.py`
-- `04_Testing/test_history_validator.py` -> `04_Testing/ai/dataset/test_history_validator.py`
-- `04_Testing/test_liquidity_sweep_validator.py` -> `04_Testing/ai/core/test_liquidity_sweep_validator.py`
-- `04_Testing/test_market_structure.py` -> `04_Testing/ai/core/test_market_structure.py`
-- `04_Testing/test_repository.py` -> `04_Testing/ai/database/test_repository.py`
-- `04_Testing/test_schema.py` -> `04_Testing/ai/database/test_schema.py`
+One basename-only BOS comment remains non-operational because the `test_bos.py` basename did not change.
+
+The source-aligned test tree now contains 77 directly aligned tests:
+
+- common: 2
+- config: 1
+- core: 22
+- database: 4
+- dataset: 10
+- features: 1
+- memory: 1
+- objects: 1
+- shadow: 35
 
 ## Remaining READY special case
 
-- `04_Testing/test_v1_health.py`: genuinely uses repository-root filesystem paths and requires a location-independent root abstraction.
+`04_Testing/test_v1_health.py` remains at its current path pending a stable repository-root abstraction.
 
 Permanently consumed VALIDATION and TEST were not executed.
