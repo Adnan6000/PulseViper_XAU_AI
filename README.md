@@ -807,3 +807,16 @@ was corrected afterward without changing executable Python semantics.
 
 `test_v1_health.py` is the only remaining READY location-sensitive test.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## V2 READY Structural Migration Complete
+
+All 78 V2 READY tests now live in source-aligned
+`04_Testing/ai/<domain>/` locations.
+
+The final root-sensitive V1 health test was migrated only after replacing its
+file-depth-derived repository root with the shared `repo_root` pytest fixture.
+
+`04_Testing/conftest.py` now discovers repository root from stable repository
+markers instead of a fixed parent index.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->

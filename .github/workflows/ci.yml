@@ -50,7 +50,7 @@ jobs:
       - name: Run offline V1 and research tests
         run: |
           python -m pytest \
-            04_Testing/test_v1_health.py \
+            04_Testing/ai/config/test_v1_health.py \
             04_Testing/ai/core/test_market_regime.py \
             04_Testing/ai/shadow/test_paper_ledger.py \
             04_Testing/ai/core/test_market_context_liquidity.py \

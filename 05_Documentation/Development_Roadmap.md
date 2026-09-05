@@ -1342,3 +1342,16 @@ READY status is now:
 Normal mechanical relocation is complete. The remaining READY file is
 `test_v1_health.py`.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## V2 READY Phase Complete
+
+All 78 READY migration rows are executed.
+
+The final V1 health special case now uses stable repository-root fixture
+injection, lives under `04_Testing/ai/config/`, and has its CI path updated.
+
+Remaining V2 migration work is no longer normal READY movement; it consists of
+the 77 REVIEW_REQUIRED decisions while FROZEN_STAY and SUPPORT_STAY remain
+governed exceptions.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->

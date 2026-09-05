@@ -177,3 +177,32 @@ That check was too strict because module docstring text is itself represented
 as an AST constant. The corrected verification normalizes docstrings before
 comparing executable AST structure.
 <!-- V2-READY-18-RELOCATION-06:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION-07:START -->
+## Gate V2-V1-ROOT-ABSTRACTION-RELOCATION-07
+
+- Baseline: `5aa29b9`
+- Remaining READY special cases before gate: 1
+- Root-sensitive file: `04_Testing/test_v1_health.py`
+- Root consumers: 4 test functions
+- Module-level root consumers: 0
+- Direct-execution contract: none
+- Central bootstrap changed to marker-based repository-root discovery: yes
+- Shared pytest fixture added: `repo_root`
+- Old-path fixture verification: passed
+- Relocated path: `04_Testing/ai/config/test_v1_health.py`
+- Explicit CI path rewrites: 1
+- New-path Config-domain focused pytest: passed
+- Source-aligned collection after conftest change: passed
+- Frozen compatibility files checked: 33
+- Source-aligned READY test-file population after gate: 78
+- READY rows executed after gate: 78
+- READY rows pending after gate: 0
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+
+The root abstraction deliberately uses repository markers rather than replacing
+one `parents[n]` value with another. Because V1 health repository-root access
+occurs only inside pytest test functions, fixture injection is the narrowest
+stable ownership model.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION-07:END -->

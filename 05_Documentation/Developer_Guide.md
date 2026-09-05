@@ -1989,3 +1989,17 @@ Human-readable path metadata may be corrected after relocation, but such a
 change must be recorded separately from byte-identical movement and verified
 not to alter executable Python semantics.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## Repository Filesystem Access in Pytest
+
+Ordinary pytest tests that genuinely need repository filesystem paths should
+request the shared `repo_root` fixture rather than derive root from their own
+`__file__` location.
+
+`04_Testing/conftest.py` discovers the root from stable repository markers and
+also uses that same root for pytest import visibility.
+
+Do not add new per-test `parents[n]` repository discovery or local `sys.path`
+bootstrap when the shared pytest contract is sufficient.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->

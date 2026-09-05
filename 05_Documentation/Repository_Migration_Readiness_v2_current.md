@@ -6,28 +6,26 @@ The frozen V2 manifest remains historical decision evidence and is not rewritten
 
 ## Current summary
 
-- Executed READY migrations: 77
-- Pending repository-root abstraction: 1
+- Executed READY migrations: 78
+- Pending READY migrations: 0
 - Review required: 77
 - Frozen stay: 18
 - Support stay: 1
 
-## Source-aligned READY execution
+## READY structural migration complete
 
-All 18 previously relocation-ready tests now live under `04_Testing/ai/<domain>/`.
+All 78 V2 READY tests are now source-aligned under `04_Testing/ai/<domain>/`.
 
-The original `git mv` operations were 18 staged `R100` renames.
+The final READY special case, `test_v1_health.py`, was first decoupled from its filesystem depth using the shared `repo_root` pytest fixture.
 
-One moved file, `ai/config/test_config.py`, contained a pre-existing human-readable `Path:` header for its former location. That metadata line was corrected after the move. Executable AST identity was verified after normalizing docstrings.
+`04_Testing/conftest.py` now discovers repository root using stable repository markers rather than a fixed `parents[n]` depth. The same discovered root owns pytest `sys.path` visibility and the session-scoped `repo_root` fixture.
 
-The corrected reference audit found zero true external old full-path or old dotted-module consumers.
+`test_v1_health.py` then moved to `04_Testing/ai/config/test_v1_health.py`, and its explicit CI path was updated.
 
-One basename-only BOS comment remains non-operational because the `test_bos.py` basename did not change.
-
-The source-aligned test tree now contains 77 directly aligned tests:
+The source-aligned direct test-file population is now 78:
 
 - common: 2
-- config: 1
+- config: 2
 - core: 22
 - database: 4
 - dataset: 10
@@ -36,8 +34,6 @@ The source-aligned test tree now contains 77 directly aligned tests:
 - objects: 1
 - shadow: 35
 
-## Remaining READY special case
-
-`04_Testing/test_v1_health.py` remains at its current path pending a stable repository-root abstraction.
+The remaining V2 queue consists of REVIEW_REQUIRED, FROZEN_STAY, and SUPPORT_STAY decisions rather than ordinary READY relocation work.
 
 Permanently consumed VALIDATION and TEST were not executed.

@@ -1708,3 +1708,23 @@ Total: 77 source-aligned tests.
 
 The only remaining READY loose test is `test_v1_health.py`.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## Completed Source-Aligned READY Ownership
+
+Direct source-aligned test-file counts are now:
+
+- Common: 2
+- Config: 2
+- Core: 22
+- Database: 4
+- Dataset: 10
+- Features: 1
+- Memory: 1
+- Objects: 1
+- Shadow: 35
+
+Total: 78.
+
+No V2 READY test remains loose solely because of filesystem-depth coupling.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->

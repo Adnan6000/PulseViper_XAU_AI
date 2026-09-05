@@ -21,7 +21,7 @@ from typing import Any
 import pytest
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 
 
 pytestmark = pytest.mark.offline
@@ -32,10 +32,10 @@ pytestmark = pytest.mark.offline
 # =============================================================================
 
 
-def test_config_file_exists() -> None:
+def test_config_file_exists(repo_root: Path) -> None:
 
     config_file = (
-        PROJECT_ROOT
+        repo_root
         / "config.yaml"
     )
 
@@ -151,7 +151,7 @@ def test_trading_configuration_is_valid() -> None:
 # =============================================================================
 
 
-def test_database_path_is_inside_data_directory() -> None:
+def test_database_path_is_inside_data_directory(repo_root: Path) -> None:
 
     database_module: Any = (
         importlib.import_module(
@@ -174,7 +174,7 @@ def test_database_path_is_inside_data_directory() -> None:
     )
 
     expected_directory = (
-        PROJECT_ROOT
+        repo_root
         / "01_Data"
     ).resolve()
 
@@ -239,10 +239,10 @@ def test_market_regime_has_version() -> None:
 # =============================================================================
 
 
-def test_runtime_database_is_gitignored() -> None:
+def test_runtime_database_is_gitignored(repo_root: Path) -> None:
 
     gitignore = (
-        PROJECT_ROOT
+        repo_root
         / ".gitignore"
     )
 
@@ -258,10 +258,10 @@ def test_runtime_database_is_gitignored() -> None:
     )
 
 
-def test_environment_file_is_gitignored() -> None:
+def test_environment_file_is_gitignored(repo_root: Path) -> None:
 
     gitignore = (
-        PROJECT_ROOT
+        repo_root
         / ".gitignore"
     )
 

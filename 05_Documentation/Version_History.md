@@ -1328,3 +1328,16 @@ The corrected reference audit found zero true external old-path consumers.
 
 Source-aligned test population: 77.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## Final V2 READY Root-Sensitive Test Migration
+
+`test_v1_health.py` was decoupled from `parents[1]` repository-root discovery,
+converted to the shared `repo_root` pytest fixture, and relocated into the
+Config-aligned test directory.
+
+`04_Testing/conftest.py` now uses marker-based repository-root discovery.
+
+The CI path was updated, and the V2 READY structural migration population
+reached 78 executed tests with zero READY items pending.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->

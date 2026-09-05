@@ -1536,3 +1536,21 @@ operational path dependency.
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## `repo_root` Pytest Fixture
+
+Tests requiring repository filesystem access use the session-scoped
+`repo_root` fixture from `04_Testing/conftest.py`.
+
+The root is marker-discovered rather than derived from a fixed parent index.
+
+The V1 health migration was verified first at its original path using the new
+fixture and then at `04_Testing/ai/config/test_v1_health.py`. The explicit CI
+path was updated in the same gate.
+
+Source-aligned `04_Testing/ai` collection was also verified after the central
+conftest change.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->

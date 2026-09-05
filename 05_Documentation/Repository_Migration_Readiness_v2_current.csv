@@ -150,7 +150,7 @@ source,proposed_target,manifest_status,current_state,ownership,ownership_confide
 04_Testing/test_schema.py,04_Testing/ai/database/test_schema.py,READY,EXECUTED,Database,HIGH,ACTIVE_REGRESSION,YES,YES,HIGH,NO
 04_Testing/test_setup_state.py,04_Testing/ai/core/test_setup_state.py,READY,EXECUTED,Core,HIGH,ACTIVE_REGRESSION,YES,NO,NONE,NO
 04_Testing/test_trend_features.py,04_Testing/integration/test_trend_features.py,REVIEW_REQUIRED,REVIEW_REQUIRED,multi_domain,MEDIUM,ACTIVE_REGRESSION,YES,YES,HIGH,NO
-04_Testing/test_v1_health.py,04_Testing/ai/config/test_v1_health.py,READY,PENDING_ROOT_ABSTRACTION,Config,HIGH,ACTIVE_REGRESSION,YES,NO,HIGH,YES
+04_Testing/test_v1_health.py,04_Testing/ai/config/test_v1_health.py,READY,EXECUTED,Config,HIGH,ACTIVE_REGRESSION,YES,NO,HIGH,YES
 04_Testing/test_verify_xauusd_portable_331_c04_full_train_model_artifact.py,04_Testing/test_verify_xauusd_portable_331_c04_full_train_model_artifact.py,REVIEW_REQUIRED,REVIEW_REQUIRED,unresolved,LOW,HISTORICAL_FROZEN,YES,NO,NONE,NO
 04_Testing/test_volatility_features.py,04_Testing/integration/test_volatility_features.py,REVIEW_REQUIRED,REVIEW_REQUIRED,multi_domain,MEDIUM,ACTIVE_REGRESSION,YES,YES,HIGH,NO
 04_Testing/test_xauusd_hierarchical_model_v4_trainer.py,04_Testing/integration/test_xauusd_hierarchical_model_v4_trainer.py,REVIEW_REQUIRED,REVIEW_REQUIRED,multi_domain,MEDIUM,HISTORICAL,YES,NO,NONE,NO

@@ -1784,3 +1784,20 @@ same logical relocation.
 The source-aligned READY population is 77 tests. `test_v1_health.py` remains
 the only READY root-sensitive exception.
 <!-- V2-READY-18-RELOCATION:END -->
+
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:START -->
+## Stable Pytest Repository Root
+
+`04_Testing/conftest.py` owns both repository import visibility and the
+session-scoped `repo_root` fixture.
+
+Repository root is discovered by walking upward until the expected
+`pyproject.toml`, `02_AI`, `04_Testing`, and `05_Documentation` markers are
+present.
+
+This removes the central pytest bootstrap's dependency on
+`Path(__file__).parents[n]` and allows root-consuming tests to move without
+changing parent-depth arithmetic.
+
+All 78 V2 READY tests are now source-aligned.
+<!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
