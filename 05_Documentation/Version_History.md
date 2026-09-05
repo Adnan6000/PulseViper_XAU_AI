@@ -1259,3 +1259,17 @@ passed Python compilation, and passed the focused moved-Core pytest suite.
 READY files with file-location dependencies were intentionally left at their
 existing paths.
 <!-- V2-CORE-SAFE-A-MIGRATION:END -->
+
+<!-- V2-SHADOW-SAFE-A-MIGRATION:START -->
+## Second Architecture V2 Test Migration
+
+The second executable Architecture V2 migration moved 35 Shadow-owned tests
+into `04_Testing/ai/shadow/` and updated 11 CI paths.
+
+The initial post-move suite exposed one stale internal dotted module import.
+Exactly one test required a structural import-path edit.
+
+After repair, the focused Shadow suite passed all 662 tests. All 33 frozen
+compatibility files remained unchanged, and neither permanently consumed
+VALIDATION nor one-time TEST was executed.
+<!-- V2-SHADOW-SAFE-A-MIGRATION:END -->

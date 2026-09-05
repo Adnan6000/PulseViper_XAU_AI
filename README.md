@@ -781,6 +781,7 @@ files and had no exact repository references.
 Current structured testing areas include:
 
 - `04_Testing/ai/core/`
+- `04_Testing/ai/shadow/`
 - `04_Testing/evidence/`
 - `04_Testing/production_portability/`
 

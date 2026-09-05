@@ -1607,6 +1607,7 @@ integration tests rather than being forced into an arbitrary subsystem.
 Currently established structured areas:
 
 - `04_Testing/ai/core/`
+- `04_Testing/ai/shadow/`
 - `04_Testing/evidence/`
 - `04_Testing/evidence/production_portability/`
 - `04_Testing/evidence/research/`
@@ -1680,3 +1681,27 @@ semantics are handled explicitly.
 The Core migration also updated all affected CI test paths in the same
 engineering gate.
 <!-- V2-CORE-SAFE-A-MIGRATION:END -->
+
+<!-- V2-SHADOW-SAFE-A-MIGRATION:START -->
+## V2 Shadow Test Layout
+
+The second Architecture V2 execution batch established
+`04_Testing/ai/shadow/` for tests owned by `02_AI/Shadow`.
+
+Thirty-five HIGH-confidence Shadow tests were relocated from the loose testing
+root.
+
+The initial focused post-move run exposed one hidden test-to-test dynamic
+import. A moved test still referenced another moved test by its former dotted
+Python module name.
+
+That reference was changed from
+`04_Testing.test_realized_fill_telemetry_bridge` to
+`04_Testing.ai.shadow.test_realized_fill_telemetry_bridge`.
+
+After the structural import repair, all 662 focused Shadow tests passed.
+
+This refines the repository migration safety model: dotted module strings used
+by `importlib` are location dependencies even when no `.py` filename or
+`__file__` expression is present.
+<!-- V2-SHADOW-SAFE-A-MIGRATION:END -->

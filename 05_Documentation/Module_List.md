@@ -1574,6 +1574,7 @@ organization.
 Current established testing structure:
 
 - `04_Testing/ai/core/` ? source-aligned tests owned by `02_AI/Core`.
+- `04_Testing/ai/shadow/` — source-aligned tests owned by `02_AI/Shadow`.
 - `04_Testing/production_portability/` — broker/production portability
   diagnostics and regression tests.
 - `04_Testing/evidence/production_portability/` — portability evidence.
@@ -1630,3 +1631,16 @@ migration safety analysis found no dependency on the test file's own location.
 Tests that use `__file__`, parent-depth assumptions, or external Python
 consumers remain outside this directory until separately verified.
 <!-- V2-CORE-SAFE-A-MIGRATION:END -->
+
+<!-- V2-SHADOW-SAFE-A-MIGRATION:START -->
+## Source-Aligned Shadow Tests
+
+`04_Testing/ai/shadow/` contains 35 tests owned by `02_AI/Shadow`.
+
+One moved test contains an intentional structural module-path update because it
+dynamically imports another moved Shadow test.
+
+The migration demonstrated that test-to-test dotted module references are part
+of module ownership and relocation semantics and must be tracked alongside
+ordinary source dependencies.
+<!-- V2-SHADOW-SAFE-A-MIGRATION:END -->

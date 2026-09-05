@@ -1911,3 +1911,32 @@ Engineering rules:
 7. Review `git diff --check` and Git EOL state before freezing repository-wide
    text-policy changes.
 <!-- REPOSITORY-EOL-GOVERNANCE:END -->
+
+<!-- V2-SHADOW-SAFE-A-MIGRATION:START -->
+## Dynamic Test-Module Migration Rule
+
+Relocating Python tests requires analysis of Python module identities as well
+as filesystem paths.
+
+A test can dynamically import another test using a dotted module string such
+as:
+
+`04_Testing.test_example`
+
+When that target moves, the dotted module string is a structural dependency
+and must be updated to its new module path.
+
+Future migration preflights must inspect Python string constants and dynamic
+imports for:
+
+- exact old filesystem paths;
+- `.py` basenames;
+- dotted Python module paths;
+- `importlib.import_module` targets;
+- file-loader targets;
+- `__file__` usage;
+- repository-parent depth assumptions.
+
+Focused post-move pytest remains mandatory because static migration analysis
+must fail closed when runtime relationships are not fully proven.
+<!-- V2-SHADOW-SAFE-A-MIGRATION:END -->

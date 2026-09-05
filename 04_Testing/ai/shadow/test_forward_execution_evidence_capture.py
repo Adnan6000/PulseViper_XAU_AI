@@ -988,7 +988,7 @@ def test_unbound_record_cannot_reconcile() -> None:
 
 def test_reconciled_telemetry_passes_existing_realized_fill_bridge() -> None:
     bridge_tests = importlib.import_module(
-        "04_Testing.test_realized_fill_telemetry_bridge"
+        "04_Testing.ai.shadow.test_realized_fill_telemetry_bridge"
     )
 
     engine = Capture()

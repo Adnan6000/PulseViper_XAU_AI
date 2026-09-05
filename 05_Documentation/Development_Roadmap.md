@@ -1258,3 +1258,19 @@ compilation, and passed the focused moved-Core pytest suite.
 Nineteen READY-but-location-sensitive tests remain intentionally unmoved.
 Further V2 batches continue to fail closed on file-location dependencies.
 <!-- V2-CORE-SAFE-A-MIGRATION:END -->
+
+<!-- V2-SHADOW-SAFE-A-MIGRATION:START -->
+## Architecture V2 Shadow Progress
+
+The second executable V2 batch migrated 35 Shadow-owned tests to
+`04_Testing/ai/shadow/` and updated 11 CI paths.
+
+The first focused Shadow run produced 661 passes and one failure. The failure
+was caused by a stale dotted test-module import rather than by a production
+behavior regression.
+
+Exactly one Shadow test required a structural module-path edit. After that
+repair, Python compilation passed and all 662 focused Shadow tests passed.
+
+Core and Shadow source-aligned migration now covers 53 tests.
+<!-- V2-SHADOW-SAFE-A-MIGRATION:END -->

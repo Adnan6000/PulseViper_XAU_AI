@@ -52,7 +52,7 @@ jobs:
           python -m pytest \
             04_Testing/test_v1_health.py \
             04_Testing/ai/core/test_market_regime.py \
-            04_Testing/test_paper_ledger.py \
+            04_Testing/ai/shadow/test_paper_ledger.py \
             04_Testing/ai/core/test_market_context_liquidity.py \
             04_Testing/ai/core/test_liquidity_lifecycle.py \
             04_Testing/ai/core/test_liquidity_structure_intelligence.py \
@@ -60,15 +60,15 @@ jobs:
             04_Testing/ai/core/test_market_decision_clarity.py \
             04_Testing/ai/core/test_level_entry_intelligence.py \
             04_Testing/ai/core/test_institutional_zones_causal.py \
-            04_Testing/test_institutional_zone_lifecycle.py \
-            04_Testing/test_institutional_zone_context.py \
+            04_Testing/ai/shadow/test_institutional_zone_lifecycle.py \
+            04_Testing/ai/shadow/test_institutional_zone_context.py \
             04_Testing/ai/core/test_research_intelligence_pipeline.py \
-            04_Testing/test_research_telemetry.py \
-            04_Testing/test_research_candidate_ledger.py \
-            04_Testing/test_research_candidate_episode.py \
-            04_Testing/test_research_opportunity_quality.py \
-            04_Testing/test_research_opportunity_weight_engine.py \
-            04_Testing/test_research_weight_forward_ledger.py \
-            04_Testing/test_research_zone_context_outcome.py \
-            04_Testing/test_research_zone_context_forward_ledger.py \
+            04_Testing/ai/shadow/test_research_telemetry.py \
+            04_Testing/ai/shadow/test_research_candidate_ledger.py \
+            04_Testing/ai/shadow/test_research_candidate_episode.py \
+            04_Testing/ai/shadow/test_research_opportunity_quality.py \
+            04_Testing/ai/shadow/test_research_opportunity_weight_engine.py \
+            04_Testing/ai/shadow/test_research_weight_forward_ledger.py \
+            04_Testing/ai/shadow/test_research_zone_context_outcome.py \
+            04_Testing/ai/shadow/test_research_zone_context_forward_ledger.py \
             -q

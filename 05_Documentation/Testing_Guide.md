@@ -1345,6 +1345,7 @@ same commit and must run the equivalent focused test set before freeze.
 Current structured testing areas include:
 
 - `04_Testing/ai/core/`
+- `04_Testing/ai/shadow/`
 - `04_Testing/production_portability/`
 - `04_Testing/evidence/`
 
@@ -1419,3 +1420,30 @@ Acceptance for this batch required:
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-CORE-SAFE-A-MIGRATION:END -->
+
+<!-- V2-SHADOW-SAFE-A-MIGRATION:START -->
+## Architecture V2 Shadow Test Migration
+
+The Shadow V2 batch relocated 35 tests into
+`04_Testing/ai/shadow/` and synchronized 11 explicit CI paths.
+
+Initial focused result:
+
+- 661 passed;
+- 1 failed because a moved test dynamically imported another moved test using
+  its former dotted module path.
+
+Recovery:
+
+- exactly one dotted module reference was updated;
+- all 35 Shadow tests recompiled successfully;
+- all 662 focused Shadow tests passed;
+- 33 frozen compatibility files remained unchanged;
+- no old Shadow dotted module references remained.
+
+Future migration safety scans must include dotted dynamic module strings in
+addition to filesystem paths, `.py` basenames, `__file__`, parent-depth
+assumptions, CI paths, and documentation references.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-SHADOW-SAFE-A-MIGRATION:END -->
