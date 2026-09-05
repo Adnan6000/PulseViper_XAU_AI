@@ -1344,7 +1344,10 @@ same commit and must run the equivalent focused test set before freeze.
 
 Current structured testing areas include:
 
+- `04_Testing/ai/common/`
 - `04_Testing/ai/core/`
+- `04_Testing/ai/dataset/`
+- `04_Testing/ai/objects/`
 - `04_Testing/ai/shadow/`
 - `04_Testing/production_portability/`
 - `04_Testing/evidence/`
@@ -1447,3 +1450,25 @@ assumptions, CI paths, and documentation references.
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-SHADOW-SAFE-A-MIGRATION:END -->
+
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:START -->
+## Completion of Location-Independent READY Migration
+
+The final location-independent V2 batch moved six tests:
+
+- four Dataset-owned tests;
+- one Common-owned test;
+- one Objects-owned test.
+
+The batch required dependency revalidation, byte-identical relocation,
+`py_compile`, focused pytest, frozen-file integrity checks, stale old-path and
+old-module scans, current readiness reporting, and documentation
+synchronization.
+
+No CI paths required modification in this batch.
+
+All 19 remaining READY tests use file-location-dependent bootstrap behavior and
+remain intentionally unmoved.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->

@@ -1573,14 +1573,15 @@ organization.
 
 Current established testing structure:
 
-- `04_Testing/ai/core/` ? source-aligned tests owned by `02_AI/Core`.
+- `04_Testing/ai/common/` — source-aligned tests owned by `02_AI/Common`.
+- `04_Testing/ai/core/` — source-aligned tests owned by `02_AI/Core`.
+- `04_Testing/ai/dataset/` — source-aligned tests owned by `02_AI/Dataset`.
+- `04_Testing/ai/objects/` — source-aligned tests owned by `02_AI/Objects`.
 - `04_Testing/ai/shadow/` — source-aligned tests owned by `02_AI/Shadow`.
-- `04_Testing/production_portability/` — broker/production portability
-  diagnostics and regression tests.
+- `04_Testing/production_portability/` — production portability diagnostics and regression tests.
 - `04_Testing/evidence/production_portability/` — portability evidence.
 - `04_Testing/evidence/research/` — historical/research evidence.
-- loose `04_Testing/*.py` — transitional mixed testing/research area still
-  undergoing controlled classification.
+- loose `04_Testing/*.py` — transitional testing/research area containing location-sensitive and review-required files.
 
 `04_Testing/conftest.py` remains test-root support.
 
@@ -1644,3 +1645,20 @@ The migration demonstrated that test-to-test dotted module references are part
 of module ownership and relocation semantics and must be tracked alongside
 ordinary source dependencies.
 <!-- V2-SHADOW-SAFE-A-MIGRATION:END -->
+
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:START -->
+## Current Source-Aligned Test Counts
+
+The source-aligned AI test layout now contains:
+
+- `ai/common`: 1 test
+- `ai/core`: 18 tests
+- `ai/dataset`: 4 tests
+- `ai/objects`: 1 test
+- `ai/shadow`: 35 tests
+
+Total: 59 tests.
+
+The remaining READY tests are intentionally excluded because they still derive
+repository-root/import behavior from their own filesystem depth.
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->

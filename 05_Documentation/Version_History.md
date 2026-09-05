@@ -1273,3 +1273,16 @@ After repair, the focused Shadow suite passed all 662 tests. All 33 frozen
 compatibility files remained unchanged, and neither permanently consumed
 VALIDATION nor one-time TEST was executed.
 <!-- V2-SHADOW-SAFE-A-MIGRATION:END -->
+
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:START -->
+## Completion of Location-Independent V2 Test Migration
+
+A final six-test location-independent batch populated the Common, Dataset, and
+Objects source-aligned test directories.
+
+Together with the completed Core and Shadow batches, 59 READY tests have now
+been migrated.
+
+Nineteen READY tests remain deliberately unmoved because their current
+`__file__`/repository-depth behavior requires a dedicated bootstrap refactor.
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->

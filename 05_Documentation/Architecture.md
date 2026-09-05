@@ -1606,7 +1606,10 @@ integration tests rather than being forced into an arbitrary subsystem.
 
 Currently established structured areas:
 
+- `04_Testing/ai/common/`
 - `04_Testing/ai/core/`
+- `04_Testing/ai/dataset/`
+- `04_Testing/ai/objects/`
 - `04_Testing/ai/shadow/`
 - `04_Testing/evidence/`
 - `04_Testing/evidence/production_portability/`
@@ -1705,3 +1708,24 @@ This refines the repository migration safety model: dotted module strings used
 by `importlib` are location dependencies even when no `.py` filename or
 `__file__` expression is present.
 <!-- V2-SHADOW-SAFE-A-MIGRATION:END -->
+
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:START -->
+## Final Location-Independent V2 Batch
+
+The remaining six location-independent READY tests were migrated into
+source-aligned Common, Dataset, and Objects test directories.
+
+The source-aligned V2 layout now contains 59 tests:
+
+- Common: 1
+- Core: 18
+- Dataset: 4
+- Objects: 1
+- Shadow: 35
+
+Nineteen READY tests remain at the loose testing root because their file
+location participates in repository-root or import-bootstrap behavior.
+
+Those files require a dedicated path-bootstrap refactor and must not be moved
+mechanically.
+<!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->
