@@ -1,0 +1,37 @@
+# PulseViper repository Git attribute policy
+#
+# Git stores normalized text in the index.
+# Worktree EOL remains controlled by local Git configuration.
+# Do not add a global forced-LF EOL rule without a dedicated compatibility gate.
+
+* text=auto
+
+# Source code and maintained documentation.
+*.py text
+*.md text
+*.toml text
+*.yml text
+*.yaml text
+*.txt text
+*.cfg text
+*.ini text
+*.ps1 text
+
+# Known binary artifact formats.
+*.joblib -text
+*.db -text
+*.sqlite -text
+*.sqlite3 -text
+*.png -text
+*.jpg -text
+*.jpeg -text
+*.gif -text
+*.webp -text
+*.pdf -text
+*.zip -text
+*.gz -text
+*.7z -text
+
+# JSON and CSV are intentionally not forced here.
+# Some repository data/evidence files may be byte-sensitive or use
+# representations that require case-by-case review.

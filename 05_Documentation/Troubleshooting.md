@@ -1569,3 +1569,32 @@ wrong data / wrong feature / wrong model / wrong time semantics are used
 ```
 
 PulseViper troubleshooting therefore focuses on both software correctness and scientific identity.
+
+<!-- REPOSITORY-EOL-GOVERNANCE:START -->
+## Git LF / CRLF Warnings
+
+On the primary Windows development environment Git may print:
+
+`LF will be replaced by CRLF the next time Git touches it`
+
+This is expected when `core.autocrlf=true`.
+
+The repository index stores normalized LF text while the Windows worktree may
+contain CRLF text. This is safe when Git reports the file consistently and the
+file does not contain mixed line endings.
+
+Do not fix this warning with a blanket `git add --renormalize .` or by forcing
+all repository files to LF without a dedicated compatibility review.
+
+Recommended diagnosis:
+
+1. confirm the working tree is otherwise clean;
+2. inspect `git ls-files --eol`;
+3. verify source/documentation files do not report mixed line endings;
+4. inspect `.gitattributes`;
+5. determine whether the affected file is text, generated data, evidence, or a
+   byte-sensitive artifact.
+
+Frozen holdout/evidence files must not be rewritten merely to normalize line
+endings.
+<!-- REPOSITORY-EOL-GOVERNANCE:END -->

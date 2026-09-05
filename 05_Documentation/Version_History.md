@@ -1216,3 +1216,18 @@ The original migration manifest is retained as historical planning evidence.
 Further migration uses architecture V2 principles based on actual source
 ownership, CI dependencies, dynamic-loading behavior, and path semantics.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
+
+<!-- REPOSITORY-EOL-GOVERNANCE:START -->
+## Repository Line-Ending Governance
+
+A repository-wide EOL audit established that tracked text is normalized to LF
+in the Git index while the primary Windows worktree uses CRLF through
+`core.autocrlf=true`.
+
+No mixed source/documentation line endings were found.
+
+The repository therefore adopted explicit `.gitattributes` text/binary
+governance without performing blanket renormalization or forcing all worktree
+files to LF. This preserves existing frozen and byte-sensitive compatibility
+while making future Git behavior more predictable.
+<!-- REPOSITORY-EOL-GOVERNANCE:END -->

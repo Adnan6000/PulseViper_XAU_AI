@@ -1308,3 +1308,25 @@ documentation explains architecture, intent, constraints, and operating rules.
 
 When documentation automation is passed through PowerShell or standard input, non-ASCII punctuation must not rely on the transport encoding. Automation should construct required Unicode characters from code points or another encoding-safe representation and must verify strict UTF-8 content before commit.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
+
+<!-- REPOSITORY-EOL-GOVERNANCE:START -->
+## Documentation Newline Preservation
+
+Documentation automation must preserve both Unicode integrity and repository
+line-ending policy.
+
+When editing an existing Markdown file programmatically:
+
+- decode and encode as strict UTF-8;
+- preserve the file's existing LF or CRLF worktree convention;
+- never create mixed LF/CRLF content;
+- avoid passing required non-ASCII punctuation through an unsafe shell code
+  page;
+- construct such Unicode characters from code points or another transport-safe
+  representation when necessary;
+- verify the resulting file with Git before commit.
+
+A Windows warning that LF will later be checked out as CRLF is expected when
+`core.autocrlf=true`; it is not by itself a reason to renormalize the
+repository.
+<!-- REPOSITORY-EOL-GOVERNANCE:END -->

@@ -1882,3 +1882,32 @@ When adding or relocating project files:
 Repository documentation is part of the implementation contract, not a
 post-project reporting task.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
+
+<!-- REPOSITORY-EOL-GOVERNANCE:START -->
+## Repository Line-Ending Policy
+
+Git-normalized text in the repository index is canonical LF.
+
+Developer worktrees may use platform-native line endings according to local Git
+configuration. On the primary Windows development environment,
+`core.autocrlf=true` means text files normally appear as CRLF in the worktree
+while Git stores normalized LF content in the index.
+
+This conversion is expected and must not be treated as repository corruption.
+
+Engineering rules:
+
+1. Do not run blanket repository renormalization merely to remove an LF/CRLF
+   warning.
+2. Do not introduce mixed line endings within a text file.
+3. Do not force global `eol=lf` while frozen or byte-sensitive artifacts may
+   depend on established worktree bytes.
+4. Let `.gitattributes` define text/binary intent.
+5. Treat data, evidence, model, and database formats conservatively when
+   deciding whether Git should normalize their contents.
+6. Documentation/code automation must preserve the existing newline convention
+   of the file it edits unless a dedicated normalization gate explicitly
+   authorizes otherwise.
+7. Review `git diff --check` and Git EOL state before freezing repository-wide
+   text-policy changes.
+<!-- REPOSITORY-EOL-GOVERNANCE:END -->
