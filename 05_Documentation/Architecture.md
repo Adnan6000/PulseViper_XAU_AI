@@ -1752,3 +1752,18 @@ Two READY special cases remain outside this consolidation:
 - `test_database.py` requires legacy import normalization;
 - `test_v1_health.py` genuinely consumes repository-root filesystem paths.
 <!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:START -->
+## Database Test Import Normalization
+
+`04_Testing/test_database.py` no longer adds the `02_AI` directory directly to
+`sys.path`.
+
+Its former `Database.database` import depended on that extra path entry. The
+test now resolves the canonical repository-visible module identity
+`02_AI.Database.database` through `importlib`.
+
+This removes the final import-path exception among the 18 relocation-ready
+READY tests. Those files can now move without parent-depth or local `sys.path`
+adjustments.
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->

@@ -1313,3 +1313,18 @@ Current READY execution work is split into:
 This removes path-depth debt instead of carrying `parents[n]` adjustments into
 new test directories.
 <!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:START -->
+## Relocation-Ready READY Set
+
+Database test import normalization is complete.
+
+The READY migration queue now contains:
+
+- 18 tests ready for source-aligned relocation;
+- 1 test requiring repository-root abstraction.
+
+The 18 relocation-ready tests contain no test-file-depth repository bootstrap
+dependency. `test_database.py` also no longer depends on a legacy `02_AI`
+`sys.path` insertion.
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->

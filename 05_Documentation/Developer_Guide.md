@@ -1960,3 +1960,18 @@ fail-closed behavior must not be relaxed merely to satisfy the old test. The
 test should instead be aligned to the current contract and isolated from
 unnecessary external state where practical.
 <!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:START -->
+## Canonical Imports for Numeric Source Root
+
+Because `02_AI` begins with a digit, direct source syntax such as
+`from 02_AI...` is not valid Python syntax.
+
+Where repository code/tests need the canonical `02_AI` module identity,
+`importlib.import_module("02_AI.<Domain>.<module>")` is the established
+location-independent mechanism.
+
+Do not compensate by adding `02_AI` itself to `sys.path` and importing
+`Domain.module`; that creates a second module identity and path-dependent
+behavior.
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->

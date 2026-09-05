@@ -1302,3 +1302,15 @@ fail-closed production contract using deterministic temporary-output fixtures.
 
 No production Dataset behavior was changed.
 <!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:START -->
+## Database Test Import Normalization
+
+The remaining database-test import-path exception was removed.
+
+`test_database.py` now uses canonical `02_AI.Database.database` module identity
+instead of adding `02_AI` to `sys.path` and importing `Database.database`.
+
+The test remains at its original path pending the coordinated 18-file
+source-aligned relocation gate.
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->

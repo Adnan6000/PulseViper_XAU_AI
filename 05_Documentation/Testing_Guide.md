@@ -1499,3 +1499,22 @@ Seven existing `datetime.utcnow()` deprecation warnings from
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:START -->
+## Database Import Normalization Verification
+
+`test_database.py` was normalized separately from general pytest bootstrap
+consolidation because it formerly inserted `02_AI` into `sys.path` and imported
+`Database.database`.
+
+The normalized test:
+
+- has no `__file__` repository-depth dependency;
+- does not mutate `sys.path`;
+- resolves `02_AI.Database.database` through `importlib`;
+- passes focused verification under the project `.venv`.
+
+No production database code was changed.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->

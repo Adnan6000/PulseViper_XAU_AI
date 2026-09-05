@@ -70,7 +70,7 @@ source,proposed_target,manifest_status,current_state,ownership,ownership_confide
 04_Testing/test_confidence_pipeline.py,04_Testing/ai/core/test_confidence_pipeline.py,READY,EXECUTED,Core,HIGH,HISTORICAL_OR_SHADOW,YES,NO,NONE,NO
 04_Testing/test_confidence_temporal.py,04_Testing/ai/core/test_confidence_temporal.py,READY,EXECUTED,Core,HIGH,HISTORICAL_OR_SHADOW,YES,NO,NONE,NO
 04_Testing/test_config.py,04_Testing/ai/config/test_config.py,READY,PENDING_RELOCATION_READY,Config,HIGH,ACTIVE_REGRESSION,YES,YES,HIGH,NO
-04_Testing/test_database.py,04_Testing/ai/database/test_database.py,READY,PENDING_IMPORT_NORMALIZATION,Database,HIGH,ACTIVE_REGRESSION,NO,YES,HIGH,NO
+04_Testing/test_database.py,04_Testing/ai/database/test_database.py,READY,PENDING_RELOCATION_READY,Database,HIGH,ACTIVE_REGRESSION,NO,YES,HIGH,NO
 04_Testing/test_design_xauusd_portable_331_one_time_test_protocol.py,04_Testing/test_design_xauusd_portable_331_one_time_test_protocol.py,FROZEN_STAY,FROZEN_STAY,frozen_compatibility,FROZEN,FROZEN_HOLDOUT,YES,NO,NONE,NO
 04_Testing/test_design_xauusd_portable_331_one_time_validation_protocol.py,04_Testing/test_design_xauusd_portable_331_one_time_validation_protocol.py,FROZEN_STAY,FROZEN_STAY,frozen_compatibility,FROZEN,FROZEN_HOLDOUT,YES,NO,NONE,NO
 04_Testing/test_displacement.py,04_Testing/integration/test_displacement.py,REVIEW_REQUIRED,REVIEW_REQUIRED,multi_domain,MEDIUM,ACTIVE_REGRESSION,YES,YES,HIGH,NO

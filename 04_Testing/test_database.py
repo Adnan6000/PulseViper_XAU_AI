@@ -1,11 +1,10 @@
-from pathlib import Path
-import sys
+import importlib
 
-ROOT = Path(__file__).resolve().parents[1]
+database_module = importlib.import_module(
+    "02_AI.Database.database"
+)
 
-sys.path.append(str(ROOT / "02_AI"))
-
-from Database.database import database
+database = database_module.database
 
 
 def test_database_connection():

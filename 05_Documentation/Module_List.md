@@ -1677,3 +1677,16 @@ InstrumentContext materialization contract and deterministic temporary output.
 
 They remain loose only until their dedicated relocation gate.
 <!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:START -->
+## Database Test Module Identity
+
+The database test uses canonical module identity
+`02_AI.Database.database` through dynamic import.
+
+The former alternative identity `Database.database`, which required `02_AI`
+itself to be placed on `sys.path`, is no longer used by this READY test.
+
+This keeps test imports aligned with the repository-wide `02_AI.<Domain>`
+module naming contract.
+<!-- V2-DATABASE-IMPORT-NORMALIZATION:END -->

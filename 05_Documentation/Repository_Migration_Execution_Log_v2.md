@@ -117,3 +117,25 @@ Verification history:
 This gate separates bootstrap cleanup from filesystem relocation and removes
 test-depth dependence rather than shifting it to a new parent index.
 <!-- V2-BOOTSTRAP-CONSOLIDATION-04:END -->
+
+<!-- V2-DATABASE-IMPORT-NORMALIZATION-05:START -->
+## Gate V2-DATABASE-IMPORT-NORMALIZATION-05
+
+- Baseline: `a1228df`
+- Tests modified: 1
+- File: `04_Testing/test_database.py`
+- Files relocated: 0
+- Legacy module identity removed: `Database.database`
+- Canonical module identity: `02_AI.Database.database`
+- Local `02_AI` `sys.path` insertion removed: yes
+- `__file__` depth dependency removed: yes
+- Project verification interpreter: `.venv\Scripts\python.exe`
+- `py_compile`: passed
+- focused pytest: passed
+- production database files modified: 0
+- frozen compatibility files checked: 33
+- relocation-ready tests after gate: 18
+- remaining READY root-abstraction special case: 1
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+<!-- V2-DATABASE-IMPORT-NORMALIZATION-05:END -->
