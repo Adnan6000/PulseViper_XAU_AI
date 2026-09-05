@@ -235,3 +235,44 @@ This is the first implementation gate for the V2 review phase. REVIEW_EXECUTED
 is deliberately distinct from READY/EXECUTED so the historical review decision
 remains visible in current-state reporting.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01-08:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01-09:START -->
+## Gate V2-REVIEW-DIAGNOSTICS-BATCH-01-09
+
+- Baseline: `a1a8830`
+- Historical REVIEW_REQUIRED self-target rows selected: 2
+- Former files: `test_logger.py`, `test_settings.py`
+- Pytest test functions in either file: 0
+- Actual role: standalone diagnostics
+- Actual reviewed targets:
+  - `04_Testing/diagnostics/logger_diagnostic.py`
+  - `04_Testing/diagnostics/settings_diagnostic.py`
+- Shared standalone bootstrap added:
+  `04_Testing/diagnostics/_repository_bootstrap.py`
+- Fixed parent-depth bootstrap retained: no
+- Import-time logger/print diagnostic behavior retained: no
+- Explicit `main()` entrypoints added: 2
+- True external consumers: 0
+- Frozen compatibility files checked: 33
+- Frozen V2 manifest changed: no
+- READY executed rows: 78
+- REVIEW_EXECUTED rows after gate: 4
+- REVIEW_REQUIRED rows after gate: 73
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+
+Scanner correction:
+
+The earlier apparent `test_settings.py` consumer was a false positive caused
+by treating the root-level module stem `test_settings` as a raw dotted-module
+substring. It matched the unrelated pytest function identifier
+`test_settings_load_successfully`.
+
+Root-level module consumer detection now requires exact filesystem-path or
+explicit import/importlib evidence rather than unrestricted stem substring
+matching.
+
+The frozen V2 manifest retains its historical self-target proposals; actual
+reviewed diagnostic targets are recorded here rather than rewriting historical
+decision evidence.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01-09:END -->

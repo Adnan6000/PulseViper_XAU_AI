@@ -830,3 +830,13 @@ verified cross-domain tests into `04_Testing/integration/`.
 These are separate from the 78 completed READY source-aligned tests and are
 tracked as REVIEW_EXECUTED rather than retroactively reclassified as READY.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Standalone Diagnostics
+
+Historical root-level `test_logger.py` and `test_settings.py` were not pytest
+tests. They executed logger/configuration diagnostics at module import time.
+
+They now live under `04_Testing/diagnostics/` with descriptive names and
+explicit `main()` entrypoints.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->

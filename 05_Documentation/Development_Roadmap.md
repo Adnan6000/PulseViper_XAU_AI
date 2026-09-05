@@ -1368,3 +1368,16 @@ The remaining review queue includes path-sensitive research tooling,
 testing-module-string consumers, integration cases requiring bootstrap cleanup,
 and self-target/no-relocation rows.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Review Phase Progress
+
+Current migration state is 78 READY executed, 4 REVIEW_EXECUTED, and 73
+REVIEW_REQUIRED.
+
+The first diagnostic ownership correction removed two misleading root-level
+`test_*.py` scripts and established explicit standalone diagnostic structure.
+
+Remaining self-target review rows still contain executable-tool or pytest
+technical debt and require independent review.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->

@@ -2,37 +2,31 @@
 
 This report is the current-state companion to the frozen `Repository_Migration_Manifest_v2`.
 
-The frozen V2 manifest remains historical decision evidence and is not rewritten as execution progresses.
+The frozen V2 manifest remains historical decision evidence and is not rewritten as review execution progresses.
 
 ## Current summary
 
 - Executed READY migrations: 78
-- Review-executed migrations: 2
-- Review required: 75
+- Review-executed migrations: 4
+- Review required: 73
 - Frozen stay: 18
 - Support stay: 1
 
-## READY structural phase
+## Review execution
 
-All 78 READY rows remain complete under `04_Testing/ai/<domain>/`.
+Two reviewed cross-domain tests live under `04_Testing/integration/`.
 
-## Review execution - integration batch 01
+Two historical root-level `test_*.py` files were proven not to be pytest tests at all. They contained zero test functions and executed diagnostics at import time.
 
-Two REVIEW_REQUIRED rows were independently proven to have integration ownership, zero external consumers, zero fixed-depth bootstrap debt, zero local `sys.path` mutation, and no CI path dependency.
+Those files are now explicit standalone diagnostics:
 
-They now live under `04_Testing/integration/`:
+- `04_Testing/diagnostics/logger_diagnostic.py`
+- `04_Testing/diagnostics/settings_diagnostic.py`
 
-- `test_instrument_frame_guard.py`
-- `test_xauusd_hierarchical_model_v4_trainer.py`
+Standalone diagnostic repository-root discovery is provided by `04_Testing/diagnostics/_repository_bootstrap.py`. It uses repository markers rather than fixed parent depth and is intentionally independent from pytest `conftest.py`.
 
-The files moved byte-identically and passed focused verification at their new locations.
+The frozen V2 manifest's original self-target proposals remain unchanged as historical evidence. The reviewed actual targets are recorded by the execution log and current documentation.
 
-The portable-331 candidate evaluator remains intentionally outside this batch because it is a non-test research tool with a separate entrypoint and research-governance contract.
-
-Current organized test-file population:
-
-- source-aligned READY tests under `04_Testing/ai`: 78
-- reviewed integration tests under `04_Testing/integration`: 2
-- organized test files total: 80
+A scanner correction was also established: a root-level Python module stem such as `test_settings` must not be treated as an operational dotted-module reference by raw substring matching. The earlier apparent consumer was only the function name `test_settings_load_successfully`.
 
 Permanently consumed VALIDATION and one-time TEST were not executed.

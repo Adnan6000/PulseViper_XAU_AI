@@ -1573,3 +1573,19 @@ Research executables are not combined into an integration-test migration gate.
 
 Permanently consumed VALIDATION and one-time TEST workflows were not executed.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Test Naming Versus Diagnostics
+
+A file named `test_*.py` is not automatically a valid pytest test module.
+
+The former root-level logger and settings files contained zero pytest test
+functions and performed observable work at import time. They were reclassified
+as standalone diagnostics and renamed so pytest semantics are unambiguous.
+
+Operational consumer scans must use exact path or import/module evidence;
+root-level module stems must not be detected by unrestricted raw substring
+matching.
+
+Consumed VALIDATION and one-time TEST workflows were not executed.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->

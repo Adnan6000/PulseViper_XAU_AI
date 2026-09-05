@@ -171,5 +171,5 @@ source,proposed_target,manifest_status,current_state,ownership,ownership_confide
 04_Testing/xauusd_portable_331_authorized_validation_source.py,04_Testing/xauusd_portable_331_authorized_validation_source.py,FROZEN_STAY,FROZEN_STAY,frozen_compatibility,FROZEN,FROZEN_HOLDOUT,YES,NO,HIGH,NO
 04_Testing/xauusd_portable_331_one_time_test_core.py,04_Testing/xauusd_portable_331_one_time_test_core.py,FROZEN_STAY,FROZEN_STAY,frozen_compatibility,FROZEN,FROZEN_HOLDOUT,NO,NO,NONE,NO
 04_Testing/xauusd_portable_331_one_time_validation_core.py,04_Testing/xauusd_portable_331_one_time_validation_core.py,FROZEN_STAY,FROZEN_STAY,frozen_compatibility,FROZEN,FROZEN_HOLDOUT,YES,NO,HIGH,NO
-test_logger.py,test_logger.py,REVIEW_REQUIRED,REVIEW_REQUIRED,Utils,MEDIUM,NORMAL,YES,YES,NONE,NO
-test_settings.py,test_settings.py,REVIEW_REQUIRED,REVIEW_REQUIRED,Config,MEDIUM,NORMAL,YES,YES,NONE,NO
+test_logger.py,test_logger.py,REVIEW_REQUIRED,REVIEW_EXECUTED,Utils,MEDIUM,NORMAL,YES,YES,NONE,NO
+test_settings.py,test_settings.py,REVIEW_REQUIRED,REVIEW_EXECUTED,Config,MEDIUM,NORMAL,YES,YES,NONE,NO

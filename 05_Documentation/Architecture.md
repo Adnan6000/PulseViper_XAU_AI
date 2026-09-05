@@ -1815,3 +1815,17 @@ contract test and hierarchical model V4 trainer test.
 Both were free of file-depth bootstrap, local `sys.path` mutation, external
 path/module consumers, and CI path coupling before relocation.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Diagnostic Ownership
+
+Standalone verification and diagnostic scripts belong under
+`04_Testing/diagnostics/`, not at repository root and not in pytest
+source-aligned test domains.
+
+The diagnostic bootstrap discovers repository root using stable markers and
+adds it to `sys.path` only when a diagnostic entrypoint is explicitly run.
+
+Pytest bootstrap remains owned by `04_Testing/conftest.py`; standalone
+diagnostics do not import or depend on conftest.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->

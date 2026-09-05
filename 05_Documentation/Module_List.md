@@ -1742,3 +1742,15 @@ These two files are tracked as reviewed cross-domain integration ownership.
 The source-aligned READY population under `04_Testing/ai` remains 78; organized
 test-file population is now 80 including the integration directory.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Diagnostics
+
+`04_Testing/diagnostics/` contains standalone operational verification tools:
+
+- `_repository_bootstrap.py`
+- `logger_diagnostic.py`
+- `settings_diagnostic.py`
+
+The logger and settings files are diagnostics, not pytest test modules.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->

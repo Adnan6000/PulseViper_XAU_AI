@@ -2017,3 +2017,19 @@ to `REVIEW_EXECUTED`.
 Integration tests should remain separate from research executables; test
 relocation and research-entrypoint relocation are different contracts.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Standalone Diagnostic Contract
+
+Diagnostic scripts must:
+
+- use descriptive non-`test_` filenames;
+- expose an explicit `main()` entrypoint;
+- avoid production imports and observable actions at module import time;
+- use marker-based repository-root discovery when standalone import visibility
+  is required.
+
+Do not infer root-level module consumers using raw stem substring matching.
+For example, `test_settings` inside `test_settings_load_successfully` is not an
+import of module `test_settings`.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->

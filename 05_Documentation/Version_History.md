@@ -1353,3 +1353,16 @@ rows, and 75 REVIEW_REQUIRED rows.
 
 No production code or frozen research evidence was changed.
 <!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->
+
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:START -->
+## Root Diagnostic Reclassification
+
+`test_logger.py` and `test_settings.py` were reclassified from misleading
+root-level test names into standalone diagnostics.
+
+Both now use explicit `main()` entrypoints and shared marker-based repository
+bootstrap. Import-time diagnostic behavior and root-level pytest naming
+ambiguity were removed.
+
+Review state is now 4 REVIEW_EXECUTED and 73 REVIEW_REQUIRED.
+<!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
