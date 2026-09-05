@@ -21,17 +21,9 @@ import pytest
 pytestmark = pytest.mark.offline
 
 
-def test_direct_script_help_bootstraps_project_root() -> None:
+def test_direct_script_help_bootstraps_project_root(repo_root: Path) -> None:
 
-    project_root = (
-        Path(
-            __file__
-        )
-        .resolve()
-        .parents[
-            1
-        ]
-    )
+    project_root = repo_root
 
     script = (
         project_root

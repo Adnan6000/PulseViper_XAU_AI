@@ -2033,3 +2033,16 @@ Do not infer root-level module consumers using raw stem substring matching.
 For example, `test_settings` inside `test_settings_load_successfully` is not an
 import of module `test_settings`.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
+
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:START -->
+## Pytest Repository Root Ownership
+
+`04_Testing/conftest.py` is the canonical repository-root provider for
+pytest-collected tests.
+
+A collected test that only needs repository location must request the
+`repo_root` fixture instead of deriving root from `Path(__file__).parents[n]`.
+
+This rule does not replace explicit sibling-script loader contracts and does
+not apply to standalone executable research tools.
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->

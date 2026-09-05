@@ -1589,3 +1589,16 @@ matching.
 
 Consumed VALIDATION and one-time TEST workflows were not executed.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
+
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:START -->
+## Direct-Script Bootstrap Test
+
+`test_exness_historical_fill_telemetry_direct_script.py` now obtains repository
+location through the canonical pytest `repo_root` fixture.
+
+The test still launches the same telemetry operation with `--help`, so the
+standalone project-root bootstrap behavior under test is unchanged.
+
+File-loader harnesses that intentionally resolve sibling research scripts are
+not converted to `repo_root` merely because they contain `__file__`.
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->

@@ -276,3 +276,25 @@ The frozen V2 manifest retains its historical self-target proposals; actual
 reviewed diagnostic targets are recorded here rather than rewriting historical
 decision evidence.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01-09:END -->
+
+<!-- V2-SELF-TARGET-PYTEST-ROOT-NORMALIZATION-10:START -->
+## Gate V2-SELF-TARGET-PYTEST-ROOT-NORMALIZATION-10
+
+- Baseline: `0ea528a`
+- File normalized:
+  `04_Testing/test_exness_historical_fill_telemetry_direct_script.py`
+- Historical proposed target: unchanged self-target
+- REVIEW_REQUIRED state transition: none
+- Fixed-depth `__file__` repository lookup removed: yes
+- Canonical pytest `repo_root` fixture adopted: yes
+- Operation under test changed: no
+- Direct-script `--help` contract changed: no
+- Focused pytest executed: yes
+- Frozen compatibility files checked: 33
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+
+The file remains REVIEW_REQUIRED because this gate addressed only bootstrap
+technical debt. Final placement should be reviewed together with
+`exness_historical_fill_telemetry_operation.py`.
+<!-- V2-SELF-TARGET-PYTEST-ROOT-NORMALIZATION-10:END -->

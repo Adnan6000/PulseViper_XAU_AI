@@ -1366,3 +1366,13 @@ ambiguity were removed.
 
 Review state is now 4 REVIEW_EXECUTED and 73 REVIEW_REQUIRED.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
+
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:START -->
+## Direct-Script Test Root Normalization
+
+Removed fixed `Path(__file__).resolve().parents[1]` repository discovery from
+the Exness historical telemetry direct-script regression test.
+
+The test now uses the centralized pytest `repo_root` fixture. No relocation or
+review-state transition was performed.
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->

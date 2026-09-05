@@ -30,3 +30,26 @@ The frozen V2 manifest's original self-target proposals remain unchanged as hist
 A scanner correction was also established: a root-level Python module stem such as `test_settings` must not be treated as an operational dotted-module reference by raw substring matching. The earlier apparent consumer was only the function name `test_settings_load_successfully`.
 
 Permanently consumed VALIDATION and one-time TEST were not executed.
+
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:START -->
+## Self-target pytest normalization
+
+One REVIEW_REQUIRED self-target test has had its fixed-depth repository lookup
+removed without changing migration state:
+
+- `04_Testing/test_exness_historical_fill_telemetry_direct_script.py`
+
+The test now uses the session-scoped `repo_root` pytest fixture.
+
+The row remains REVIEW_REQUIRED because this gate normalized technical debt
+only; it did not decide final ownership or relocation of the telemetry
+operation/test pair.
+
+Current state remains:
+
+- READY executed: 78
+- REVIEW_EXECUTED: 4
+- REVIEW_REQUIRED: 73
+- FROZEN_STAY: 18
+- SUPPORT_STAY: 1
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->

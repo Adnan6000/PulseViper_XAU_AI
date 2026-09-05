@@ -1381,3 +1381,15 @@ The first diagnostic ownership correction removed two misleading root-level
 Remaining self-target review rows still contain executable-tool or pytest
 technical debt and require independent review.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
+
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:START -->
+## Self-Target Pytest Debt Normalization
+
+The first self-target pytest debt cleanup normalized
+`test_exness_historical_fill_telemetry_direct_script.py` to the centralized
+`repo_root` fixture.
+
+Its migration state intentionally remains REVIEW_REQUIRED because final
+placement should be decided together with the historical telemetry operation
+that the test launches.
+<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->
