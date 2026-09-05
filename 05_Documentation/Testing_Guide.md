@@ -1396,3 +1396,25 @@ CI, import/dynamic-loader, frozen-artifact, and documentation constraints.
 The original migration manifest remains historical planning evidence and must
 not be used as automatic authority for remaining moves.
 <!-- REPOSITORY-MIGRATION-V2:END -->
+
+<!-- V2-CORE-SAFE-A-MIGRATION:START -->
+## Architecture V2 Core Test Migration
+
+The first V2 test migration moved 18 location-independent Core tests to
+`04_Testing/ai/core/`.
+
+Nine moved tests were explicitly addressed by CI, so their workflow paths were
+updated in the same gate.
+
+Acceptance for this batch required:
+
+- byte-identical test relocation;
+- Python compilation;
+- focused pytest execution of all 18 moved tests;
+- stale operational path checks;
+- frozen-file integrity verification;
+- CI path synchronization;
+- documentation synchronization.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-CORE-SAFE-A-MIGRATION:END -->

@@ -1662,3 +1662,20 @@ CI, import/dynamic-loader, frozen-artifact, and documentation constraints.
 The original migration manifest remains historical planning evidence and must
 not be used as automatic authority for remaining moves.
 <!-- REPOSITORY-MIGRATION-V2:END -->
+
+<!-- V2-CORE-SAFE-A-MIGRATION:START -->
+## V2 Core Test Layout
+
+The first Architecture V2 execution batch established
+`04_Testing/ai/core/`.
+
+Eighteen HIGH-confidence, location-independent Core tests were relocated from
+the loose `04_Testing/` root into this source-aligned directory.
+
+Location-sensitive READY tests were deliberately excluded from the batch.
+Their existing paths remain unchanged until repository-root and file-location
+semantics are handled explicitly.
+
+The Core migration also updated all affected CI test paths in the same
+engineering gate.
+<!-- V2-CORE-SAFE-A-MIGRATION:END -->

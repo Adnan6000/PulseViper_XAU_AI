@@ -1245,3 +1245,17 @@ This replaces filename-token migration as the decision mechanism for future
 repository restructuring. Ambiguous ownership remains fail-closed rather than
 being guessed.
 <!-- REPOSITORY-MIGRATION-V2:END -->
+
+<!-- V2-CORE-SAFE-A-MIGRATION:START -->
+## First Architecture V2 Test Migration
+
+The first executable Architecture V2 migration batch moved 18
+HIGH-confidence, location-independent tests owned by `02_AI/Core` into
+`04_Testing/ai/core/`.
+
+The same gate updated 9 CI paths, preserved frozen compatibility material,
+passed Python compilation, and passed the focused moved-Core pytest suite.
+
+READY files with file-location dependencies were intentionally left at their
+existing paths.
+<!-- V2-CORE-SAFE-A-MIGRATION:END -->

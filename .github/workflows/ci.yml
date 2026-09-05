@@ -51,18 +51,18 @@ jobs:
         run: |
           python -m pytest \
             04_Testing/test_v1_health.py \
-            04_Testing/test_market_regime.py \
+            04_Testing/ai/core/test_market_regime.py \
             04_Testing/test_paper_ledger.py \
-            04_Testing/test_market_context_liquidity.py \
-            04_Testing/test_liquidity_lifecycle.py \
-            04_Testing/test_liquidity_structure_intelligence.py \
-            04_Testing/test_candle_swing_intelligence.py \
-            04_Testing/test_market_decision_clarity.py \
-            04_Testing/test_level_entry_intelligence.py \
-            04_Testing/test_institutional_zones_causal.py \
+            04_Testing/ai/core/test_market_context_liquidity.py \
+            04_Testing/ai/core/test_liquidity_lifecycle.py \
+            04_Testing/ai/core/test_liquidity_structure_intelligence.py \
+            04_Testing/ai/core/test_candle_swing_intelligence.py \
+            04_Testing/ai/core/test_market_decision_clarity.py \
+            04_Testing/ai/core/test_level_entry_intelligence.py \
+            04_Testing/ai/core/test_institutional_zones_causal.py \
             04_Testing/test_institutional_zone_lifecycle.py \
             04_Testing/test_institutional_zone_context.py \
-            04_Testing/test_research_intelligence_pipeline.py \
+            04_Testing/ai/core/test_research_intelligence_pipeline.py \
             04_Testing/test_research_telemetry.py \
             04_Testing/test_research_candidate_ledger.py \
             04_Testing/test_research_candidate_episode.py \

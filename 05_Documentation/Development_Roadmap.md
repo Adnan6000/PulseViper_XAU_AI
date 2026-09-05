@@ -1245,3 +1245,16 @@ CI, import/dynamic-loader, frozen-artifact, and documentation constraints.
 The original migration manifest remains historical planning evidence and must
 not be used as automatic authority for remaining moves.
 <!-- REPOSITORY-MIGRATION-V2:END -->
+
+<!-- V2-CORE-SAFE-A-MIGRATION:START -->
+## Architecture V2 Execution Progress
+
+The first V2 execution batch migrated 18 HIGH-confidence SAFE_A Core tests to
+`04_Testing/ai/core/`.
+
+The batch preserved file contents, updated 9 CI paths, passed Python
+compilation, and passed the focused moved-Core pytest suite.
+
+Nineteen READY-but-location-sensitive tests remain intentionally unmoved.
+Further V2 batches continue to fail closed on file-location dependencies.
+<!-- V2-CORE-SAFE-A-MIGRATION:END -->

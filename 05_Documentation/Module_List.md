@@ -1616,3 +1616,16 @@ CI, import/dynamic-loader, frozen-artifact, and documentation constraints.
 The original migration manifest remains historical planning evidence and must
 not be used as automatic authority for remaining moves.
 <!-- REPOSITORY-MIGRATION-V2:END -->
+
+<!-- V2-CORE-SAFE-A-MIGRATION:START -->
+## Source-Aligned Core Tests
+
+`04_Testing/ai/core/` now contains the first source-aligned Architecture V2
+test batch.
+
+The directory contains 18 tests whose ownership maps to `02_AI/Core` and whose
+migration safety analysis found no dependency on the test file's own location.
+
+Tests that use `__file__`, parent-depth assumptions, or external Python
+consumers remain outside this directory until separately verified.
+<!-- V2-CORE-SAFE-A-MIGRATION:END -->
