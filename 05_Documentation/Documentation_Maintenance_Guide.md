@@ -1303,4 +1303,8 @@ review itself is mandatory.
 Generated inventory/migration reports do not replace maintained explanatory
 documentation. Generated reports describe repository state; maintained
 documentation explains architecture, intent, constraints, and operating rules.
+
+### Documentation automation encoding rule
+
+When documentation automation is passed through PowerShell or standard input, non-ASCII punctuation must not rely on the transport encoding. Automation should construct required Unicode characters from code points or another encoding-safe representation and must verify strict UTF-8 content before commit.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

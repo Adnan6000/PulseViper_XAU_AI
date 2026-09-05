@@ -1573,11 +1573,11 @@ organization.
 
 Current established testing structure:
 
-- `04_Testing/production_portability/` ? broker/production portability
+- `04_Testing/production_portability/` — broker/production portability
   diagnostics and regression tests.
-- `04_Testing/evidence/production_portability/` ? portability evidence.
-- `04_Testing/evidence/research/` ? historical/research evidence.
-- loose `04_Testing/*.py` ? transitional mixed testing/research area still
+- `04_Testing/evidence/production_portability/` — portability evidence.
+- `04_Testing/evidence/research/` — historical/research evidence.
+- loose `04_Testing/*.py` — transitional mixed testing/research area still
   undergoing controlled classification.
 
 `04_Testing/conftest.py` remains test-root support.

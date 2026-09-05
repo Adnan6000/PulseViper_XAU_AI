@@ -1198,12 +1198,12 @@ A failed experiment with clear provenance is more useful than a successful-looki
 
 Recent repository-structure milestones:
 
-- `820d80f` ? froze repository testing and evidence inventory.
-- `bbce3fa` ? froze the original repository migration manifest.
-- `29da975` ? reorganized unreferenced repository evidence JSON.
-- `b1bc11f` ? reorganized referenced repository evidence JSON with consumer
+- `820d80f` — froze repository testing and evidence inventory.
+- `bbce3fa` — froze the original repository migration manifest.
+- `29da975` — reorganized unreferenced repository evidence JSON.
+- `b1bc11f` — reorganized referenced repository evidence JSON with consumer
   path updates.
-- `0c2fb24` ? reorganized production-portability testing tools.
+- `0c2fb24` — reorganized production-portability testing tools.
 
 The portability migration moved 38 Python files, preserved frozen artifacts,
 passed Python compilation, and passed 113 focused regression tests.

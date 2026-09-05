@@ -765,14 +765,14 @@ The project is designed so that a developer should be able to understand **why**
 
 The canonical top-level project layout is:
 
-- `01_Data/` ? canonical project data, datasets, databases, model/data artifacts.
-- `02_AI/` ? production Python application, intelligence, model, data, risk, and shadow runtime.
-- `03_MT5/` ? MT5-specific project area.
-- `04_Testing/` ? tests, diagnostics, research tooling, portability tooling, and testing evidence.
-- `05_Documentation/` ? project documentation and repository governance material.
-- `06_Exports/` ? generated exports; intentionally ignored by Git.
-- `07_Git/` ? reserved project Git-support area.
-- `Logs/` ? runtime logs; intentionally ignored by Git.
+- `01_Data/` — canonical project data, datasets, databases, model/data artifacts.
+- `02_AI/` — production Python application, intelligence, model, data, risk, and shadow runtime.
+- `03_MT5/` — MT5-specific project area.
+- `04_Testing/` — tests, diagnostics, research tooling, portability tooling, and testing evidence.
+- `05_Documentation/` — project documentation and repository governance material.
+- `06_Exports/` — generated exports; intentionally ignored by Git.
+- `07_Git/` — reserved project Git-support area.
+- `Logs/` — runtime logs; intentionally ignored by Git.
 
 `01_Data/` is the only canonical top-level data directory. The empty duplicate
 top-level `Data/` directory was removed after confirming that it contained no

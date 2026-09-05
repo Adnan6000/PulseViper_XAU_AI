@@ -1565,14 +1565,14 @@ This separation keeps PulseViper understandable, testable, and safer to evolve.
 The repository uses the numbered project layout as the architectural source of
 truth:
 
-- `01_Data/` ? canonical data layer.
-- `02_AI/` ? production Python system.
-- `03_MT5/` ? MT5 integration area.
-- `04_Testing/` ? testing, diagnostics, research tooling, and testing evidence.
-- `05_Documentation/` ? documentation and engineering governance.
-- `06_Exports/` ? generated exports.
-- `07_Git/` ? reserved Git-support area.
-- `Logs/` ? generated runtime logs.
+- `01_Data/` — canonical data layer.
+- `02_AI/` — production Python system.
+- `03_MT5/` — MT5 integration area.
+- `04_Testing/` — testing, diagnostics, research tooling, and testing evidence.
+- `05_Documentation/` — documentation and engineering governance.
+- `06_Exports/` — generated exports.
+- `07_Git/` — reserved Git-support area.
+- `Logs/` — generated runtime logs.
 
 No new top-level directory may be introduced when an existing canonical
 numbered directory already owns the same responsibility.
