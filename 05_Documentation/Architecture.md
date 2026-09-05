@@ -1606,6 +1606,7 @@ integration tests rather than being forced into an arbitrary subsystem.
 
 Currently established structured areas:
 
+- `04_Testing/ai/core/`
 - `04_Testing/evidence/`
 - `04_Testing/evidence/production_portability/`
 - `04_Testing/evidence/research/`

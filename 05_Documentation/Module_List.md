@@ -1573,6 +1573,7 @@ organization.
 
 Current established testing structure:
 
+- `04_Testing/ai/core/` ? source-aligned tests owned by `02_AI/Core`.
 - `04_Testing/production_portability/` — broker/production portability
   diagnostics and regression tests.
 - `04_Testing/evidence/production_portability/` — portability evidence.

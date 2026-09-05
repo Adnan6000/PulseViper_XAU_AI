@@ -1344,6 +1344,7 @@ same commit and must run the equivalent focused test set before freeze.
 
 Current structured testing areas include:
 
+- `04_Testing/ai/core/`
 - `04_Testing/production_portability/`
 - `04_Testing/evidence/`
 
