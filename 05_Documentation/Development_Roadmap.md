@@ -1355,3 +1355,16 @@ Remaining V2 migration work is no longer normal READY movement; it consists of
 the 77 REVIEW_REQUIRED decisions while FROZEN_STAY and SUPPORT_STAY remain
 governed exceptions.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## Review Phase Progress
+
+READY migration remains complete at 78 executed rows.
+
+The first review-execution batch has completed 2 integration-owned test
+migrations, leaving 75 rows in REVIEW_REQUIRED.
+
+The remaining review queue includes path-sensitive research tooling,
+testing-module-string consumers, integration cases requiring bootstrap cleanup,
+and self-target/no-relocation rows.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

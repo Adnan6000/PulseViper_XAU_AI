@@ -1728,3 +1728,17 @@ Total: 78.
 
 No V2 READY test remains loose solely because of filesystem-depth coupling.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## Reviewed Integration Tests
+
+`04_Testing/integration/` now contains:
+
+- `test_instrument_frame_guard.py`
+- `test_xauusd_hierarchical_model_v4_trainer.py`
+
+These two files are tracked as reviewed cross-domain integration ownership.
+
+The source-aligned READY population under `04_Testing/ai` remains 78; organized
+test-file population is now 80 including the integration directory.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

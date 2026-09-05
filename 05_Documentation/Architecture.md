@@ -1801,3 +1801,17 @@ changing parent-depth arithmetic.
 
 All 78 V2 READY tests are now source-aligned.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## Integration Test Ownership
+
+Cross-domain tests with no single production-domain owner may live under
+`04_Testing/integration/` when review proves that integration ownership is
+stronger than an `ai/<domain>` assignment.
+
+The first reviewed integration batch contains the instrument frame guard
+contract test and hierarchical model V4 trainer test.
+
+Both were free of file-depth bootstrap, local `sys.path` mutation, external
+path/module consumers, and CI path coupling before relocation.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

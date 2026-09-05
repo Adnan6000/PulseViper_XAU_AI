@@ -7,33 +7,32 @@ The frozen V2 manifest remains historical decision evidence and is not rewritten
 ## Current summary
 
 - Executed READY migrations: 78
-- Pending READY migrations: 0
-- Review required: 77
+- Review-executed migrations: 2
+- Review required: 75
 - Frozen stay: 18
 - Support stay: 1
 
-## READY structural migration complete
+## READY structural phase
 
-All 78 V2 READY tests are now source-aligned under `04_Testing/ai/<domain>/`.
+All 78 READY rows remain complete under `04_Testing/ai/<domain>/`.
 
-The final READY special case, `test_v1_health.py`, was first decoupled from its filesystem depth using the shared `repo_root` pytest fixture.
+## Review execution - integration batch 01
 
-`04_Testing/conftest.py` now discovers repository root using stable repository markers rather than a fixed `parents[n]` depth. The same discovered root owns pytest `sys.path` visibility and the session-scoped `repo_root` fixture.
+Two REVIEW_REQUIRED rows were independently proven to have integration ownership, zero external consumers, zero fixed-depth bootstrap debt, zero local `sys.path` mutation, and no CI path dependency.
 
-`test_v1_health.py` then moved to `04_Testing/ai/config/test_v1_health.py`, and its explicit CI path was updated.
+They now live under `04_Testing/integration/`:
 
-The source-aligned direct test-file population is now 78:
+- `test_instrument_frame_guard.py`
+- `test_xauusd_hierarchical_model_v4_trainer.py`
 
-- common: 2
-- config: 2
-- core: 22
-- database: 4
-- dataset: 10
-- features: 1
-- memory: 1
-- objects: 1
-- shadow: 35
+The files moved byte-identically and passed focused verification at their new locations.
 
-The remaining V2 queue consists of REVIEW_REQUIRED, FROZEN_STAY, and SUPPORT_STAY decisions rather than ordinary READY relocation work.
+The portable-331 candidate evaluator remains intentionally outside this batch because it is a non-test research tool with a separate entrypoint and research-governance contract.
 
-Permanently consumed VALIDATION and TEST were not executed.
+Current organized test-file population:
+
+- source-aligned READY tests under `04_Testing/ai`: 78
+- reviewed integration tests under `04_Testing/integration`: 2
+- organized test files total: 80
+
+Permanently consumed VALIDATION and one-time TEST were not executed.

@@ -1554,3 +1554,22 @@ conftest change.
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## Reviewed Integration Relocation Verification
+
+The first REVIEW_REQUIRED integration batch required:
+
+- zero fixed-depth `__file__` bootstrap;
+- zero local `sys.path` mutation;
+- zero external full-path, dotted-module, and basename consumers;
+- zero CI path dependency;
+- byte-identical movement;
+- `py_compile` at new locations;
+- focused pytest at new locations;
+- frozen 33-file identity verification.
+
+Research executables are not combined into an integration-test migration gate.
+
+Permanently consumed VALIDATION and one-time TEST workflows were not executed.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

@@ -820,3 +820,13 @@ file-depth-derived repository root with the shared `repo_root` pytest fixture.
 `04_Testing/conftest.py` now discovers repository root from stable repository
 markers instead of a fixed parent index.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## Reviewed Integration Test Layout
+
+The first V2 REVIEW_REQUIRED execution batch has moved two independently
+verified cross-domain tests into `04_Testing/integration/`.
+
+These are separate from the 78 completed READY source-aligned tests and are
+tracked as REVIEW_EXECUTED rather than retroactively reclassified as READY.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

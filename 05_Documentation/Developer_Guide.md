@@ -2003,3 +2003,17 @@ also uses that same root for pytest import visibility.
 Do not add new per-test `parents[n]` repository discovery or local `sys.path`
 bootstrap when the shared pytest contract is sufficient.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## REVIEW_REQUIRED Execution
+
+A REVIEW_REQUIRED manifest row must not be treated as READY merely because its
+target appears plausible.
+
+Execution requires an explicit dependency review. When cross-domain ownership
+is demonstrated and relocation dependencies are zero, the row may transition
+to `REVIEW_EXECUTED`.
+
+Integration tests should remain separate from research executables; test
+relocation and research-entrypoint relocation are different contracts.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

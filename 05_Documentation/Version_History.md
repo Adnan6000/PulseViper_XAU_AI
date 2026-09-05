@@ -1341,3 +1341,15 @@ Config-aligned test directory.
 The CI path was updated, and the V2 READY structural migration population
 reached 78 executed tests with zero READY items pending.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:START -->
+## First REVIEW_REQUIRED Integration Migration
+
+Two reviewed cross-domain tests were moved into
+`04_Testing/integration/`.
+
+The readiness state now records 78 executed READY rows, 2 REVIEW_EXECUTED
+rows, and 75 REVIEW_REQUIRED rows.
+
+No production code or frozen research evidence was changed.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01:END -->

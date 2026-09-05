@@ -206,3 +206,32 @@ one `parents[n]` value with another. Because V1 health repository-root access
 occurs only inside pytest test functions, fixture injection is the narrowest
 stable ownership model.
 <!-- V2-V1-ROOT-ABSTRACTION-RELOCATION-07:END -->
+
+<!-- V2-REVIEW-INTEGRATION-BATCH-01-08:START -->
+## Gate V2-REVIEW-INTEGRATION-BATCH-01-08
+
+- Baseline: `a0d8077`
+- Manifest class before gate: REVIEW_REQUIRED
+- Reviewed rows executed: 2
+- Integration files relocated: 2
+- `test_instrument_frame_guard.py`: Common + Dataset integration
+- `test_xauusd_hierarchical_model_v4_trainer.py`: Common + Dataset + Models integration
+- External identity consumers before move: 0
+- External basename consumers before move: 0
+- File-depth bootstrap debt: 0
+- Local `sys.path` mutation: 0
+- CI rewrites required: 0
+- Move byte identity: passed
+- Focused new-path pytest: passed
+- Frozen compatibility files checked: 33
+- READY executed rows remain: 78
+- REVIEW_EXECUTED rows after gate: 2
+- REVIEW_REQUIRED rows after gate: 75
+- Non-test research evaluator moved: no
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+
+This is the first implementation gate for the V2 review phase. REVIEW_EXECUTED
+is deliberately distinct from READY/EXECUTED so the historical review decision
+remains visible in current-state reporting.
+<!-- V2-REVIEW-INTEGRATION-BATCH-01-08:END -->
