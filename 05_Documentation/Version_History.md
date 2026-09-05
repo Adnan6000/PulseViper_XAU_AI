@@ -1231,3 +1231,17 @@ governance without performing blanket renormalization or forcing all worktree
 files to LF. This preserves existing frozen and byte-sensitive compatibility
 while making future Git behavior more predictable.
 <!-- REPOSITORY-EOL-GOVERNANCE:END -->
+
+<!-- REPOSITORY-MIGRATION-V2:START -->
+## Architecture V2 Manifest Freeze
+
+A second-generation repository migration manifest was introduced after the
+architecture, documentation, UTF-8, and line-ending governance audits.
+
+V2 records 174 remaining loose/root Python candidates and distinguishes
+READY files from REVIEW_REQUIRED, FROZEN_STAY, and SUPPORT_STAY files.
+
+This replaces filename-token migration as the decision mechanism for future
+repository restructuring. Ambiguous ownership remains fail-closed rather than
+being guessed.
+<!-- REPOSITORY-MIGRATION-V2:END -->

@@ -1218,3 +1218,30 @@ migration: many tests use dynamic imports/loaders and remain unresolved.
 This repository-cleanup subphase does not change the frozen XAUUSD historical
 research verdict and does not authorize live or shadow deployment.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
+
+<!-- REPOSITORY-MIGRATION-V2:START -->
+## Architecture V2 Migration State
+
+The repository now uses
+`05_Documentation/Repository_Migration_Manifest_v2.csv`
+and
+`05_Documentation/Repository_Migration_Manifest_v2.md`
+as the decision record for future testing/research relocation.
+
+The V2 manifest currently covers 174 remaining loose/root Python
+candidates.
+
+Current classification:
+
+- READY: 78
+- REVIEW_REQUIRED: 77
+- FROZEN_STAY: 18
+- SUPPORT_STAY: 1
+
+V2 is fail-closed. A proposed target is not permission to move a file unless
+its status is READY and the later migration gate independently verifies path,
+CI, import/dynamic-loader, frozen-artifact, and documentation constraints.
+
+The original migration manifest remains historical planning evidence and must
+not be used as automatic authority for remaining moves.
+<!-- REPOSITORY-MIGRATION-V2:END -->
