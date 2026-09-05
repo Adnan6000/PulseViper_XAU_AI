@@ -1190,3 +1190,29 @@ The purpose of version history is not to make development look perfect.
 Its purpose is to make future decisions understandable.
 
 A failed experiment with clear provenance is more useful than a successful-looking result whose origin cannot be reconstructed.
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Repository Structure Stabilization
+
+> Managed repository-history section.
+
+Recent repository-structure milestones:
+
+- `820d80f` ? froze repository testing and evidence inventory.
+- `bbce3fa` ? froze the original repository migration manifest.
+- `29da975` ? reorganized unreferenced repository evidence JSON.
+- `b1bc11f` ? reorganized referenced repository evidence JSON with consumer
+  path updates.
+- `0c2fb24` ? reorganized production-portability testing tools.
+
+The portability migration moved 38 Python files, preserved frozen artifacts,
+passed Python compilation, and passed 113 focused regression tests.
+
+A subsequent architecture audit established the numbered top-level repository
+layout as canonical and removed the empty duplicate `Data/` directory while
+leaving `01_Data/` unchanged.
+
+The original migration manifest is retained as historical planning evidence.
+Further migration uses architecture V2 principles based on actual source
+ownership, CI dependencies, dynamic-loading behavior, and path semantics.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

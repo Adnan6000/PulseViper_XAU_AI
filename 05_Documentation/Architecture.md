@@ -1554,3 +1554,84 @@ Execution layer
 ```
 
 This separation keeps PulseViper understandable, testable, and safer to evolve.
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Repository Structure Governance
+
+> Managed repository-architecture section.
+
+### Canonical top-level structure
+
+The repository uses the numbered project layout as the architectural source of
+truth:
+
+- `01_Data/` ? canonical data layer.
+- `02_AI/` ? production Python system.
+- `03_MT5/` ? MT5 integration area.
+- `04_Testing/` ? testing, diagnostics, research tooling, and testing evidence.
+- `05_Documentation/` ? documentation and engineering governance.
+- `06_Exports/` ? generated exports.
+- `07_Git/` ? reserved Git-support area.
+- `Logs/` ? generated runtime logs.
+
+No new top-level directory may be introduced when an existing canonical
+numbered directory already owns the same responsibility.
+
+The duplicate empty `Data/` directory was removed. `01_Data/` remains the
+canonical data location.
+
+### `02_AI` source domains
+
+The current production Python source architecture contains these twelve
+domains:
+
+- `Adapters`
+- `Common`
+- `Config`
+- `Core`
+- `Database`
+- `Dataset`
+- `Features`
+- `Memory`
+- `Models`
+- `Objects`
+- `Shadow`
+- `Utils`
+
+Testing organization should reflect real source ownership where that ownership
+can be established reliably. Cross-domain tests should be treated as
+integration tests rather than being forced into an arbitrary subsystem.
+
+### `04_Testing` structure
+
+Currently established structured areas:
+
+- `04_Testing/evidence/`
+- `04_Testing/evidence/production_portability/`
+- `04_Testing/evidence/research/`
+- `04_Testing/production_portability/`
+
+A future V2 migration may introduce source-aligned test and research
+subdirectories only after ownership, CI paths, imports, dynamic loaders,
+repository-root semantics, and frozen compatibility constraints are verified.
+
+The earlier migration manifest is historical planning evidence and is not
+authority for future file movement after the architecture audit.
+
+### Frozen compatibility boundary
+
+One-time VALIDATION and TEST code/evidence remain at their frozen compatibility
+paths when relocation would alter their established path contract.
+
+VALIDATION and TEST must not be rerun as part of structure cleanup.
+
+### Path-resolution technical debt
+
+The architecture audit found widespread repository-depth coupling and
+`sys.path` mutation. Further large-scale relocation must not increase this
+technical debt.
+
+A stable repository-root/path bootstrap mechanism should be designed and
+verified before broad migration of depth-sensitive scripts. Existing frozen
+holdout logic is excluded from such refactoring unless explicitly authorized.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

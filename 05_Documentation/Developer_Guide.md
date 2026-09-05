@@ -1848,3 +1848,37 @@ PulseViper is designed around one core engineering idea:
 > A result is only useful when we can prove what data, features, model, code, and decision rules produced it.
 
 When in doubt, preserve reproducibility, protect holdout data, and fail closed.
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Repository Structure Development Rules
+
+> Managed engineering-governance section.
+
+When adding or relocating project files:
+
+1. Reuse the canonical numbered top-level architecture instead of creating a
+   semantically duplicate top-level folder.
+2. Treat `01_Data/` as the canonical data root.
+3. Keep production implementation under the existing `02_AI` subsystem that
+   owns the responsibility.
+4. Keep tests and engineering diagnostics under `04_Testing/`.
+5. Classify a test from actual source ownership, imports, dynamic loaders, CI
+   usage, and runtime behavior rather than filename keywords alone.
+6. Keep genuinely cross-subsystem tests in an integration-oriented testing
+   area.
+7. Keep research tooling separate from active runtime regression tests.
+8. Never move or rewrite frozen one-time VALIDATION / TEST material merely to
+   make the directory tree visually cleaner.
+9. Update CI paths in the same engineering gate when a CI-addressed test moves.
+10. Update relevant Markdown documentation in the same gate as architecture,
+    path, module, testing, or evidence changes.
+11. Avoid introducing new hard-coded `Path(__file__).resolve().parents[n]`
+    dependencies. Prefer a stable project-root/path mechanism once the
+    canonical helper is frozen.
+12. Verify structure changes with syntax checks, focused tests where
+    applicable, stale-path scans, frozen-artifact checks, and a clean Git
+    working tree before committing.
+
+Repository documentation is part of the implementation contract, not a
+post-project reporting task.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

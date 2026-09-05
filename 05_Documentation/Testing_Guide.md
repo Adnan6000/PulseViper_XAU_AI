@@ -1328,3 +1328,44 @@ The objective is:
 ```text
 prove that the system behaved exactly as authorized.
 ```
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Testing Repository Layout and Migration Rules
+
+> Managed testing-architecture section.
+
+Pytest is configured to discover tests recursively beneath `04_Testing/` using
+the `test_*.py` naming convention. Therefore nested test directories remain
+compatible with normal pytest discovery.
+
+The current CI workflow also contains explicit file paths for a focused test
+set. Any migration of those files must update `.github/workflows/ci.yml` in the
+same commit and must run the equivalent focused test set before freeze.
+
+Current structured testing areas include:
+
+- `04_Testing/production_portability/`
+- `04_Testing/evidence/`
+
+The production-portability restructuring moved 38 Python files. The migrated
+batch passed Python compilation and its focused regression suite with 113
+tests passing.
+
+Repository cleanup must never execute the permanently consumed one-time TEST or
+rerun the permanently consumed VALIDATION.
+
+Frozen holdout-related scripts/tests remain compatibility exceptions where
+their established path is part of the frozen protocol.
+
+Before future test relocation:
+
+- establish real source ownership;
+- inspect dynamic `importlib` / file-loader usage;
+- preserve repository-root semantics;
+- update CI references;
+- run `py_compile`;
+- run the focused affected pytest suite;
+- check for stale old paths;
+- verify frozen artifacts remain unchanged;
+- commit only from a clean verified state.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

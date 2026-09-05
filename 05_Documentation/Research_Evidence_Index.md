@@ -1464,3 +1464,29 @@ code
 holdout state
 decision
 ```
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Repository Evidence Location Note
+
+> Managed evidence-structure section.
+
+Non-frozen research and portability JSON evidence is being consolidated under
+`04_Testing/evidence/`.
+
+Current structured evidence areas include:
+
+- `04_Testing/evidence/production_portability/`
+- `04_Testing/evidence/research/legacy_ml/`
+- `04_Testing/evidence/research/portable_331/train/`
+
+Frozen one-time VALIDATION / TEST artifacts that participate in established
+path contracts remain at their frozen root locations.
+
+Evidence relocation does not alter the contents or scientific interpretation
+of the frozen historical results and does not permit VALIDATION or TEST to be
+rerun.
+
+The final historical research verdict remains unchanged: historical
+out-of-sample acceptance does not itself authorize live trading or automatic
+shadow deployment.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

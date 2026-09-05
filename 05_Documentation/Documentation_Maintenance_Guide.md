@@ -1262,3 +1262,45 @@ makes safe change
 ```
 
 without needing undocumented project history.
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Documentation Synchronization Requirement
+
+> Managed documentation-governance section.
+
+Documentation synchronization is a required part of an engineering gate.
+
+When a change affects any of the following:
+
+- repository structure;
+- module ownership;
+- test locations;
+- CI test paths;
+- data/evidence locations;
+- research lifecycle;
+- frozen artifacts;
+- execution or deployment authorization;
+- developer workflow;
+
+the relevant Markdown documentation must be updated in the same gate before
+the change is considered frozen.
+
+At minimum, review:
+
+- `README.md`
+- `Architecture.md`
+- `Developer_Guide.md`
+- `Development_Roadmap.md`
+- `Module_List.md`
+- `Research_Evidence_Index.md`
+- `Testing_Guide.md`
+- `Troubleshooting.md`
+- `Version_History.md`
+
+Only documents materially affected by the gate need textual changes, but the
+review itself is mandatory.
+
+Generated inventory/migration reports do not replace maintained explanatory
+documentation. Generated reports describe repository state; maintained
+documentation explains architecture, intent, constraints, and operating rules.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

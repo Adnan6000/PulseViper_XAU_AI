@@ -1553,3 +1553,39 @@ Only then edit the module.
 The most dangerous repository changes are not always syntax errors.
 
 They are changes that still run successfully while silently invalidating a contract.
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Repository Structure Mapping
+
+> Managed module-structure section.
+
+### Production source domains
+
+`02_AI` currently contains twelve source domains:
+
+`Adapters`, `Common`, `Config`, `Core`, `Database`, `Dataset`, `Features`,
+`Memory`, `Models`, `Objects`, `Shadow`, and `Utils`.
+
+These domains are the preferred ownership basis for future unit-test
+organization.
+
+### Testing support domains
+
+Current established testing structure:
+
+- `04_Testing/production_portability/` ? broker/production portability
+  diagnostics and regression tests.
+- `04_Testing/evidence/production_portability/` ? portability evidence.
+- `04_Testing/evidence/research/` ? historical/research evidence.
+- loose `04_Testing/*.py` ? transitional mixed testing/research area still
+  undergoing controlled classification.
+
+`04_Testing/conftest.py` remains test-root support.
+
+Frozen one-time holdout code remains at its established compatibility paths.
+
+Root `test_logger.py` and `test_settings.py` are under architecture review;
+the ownership audit found no pytest-style `test_*` functions in either file,
+so they must not be treated as ordinary test modules solely because of their
+filenames.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->

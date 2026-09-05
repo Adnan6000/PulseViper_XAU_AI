@@ -1179,3 +1179,42 @@ Current live state:
 ```text
 NOT AUTHORIZED
 ```
+
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
+## Repository Architecture Cleanup Subphase
+
+> Managed roadmap section.
+
+Repository organization is being stabilized before further large-scale
+testing/research migration.
+
+Completed:
+
+- froze a repository testing/evidence inventory;
+- froze the original migration manifest as historical planning evidence;
+- reduced root-level JSON evidence from 68 files to 19 intentional/frozen
+  exceptions;
+- moved 49 non-frozen JSON evidence artifacts into structured
+  `04_Testing/evidence/` locations;
+- created `04_Testing/production_portability/`;
+- migrated 38 production-portability Python files;
+- preserved frozen holdout material during those migrations;
+- passed Python compilation for the portability batch;
+- passed the focused portability regression suite with 113 tests;
+- removed the empty duplicate top-level `Data/` directory while preserving
+  canonical `01_Data/`.
+
+Current work:
+
+- replace the original filename-token migration approach with architecture V2;
+- resolve test ownership from actual source behavior and dynamic loading;
+- preserve and update CI test paths during relocation;
+- reduce repository-root depth coupling before broad nested migration;
+- continuously synchronize architecture/testing/module documentation.
+
+The current source-ownership resolver is not yet sufficient for mass
+migration: many tests use dynamic imports/loaders and remain unresolved.
+
+This repository-cleanup subphase does not change the frozen XAUUSD historical
+research verdict and does not authorize live or shadow deployment.
+<!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
