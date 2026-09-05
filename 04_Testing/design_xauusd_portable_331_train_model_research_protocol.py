@@ -30,7 +30,7 @@ RESEARCH_PROTOCOL_VERSION = (
 SUPERVISED_INTEGRATION_JSON = (
     ROOT_DIR
     /
-    "xauusd_portable_331_train_supervised_batch_integration.json"
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_supervised_batch_integration.json"
 )
 
 LOADER_SOURCE = (

@@ -40,19 +40,19 @@ adjudicator: Any = importlib.import_module(
 FINAL_ADJUDICATION_JSON = (
     ROOT_DIR
     /
-    "xauusd_current_broker_full_333_evidence_adjudication.json"
+    "04_Testing/evidence/production_portability/xauusd_current_broker_full_333_evidence_adjudication.json"
 )
 
 FEATURE_ACTION_JSON = (
     ROOT_DIR
     /
-    "xauusd_broker_sensitive_feature_actions.json"
+    "04_Testing/evidence/production_portability/xauusd_broker_sensitive_feature_actions.json"
 )
 
 REPLACEMENT_AUDIT_JSON = (
     ROOT_DIR
     /
-    "xauusd_portable_broker_sensitive_replacements.json"
+    "04_Testing/evidence/production_portability/xauusd_portable_broker_sensitive_replacements.json"
 )
 
 

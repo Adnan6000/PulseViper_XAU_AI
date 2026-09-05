@@ -43,13 +43,13 @@ adjudicator: Any = importlib.import_module(
 FULL_AUDIT_JSON = (
     ROOT_DIR
     /
-    "xauusd_current_broker_full_mtf_portability.json"
+    "04_Testing/evidence/production_portability/xauusd_current_broker_full_mtf_portability.json"
 )
 
 FINAL_ADJUDICATION_JSON = (
     ROOT_DIR
     /
-    "xauusd_current_broker_full_333_evidence_adjudication.json"
+    "04_Testing/evidence/production_portability/xauusd_current_broker_full_333_evidence_adjudication.json"
 )
 
 

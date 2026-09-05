@@ -393,7 +393,7 @@ maximize worst-fold directional macro-F1
 Primary JSON:
 
 ```text
-xauusd_portable_331_train_internal_winner_freeze.json
+04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_internal_winner_freeze.json
 ```
 
 Status:
@@ -440,7 +440,7 @@ n_jobs = -1
 Primary JSON:
 
 ```text
-xauusd_portable_331_c04_full_train_model_fit.json
+04_Testing/evidence/research/portable_331/train/xauusd_portable_331_c04_full_train_model_fit.json
 ```
 
 Model artifact:

@@ -47,7 +47,7 @@ PortableTrainingFeatureProjector = (
 READINESS_JSON = (
     ROOT_DIR
     /
-    "xauusd_portable_331_train_input_readiness.json"
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_input_readiness.json"
 )
 
 V4_TRAINER_SOURCE = (

@@ -31,7 +31,7 @@ EVALUATOR_PATH = (
 
 PROTOCOL_JSON_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_model_research_protocol_design.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_model_research_protocol_design.json"
 )
 
 REGISTRY_JSON_PATH = (
@@ -41,7 +41,7 @@ REGISTRY_JSON_PATH = (
 
 SUPERVISED_BATCH_JSON_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_supervised_batch_integration.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_supervised_batch_integration.json"
 )
 
 EXPECTED_REGISTRY_FINGERPRINT = (
@@ -1683,7 +1683,7 @@ def main() -> int:
         type=Path,
         default=(
             REPO_ROOT
-            / "xauusd_portable_331_candidate_evaluator_integration_contract.json"
+            / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_candidate_evaluator_integration_contract.json"
         ),
     )
 

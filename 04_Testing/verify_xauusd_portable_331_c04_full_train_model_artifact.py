@@ -20,12 +20,12 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 FULL_TRAIN_FIT_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_c04_full_train_model_fit.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_c04_full_train_model_fit.json"
 )
 
 WINNER_FREEZE_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_internal_winner_freeze.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_internal_winner_freeze.json"
 )
 
 DEFAULT_OUTPUT_PATH = (

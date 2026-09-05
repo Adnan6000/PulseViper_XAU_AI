@@ -36,7 +36,7 @@ EVALUATION_PATH = (
 
 DEFAULT_OUTPUT_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_internal_winner_freeze.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_internal_winner_freeze.json"
 )
 
 EXPECTED_EVALUATION_ANALYSIS_VERSION = (

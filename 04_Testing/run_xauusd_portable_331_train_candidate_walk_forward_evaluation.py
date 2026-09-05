@@ -43,12 +43,12 @@ REGISTRY_PATH = (
 
 PROTOCOL_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_model_research_protocol_design.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_model_research_protocol_design.json"
 )
 
 INTEGRATION_ATTESTATION_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_candidate_evaluator_integration.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_candidate_evaluator_integration.json"
 )
 
 DEFAULT_OUTPUT_PATH = (

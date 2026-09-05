@@ -90,7 +90,7 @@ CANONICAL_DATETIME_DTYPE = (
 FINAL_ADJUDICATION_JSON = (
     ROOT_DIR
     /
-    "xauusd_current_broker_full_333_evidence_adjudication.json"
+    "04_Testing/evidence/production_portability/xauusd_current_broker_full_333_evidence_adjudication.json"
 )
 
 

@@ -41,7 +41,7 @@ EVALUATOR_PATH = (
 
 PROTOCOL_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_model_research_protocol_design.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_model_research_protocol_design.json"
 )
 
 REGISTRY_PATH = (
@@ -51,7 +51,7 @@ REGISTRY_PATH = (
 
 DEFAULT_OUTPUT_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_candidate_evaluator_integration.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_candidate_evaluator_integration.json"
 )
 
 DATASET_PACKAGE = (

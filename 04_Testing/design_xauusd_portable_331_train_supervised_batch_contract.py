@@ -30,7 +30,7 @@ SUPERVISED_BATCH_CONTRACT_VERSION = (
 TARGET_INTEGRATION_JSON = (
     ROOT_DIR
     /
-    "xauusd_portable_331_train_target_loader_integration.json"
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_target_loader_integration.json"
 )
 
 LOADER_SOURCE = (

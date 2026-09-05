@@ -32,13 +32,13 @@ EXPECTED_CORRECTED_D1_VERSION = (
 FULL_AUDIT_JSON = (
     ROOT_DIR
     /
-    "xauusd_current_broker_full_mtf_portability.json"
+    "04_Testing/evidence/production_portability/xauusd_current_broker_full_mtf_portability.json"
 )
 
 CORRECTED_D1_JSON = (
     ROOT_DIR
     /
-    "xauusd_current_broker_d1_corrected_portability.json"
+    "04_Testing/evidence/production_portability/xauusd_current_broker_d1_corrected_portability.json"
 )
 
 

@@ -46,7 +46,7 @@ Portable331TrainingInputLoader = (
 LOADER_INTEGRATION_JSON = (
     ROOT_DIR
     /
-    "xauusd_portable_331_training_input_loader_integration.json"
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_training_input_loader_integration.json"
 )
 
 LOADER_SOURCE = (

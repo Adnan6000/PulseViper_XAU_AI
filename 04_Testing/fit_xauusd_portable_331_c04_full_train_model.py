@@ -40,7 +40,7 @@ WINNER_FREEZE_RUNNER_PATH = (
 
 WINNER_FREEZE_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_train_internal_winner_freeze.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_internal_winner_freeze.json"
 )
 
 DEFAULT_MODEL_PATH = (
@@ -50,7 +50,7 @@ DEFAULT_MODEL_PATH = (
 
 DEFAULT_OUTPUT_PATH = (
     REPO_ROOT
-    / "xauusd_portable_331_c04_full_train_model_fit.json"
+    / "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_c04_full_train_model_fit.json"
 )
 
 EXPECTED_WINNER_ID = (
