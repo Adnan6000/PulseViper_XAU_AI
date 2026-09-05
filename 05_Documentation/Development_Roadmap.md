@@ -1291,3 +1291,25 @@ Architecture V2 execution status:
 The next structural phase is not another mechanical move batch. It is a
 dedicated path-bootstrap design for the 19 location-sensitive READY tests.
 <!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->
+
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:START -->
+## Pytest Bootstrap Consolidation
+
+Seventeen previously location-sensitive READY tests have had redundant local
+pytest bootstrap removed while remaining at their existing filesystem paths.
+
+Their focused project-environment suite passed 41 tests before relocation.
+
+Two legacy Dataset tests encountered during verification were aligned to the
+already-existing mandatory InstrumentContext API and converted to deterministic
+temporary-output tests.
+
+Current READY execution work is split into:
+
+- 17 bootstrap-cleaned tests ready for relocation;
+- 1 test requiring import normalization;
+- 1 test requiring repository-root abstraction.
+
+This removes path-depth debt instead of carrying `parents[n]` adjustments into
+new test directories.
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->

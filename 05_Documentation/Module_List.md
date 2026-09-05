@@ -1662,3 +1662,18 @@ Total: 59 tests.
 The remaining READY tests are intentionally excluded because they still derive
 repository-root/import behavior from their own filesystem depth.
 <!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->
+
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:START -->
+## Pytest Bootstrap Authority
+
+`04_Testing/conftest.py` owns repository-root `sys.path` setup for ordinary
+pytest collection.
+
+Seventeen loose READY tests now rely on that shared bootstrap and contain no
+per-file `__file__` repository-root calculation or `sys.path` mutation.
+
+Two Dataset tests within that group were refreshed to use the current
+InstrumentContext materialization contract and deterministic temporary output.
+
+They remain loose only until their dedicated relocation gate.
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->

@@ -1286,3 +1286,19 @@ been migrated.
 Nineteen READY tests remain deliberately unmoved because their current
 `__file__`/repository-depth behavior requires a dedicated bootstrap refactor.
 <!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->
+
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:START -->
+## Pytest Bootstrap Consolidation and Dataset Test Refresh
+
+Redundant `__file__`-derived repository-root and `sys.path` bootstrap logic was
+removed from 17 READY tests.
+
+The tests remain at their original locations. Their focused suite passed 41
+tests under the repository project `.venv`.
+
+During verification, two existing Dataset tests were found to use obsolete
+pre-InstrumentContext call signatures. They were updated to the current
+fail-closed production contract using deterministic temporary-output fixtures.
+
+No production Dataset behavior was changed.
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->

@@ -1940,3 +1940,23 @@ imports for:
 Focused post-move pytest remains mandatory because static migration analysis
 must fail closed when runtime relationships are not fully proven.
 <!-- V2-SHADOW-SAFE-A-MIGRATION:END -->
+
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:START -->
+## Pytest Bootstrap Ownership and Verification
+
+Tests collected beneath `04_Testing/` must not add repository root to
+`sys.path` individually when `04_Testing/conftest.py` already provides that
+bootstrap.
+
+Per-test `Path(__file__).resolve().parents[n]` plus `sys.path` mutation creates
+folder-depth coupling.
+
+Repository verification uses the project `.venv` interpreter and declared
+dependencies; machine-wide Python installations are not the repository test
+environment.
+
+When structural cleanup exposes an already-stale test contract, production
+fail-closed behavior must not be relaxed merely to satisfy the old test. The
+test should instead be aligned to the current contract and isolated from
+unnecessary external state where practical.
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->

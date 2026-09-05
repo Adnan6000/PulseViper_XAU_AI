@@ -1729,3 +1729,26 @@ location participates in repository-root or import-bootstrap behavior.
 Those files require a dedicated path-bootstrap refactor and must not be moved
 mechanically.
 <!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->
+
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:START -->
+## Centralized Pytest Repository Bootstrap
+
+`04_Testing/conftest.py` is the single pytest repository-root path bootstrap
+authority for 17 relocation-ready tests.
+
+Those tests previously derived repository root from their own `__file__`
+depth and independently mutated `sys.path`. That duplication has been removed
+before relocation.
+
+Focused project-environment verification passed 41 tests.
+
+Verification also exposed two legacy Dataset tests whose calls predated the
+mandatory InstrumentContext materialization contract. Those tests were aligned
+to the current production contract using deterministic temporary-output
+fixtures; production Dataset behavior was not weakened or changed.
+
+Two READY special cases remain outside this consolidation:
+
+- `test_database.py` requires legacy import normalization;
+- `test_v1_health.py` genuinely consumes repository-root filesystem paths.
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->

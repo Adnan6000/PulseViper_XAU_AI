@@ -1472,3 +1472,30 @@ remain intentionally unmoved.
 
 Permanently consumed VALIDATION and TEST were not executed.
 <!-- V2-FINAL-LOCATION-INDEPENDENT-BATCH:END -->
+
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:START -->
+## Shared Pytest Path Bootstrap
+
+Repository-root import visibility for normal tests is provided centrally by
+`04_Testing/conftest.py`.
+
+A consolidation gate removed redundant local bootstrap logic from 17 READY
+tests while every file remained at its original location.
+
+Verification uses `.venv\Scripts\python.exe -m pytest` on Windows. The final
+focused result for this gate was 41 passed.
+
+An earlier system-Python run stopped because that external interpreter lacked
+the repository-declared PyYAML dependency; this was an environment failure and
+not treated as code evidence.
+
+The project-environment run then exposed two tests with pre-existing obsolete
+Dataset calls. `test_exporter.py` and `test_history_manager.py` were aligned to
+the current fail-closed InstrumentContext contract using deterministic
+`tmp_path` output and without changing production Dataset behavior.
+
+Seven existing `datetime.utcnow()` deprecation warnings from
+`history_downloader.py` remain separate maintenance debt.
+
+Permanently consumed VALIDATION and TEST were not executed.
+<!-- V2-PYTEST-BOOTSTRAP-CONSOLIDATION:END -->
