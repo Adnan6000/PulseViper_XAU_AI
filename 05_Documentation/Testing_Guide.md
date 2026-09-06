@@ -1602,3 +1602,25 @@ standalone project-root bootstrap behavior under test is unchanged.
 File-loader harnesses that intentionally resolve sibling research scripts are
 not converted to `repo_root` merely because they contain `__file__`.
 <!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->
+
+<!-- GATE-13-PORTABILITY-TESTING:START -->
+## Gate 13 Production Portability & Feature Parity Tests
+
+Gate 13 verifies that production broker multi-timeframe feeds produce the exact frozen 331-feature model input contract without future leakage:
+
+- `04_Testing/production_portability/test_portable_feature_contract.py`:
+  Validates 331 feature count, column ordering, SHA256 fingerprint, strict symbol allowlisting (`XAUUSD`, `XAUUSDm`), and rejection of invalid/reordered inputs.
+- `04_Testing/production_portability/test_portable_feature_pipeline.py`:
+  Validates production pipeline end-to-end:
+  - Deterministic repeatability;
+  - Rejection of alien symbols (`EURUSD`), missing timeframes, non-monotonic timestamps, duplicate timestamps, and inverted OHLC;
+  - Strict no-future-leakage causal alignment;
+  - D1 reconstruction from H1 matching 00:00:00 UTC boundary;
+  - Read-only compatibility with frozen C04 model artifact.
+- `04_Testing/production_portability/test_frozen_331_parity.py`:
+  Validates numerical feature parity across non-holdout TRAIN reference rows against `Portable331TrainingInputLoader`.
+- `04_Testing/production_portability/run_xauusd_portable_331_production_parity.py`:
+  Standalone reproducible verification harness that executes full parity analysis and generates `xauusd_portable_331_production_parity_evidence.json`.
+
+One-time VALIDATION and TEST holdouts are never executed or touched during portability verification.
+<!-- GATE-13-PORTABILITY-TESTING:END -->

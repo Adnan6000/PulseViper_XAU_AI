@@ -331,6 +331,40 @@ Do not modify a frozen feature while continuing to claim the old fingerprint.
 
 ---
 
+# 8.1 `02_AI/Features/portable_feature_contract.py`
+
+**Area:** Feature contract authority
+**Safety:** YELLOW / FROZEN CONTRACT SENSITIVITY
+
+## Responsibility
+
+Defines the authoritative 331-feature schema required by frozen models (C04 winner):
+- `FROZEN_FEATURE_COLUMNS`: 331 exactly ordered feature column names.
+- `EXPECTED_FEATURE_COLUMNS_SHA256`: `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`.
+- `SUPPORTED_SYMBOLS`: `("XAUUSD", "XAUUSDm")`.
+- `D1_SESSION_BOUNDARY_UTC`: `"00:00:00"`.
+- `PortableFeatureContract`: Typed validation functions enforcing exact count, order, finite values, and symbol allowlisting.
+
+---
+
+# 8.2 `02_AI/Features/portable_feature_pipeline.py`
+
+**Area:** Production feature generation
+**Safety:** YELLOW / PRODUCTION PORTABILITY
+
+## Responsibility
+
+Generates the exact 331-feature matrix from broker multi-timeframe OHLC data:
+- Reconstructs canonical D1 from H1 data aligned to 00:00:00 UTC (matching native broker D1 with zero mismatch).
+- Computes 43 technical features across 6 timeframes (M5, M15, M30, H1, H4, D1).
+- Generates 1 retained M5 tick volume feature (`m5_tick_volume_ratio20`).
+- Generates 63 domain features (structure, liquidity, patterns, institutional zones, regimes) across MTFs.
+- Generates 5 age features and 4 UTC cyclical time features (`sin_hour_utc`, `cos_hour_utc`, `sin_dow_utc`, `cos_dow_utc`).
+- Enforces strict no-future-leakage causal alignment (`available_time` with backward `merge_asof`).
+- Fails closed via `PortableFeatureGenerationError` on invalid inputs, missing history, non-monotonic timestamps, or unknown symbols.
+
+---
+
 # 9. `02_AI/Core/confidence_engine.py`
 
 **Area:** Trading context / decision support

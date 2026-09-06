@@ -2046,3 +2046,45 @@ A collected test that only needs repository location must request the
 This rule does not replace explicit sibling-script loader contracts and does
 not apply to standalone executable research tools.
 <!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->
+
+<!-- GATE-13-DEVELOPER-GUIDE:START -->
+## Production Feature Pipeline Interface (`PortableFeaturePipeline`)
+
+The production feature pipeline generates the exact frozen 331-feature matrix from broker multi-timeframe feeds:
+
+### Usage Example:
+```python
+from 02_AI.Features.portable_feature_pipeline import (
+    PortableFeaturePipeline,
+    PortableFeatureGenerationError,
+)
+
+pipeline = PortableFeaturePipeline(symbol="XAUUSD")
+
+# Feeds dictionary must include M5, M15, M30, H1, H4 (D1 is optional and reconstructed if omitted)
+# Each DataFrame must contain columns: 'open', 'high', 'low', 'close', 'tick_volume'
+# with a monotonically increasing DatetimeIndex (or 'time'/'timestamp' column).
+try:
+    features_df = pipeline.generate_features(
+        feeds={
+            "M5": df_m5,
+            "M15": df_m15,
+            "M30": df_m30,
+            "H1": df_h1,
+            "H4": df_h4,
+            "D1": df_d1,  # Optional
+        },
+        warmup_m5_bars=300,
+    )
+    # features_df has shape (N, 331), exactly ordered columns, float32, no NaNs
+except PortableFeatureGenerationError as err:
+    # Fail-closed: invalid feed, insufficient history, or non-monotonic times
+    logger.error("Feature generation failed closed: %s", err)
+```
+
+### Safety and Portability Rules:
+1. **Symbol Allowlisting**: Only `XAUUSD` and `XAUUSDm` are supported. Any alias requires explicit proof.
+2. **D1 Boundary**: Daily candles are anchored to `00:00:00 UTC`.
+3. **No-Future-Leakage**: All higher-timeframe features are aligned causally at their close time (`available_time = time + period`) via backward `merge_asof`.
+4. **Fail-Closed**: Non-finite values, missing history, non-monotonic timestamps, or duplicate bars raise `PortableFeatureGenerationError` with no usable matrix returned.
+<!-- GATE-13-DEVELOPER-GUIDE:END -->

@@ -1465,6 +1465,52 @@ holdout state
 decision
 ```
 
+---
+
+# 51. Gate 13 — Production Feature Provenance & Parity Evidence
+
+Gate 13 proves that production/broker multi-timeframe data produces the exact frozen 331-feature model input contract with zero mismatches against historical non-holdout TRAIN research data.
+
+### Provenance Map Artifact
+- **File**: `04_Testing/evidence/production_portability/xauusd_portable_331_feature_provenance_map.json`
+- **SHA256**: `bee22e57982aeddc4c2a673ee54c1720ea264b844329976138d4ebf94f05e7b4`
+- **Total Features**: 331
+- **Feature Columns SHA256**: `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`
+- **Family Distribution**:
+  - `technical_mtf`: 258 features (43 indicators x 6 timeframes)
+  - `retained_volume`: 1 feature (`m5_tick_volume_ratio20`)
+  - `domain_structure`: 18 features (3 indicators x 6 timeframes)
+  - `domain_liquidity`: 6 features (1 indicator x 6 timeframes)
+  - `domain_patterns`: 12 features (2 indicators x 6 timeframes)
+  - `domain_zones`: 15 features (3 indicators x 5 timeframes: M15..D1)
+  - `domain_regimes`: 12 features (2 indicators x 6 timeframes)
+  - `age_features`: 5 features (M15..D1 bar age in M5 bars)
+  - `cyclical_time`: 4 features (`sin_hour_utc`, `cos_hour_utc`, `sin_dow_utc`, `cos_dow_utc`)
+- **Family Numerical Tolerances**:
+  - `EXACT_DISCRETE`: `rtol=0.0, atol=0.0`
+  - `INTEGER_COUNT`: `rtol=0.0, atol=0.0`
+  - `FLOAT32_TRIGONOMETRIC`: `rtol=1e-5, atol=1e-6`
+  - `FLOAT32_NUMERIC`: `rtol=1e-4, atol=1e-5`
+
+### Production Parity Evidence Artifact
+- **File**: `04_Testing/evidence/production_portability/xauusd_portable_331_production_parity_evidence.json`
+- **Verdict**: **PASS**
+- **Evaluation Set**: 481 non-holdout TRAIN rows evaluated against `Portable331TrainingInputLoader`
+- **Total Compared Features**: 331
+- **Mismatches**: 0 across all 331 features
+- **Maximum Observed Differences**:
+  - `FLOAT32_NUMERIC`: `5.00e-07`
+  - `FLOAT32_TRIGONOMETRIC`: `4.79e-11`
+  - `EXACT_DISCRETE`: `0.0`
+  - `INTEGER_COUNT`: `0.0`
+- **Frozen Model Compatibility**:
+  - Model Artifact: `xauusd_portable_331_c04_full_train_model.joblib`
+  - Model SHA256: `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`
+  - `n_features_in_`: 331
+  - `classes_`: `[-1, 0, 1]`
+
+---
+
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
 ## Repository Evidence Location Note
 

@@ -519,31 +519,31 @@ not just array shape.
 
 # 14. Production Portability Architecture
 
-The desired production feature path is:
+The production feature generation path is implemented and verified under Gate 13:
 
 ```text
-NEW BROKER
+BROKER DATA (M5, M15, M30, H1, H4, optional D1)
     ↓
-Symbol Normalization
+Symbol Verification (XAUUSD / XAUUSDm)
     ↓
-Time Canonicalization
+Time Canonicalization & Monotonicity Verification
     ↓
-Canonical MTF Bars
+Canonical D1 Reconstruction (00:00:00 UTC Session Boundary)
     ↓
-Canonical D1 Reconstruction
+Causal Feature Generation (No-Future-Leakage)
     ↓
-Feature Generation
-    ↓
-Portable Projection
+Portable Projection & Ordering
     ↓
 Exact 331 Ordered Features
     ↓
-Fingerprint / Schema Validation
+Fingerprint & Type Validation (Fail-Closed)
 ```
 
-This stage is not fully finished yet.
-
-It is one of the main remaining production engineering blocks.
+Gate 13 establishes:
+- `02_AI/Features/portable_feature_contract.py`: Authoritative 331-feature schema with fingerprint `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`.
+- `02_AI/Features/portable_feature_pipeline.py`: Production engine generating exactly 331 features from broker OHLC bars.
+- Fail-closed error handling via typed `PortableFeatureGenerationError` (no partial/corrupt matrices emitted).
+- Parity verified against non-holdout TRAIN research data with 0 mismatches across all 331 features.
 
 ---
 
