@@ -1,4 +1,4 @@
-﻿# PulseViper XAU AI — System Architecture
+# PulseViper XAU AI — System Architecture
 
 ## 1. Purpose of This Document
 
@@ -775,7 +775,7 @@ MORE RESULTS OBSERVED
 Important evaluator:
 
 ```text
-04_Testing/evaluate_xauusd_portable_331_train_model_candidates.py
+04_Testing/research/portable_331/train/evaluate_xauusd_portable_331_train_model_candidates.py
 ```
 
 It evaluates the candidate registry using the frozen research protocol.
@@ -1607,18 +1607,24 @@ integration tests rather than being forced into an arbitrary subsystem.
 Currently established structured areas:
 
 - `04_Testing/ai/common/`
+- `04_Testing/ai/config/`
 - `04_Testing/ai/core/`
+- `04_Testing/ai/database/`
 - `04_Testing/ai/dataset/`
 - `04_Testing/ai/objects/`
 - `04_Testing/ai/shadow/`
+- `04_Testing/integration/`
+- `04_Testing/diagnostics/`
+- `04_Testing/production_portability/`
+- `04_Testing/research/portable_331/train/`
+- `04_Testing/research/legacy_ml/`
+- `04_Testing/research/shadow_experiments/`
+- `04_Testing/research/legacy_validation/`
 - `04_Testing/evidence/`
 - `04_Testing/evidence/production_portability/`
 - `04_Testing/evidence/research/`
-- `04_Testing/production_portability/`
 
-A future V2 migration may introduce source-aligned test and research
-subdirectories only after ownership, CI paths, imports, dynamic loaders,
-repository-root semantics, and frozen compatibility constraints are verified.
+All 78 READY files and 77 REVIEW files have been migrated to their source-aligned and research/diagnostic targets. Exactly 19 files remain at the `04_Testing/` root: 18 frozen validation/holdout files and `conftest.py`.
 
 The earlier migration manifest is historical planning evidence and is not
 authority for future file movement after the architecture audit.

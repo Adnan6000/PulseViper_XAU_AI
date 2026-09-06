@@ -298,3 +298,38 @@ The file remains REVIEW_REQUIRED because this gate addressed only bootstrap
 technical debt. Final placement should be reviewed together with
 `exness_historical_fill_telemetry_operation.py`.
 <!-- V2-SELF-TARGET-PYTEST-ROOT-NORMALIZATION-10:END -->
+
+<!-- V2-FINAL-COORDINATED-CLEANUP-11:START -->
+## Gate V2-FINAL-COORDINATED-CLEANUP-11
+
+- Baseline: `9c1c4d9`
+- Scope: All 73 remaining `REVIEW_REQUIRED` files across `04_Testing/` root
+- Files relocated via `git mv`: 73
+- Reviewed targets:
+  - `04_Testing/integration/`: 10 cross-domain feature tests
+  - `04_Testing/research/portable_331/train/`: 17 research scripts + 7 companion tests
+  - `04_Testing/research/legacy_ml/`: 11 legacy training and tuning scripts
+  - `04_Testing/research/shadow_experiments/`: 9 shadow forward operations
+  - `04_Testing/research/legacy_validation/`: 6 historical offline validation scripts
+  - `04_Testing/production_portability/`: 2 portability and data-building scripts
+  - `04_Testing/diagnostics/`: 11 operational telemetry, attestation, and readiness scripts
+- Sibling companion test contracts: preserved (`Path(__file__).with_name(...)`)
+- Stale dotted module/import references: 18 scanned and repaired to 0 residue
+- Standalone bootstrap: marker-based `_find_repo_root()` and `_repository_bootstrap.py`
+- Pytest collection preflight: `collect_ignore` in `04_Testing/conftest.py` protects all 18 frozen validation/test files
+- Pytest suites executed:
+  - `04_Testing/integration/`: 30 passed
+  - `04_Testing/research/portable_331/train/`: 35 passed
+  - `04_Testing/diagnostics/`: 51 passed (including 29 telemetry diagnostic tests)
+  - `04_Testing/production_portability/`: 113 passed
+  - `04_Testing/ai/`: 945 passed
+  - Full collection: 1174 tests collected, 0 frozen holdout files collected
+- Compilation: `python -m compileall` passed with 0 errors
+- Frozen compatibility files checked: all 33 files byte-identical to baseline
+- Frozen V2 manifest files: `Repository_Migration_Manifest_v2.csv` and `.md` unchanged
+- Frozen model SHA256: `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`
+- `04_Testing/` root cleanliness: exactly 19 files remain (18 `FROZEN_STAY`, 1 `SUPPORT_STAY`)
+- VALIDATION rerun: no
+- one-time TEST rerun: no
+- Final state: 78 READY EXECUTED, 77 REVIEW_EXECUTED, 0 REVIEW_REQUIRED, 18 FROZEN_STAY, 1 SUPPORT_STAY
+<!-- V2-FINAL-COORDINATED-CLEANUP-11:END -->

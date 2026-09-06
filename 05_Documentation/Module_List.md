@@ -1,4 +1,4 @@
-﻿# PulseViper XAU AI — Module Reference & Developer Map
+# PulseViper XAU AI — Module Reference & Developer Map
 
 ## 1. Purpose
 
@@ -546,7 +546,7 @@ X.shape = (69966, 331)
 
 ---
 
-# 15. `04_Testing/evaluate_xauusd_portable_331_train_model_candidates.py`
+# 15. `04_Testing/research/portable_331/train/evaluate_xauusd_portable_331_train_model_candidates.py`
 
 **Area:** ML research
 **Safety:** YELLOW — SCIENTIFIC CONTRACT
@@ -625,7 +625,7 @@ before results are observed.
 
 ---
 
-# 17. `04_Testing/run_xauusd_portable_331_candidate_evaluator_integration.py`
+# 17. `04_Testing/research/portable_331/train/run_xauusd_portable_331_candidate_evaluator_integration.py`
 
 **Area:** Integration verification
 **Safety:** GREEN/YELLOW
@@ -646,7 +646,7 @@ This differs from a unit test.
 
 ---
 
-# 18. `04_Testing/run_xauusd_portable_331_train_candidate_walk_forward_evaluation.py`
+# 18. `04_Testing/research/portable_331/train/run_xauusd_portable_331_train_candidate_walk_forward_evaluation.py`
 
 **Area:** Real TRAIN research
 **Safety:** YELLOW / FROZEN EVIDENCE
@@ -680,7 +680,7 @@ C04_FLAT_EXTRA_TREES_CONSTRAINED
 
 ---
 
-# 19. `04_Testing/freeze_xauusd_portable_331_train_internal_winner.py`
+# 19. `04_Testing/research/portable_331/train/freeze_xauusd_portable_331_train_internal_winner.py`
 
 **Area:** Research decision freeze
 **Safety:** GREEN/YELLOW
@@ -704,7 +704,7 @@ It turns a research decision into immutable provenance.
 
 ---
 
-# 20. `04_Testing/fit_xauusd_portable_331_c04_full_train_model.py`
+# 20. `04_Testing/research/portable_331/train/fit_xauusd_portable_331_c04_full_train_model.py`
 
 **Area:** Model fitting
 **Safety:** YELLOW — FROZEN MODEL
@@ -743,7 +743,7 @@ Do not overwrite this artifact with a modified model.
 
 ---
 
-# 21. `04_Testing/verify_xauusd_portable_331_c04_full_train_model_artifact.py`
+# 21. `04_Testing/research/portable_331/train/verify_xauusd_portable_331_c04_full_train_model_artifact.py`
 
 **Area:** Artifact provenance
 **Safety:** GREEN/YELLOW
@@ -1574,23 +1574,24 @@ organization.
 Current established testing structure:
 
 - `04_Testing/ai/common/` — source-aligned tests owned by `02_AI/Common`.
+- `04_Testing/ai/config/` — source-aligned tests for AI configuration.
 - `04_Testing/ai/core/` — source-aligned tests owned by `02_AI/Core`.
+- `04_Testing/ai/database/` — source-aligned tests for database layer.
 - `04_Testing/ai/dataset/` — source-aligned tests owned by `02_AI/Dataset`.
 - `04_Testing/ai/objects/` — source-aligned tests owned by `02_AI/Objects`.
 - `04_Testing/ai/shadow/` — source-aligned tests owned by `02_AI/Shadow`.
+- `04_Testing/integration/` — cross-domain feature and pipeline integration tests.
+- `04_Testing/diagnostics/` — operational telemetry, attestation, and system diagnostics.
 - `04_Testing/production_portability/` — production portability diagnostics and regression tests.
+- `04_Testing/research/portable_331/train/` — research scripts and companion tests for model training and candidate selection.
+- `04_Testing/research/legacy_ml/` — legacy training, feature stability, and tuning scripts.
+- `04_Testing/research/shadow_experiments/` — experimental shadow operations and outcome diagnostics.
+- `04_Testing/research/legacy_validation/` — historical offline validation workflows.
 - `04_Testing/evidence/production_portability/` — portability evidence.
 - `04_Testing/evidence/research/` — historical/research evidence.
-- loose `04_Testing/*.py` — transitional testing/research area containing location-sensitive and review-required files.
+- `04_Testing/` root — contains exclusively the 18 frozen validation/holdout files and `conftest.py`.
 
-`04_Testing/conftest.py` remains test-root support.
-
-Frozen one-time holdout code remains at its established compatibility paths.
-
-Root `test_logger.py` and `test_settings.py` are under architecture review;
-the ownership audit found no pytest-style `test_*` functions in either file,
-so they must not be treated as ordinary test modules solely because of their
-filenames.
+`04_Testing/conftest.py` provides test-root support and guards frozen holdout suites via `collect_ignore`.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
 
 <!-- REPOSITORY-MIGRATION-V2:START -->

@@ -435,7 +435,7 @@ A reusable candidate evaluator was implemented.
 Important module:
 
 ```text
-04_Testing/evaluate_xauusd_portable_331_train_model_candidates.py
+04_Testing/research/portable_331/train/evaluate_xauusd_portable_331_train_model_candidates.py
 ```
 
 The evaluator supported:
@@ -1376,3 +1376,21 @@ the Exness historical telemetry direct-script regression test.
 The test now uses the centralized pytest `repo_root` fixture. No relocation or
 review-state transition was performed.
 <!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->
+
+<!-- V2-FINAL-COORDINATED-CLEANUP:START -->
+## Coordinated Architecture Cleanup (Gate 11)
+
+Executed the final coordinated cleanup of all remaining 73 `REVIEW_REQUIRED` files across the repository in a single structured pass, incorporating all 11 non-negotiable safeguards:
+- Machine-checkable relocation classification frozen prior to file moves;
+- Data-building scripts (`build_exness_demo_xauusd_canonical_history.py`) cleanly owned by `04_Testing/production_portability/`;
+- Authoritative taxonomy splitting research into `portable_331/train/`, `legacy_ml/`, `shadow_experiments/`, and `legacy_validation/`;
+- Pytest collection preflight protected frozen holdout workflows via `collect_ignore` in `04_Testing/conftest.py`;
+- Byte-identical preservation of all 33 frozen compatibility files and frozen model SHA256 (`48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`);
+- Zero stale dotted imports, old paths, or subprocess/loader target residue;
+- Companion test contracts (`Path(__file__).with_name(...)`) preserved;
+- Root `04_Testing/` cleaned to exactly 19 files (18 `FROZEN_STAY`, 1 `SUPPORT_STAY`);
+- Full active test suites verified: 1174 tests passing with zero frozen suites collected;
+- Historical V2 manifest files (`Repository_Migration_Manifest_v2.csv` and `.md`) preserved untouched.
+
+Final migration state: 78 READY EXECUTED, 77 REVIEW_EXECUTED, 0 REVIEW_REQUIRED, 18 FROZEN_STAY, 1 SUPPORT_STAY.
+<!-- V2-FINAL-COORDINATED-CLEANUP:END -->

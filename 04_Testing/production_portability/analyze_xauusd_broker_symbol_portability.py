@@ -24,11 +24,11 @@ if str(ROOT_DIR) not in sys.path:
 
 
 sweep_module: Any = importlib.import_module(
-    "04_Testing.tune_xauusd_hierarchical_model_v4_stage_b"
+    "04_Testing.research.legacy_ml.tune_xauusd_hierarchical_model_v4_stage_b"
 )
 
 temporal_module: Any = importlib.import_module(
-    "04_Testing.analyze_xauusd_hierarchical_model_v4_stage_b_temporal_robustness"
+    "04_Testing.research.legacy_ml.analyze_xauusd_hierarchical_model_v4_stage_b_temporal_robustness"
 )
 
 trainer_module: Any = importlib.import_module(

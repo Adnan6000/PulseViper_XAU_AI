@@ -192,11 +192,11 @@ It contains:
 Example current files include:
 
 ```text
-04_Testing/evaluate_xauusd_portable_331_train_model_candidates.py
+04_Testing/research/portable_331/train/evaluate_xauusd_portable_331_train_model_candidates.py
 
-04_Testing/fit_xauusd_portable_331_c04_full_train_model.py
+04_Testing/research/portable_331/train/fit_xauusd_portable_331_c04_full_train_model.py
 
-04_Testing/verify_xauusd_portable_331_c04_full_train_model_artifact.py
+04_Testing/research/portable_331/train/verify_xauusd_portable_331_c04_full_train_model_artifact.py
 
 04_Testing/design_xauusd_portable_331_one_time_validation_protocol.py
 

@@ -74,7 +74,7 @@ trainer_module: Any = importlib.import_module(
 )
 
 sweep_module: Any = importlib.import_module(
-    "04_Testing.tune_xauusd_hierarchical_model_v4_stage_b"
+    "04_Testing.research.legacy_ml.tune_xauusd_hierarchical_model_v4_stage_b"
 )
 
 builder_module: Any = importlib.import_module(

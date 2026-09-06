@@ -7,49 +7,50 @@ The frozen V2 manifest remains historical decision evidence and is not rewritten
 ## Current summary
 
 - Executed READY migrations: 78
-- Review-executed migrations: 4
-- Review required: 73
+- Review-executed migrations: 77
+- Review required: 0
 - Frozen stay: 18
 - Support stay: 1
+- Total items: 174
 
-## Review execution
+## Final Coordinated Review Execution
 
-Two reviewed cross-domain tests live under `04_Testing/integration/`.
+All 73 remaining `REVIEW_REQUIRED` files have undergone rigorous evidence review, re-verified ownership, taxonomy refinement, reference normalization, and test execution in a single coordinated cleanup pass (Gate `V2-FINAL-COORDINATED-CLEANUP-11`).
 
-Two historical root-level `test_*.py` files were proven not to be pytest tests at all. They contained zero test functions and executed diagnostics at import time.
+### Taxonomy of Relocated Clusters
 
-Those files are now explicit standalone diagnostics:
+1. **`04_Testing/integration/` (10 files)**:
+   Cross-domain feature and pipeline integration test suites:
+   `test_candle_features.py`, `test_displacement.py`, `test_feature_generator.py`, `test_liquidity.py`, `test_liquidity_memory.py`, `test_liquidity_object.py`, `test_liquidity_sweep.py`, `test_momentum_features.py`, `test_trend_features.py`, `test_volatility_features.py`.
 
-- `04_Testing/diagnostics/logger_diagnostic.py`
-- `04_Testing/diagnostics/settings_diagnostic.py`
+2. **`04_Testing/research/portable_331/train/` (24 files)**:
+   Research scripts (17) and companion test suites (7) for Portable 331 model candidate training, evaluation, walk-forward validation, and artifact freezing. Preserves intentional sibling `Path(__file__).with_name(...)` contracts while resolving repository root via `_find_repo_root()`.
 
-Standalone diagnostic repository-root discovery is provided by `04_Testing/diagnostics/_repository_bootstrap.py`. It uses repository markers rather than fixed parent depth and is intentionally independent from pytest `conftest.py`.
+3. **`04_Testing/research/legacy_ml/` (11 files)**:
+   Historical training, feature stability, temporal robustness, and tuning scripts (`train_xauusd_model_v1.py`..`v4`, `tune_xauusd_hierarchical_model_v4_stage_b.py`, etc.).
 
-The frozen V2 manifest's original self-target proposals remain unchanged as historical evidence. The reviewed actual targets are recorded by the execution log and current documentation.
+4. **`04_Testing/research/shadow_experiments/` (9 files)**:
+   Experimental shadow paper operations, forward weighting, compounding lifecycle, and setup outcome diagnostics.
 
-A scanner correction was also established: a root-level Python module stem such as `test_settings` must not be treated as an operational dotted-module reference by raw substring matching. The earlier apparent consumer was only the function name `test_settings_load_successfully`.
+5. **`04_Testing/research/legacy_validation/` (6 files)**:
+   Historical offline validation workflows (walk-forward, regime-conditioned, multi-day scalping).
 
-Permanently consumed VALIDATION and one-time TEST were not executed.
+6. **`04_Testing/production_portability/` (2 files)**:
+   Broker canonical dataset construction (`build_exness_demo_xauusd_canonical_history.py`) and live feature pipeline discovery (`discover_xauusd_current_feature_pipeline.py`).
 
-<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:START -->
-## Self-target pytest normalization
+7. **`04_Testing/diagnostics/` (11 files)**:
+   Operational telemetry diagnostics and tests (`exness_historical_fill_telemetry_diagnostic.py`, `test_exness_historical_fill_telemetry_diagnostic.py`, direct script test), context attestation operations and launcher tests, and standalone readiness checks (`daily_trade_readiness_diagnostic.py`, `symbol_specification_diagnostic.py`, `terminal_connection_diagnostic.py`).
 
-One REVIEW_REQUIRED self-target test has had its fixed-depth repository lookup
-removed without changing migration state:
+### Cleanliness of `04_Testing/` Root
 
-- `04_Testing/test_exness_historical_fill_telemetry_direct_script.py`
+Exactly 19 files remain at `04_Testing/` root:
+- **18 `FROZEN_STAY` files**: One-time validation/test holdout scripts (`run_xauusd_portable_331_one_time_validation.py`, etc.) protected against rerun or collection.
+- **1 `SUPPORT_STAY` file**: `conftest.py`, providing repository-root discovery fixture and `collect_ignore` guard for all 18 frozen files.
+Zero review files, misplaced tests, or unclassified scripts remain at the testing root.
 
-The test now uses the session-scoped `repo_root` pytest fixture.
+### Frozen Safeguards Compliance
 
-The row remains REVIEW_REQUIRED because this gate normalized technical debt
-only; it did not decide final ownership or relocation of the telemetry
-operation/test pair.
-
-Current state remains:
-
-- READY executed: 78
-- REVIEW_EXECUTED: 4
-- REVIEW_REQUIRED: 73
-- FROZEN_STAY: 18
-- SUPPORT_STAY: 1
-<!-- V2-SELF-TARGET-DIRECT-SCRIPT-ROOT-NORMALIZATION:END -->
+- All 33 frozen compatibility files are 100% byte-identical to baseline.
+- `05_Documentation/Repository_Migration_Manifest_v2.csv` and `.md` remain untouched historical evidence.
+- Frozen model SHA256 matches: `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`.
+- Full test suites pass cleanly under project `.venv` (1174 collected tests across active suites).
