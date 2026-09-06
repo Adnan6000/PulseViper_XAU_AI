@@ -748,13 +748,15 @@ Completed under Gate 13:
 The key question:
 
 ```text
-Does production generate the same feature semantics
+Does the production feature pipeline generate the same feature semantics
 that the historical model was trained on?
 ```
 
 Verdict: **PASS** (Zero mismatches across all 331 features across 481 common TRAIN reference rows).
 
-Evidence generated:
+Scope & Evidence:
+- Proves parity of the production feature pipeline using canonical broker-derived historical execution snapshots against non-holdout frozen TRAIN rows.
+- Live MT5 feed ingestion and live runtime parity have not yet been proven by Gate 13 and belong to downstream integration.
 - `04_Testing/evidence/production_portability/xauusd_portable_331_feature_provenance_map.json`
 - `04_Testing/evidence/production_portability/xauusd_portable_331_production_parity_evidence.json`
 

@@ -1606,7 +1606,7 @@ not converted to `repo_root` merely because they contain `__file__`.
 <!-- GATE-13-PORTABILITY-TESTING:START -->
 ## Gate 13 Production Portability & Feature Parity Tests
 
-Gate 13 verifies that production broker multi-timeframe feeds produce the exact frozen 331-feature model input contract without future leakage:
+Gate 13 verifies that the production feature pipeline reproduces the exact frozen 331-feature model input contract without future leakage using canonical broker-derived historical execution snapshots against non-holdout frozen TRAIN rows (live MT5 feed ingestion and live runtime parity have not yet been proven by Gate 13):
 
 - `04_Testing/production_portability/test_portable_feature_contract.py`:
   Validates 331 feature count, column ordering, SHA256 fingerprint, strict symbol allowlisting (`XAUUSD`, `XAUUSDm`), and rejection of invalid/reordered inputs.

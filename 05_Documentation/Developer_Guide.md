@@ -2050,7 +2050,7 @@ not apply to standalone executable research tools.
 <!-- GATE-13-DEVELOPER-GUIDE:START -->
 ## Production Feature Pipeline Interface (`PortableFeaturePipeline`)
 
-The production feature pipeline generates the exact frozen 331-feature matrix from broker multi-timeframe feeds:
+The production feature pipeline generates the exact frozen 331-feature matrix from multi-timeframe OHLC bars (proven against canonical broker-derived historical execution snapshots; live feed ingestion and runtime execution parity have not yet been proven by Gate 13 and belong to downstream integration):
 
 ### Usage Example:
 ```python

@@ -1469,7 +1469,7 @@ decision
 
 # 51. Gate 13 — Production Feature Provenance & Parity Evidence
 
-Gate 13 proves that production/broker multi-timeframe data produces the exact frozen 331-feature model input contract with zero mismatches against historical non-holdout TRAIN research data.
+Gate 13 proves parity of the production feature pipeline using canonical broker-derived historical execution snapshots against non-holdout frozen TRAIN rows, producing the exact frozen 331-feature model input contract with zero mismatches. Live MT5 feed ingestion and live runtime parity are outside this scope and have not yet been proven by Gate 13.
 
 ### Provenance Map Artifact
 - **File**: `04_Testing/evidence/production_portability/xauusd_portable_331_feature_provenance_map.json`

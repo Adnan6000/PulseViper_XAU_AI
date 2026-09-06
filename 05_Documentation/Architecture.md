@@ -541,9 +541,9 @@ Fingerprint & Type Validation (Fail-Closed)
 
 Gate 13 establishes:
 - `02_AI/Features/portable_feature_contract.py`: Authoritative 331-feature schema with fingerprint `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`.
-- `02_AI/Features/portable_feature_pipeline.py`: Production engine generating exactly 331 features from broker OHLC bars.
+- `02_AI/Features/portable_feature_pipeline.py`: Production engine generating exactly 331 features from OHLC bars.
 - Fail-closed error handling via typed `PortableFeatureGenerationError` (no partial/corrupt matrices emitted).
-- Parity verified against non-holdout TRAIN research data with 0 mismatches across all 331 features.
+- Parity verified for the production feature pipeline using canonical broker-derived historical execution snapshots against non-holdout frozen TRAIN rows with 0 mismatches across all 331 features (live MT5 feed ingestion and runtime execution parity are outside this gate and have not yet been proven).
 
 ---
 
