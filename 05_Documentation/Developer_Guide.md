@@ -2088,3 +2088,36 @@ except PortableFeatureGenerationError as err:
 3. **No-Future-Leakage**: All higher-timeframe features are aligned causally at their close time (`available_time = time + period`) via backward `merge_asof`.
 4. **Fail-Closed**: Non-finite values, missing history, non-monotonic timestamps, or duplicate bars raise `PortableFeatureGenerationError` with no usable matrix returned.
 <!-- GATE-13-DEVELOPER-GUIDE:END -->
+
+<!-- GATE-14-DEVELOPER-GUIDE:START -->
+## Frozen C04 Offline Inference Adapter (`FrozenC04InferenceAdapter`)
+
+The offline inference adapter wraps the frozen C04 ExtraTrees model (`xauusd_portable_331_c04_full_train_model.joblib`) for deterministic prediction on validated Gate 13 features:
+
+### Usage Example:
+```python
+from 02_AI.Models.frozen_c04_inference_adapter import (
+    FrozenC04InferenceAdapter,
+    FrozenC04InferenceError,
+)
+
+adapter = FrozenC04InferenceAdapter()
+
+try:
+    # features_df must be an exact 331-column matrix from PortableFeaturePipeline
+    batch = adapter.infer(features_df, decision_times=decision_times)
+
+    for row in batch:
+        print(f"Time: {row.decision_time}")
+        print(f"P(SHORT): {row.probability_short:.4f}, P(NO_TRADE): {row.probability_no_trade:.4f}, P(LONG): {row.probability_long:.4f}")
+        print(f"Predicted: {row.predicted_label} ({row.predicted_class})")
+except FrozenC04InferenceError as err:
+    # Fail-closed: invalid feature schema, NaN/inf values, or model discrepancy
+    logger.error("Inference failed closed: %s", err)
+```
+
+### Safety & Operational Constraints:
+1. **Immutable Model**: Loaded read-only; never retrained, refit, or mutated.
+2. **Deterministic Rule**: Decision strictly follows `classes_[argmax(probabilities)]` without thresholding, calibration, or custom NO_TRADE filters.
+3. **No Trading Authority**: Pure ML inference component; `live_authorized = False` and `shadow_authorized = False` are strictly enforced on all outputs.
+<!-- GATE-14-DEVELOPER-GUIDE:END -->

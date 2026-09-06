@@ -1624,3 +1624,27 @@ Gate 13 verifies that the production feature pipeline reproduces the exact froze
 
 One-time VALIDATION and TEST holdouts are never executed or touched during portability verification.
 <!-- GATE-13-PORTABILITY-TESTING:END -->
+
+<!-- GATE-14-INFERENCE-TESTING:START -->
+## Gate 14 Frozen C04 Offline Inference Adapter Tests
+
+Gate 14 verifies that the offline inference adapter faithfully encapsulates the frozen C04 model and produces deterministic predictions matching direct model invocation:
+
+- `04_Testing/production_portability/test_frozen_c04_inference_adapter.py`:
+  Comprehensive 30-case test suite covering:
+  - Model SHA256 and class verification at startup;
+  - Exact 331 feature schema validation (column count, names, order);
+  - Rejection of non-finite values (NaN, +inf, -inf) and non-numeric dtypes;
+  - Single-row and multi-row inference with row order preservation;
+  - Probability shape `(N, 3)`, finite bounds `[0, 1]`, and row sums approximately `1.0`;
+  - Exact class mapping (`[-1, 0, 1] -> SHORT, NO_TRADE, LONG`);
+  - Frozen argmax decision rule without thresholding or calibration;
+  - Deterministic repeated inference (`max_diff < 1e-12`);
+  - Direct model vs adapter probability and class parity on TRAIN engineering rows (`0 mismatches`);
+  - Immutability of result structures and enforcement of `live_authorized = False, shadow_authorized = False`;
+  - Zero trading runtime dependencies imported or invoked.
+- `04_Testing/production_portability/run_xauusd_frozen_c04_inference_parity.py`:
+  Standalone reproducible verification harness that executes full parity analysis and generates `xauusd_frozen_c04_inference_adapter_evidence.json`.
+
+One-time VALIDATION and TEST holdouts are never executed or touched.
+<!-- GATE-14-INFERENCE-TESTING:END -->

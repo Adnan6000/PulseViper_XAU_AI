@@ -102,7 +102,7 @@ Approximate engineering maturity:
 | Untouched VALIDATION              |              100% |
 | Final TEST                        |           Pending |
 | Production broker portability     |              100% |
-| Frozen-model production inference |            30–40% |
+| Frozen-model production inference |              100% |
 | Shadow integration                |            30–40% |
 | Forward shadow validation         |             Early |
 | Safe live promotion readiness     |           ~50–60% |
@@ -776,21 +776,26 @@ Completed:
 
 # 26. Phase 20 — Frozen Model Inference Adapter
 
-**Status: ⬜ PENDING**
+**Status: ✅ COMPLETE (Gate 14)**
 
-Required:
+Completed under Gate 14:
 
-* [ ] verify model artifact SHA at startup
-* [ ] verify model class
-* [ ] verify class order
-* [ ] verify feature count
-* [ ] verify feature-column fingerprint
-* [ ] reject non-finite inputs
-* [ ] reject stale inputs
-* [ ] call `predict_proba`
-* [ ] use frozen argmax
-* [ ] no runtime threshold tuning
-* [ ] structured inference log
+* [x] verify model artifact SHA at startup (`48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`)
+* [x] verify model class (`ExtraTreesClassifier`)
+* [x] verify class order (`[-1, 0, 1]`)
+* [x] verify feature count (331)
+* [x] verify feature-column fingerprint (`65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`)
+* [x] reject non-finite inputs (NaN, +inf, -inf)
+* [x] reject malformed/non-numeric inputs
+* [x] call `predict_proba` read-only
+* [x] use frozen argmax (`classes_[argmax(proba)]`)
+* [x] no runtime threshold tuning or probability calibration
+* [x] structured immutable inference result (`FrozenC04InferenceBatch`, `FrozenC04InferenceRow`)
+* [x] zero trading runtime dependencies (`live_authorized=False, shadow_authorized=False`)
+* [x] direct-model parity verified with zero probability or class mismatches
+
+Evidence artifact:
+- `04_Testing/evidence/production_portability/xauusd_frozen_c04_inference_adapter_evidence.json`
 
 Expected inference flow:
 

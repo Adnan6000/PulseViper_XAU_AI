@@ -365,6 +365,24 @@ Generates the exact 331-feature matrix from broker multi-timeframe OHLC data:
 
 ---
 
+# 8.3 `02_AI/Models/frozen_c04_inference_adapter.py`
+
+**Area:** Model inference adapter
+**Safety:** YELLOW / FROZEN MODEL CONSUMER
+
+## Responsibility
+
+Production offline inference adapter for the frozen C04 ExtraTrees model (`xauusd_portable_331_c04_full_train_model.joblib`):
+- Verifies model SHA256 (`48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`), class (`ExtraTreesClassifier`), `n_features_in_ == 331`, and `classes_ == [-1, 0, 1]`.
+- Validates input features against the exact Gate 13 331-feature schema (names, count, order).
+- Enforces strict fail-closed rejection of non-finite values (NaN, +inf, -inf) and non-numeric dtypes.
+- Calls read-only `predict_proba` and verifies output shapes and finite unit-interval distributions.
+- Applies the frozen decision rule: `classes_[np.argmax(probabilities, axis=1)]`.
+- Emits typed immutable result containers (`FrozenC04InferenceBatch`, `FrozenC04InferenceRow`).
+- Enforces `live_authorized = False` and `shadow_authorized = False` with zero trading runtime side effects.
+
+---
+
 # 9. `02_AI/Core/confidence_engine.py`
 
 **Area:** Trading context / decision support

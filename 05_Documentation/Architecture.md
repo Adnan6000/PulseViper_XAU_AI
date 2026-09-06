@@ -895,26 +895,27 @@ Verified inference artifact
 
 ---
 
-# 28. Prediction Architecture
+# 28. Prediction Architecture & Offline Inference Adapter
 
-Frozen prediction rule:
+Under Gate 14, offline model inference is encapsulated by:
 
+```text
+02_AI/Models/frozen_c04_inference_adapter.py
+```
+
+`FrozenC04InferenceAdapter` provides production-quality, fail-closed offline inference wrapping `xauusd_portable_331_c04_full_train_model.joblib`:
+- Enforces model SHA256 (`48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`), class (`ExtraTreesClassifier`), `n_features_in_ == 331`, and `classes_ == [-1, 0, 1]`.
+- Enforces exact Gate 13 331-feature schema validation and rejects non-finite/malformed matrices.
+- Maps output probabilities strictly according to `classes_` (`col 0 -> SHORT (-1)`, `col 1 -> NO_TRADE (0)`, `col 2 -> LONG (1)`).
+- Frozen prediction rule:
 ```python
 probabilities = model.predict_proba(X)
 prediction = model.classes_[
     probabilities.argmax(axis=1)
 ]
 ```
-
-There is currently:
-
-```text
-no probability calibration
-no threshold tuning
-no post-hoc class bias
-```
-
-for the frozen experiment.
+- There is currently no probability calibration, no threshold tuning, and no post-hoc class bias.
+- Pure ML inference: `live_authorized = False, shadow_authorized = False`, with zero trading runtime dependencies.
 
 ---
 

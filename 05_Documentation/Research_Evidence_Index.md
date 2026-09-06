@@ -1511,6 +1511,36 @@ Gate 13 proves parity of the production feature pipeline using canonical broker-
 
 ---
 
+# 52. Gate 14 — Frozen C04 Offline Inference Adapter Evidence
+
+Gate 14 proves that the production-quality offline inference adapter (`FrozenC04InferenceAdapter`) faithfully wraps the frozen C04 ExtraTrees model, strictly validates the exact Gate 13 331-feature contract, and produces deterministic probabilities and class decisions matching direct model invocation with zero mismatches.
+
+### Inference Adapter Evidence Artifact
+- **File**: `04_Testing/evidence/production_portability/xauusd_frozen_c04_inference_adapter_evidence.json`
+- **Verdict**: **PASS**
+- **Input Source Classification**: `NON_HOLDOUT_TRAIN_OR_GATE13_ENGINEERING_INPUT`
+- **Model Authority**:
+  - Model Path: `xauusd_portable_331_c04_full_train_model.joblib`
+  - Model SHA256: `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`
+  - Model Class: `ExtraTreesClassifier`
+  - `n_features_in_`: `331`
+  - `classes_`: `[-1, 0, 1]` (`-1 = SHORT`, `0 = NO_TRADE`, `1 = LONG`)
+- **Parity Evaluation**:
+  - Evaluated Rows: 500 non-holdout TRAIN engineering rows
+  - Direct Model Max Probability Difference: `3.33e-16` (machine precision / floating-point summation order)
+  - Probability Mismatch Count: **0**
+  - Class Prediction Mismatch Count: **0**
+- **Decision Rule Contract**:
+  - Argmax Decision: `classes_[np.argmax(probabilities, axis=1)]`
+  - Decision Logic: Strictly frozen argmax without thresholding, calibration, or bias
+  - First-index tie behavior verified: index 0 (-1 / SHORT) on equal probabilities
+- **Safety Flags**:
+  - `live_authorized = False`
+  - `shadow_authorized = False`
+  - Zero trading runtime dependencies imported or called
+
+---
+
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
 ## Repository Evidence Location Note
 
