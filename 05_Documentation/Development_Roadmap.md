@@ -57,13 +57,16 @@ FINAL TEST
         🟢 NEXT
         ↓
 Production portability
-        ✅ COMPLETE (Gate 13)
+        ✅ COMPLETE (Gate 13: historical snapshot parity)
         ↓
-Shadow integration
-        ⬜
+Offline inference adapter
+        ✅ COMPLETE (Gate 14: frozen offline inference)
         ↓
-Forward shadow validation
-        ⬜
+Forward shadow observation infrastructure
+        ✅ COMPLETE (Gate 15A: safe read-only harness)
+        ↓
+Forward shadow accumulation & evaluation
+        ⬜ PENDING (Gate 15B: matured unseen-regime evaluation)
         ↓
 Live promotion
         ⛔
@@ -843,7 +846,13 @@ Estimated active effort:
 
 # 28. Phase 22 — Forward Shadow Validation
 
-**Status: ⬜ PENDING**
+**Status: Gate 15A ✅ COMPLETE (Observation Infrastructure) / Gate 15B ⬜ PENDING (Matured Forward Evaluation)**
+
+Gate Clarification:
+- **Gate 13**: Production feature parity on canonical broker-derived historical snapshots.
+- **Gate 14**: Frozen offline inference parity wrapping C04 ExtraTrees.
+- **Gate 15A**: Production-safe forward shadow observation infrastructure (`02_AI/Models/frozen_c04_shadow_observer.py`), locked durable append ledger, machine-readable freeze boundary (`2026-08-14T20:55:00Z`), blocked outcome contract status, and strict provenance enforcement. Gate 15A does NOT establish model trading performance, does NOT authorize execution, and does NOT declare Gate 15 complete.
+- **Gate 15B**: Future forward shadow evaluation on genuine unseen market observations accumulated across real calendar time.
 
 This phase requires real future time.
 

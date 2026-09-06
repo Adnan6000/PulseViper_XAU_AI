@@ -2121,3 +2121,50 @@ except FrozenC04InferenceError as err:
 2. **Deterministic Rule**: Decision strictly follows `classes_[argmax(probabilities)]` without thresholding, calibration, or custom NO_TRADE filters.
 3. **No Trading Authority**: Pure ML inference component; `live_authorized = False` and `shadow_authorized = False` are strictly enforced on all outputs.
 <!-- GATE-14-DEVELOPER-GUIDE:END -->
+
+<!-- GATE-15A-DEVELOPER-GUIDE:START -->
+## Frozen C04 Shadow Observer & Observation Ledger (`FrozenC04ShadowObserver`)
+
+Gate 15A provides the observation infrastructure required for future forward shadow validation.
+
+### Usage Example:
+```python
+import importlib
+import hashlib
+
+observer_mod = importlib.import_module("02_AI.Models.frozen_c04_shadow_observer")
+FrozenC04ShadowObserver = observer_mod.FrozenC04ShadowObserver
+FrozenC04ObservationLedger = observer_mod.FrozenC04ObservationLedger
+SourceProvenance = observer_mod.SourceProvenance
+DuplicateHandling = observer_mod.DuplicateHandling
+
+observer = FrozenC04ShadowObserver()
+ledger = FrozenC04ObservationLedger(
+    ledger_path="01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl",
+    duplicate_handling=DuplicateHandling.IDEMPOTENT_IGNORE,
+)
+
+# feature_row must be a 331-feature Series or array from Gate 13 PortableFeaturePipeline
+snapshot_id = hashlib.sha256(b"canonical_snapshot_data").hexdigest()
+
+record = observer.observe_single(
+    feature_row=feature_row,
+    decision_time_utc="2026-08-14T20:55:00Z",
+    source_snapshot_id=snapshot_id,
+    source_provenance=SourceProvenance.HISTORICAL_ENGINEERING,
+)
+
+result = ledger.append(record)
+if result.is_duplicate:
+    logger.info("Observation already recorded: %s", record.logical_observation_id)
+else:
+    logger.info("New observation appended: %s", record.logical_observation_id)
+```
+
+### Safety & Operational Rules:
+1. **Zero Execution Authority**: `live_authorized = False`, `execution_authorized = False`.
+2. **True Forward Eligibility**: Strictly requires (a) `TRUE_FORWARD_OBSERVATION` provenance, (b) decision timestamp after freeze boundary (`2026-08-14T20:55:00Z`), (c) observation timestamp after Gate 15A activation (`2026-09-06T13:20:00Z`), and (d) verified model/feature hashes. Attempts to submit `TRUE_FORWARD_OBSERVATION` in Gate 15A fail closed because live read authority is not yet connected.
+3. **Decoupled Identities**: `logical_observation_id` indexes the market decision point. `semantic_record_fingerprint` hashes the observation content. Conflicting content for the same logical ID raises `ConflictingObservationError`.
+4. **Locked Durable Append**: Uses OS file locking (`msvcrt`/`fcntl`) and fsync. Corrupted/partial records raise `CorruptedLedgerError` (fail closed).
+5. **Outcome Contract Blocked**: `outcome_horizon_contract_status = BLOCKED_NOT_PREDEFINED`. No forward performance metrics are evaluated during Gate 15A (`forward_performance_evaluated = False`).
+<!-- GATE-15A-DEVELOPER-GUIDE:END -->

@@ -108,6 +108,10 @@ Logs/
 01_Data/Processed/*.journal.jsonl
 01_Data/Processed/*.journal.jsonl.lock
 
+# Operational forward shadow observations and writer locks.
+# Local runtime artifacts; must never be committed to Git.
+01_Data/Shadow/
+
 01_Data/Labels/*.csv
 01_Data/Labels/*.parquet
 01_Data/Labels/*.feather

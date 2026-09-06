@@ -1,0 +1,107 @@
+{
+  "activation_authority": {
+    "earliest_eligible_forward_timestamp_utc": "2026-08-14T20:55:00Z",
+    "gate_15a_activation_utc": "2026-09-06T13:20:00Z",
+    "persisted_authority": true
+  },
+  "feature_contract": {
+    "expected_feature_count": 331,
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2"
+  },
+  "gate_id": "GATE_15A_FORWARD_SHADOW_OBSERVATION_INFRASTRUCTURE",
+  "model_authority": {
+    "classes": [
+      -1,
+      0,
+      1
+    ],
+    "expected_classes": [
+      -1,
+      0,
+      1
+    ],
+    "expected_model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "model_class": "ExtraTreesClassifier",
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "model_sha_match": true,
+    "resolved_model_path": "D:\\PulseViper_XAU_AI\\xauusd_portable_331_c04_full_train_model.joblib"
+  },
+  "observation_identity_contract": {
+    "conflict_policy": "FAIL_CLOSED with ConflictingObservationError",
+    "duplicate_policy": "IDEMPOTENT_IGNORE or FAIL_CLOSED",
+    "logical_observation_id_spec": "SHA256(schema_version:canonical_instrument:decision_time_utc:feature_columns_sha256:model_sha256)",
+    "semantic_record_fingerprint_spec": "SHA256(canonical JSON excluding observed_at_utc retry metadata)",
+    "source_snapshot_id_format": "64-character lowercase hex SHA256"
+  },
+  "observer_schema_version": "1.0.0",
+  "outcome_horizon_contract": {
+    "forward_performance_evaluated": false,
+    "reason": "No pre-forward research evidence authoritatively predefines a forward evaluation outcome horizon or directional excursion label contract. Outcome evaluation is strictly BLOCKED_NOT_PREDEFINED to prevent post-hoc horizon tuning.",
+    "status": "BLOCKED_NOT_PREDEFINED"
+  },
+  "provenance_evaluation": {
+    "historical_engineering_rows_tested": 100,
+    "outcome_evaluation_attempt_rejected_fail_closed": true,
+    "synthetic_engineering_rows_tested": 1,
+    "true_forward_attempt_rejected_fail_closed": true,
+    "true_forward_live_acquisition_authorized": false,
+    "true_forward_observation_count": 0
+  },
+  "research_freeze_boundary": {
+    "all_timeframes_maximum_source_timestamp": "2026-08-14T20:55:00Z",
+    "boundary_verified_without_holdout_access": true,
+    "corroborating_evidence": [
+      "01_Data/Canonical/Instruments/XAUUSD/execution/scope_3ce3991250300a0ed5b5cafdd6825e73c9d3d52ede1b096d8e40708d9d8c2e95/historical/M5/XAUUSD_XAUUSDm_M5_699191ac65db6057.manifest.json",
+      "04_Testing/evidence/production_portability/xauusd_frozen_m5_feature_availability_semantics.json"
+    ],
+    "provenance_authority_source": "01_Data/Canonical/Instruments/XAUUSD/learning/scope_c8705b79f4cb595c4a2dec477d76a64956ae63133a2f91426f1647a3c5f5cfef/training/XAUUSD_MTF_TRAINING_V3/portable_v1/pv_portable_xauusd_cff75b0686383a3ab6f8352b.manifest.json",
+    "provenance_manifest_key": "source_historical_snapshots.M5.end_time",
+    "provenance_timestamp_utc": "2026-08-14T20:55:00Z"
+  },
+  "safety_invariants": {
+    "execution_authorized": false,
+    "forward_performance_evaluated": false,
+    "holdouts_unaccessed": true,
+    "live_authorized": false,
+    "models_unmodified": true,
+    "risk_engine_unmodified": true
+  },
+  "static_safety_verification": {
+    "clean": true,
+    "forbidden_symbols_checked": [
+      "MetaTrader5.order_send",
+      "OrderSend",
+      "PositionClose",
+      "PositionOpen",
+      "RiskEngine",
+      "account_protection_guard",
+      "broker_aware_risk_engine",
+      "order_close",
+      "order_modify",
+      "order_send",
+      "trade_ready"
+    ],
+    "modules_inspected": [
+      "02_AI/Models/frozen_c04_shadow_observer.py",
+      "02_AI/Models/frozen_c04_inference_adapter.py",
+      "02_AI/Features/portable_feature_contract.py",
+      "02_AI/Features/portable_feature_pipeline.py"
+    ],
+    "violations": [],
+    "violations_found": 0
+  },
+  "storage_contract": {
+    "durability": "flush + os.fsync on each record append",
+    "format": "JSON Lines (.jsonl)",
+    "git_ignored": true,
+    "locking": "msvcrt on Windows, fcntl on POSIX (seek to byte 0 before lock and unlock)",
+    "mechanism": "locked durable append with fail-closed corruption detection",
+    "operational_runtime_path": "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl"
+  },
+  "test_suite_status": {
+    "all_tests_passed": true,
+    "test_count": 25,
+    "test_file": "04_Testing/production_portability/test_frozen_c04_shadow_observer.py"
+  },
+  "verdict": "PASS"
+}

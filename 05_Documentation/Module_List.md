@@ -383,6 +383,28 @@ Production offline inference adapter for the frozen C04 ExtraTrees model (`xauus
 
 ---
 
+# 8.4 `02_AI/Models/frozen_c04_shadow_observer.py`
+
+**Area:** Forward shadow observation infrastructure (Gate 15A)
+**Safety:** YELLOW / OBSERVATION ONLY / NO TRADING WRITE
+
+## Responsibility
+
+Production-side observation infrastructure for future unseen-regime forward shadow validation:
+- Consumes validated Gate 13 features and Gate 14 inference adapter.
+- Emits typed immutable `FrozenC04ObservationRecord` containers.
+- Implements decoupled `logical_observation_id` (decision point) vs `semantic_record_fingerprint` (observation content).
+- Implements `FrozenC04ObservationLedger` providing locked durable append (`msvcrt`/`fcntl`) with fail-closed corruption detection (`CorruptedLedgerError`).
+- Rejects conflicting observations for the same logical ID (`ConflictingObservationError`).
+- Strictly enforces machine-readable frozen research boundary (`2026-08-14T20:55:00Z`) and activation authority (`2026-09-06T13:20:00Z`).
+- Enforces provenance-based forward eligibility (`HISTORICAL_ENGINEERING`, `SYNTHETIC_ENGINEERING`, `TRUE_FORWARD_OBSERVATION`).
+- Rejects `TRUE_FORWARD_OBSERVATION` attempts fail closed (`TrueForwardAcquisitionNotAuthorizedError`) as live acquisition is not attached in Gate 15A.
+- Marks outcome horizon contract `BLOCKED_NOT_PREDEFINED`.
+- Enforces `live_authorized = False`, `execution_authorized = False`, `forward_performance_evaluated = False`.
+- Zero dependencies on `RiskEngine`, `trade_ready`, or broker write APIs.
+
+---
+
 # 9. `02_AI/Core/confidence_engine.py`
 
 **Area:** Trading context / decision support

@@ -193,7 +193,7 @@ The complete architecture can be viewed as seven major layers.
 
 The current project has strong historical research coverage through Layer 4 and the frozen artifact portion of Layer 5.
 
-Production inference, broker parity, and forward shadow validation remain future engineering gates.
+Gate 13 (production broker feature generation on canonical snapshots), Gate 14 (frozen offline inference adapter), and Gate 15A (forward shadow observation infrastructure) are complete. Live MT5 feed ingestion and Gate 15B (matured forward evaluation across real calendar time) remain future engineering gates. Gate 15A does NOT declare Gate 15 complete.
 
 ---
 
@@ -1836,3 +1836,56 @@ adds it to `sys.path` only when a diagnostic entrypoint is explicitly run.
 Pytest bootstrap remains owned by `04_Testing/conftest.py`; standalone
 diagnostics do not import or depend on conftest.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
+
+---
+
+# 43. Forward Shadow Observation Architecture (Gate 15A)
+
+Under Gate 15A, the forward shadow observation infrastructure is established by:
+
+```text
+02_AI/Models/frozen_c04_shadow_observer.py
+```
+
+### Purpose & Safe Read-Only Pipeline
+Gate 15A establishes the production-safe observation infrastructure required for future unseen-regime forward shadow validation:
+```
+broker-derived market snapshot
+  → Gate 13 PortableFeaturePipeline
+  → validated frozen 331 matrix
+  → Gate 14 FrozenC04InferenceAdapter
+  → READ-ONLY shadow observation record
+```
+
+### Key Architectural Principles
+1. **Module Ownership & Trading Isolation**:
+   The observer lives in `02_AI/Models/`, next to `frozen_c04_inference_adapter.py`. It is completely isolated from `02_AI/Shadow/`'s 36 files of order routing, risk scenarios, compounding accounting, and execution lifecycles.
+2. **Immutable Observation Record (`FrozenC04ObservationRecord`)**:
+   Frozen dataclass capturing:
+   - `logical_observation_id = SHA256(schema:instrument:decision_time:feature_sha:model_sha)`
+   - `semantic_record_fingerprint = SHA256(canonical JSON excluding observed_at_utc)`
+   - Exact frozen model SHA256, feature columns SHA256, probabilities, class predictions, and source snapshot fingerprint.
+   - `live_authorized = False`, `execution_authorized = False`.
+3. **Locked Durable Append Ledger (`FrozenC04ObservationLedger`)**:
+   - Stores records in JSON Lines (`.jsonl`).
+   - Uses file locking (`msvcrt` on Windows, `fcntl` on POSIX) with byte-0 seek alignment.
+   - Flushes and fsyncs on each append.
+   - Fail-closed deduplication: identical records are idempotent duplicates; conflicting records raise `ConflictingObservationError`.
+   - Corruption detection: validates every line on load; partial/truncated/corrupt writes raise `CorruptedLedgerError`.
+   - Operational runtime ledger resides in `01_Data/Shadow/` (git-ignored); test evidence resides in `04_Testing/evidence/forward_shadow/`.
+4. **Machine-Readable Frozen Boundary Authority**:
+   - Proven maximum historical source timestamp: `2026-08-14T20:55:00Z`.
+   - Source: `01_Data/Canonical/Instruments/XAUUSD/learning/scope_c8705b79f4cb595c4a2dec477d76a64956ae63133a2f91426f1647a3c5f5cfef/training/XAUUSD_MTF_TRAINING_V3/portable_v1/pv_portable_xauusd_cff75b0686383a3ab6f8352b.manifest.json` (`source_historical_snapshots.M5.end_time`).
+   - Activation authority: `2026-09-06T13:20:00Z` (persisted frozen timestamp).
+5. **Outcome Horizon Contract Status**:
+   - Strictly marked `BLOCKED_NOT_PREDEFINED`. No forward outcome horizons or directional excursion evaluation rules are fabricated post-hoc.
+6. **Provenance-Based Eligibility**:
+   - Sources classified as `HISTORICAL_ENGINEERING`, `SYNTHETIC_ENGINEERING`, or `TRUE_FORWARD_OBSERVATION`.
+   - Gate 15A does not connect a live broker feed; attempts to submit `TRUE_FORWARD_OBSERVATION` fail closed (`TrueForwardAcquisitionNotAuthorizedError`).
+   - `true_forward_observation_count = 0`.
+   - `forward_performance_evaluated = False`.
+7. **Gate Phasing**:
+   - Gate 13 = production feature parity on canonical broker-derived historical snapshots.
+   - Gate 14 = frozen offline inference parity.
+   - Gate 15A = forward shadow observation infrastructure.
+   - Gate 15B = future matured unseen-regime evaluation after sufficient real calendar evidence. Gate 15A does NOT declare Gate 15 complete.

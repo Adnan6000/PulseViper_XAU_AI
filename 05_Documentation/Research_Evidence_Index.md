@@ -1541,6 +1541,61 @@ Gate 14 proves that the production-quality offline inference adapter (`FrozenC04
 
 ---
 
+# 53. Gate 15A — Forward Shadow Observation Infrastructure Evidence
+
+Gate 15A establishes the production-safe forward shadow observation infrastructure required for future forward shadow validation:
+- Validated Gate 13 features -> Gate 14 inference adapter -> typed immutable `FrozenC04ObservationRecord` -> locked durable append ledger with fail-closed corruption detection.
+- Proves machine-readable frozen research boundary (`2026-08-14T20:55:00Z`) from `source_historical_snapshots.M5.end_time`.
+- Persists activation authority (`2026-09-06T13:20:00Z`).
+- Strictly marks outcome horizon contract `BLOCKED_NOT_PREDEFINED`.
+- Enforces provenance-based forward eligibility with fail-closed rejection of unauthorized `TRUE_FORWARD_OBSERVATION` attempts.
+- Performs zero model retraining, accesses zero holdout data, and imports zero trading runtime logic.
+
+### Forward Shadow Infrastructure Evidence Artifact
+- **File**: `04_Testing/evidence/forward_shadow/xauusd_frozen_c04_shadow_observation_infrastructure_evidence.json`
+- **Verdict**: **PASS**
+- **Observer Schema Version**: `1.0.0`
+- **Model Authority**:
+  - Model Path: `xauusd_portable_331_c04_full_train_model.joblib`
+  - Model SHA256: `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`
+  - Model Class: `ExtraTreesClassifier`
+  - `classes_`: `[-1, 0, 1]`
+- **Feature Contract**:
+  - `expected_feature_count`: `331`
+  - `feature_columns_sha256`: `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`
+- **Research Freeze Boundary**:
+  - Authority Source: `01_Data/Canonical/Instruments/XAUUSD/learning/scope_c8705b79f4cb595c4a2dec477d76a64956ae63133a2f91426f1647a3c5f5cfef/training/XAUUSD_MTF_TRAINING_V3/portable_v1/pv_portable_xauusd_cff75b0686383a3ab6f8352b.manifest.json`
+  - Authority Key: `source_historical_snapshots.M5.end_time`
+  - Maximum Historical Timestamp: `2026-08-14T20:55:00Z`
+  - Boundary verified without holdout access: `True`
+- **Activation Authority**:
+  - `gate_15a_activation_utc`: `2026-09-06T13:20:00Z` (persisted frozen authority)
+- **Outcome Horizon Contract**:
+  - Status: `BLOCKED_NOT_PREDEFINED`
+  - `forward_performance_evaluated`: **False**
+- **Provenance Evaluation**:
+  - Historical Engineering Rows Tested: 100
+  - Synthetic Engineering Rows Tested: 1
+  - True Forward Observation Count: **0**
+  - True Forward Live Acquisition Authorized: **False**
+  - True Forward Attempt Rejected Fail-Closed: `True`
+  - Outcome Evaluation Attempt Rejected Fail-Closed: `True`
+- **Static Safety Verification**:
+  - Reachable dependency graph: 0 violations, 0 forbidden symbols
+- **Storage Contract**:
+  - Mechanism: Locked durable append with fail-closed corruption detection
+  - Format: JSON Lines (`.jsonl`)
+  - Operational Runtime Path: `01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl` (git-ignored)
+- **Safety Invariants**:
+  - `live_authorized = False`
+  - `execution_authorized = False`
+  - `forward_performance_evaluated = False`
+  - `holdouts_unaccessed = True`
+  - `models_unmodified = True`
+  - `risk_engine_unmodified = True`
+
+---
+
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
 ## Repository Evidence Location Note
 

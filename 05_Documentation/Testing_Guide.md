@@ -1648,3 +1648,34 @@ Gate 14 verifies that the offline inference adapter faithfully encapsulates the 
 
 One-time VALIDATION and TEST holdouts are never executed or touched.
 <!-- GATE-14-INFERENCE-TESTING:END -->
+
+<!-- GATE-15A-SHADOW-TESTING:START -->
+## Gate 15A Forward Shadow Observation Infrastructure Tests
+
+Gate 15A establishes the observation infrastructure required for future forward shadow validation:
+
+- `04_Testing/production_portability/test_frozen_c04_shadow_observer.py`:
+  Comprehensive 25-case test suite covering:
+  - Valid observation creation and typing;
+  - Exact model identity and feature contract propagation;
+  - Class/probability mapping and winning probability validation;
+  - UTC decision timestamp handling and fail-closed naive timestamp rejection;
+  - Duplicate detection under `FAIL_CLOSED` and `IDEMPOTENT_IGNORE`;
+  - Conflicting observation fail-closed rejection (`ConflictingObservationError`);
+  - Ledger recovery, durability, and corruption detection (`CorruptedLedgerError`);
+  - Locked durable append with fail-closed partial record handling;
+  - Immutable record behavior (`dataclasses.FrozenInstanceError`);
+  - Row and source identity preservation (64-hex SHA256 validation);
+  - Static AST checks: zero order execution, RiskEngine, or `trade_ready` dependencies;
+  - Static reachable dependency graph audit: zero reachable broker write APIs;
+  - Safety invariants: `live_authorized = False`, `execution_authorized = False`;
+  - Provenance enforcement: historical replay and synthetic data are never forward eligible;
+  - Forward boundary authority (`2026-08-14T20:55:00Z`) and activation authority (`2026-09-06T13:20:00Z`);
+  - Rejection of `TRUE_FORWARD_OBSERVATION` attempts (fail closed without live acquisition);
+  - Blocked outcome contract status (`BLOCKED_NOT_PREDEFINED`);
+  - Numerical determinism and machine precision repeat tolerance.
+- `04_Testing/production_portability/run_xauusd_frozen_c04_shadow_observation_evidence.py`:
+  Standalone reproducible verification harness executing end-to-end observation and generating `xauusd_frozen_c04_shadow_observation_infrastructure_evidence.json`.
+
+One-time VALIDATION and TEST holdouts are never executed or touched.
+<!-- GATE-15A-SHADOW-TESTING:END -->
