@@ -1,7 +1,7 @@
 {
   "gate": "Gate 15B-A \u2014 Read-Only Forward Acquisition Authority",
   "gate_version": "1.0.0",
-  "timestamp_generated_utc": "2026-09-15T04:49:09.333836+00:00",
+  "timestamp_generated_utc": "2026-09-15T05:26:07.029982+00:00",
   "accepted_git_commit": "18e32e4eea2a065de29ab95cbf393cce404d8c9c",
   "architecture": "OPTION_B_HYBRID_READ_ONLY_ACQUISITION_FACADE",
   "status": "PASS",
@@ -41,7 +41,7 @@
     "status": "PASS"
   },
   "forward_acquisition_adapter": {
-    "schema_version": "1.0.0",
+    "schema_version": "2.0.0",
     "canonical_instrument": "XAUUSD",
     "resolved_broker_symbol": "XAUUSD",
     "required_timeframes": [
@@ -49,18 +49,16 @@
       "M15",
       "M30",
       "H1",
-      "H4",
-      "D1"
+      "H4"
     ],
-    "source_snapshot_id": "a058588f2df6cc9d1f191d7c6d06bb4504c84f0053b36623c80897fd04c7b2ad",
-    "attestation_sha256": "7f997762e715437ceb026c27a09173bd1bc6af4fa3f9d0b612e4315e0b741884",
+    "source_snapshot_id": "eb9cc501424ccfcc00abdd4500367160728252933da89923de1c7922fa02a934",
+    "attestation_sha256": "930ed7824d3143c60148d82eef0ca4193bb55b83f246b313f650fa6b8e0f6136",
     "attestation_integrity_verified": true,
     "is_synthetic": true,
     "status": "PASS"
   },
   "gate_13_handoff": {
     "consumed_timeframes": [
-      "D1",
       "H1",
       "H4",
       "M15",
@@ -77,12 +75,12 @@
     "model_class": "ExtraTreesClassifier",
     "predicted_class": 0,
     "predicted_label": "NO_TRADE",
-    "winning_probability": 0.34851715315444365,
+    "winning_probability": 0.3539416001184647,
     "status": "PASS"
   },
   "gate_15a_handoff": {
     "logical_observation_id": "685c60cc6e61b02ea96576f53ba8eb4b937bfed74dbf7d43ee73598a38d0c887",
-    "semantic_record_fingerprint": "473c9e8328b27b165d9900d0132485020442dc7602cb2c1b64d73c9f9c5aa20d",
+    "semantic_record_fingerprint": "f1dfdfd6b0021b7f0d8aad3556e6f11ee1834a780f3fb2902125163b4c9aaad9",
     "provenance_escalation_prevented": true,
     "status": "PASS"
   },

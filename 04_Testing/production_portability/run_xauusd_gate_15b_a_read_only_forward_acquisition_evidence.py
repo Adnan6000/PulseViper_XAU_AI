@@ -155,7 +155,7 @@ def run_evidence() -> dict[str, Any]:
     safety_audit = perform_static_safety_audit()
 
     # 2. Capability Facade Verification
-    session = MockMT5Session(base_epoch=1789000000, bar_count=250)
+    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
     facade = MT5ReadOnlyCapabilityFacade(session)
     facade_methods_allowed = sorted(list(MT5ReadOnlyCapabilityFacade.ALLOWED_METHODS))
     facade_mutating_blocked = sorted(list(MT5ReadOnlyCapabilityFacade.FORBIDDEN_MUTATING_METHODS))

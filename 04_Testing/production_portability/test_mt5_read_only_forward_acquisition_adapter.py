@@ -11,8 +11,16 @@ Comprehensive unit test suite verifying:
 - Forming candle exclusion (start_pos < 1 strictly rejected)
 - Multi-timeframe acquisition and UTC timestamp normalization
 - Data integrity, geometry validation, monotonicity, and insufficient bars
-- Deterministic source snapshot fingerprinting and sensitivity to changes
+- Deterministic source snapshot fingerprinting and sensitivity to changes:
+  * Exact numeric identity via float.hex()
+  * Difference beyond sixth decimal place produces different fingerprint
+  * Price change produces different fingerprint
+  * Time change produces different fingerprint
+  * Tick volume change produces different fingerprint
+  * Timeframe identity/order handled canonically
+- D1 Authority preservation: native broker D1 is NOT part of market_data by default
 - Forward acquisition attestation integrity and tamper resistance
+- VerifiedForwardAcquisitionAuthority token capability pattern and isolation
 - Frozen research boundary and Gate 15A activation boundary enforcement
 - Static safety audit proving zero reachable broker write/order APIs
 """
@@ -42,6 +50,8 @@ MT5ReadOnlyCapabilityFacade = _acq_mod.MT5ReadOnlyCapabilityFacade
 MT5ReadOnlyForwardAcquisitionAdapter = _acq_mod.MT5ReadOnlyForwardAcquisitionAdapter
 ForwardMarketSnapshot = _acq_mod.ForwardMarketSnapshot
 ForwardAcquisitionAttestation = _acq_mod.ForwardAcquisitionAttestation
+VerifiedForwardAcquisitionAuthority = _acq_mod.VerifiedForwardAcquisitionAuthority
+verify_forward_acquisition_authority = _acq_mod.verify_forward_acquisition_authority
 compute_canonical_snapshot_id = _acq_mod.compute_canonical_snapshot_id
 
 # Exceptions
@@ -55,6 +65,7 @@ HistoricalFreezeBoundaryViolationError = _acq_mod.HistoricalFreezeBoundaryViolat
 PreActivationForwardError = _acq_mod.PreActivationForwardError
 MalformedBarDataError = _acq_mod.MalformedBarDataError
 AttestationIntegrityError = _acq_mod.AttestationIntegrityError
+TrueForwardAcquisitionNotAuthorizedError = _acq_mod.TrueForwardAcquisitionNotAuthorizedError
 
 RESEARCH_FREEZE_BOUNDARY_UTC = _acq_mod.RESEARCH_FREEZE_BOUNDARY_UTC
 GATE_15A_ACTIVATION_UTC = _acq_mod.GATE_15A_ACTIVATION_UTC
@@ -75,7 +86,7 @@ class MockSymbolInfo:
 
 
 class MockMT5Session:
-    """Mock MT5 session providing deterministic rates for M5, M15, M30, H1, H4."""
+    """Mock MT5 session providing deterministic rates for M5, M15, M30, H1, H4, D1."""
     TIMEFRAME_M5 = 5
     TIMEFRAME_M15 = 15
     TIMEFRAME_M30 = 30
@@ -87,7 +98,7 @@ class MockMT5Session:
         self,
         *,
         base_epoch: int = 1789000000,  # ~2026-09-10 (well past Gate 15A activation)
-        bar_count: int = 250,
+        bar_count: int = 5200,
         symbols: Sequence[str] = ("XAUUSD", "XAUUSDm"),
     ) -> None:
         self.base_epoch = base_epoch
@@ -155,15 +166,15 @@ class MockMT5Session:
         arr = np.zeros(actual_count, dtype=dtype)
         arr["time"] = times
         base_price = 2500.0
-        for i in range(actual_count):
-            p = base_price + np.sin(i * 0.1) * 5.0
-            arr["open"][i] = p
-            arr["high"][i] = p + 1.5
-            arr["low"][i] = p - 1.5
-            arr["close"][i] = p + 0.5
-            arr["tick_volume"][i] = 100 + (i % 50)
-            arr["spread"][i] = 20
-            arr["real_volume"][i] = 0
+        indices = np.arange(actual_count, dtype=np.float64)
+        p = base_price + np.sin(indices * 0.1) * 5.0
+        arr["open"] = p
+        arr["high"] = p + 1.5
+        arr["low"] = p - 1.5
+        arr["close"] = p + 0.5
+        arr["tick_volume"] = 100 + (indices.astype(np.int64) % 50)
+        arr["spread"] = 20
+        arr["real_volume"] = 0
 
         return arr
 
@@ -224,15 +235,19 @@ def test_02_forming_candle_exclusion() -> None:
 # Test 3: Multi-Timeframe Acquisition & UTC Timestamp Handling
 # =============================================================================
 def test_03_multi_timeframe_acquisition_and_utc() -> None:
-    session = MockMT5Session(base_epoch=1789000000, bar_count=250)
+    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
     adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
     snapshot = adapter.acquire_snapshot()
 
     assert snapshot.canonical_instrument == "XAUUSD"
     assert snapshot.broker_symbol in ("XAUUSD", "XAUUSDm")
     assert snapshot.is_synthetic is True
+    assert snapshot.authority is None
 
-    # Check that required timeframes are present
+    # Native D1 is excluded by default from market_data
+    assert "D1" not in snapshot.market_data
+
+    # Check that required intraday timeframes are present
     for tf in ("M5", "M15", "M30", "H1", "H4"):
         assert tf in snapshot.market_data
         df = snapshot.market_data[tf]
@@ -278,7 +293,7 @@ def test_05_none_broker_return_rejection() -> None:
 # Test 6: Malformed OHLC Geometry Rejection
 # =============================================================================
 def test_06_malformed_ohlc_geometry_rejection() -> None:
-    session = MockMT5Session()
+    session = MockMT5Session(bar_count=5200)
     orig_copy = session.copy_rates_from_pos
 
     def corrupt_copy(symbol: str, tf: int, pos: int, count: int) -> np.ndarray | None:
@@ -298,7 +313,7 @@ def test_06_malformed_ohlc_geometry_rejection() -> None:
 # Test 7: Duplicate Timestamps Rejection
 # =============================================================================
 def test_07_duplicate_timestamps_rejection() -> None:
-    session = MockMT5Session()
+    session = MockMT5Session(bar_count=5200)
     orig_copy = session.copy_rates_from_pos
 
     def duplicate_copy(symbol: str, tf: int, pos: int, count: int) -> np.ndarray | None:
@@ -315,14 +330,14 @@ def test_07_duplicate_timestamps_rejection() -> None:
 
 
 # =============================================================================
-# Test 8: Deterministic Snapshot Fingerprint & Sensitivity
+# Test 8: Deterministic Snapshot Fingerprint & Decimal Precision Sensitivity
 # =============================================================================
 def test_08_snapshot_fingerprint_determinism_and_sensitivity() -> None:
-    session1 = MockMT5Session(base_epoch=1789000000, bar_count=200)
+    session1 = MockMT5Session(base_epoch=1789000000, bar_count=5200)
     adapter1 = MT5ReadOnlyForwardAcquisitionAdapter(session1, is_synthetic=True)
     snap1 = adapter1.acquire_snapshot()
 
-    session2 = MockMT5Session(base_epoch=1789000000, bar_count=200)
+    session2 = MockMT5Session(base_epoch=1789000000, bar_count=5200)
     adapter2 = MT5ReadOnlyForwardAcquisitionAdapter(session2, is_synthetic=True)
     snap2 = adapter2.acquire_snapshot()
 
@@ -336,16 +351,41 @@ def test_08_snapshot_fingerprint_determinism_and_sensitivity() -> None:
     m5_modified = modified_market_data["M5"].copy()
     m5_modified.loc[0, "close"] += 0.05
     modified_market_data["M5"] = m5_modified
-
     diff_id = compute_canonical_snapshot_id(modified_market_data)
     assert diff_id != snap1.source_snapshot_id
+
+    # CRITICAL HARDENING PROOF (Issue 1):
+    # Two snapshots differing beyond six decimal places (e.g. at 1e-8) MUST produce different SHA256 fingerprints.
+    # Under previous {: .6f} rounding, both produced the same string.
+    # Under exact float.hex(), they are guaranteed distinct.
+    m5_micro1 = snap1.market_data["M5"].copy()
+    m5_micro2 = snap1.market_data["M5"].copy()
+    m5_micro1.loc[0, "open"] = 2500.1234560001
+    m5_micro2.loc[0, "open"] = 2500.1234560002
+    data1 = dict(snap1.market_data, M5=m5_micro1)
+    data2 = dict(snap1.market_data, M5=m5_micro2)
+    fp1 = compute_canonical_snapshot_id(data1)
+    fp2 = compute_canonical_snapshot_id(data2)
+    assert fp1 != fp2, "Fingerprint collision occurred for values differing beyond 6 decimal places!"
+
+    # Timestamp change -> fingerprint must change
+    m5_time = snap1.market_data["M5"].copy()
+    m5_time.loc[0, "time"] = m5_time.loc[0, "time"] + pd.Timedelta(seconds=1)
+    data_time = dict(snap1.market_data, M5=m5_time)
+    assert compute_canonical_snapshot_id(data_time) != snap1.source_snapshot_id
+
+    # Tick volume change -> fingerprint must change
+    m5_vol = snap1.market_data["M5"].copy()
+    m5_vol.loc[0, "tick_volume"] += 1
+    data_vol = dict(snap1.market_data, M5=m5_vol)
+    assert compute_canonical_snapshot_id(data_vol) != snap1.source_snapshot_id
 
 
 # =============================================================================
 # Test 9: Attestation Integrity & Tamper Detection
 # =============================================================================
 def test_09_attestation_integrity_and_tamper_detection() -> None:
-    session = MockMT5Session(base_epoch=1789000000)
+    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
     adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
     snapshot = adapter.acquire_snapshot()
 
@@ -367,7 +407,7 @@ def test_09_attestation_integrity_and_tamper_detection() -> None:
 def test_10_frozen_research_boundary_enforcement() -> None:
     # 2026-08-14T20:55:00Z corresponds to epoch 1786740900
     pre_freeze_epoch = 1786740900 - 3600  # 1 hour before freeze
-    session = MockMT5Session(base_epoch=pre_freeze_epoch)
+    session = MockMT5Session(base_epoch=pre_freeze_epoch, bar_count=5200)
     adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
 
     with pytest.raises(HistoricalFreezeBoundaryViolationError):
@@ -378,9 +418,9 @@ def test_10_frozen_research_boundary_enforcement() -> None:
 # Test 11: Gate 15A Activation Boundary Enforcement
 # =============================================================================
 def test_11_gate_15a_activation_boundary_enforcement() -> None:
-    # Timestamp between research freeze (2026-08-14, ~1786740900) and activation (2026-09-06, ~1788700800)
+    # Timestamp between research freeze (2026-08-14) and activation (2026-09-06)
     mid_epoch = 1787500000
-    session = MockMT5Session(base_epoch=mid_epoch)
+    session = MockMT5Session(base_epoch=mid_epoch, bar_count=5200)
     adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
 
     with pytest.raises(PreActivationForwardError):
@@ -433,3 +473,80 @@ def test_13_static_safety_audit_no_broker_writes() -> None:
 
     violations = forbidden_names.intersection(imported_names)
     assert not violations, f"Forbidden imports found in forward acquisition adapter: {violations}"
+
+
+# =============================================================================
+# Test 14: D1 Authority Preservation & Gate 13 Reconstruction
+# =============================================================================
+def test_14_d1_authority_preservation_and_gate13_reconstruction() -> None:
+    """
+    Verify Gate 13 D1 authority:
+    - Native D1 is NOT present in market_data by default.
+    - Gate 13 PortableFeaturePipeline reconstructs D1 strictly at 00:00:00 UTC.
+    - Optional diagnostic D1 does not contaminate market_data.
+    """
+    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+    snapshot = adapter.acquire_snapshot()
+
+    assert "D1" not in snapshot.market_data
+    assert snapshot.native_d1_diagnostic is None
+
+    pipeline_mod = importlib.import_module("02_AI.Features.portable_feature_pipeline")
+    pipeline = pipeline_mod.PortableFeaturePipeline()
+    feature_result = pipeline.generate(snapshot.market_data, symbol=snapshot.canonical_instrument)
+    assert feature_result.feature_count == 331
+    assert feature_result.row_count > 0
+
+    # Test optional diagnostic D1
+    diag_adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True, include_native_d1=True)
+    diag_snap = diag_adapter.acquire_snapshot()
+    assert "D1" not in diag_snap.market_data
+    assert diag_snap.native_d1_diagnostic is not None
+    assert len(diag_snap.native_d1_diagnostic) >= 200
+
+
+# =============================================================================
+# Test 15: Capability Authority Token Pattern & Provenance Isolation
+# =============================================================================
+def test_15_authority_token_isolation_and_verification() -> None:
+    """
+    Verify the capability/authority-bound result pattern:
+    - Synthetic adapter produces authority=None.
+    - Genuine adapter produces VerifiedForwardAcquisitionAuthority.
+    - Direct constructor call with arbitrary token raises PermissionError.
+    - verify_forward_acquisition_authority succeeds on genuine authority.
+    """
+    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
+
+    # 1. Synthetic acquisition path produces authority is None
+    syn_adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+    syn_snap = syn_adapter.acquire_snapshot()
+    assert syn_snap.is_synthetic is True
+    assert syn_snap.authority is None
+
+    # 2. Genuine acquisition path produces valid VerifiedForwardAcquisitionAuthority
+    genuine_adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=False)
+    genuine_snap = genuine_adapter.acquire_snapshot()
+    assert genuine_snap.is_synthetic is False
+    assert genuine_snap.authority is not None
+    assert genuine_snap.authority.is_valid_authority() is True
+
+    # 3. Direct instantiation without private token is blocked
+    with pytest.raises(PermissionError):
+        VerifiedForwardAcquisitionAuthority(
+            token=object(),
+            attestation=genuine_snap.attestation,
+            is_synthetic=False,
+        )
+
+    # 4. Public verification function succeeds on genuine authority
+    verified_att = verify_forward_acquisition_authority(
+        genuine_snap.authority,
+        expected_decision_time_utc=genuine_snap.decision_time_utc,
+        expected_source_snapshot_id=genuine_snap.source_snapshot_id,
+        expected_canonical_instrument=genuine_snap.canonical_instrument,
+        expected_feature_columns_sha256=_acq_mod.EXPECTED_FEATURE_COLUMNS_SHA256,
+        expected_model_sha256=_acq_mod.FROZEN_MODEL_SHA256,
+    )
+    assert verified_att.attestation_sha256 == genuine_snap.attestation.attestation_sha256

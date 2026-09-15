@@ -616,6 +616,7 @@ class FrozenC04ShadowObserver:
         source_provenance: SourceProvenance = SourceProvenance.HISTORICAL_ENGINEERING,
         observed_at_utc: str | None = None,
         acquisition_attestation: Any | None = None,
+        acquisition_authority: Any | None = None,
     ) -> FrozenC04ObservationRecord:
         """
         Create a single typed immutable observation record.
@@ -627,6 +628,7 @@ class FrozenC04ShadowObserver:
             source_provenance: SourceProvenance enum value.
             observed_at_utc: Optional override for recorded timestamp (for testing).
             acquisition_attestation: Optional ForwardAcquisitionAttestation for Gate 15B verification.
+            acquisition_authority: Optional VerifiedForwardAcquisitionAuthority for TRUE_FORWARD verification.
         """
         # 1. Validate timestamps and snapshot ID early
         norm_decision_time = validate_iso8601_utc(decision_time_utc)
@@ -641,55 +643,28 @@ class FrozenC04ShadowObserver:
         # 2. Enforce provenance authority: Gate 15B verified acquisition check
         is_true_forward = False
         if source_provenance == SourceProvenance.TRUE_FORWARD_OBSERVATION:
-            if acquisition_attestation is None:
+            authority_candidate = (
+                acquisition_authority
+                if acquisition_authority is not None
+                else acquisition_attestation
+            )
+            if authority_candidate is None:
                 raise TrueForwardAcquisitionNotAuthorizedError(
                     "TRUE_FORWARD_OBSERVATION is not authorized without an approved "
-                    "read-only ForwardAcquisitionAttestation."
+                    "read-only ForwardAcquisitionAttestation or VerifiedForwardAcquisitionAuthority."
                 )
-            if getattr(acquisition_attestation, "is_synthetic", False):
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    "Synthetic or mocked acquisition data cannot be authorized as TRUE_FORWARD_OBSERVATION."
-                )
-            # Verify cryptographic and structural integrity of attestation
-            if hasattr(acquisition_attestation, "verify_integrity") and not acquisition_attestation.verify_integrity():
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    "Forward acquisition attestation failed cryptographic/structural integrity verification."
-                )
-            # Validate parameter consistency
-            att_snapshot_id = getattr(acquisition_attestation, "source_snapshot_id", "")
-            if att_snapshot_id != norm_snapshot_id:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    f"Attestation snapshot ID mismatch: {att_snapshot_id} != {norm_snapshot_id}"
-                )
-            att_decision_time = getattr(acquisition_attestation, "decision_time_utc", "")
-            if att_decision_time != norm_decision_time:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    f"Attestation decision time mismatch: {att_decision_time} != {norm_decision_time}"
-                )
-            att_instrument = getattr(acquisition_attestation, "canonical_instrument", "")
-            if att_instrument != self._canonical_instrument:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    f"Attestation instrument mismatch: {att_instrument} != {self._canonical_instrument}"
-                )
-            att_feat_sha = getattr(acquisition_attestation, "feature_columns_sha256", "")
-            if att_feat_sha != EXPECTED_FEATURE_COLUMNS_SHA256:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    "Attestation feature columns SHA256 mismatch with frozen authority."
-                )
-            att_model_sha = getattr(acquisition_attestation, "model_sha256", "")
-            if att_model_sha != FROZEN_MODEL_SHA256:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    "Attestation model SHA256 mismatch with frozen authority."
-                )
-            # Validate frozen boundaries
-            if norm_decision_time <= RESEARCH_FREEZE_BOUNDARY_UTC:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    f"Decision time {norm_decision_time} does not exceed research freeze boundary {RESEARCH_FREEZE_BOUNDARY_UTC}"
-                )
-            if norm_decision_time < GATE_15A_ACTIVATION_UTC:
-                raise TrueForwardAcquisitionNotAuthorizedError(
-                    f"Decision time {norm_decision_time} precedes Gate 15A activation {GATE_15A_ACTIVATION_UTC}"
-                )
+
+            # Enforce capability-bound verification via adapter authority function
+            acq_mod = importlib.import_module("02_AI.Adapters.mt5_read_only_forward_acquisition_adapter")
+            verify_fn = getattr(acq_mod, "verify_forward_acquisition_authority")
+            _ = verify_fn(
+                authority_candidate,
+                expected_decision_time_utc=norm_decision_time,
+                expected_source_snapshot_id=norm_snapshot_id,
+                expected_canonical_instrument=self._canonical_instrument,
+                expected_feature_columns_sha256=EXPECTED_FEATURE_COLUMNS_SHA256,
+                expected_model_sha256=FROZEN_MODEL_SHA256,
+            )
             is_true_forward = True
 
         # 3. Execute Gate 14 inference
@@ -797,6 +772,7 @@ class FrozenC04ShadowObservationCoordinator:
         source_snapshot_id: str,
         source_provenance: SourceProvenance = SourceProvenance.HISTORICAL_ENGINEERING,
         acquisition_attestation: Any | None = None,
+        acquisition_authority: Any | None = None,
     ) -> list[FrozenC04ObservationRecord]:
         """
         Record observations directly from validated Gate 13 features.
@@ -809,6 +785,7 @@ class FrozenC04ShadowObservationCoordinator:
                 source_snapshot_id=source_snapshot_id,
                 source_provenance=source_provenance,
                 acquisition_attestation=acquisition_attestation,
+                acquisition_authority=acquisition_authority,
             )
             if self._ledger is not None:
                 self._ledger.append(rec)
@@ -831,6 +808,7 @@ class FrozenC04ShadowObservationCoordinator:
                 source_snapshot_id=source_snapshot_id,
                 source_provenance=source_provenance,
                 acquisition_attestation=acquisition_attestation,
+                acquisition_authority=acquisition_authority,
             )
             if self._ledger is not None:
                 self._ledger.append(rec)
