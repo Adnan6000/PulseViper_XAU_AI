@@ -398,10 +398,31 @@ Production-side observation infrastructure for future unseen-regime forward shad
 - Rejects conflicting observations for the same logical ID (`ConflictingObservationError`).
 - Strictly enforces machine-readable frozen research boundary (`2026-08-14T20:55:00Z`) and activation authority (`2026-09-06T13:20:00Z`).
 - Enforces provenance-based forward eligibility (`HISTORICAL_ENGINEERING`, `SYNTHETIC_ENGINEERING`, `TRUE_FORWARD_OBSERVATION`).
-- Rejects `TRUE_FORWARD_OBSERVATION` attempts fail closed (`TrueForwardAcquisitionNotAuthorizedError`) as live acquisition is not attached in Gate 15A.
+- Rejects `TRUE_FORWARD_OBSERVATION` attempts without a valid, non-synthetic `ForwardAcquisitionAttestation` (`TrueForwardAcquisitionNotAuthorizedError`).
 - Marks outcome horizon contract `BLOCKED_NOT_PREDEFINED`.
 - Enforces `live_authorized = False`, `execution_authorized = False`, `forward_performance_evaluated = False`.
 - Zero dependencies on `RiskEngine`, `trade_ready`, or broker write APIs.
+
+---
+
+# 8.5 `02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py`
+
+**Area:** Read-only forward market data acquisition authority (Gate 15B-A)
+**Safety:** YELLOW / READ-ONLY MARKET DATA / ZERO TRADING WRITE
+
+## Responsibility
+
+Production-safe, provably isolated, read-only MetaTrader 5 market data acquisition adapter:
+- Wraps MT5 session in `MT5ReadOnlyCapabilityFacade`, exposing strictly whitelisted read-only methods (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`).
+- Raises `PermissionError` on any attempt to invoke mutating broker/order methods (`order_send`, `positions_get`, etc.).
+- Enforces `start_pos >= 1` in rate requests to strictly exclude forming/incomplete candles.
+- Normalizes integer Unix timestamps to UTC (`pd.to_datetime(..., unit='s', utc=True)`).
+- Acquires complete multi-timeframe OHLCV bars (`M5`, `M15`, `M30`, `H1`, `H4`, `D1`) required by Gate 13.
+- Computes deterministic lowercase 64-hex SHA256 snapshot fingerprint (`source_snapshot_id`).
+- Produces tamper-evident `ForwardAcquisitionAttestation` and `ForwardMarketSnapshot`.
+- Strictly marks synthetic/mock data to prevent unauthorized true-forward escalation.
+- Enforces frozen research boundary (`2026-08-14T20:55:00Z`) and Gate 15A activation authority (`2026-09-06T13:20:00Z`).
+- Zero dependencies on `RiskEngine`, `trade_ready`, or execution order routing.
 
 ---
 

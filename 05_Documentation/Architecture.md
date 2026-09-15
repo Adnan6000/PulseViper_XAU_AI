@@ -193,7 +193,7 @@ The complete architecture can be viewed as seven major layers.
 
 The current project has strong historical research coverage through Layer 4 and the frozen artifact portion of Layer 5.
 
-Gate 13 (production broker feature generation on canonical snapshots), Gate 14 (frozen offline inference adapter), and Gate 15A (forward shadow observation infrastructure) are complete. Live MT5 feed ingestion and Gate 15B (matured forward evaluation across real calendar time) remain future engineering gates. Gate 15A does NOT declare Gate 15 complete.
+Gate 13 (production broker feature generation on canonical snapshots), Gate 14 (frozen offline inference adapter), Gate 15A (forward shadow observation infrastructure), and Gate 15B-A (read-only forward acquisition authority) are complete. Matured forward evaluation across real calendar time (Gate 15B-B / forward outcome tracking) remains a future engineering gate. Gate 15B-A does NOT authorize live trading or execution.
 
 ---
 

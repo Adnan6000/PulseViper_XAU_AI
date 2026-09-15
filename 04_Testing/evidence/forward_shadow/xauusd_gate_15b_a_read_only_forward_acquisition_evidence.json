@@ -1,0 +1,108 @@
+{
+  "gate": "Gate 15B-A \u2014 Read-Only Forward Acquisition Authority",
+  "gate_version": "1.0.0",
+  "timestamp_generated_utc": "2026-09-15T04:49:09.333836+00:00",
+  "accepted_git_commit": "18e32e4eea2a065de29ab95cbf393cce404d8c9c",
+  "architecture": "OPTION_B_HYBRID_READ_ONLY_ACQUISITION_FACADE",
+  "status": "PASS",
+  "safety_invariants": {
+    "live_authorized": false,
+    "execution_authorized": false,
+    "forward_performance_evaluated": false,
+    "outcome_horizon_contract_status": "BLOCKED_NOT_PREDEFINED"
+  },
+  "observation_counts": {
+    "synthetic_true_forward_count": 0,
+    "historical_true_forward_count": 0,
+    "genuine_true_forward_observation_count": 0,
+    "synthetic_observation_recorded": 1,
+    "is_true_forward_eligible": false
+  },
+  "read_only_capability_facade": {
+    "allowed_methods": [
+      "copy_rates_from_pos",
+      "symbol_info",
+      "symbol_info_tick",
+      "symbols_get"
+    ],
+    "forbidden_mutating_methods_blocked": [
+      "history_deals_get",
+      "history_orders_get",
+      "order_calc_margin",
+      "order_calc_profit",
+      "order_check",
+      "order_send",
+      "orders_get",
+      "orders_total",
+      "positions_get",
+      "positions_total"
+    ],
+    "forming_candle_start_pos_lt_1_blocked": true,
+    "status": "PASS"
+  },
+  "forward_acquisition_adapter": {
+    "schema_version": "1.0.0",
+    "canonical_instrument": "XAUUSD",
+    "resolved_broker_symbol": "XAUUSD",
+    "required_timeframes": [
+      "M5",
+      "M15",
+      "M30",
+      "H1",
+      "H4",
+      "D1"
+    ],
+    "source_snapshot_id": "a058588f2df6cc9d1f191d7c6d06bb4504c84f0053b36623c80897fd04c7b2ad",
+    "attestation_sha256": "7f997762e715437ceb026c27a09173bd1bc6af4fa3f9d0b612e4315e0b741884",
+    "attestation_integrity_verified": true,
+    "is_synthetic": true,
+    "status": "PASS"
+  },
+  "gate_13_handoff": {
+    "consumed_timeframes": [
+      "D1",
+      "H1",
+      "H4",
+      "M15",
+      "M30",
+      "M5"
+    ],
+    "feature_count": 331,
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "row_count": 181,
+    "status": "PASS"
+  },
+  "gate_14_handoff": {
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "model_class": "ExtraTreesClassifier",
+    "predicted_class": 0,
+    "predicted_label": "NO_TRADE",
+    "winning_probability": 0.34851715315444365,
+    "status": "PASS"
+  },
+  "gate_15a_handoff": {
+    "logical_observation_id": "685c60cc6e61b02ea96576f53ba8eb4b937bfed74dbf7d43ee73598a38d0c887",
+    "semantic_record_fingerprint": "473c9e8328b27b165d9900d0132485020442dc7602cb2c1b64d73c9f9c5aa20d",
+    "provenance_escalation_prevented": true,
+    "status": "PASS"
+  },
+  "static_safety_audit": {
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": [],
+    "audited_files": [
+      "mt5_read_only_forward_acquisition_adapter.py",
+      "frozen_c04_shadow_observer.py"
+    ]
+  },
+  "frozen_baseline_integrity": {
+    "status": "PASS",
+    "verified_count": 41,
+    "total_count": 41,
+    "mismatches": []
+  },
+  "terminal_live_status": {
+    "genuine_forward_acquisition_status": "NOT_OBSERVED",
+    "message": "Infrastructure verified using mock read-only session; genuine MT5 live terminal acquisition not yet executed."
+  }
+}

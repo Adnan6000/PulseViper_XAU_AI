@@ -1596,6 +1596,46 @@ Gate 15A establishes the production-safe forward shadow observation infrastructu
 
 ---
 
+# 54. Gate 15B-A — Read-Only Forward Acquisition Authority Evidence
+
+Gate 15B-A establishes the production-safe, provably isolated, read-only MetaTrader 5 forward market data acquisition authority:
+- Wraps MT5 sessions in `MT5ReadOnlyCapabilityFacade`, exposing strictly whitelisted read-only methods (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`).
+- Raises `PermissionError` on any attempt to invoke mutating broker/order methods (`order_send`, `positions_get`, etc.).
+- Strictly enforces `start_pos >= 1` in rate requests to exclude forming/incomplete candles.
+- Normalizes integer Unix timestamps to UTC (`pd.to_datetime(..., unit='s', utc=True)`).
+- Acquires complete multi-timeframe OHLCV bars (`M5`, `M15`, `M30`, `H1`, `H4`, `D1`) required by Gate 13 `PortableFeaturePipeline`.
+- Computes deterministic lowercase 64-hex SHA256 snapshot fingerprint (`source_snapshot_id`).
+- Produces tamper-evident `ForwardAcquisitionAttestation` and `ForwardMarketSnapshot`.
+- Strictly marks synthetic/mock data to prevent unauthorized true-forward escalation.
+- Enforces frozen research boundary (`2026-08-14T20:55:00Z`) and Gate 15A activation authority (`2026-09-06T13:20:00Z`).
+- Zero dependencies on `RiskEngine`, `trade_ready`, or execution order routing.
+
+### Read-Only Forward Acquisition Evidence Artifact
+- **File**: `04_Testing/evidence/forward_shadow/xauusd_gate_15b_a_read_only_forward_acquisition_evidence.json`
+- **Verdict**: **PASS**
+- **Acquisition Schema Version**: `1.0.0`
+- **Architecture**: `OPTION_B_HYBRID_READ_ONLY_ACQUISITION_FACADE`
+- **Capability Manifest**: `["copy_rates_from_pos", "symbol_info", "symbol_info_tick", "symbols_get"]`
+- **Forbidden Mutating Methods Blocked**: 10
+- **Forming Candle Access (start_pos < 1) Blocked**: `True`
+- **Attestation Integrity Verified**: `True`
+- **Gate 13 Pipeline Handoff**: `PASS` (331 features, SHA256 matches frozen authority)
+- **Gate 14 Inference Handoff**: `PASS` (predicts deterministic class & probabilities)
+- **Gate 15A Observer Handoff**: `PASS` (records typed observation, escalation prevented)
+- **Observation Counts**:
+  - `synthetic_true_forward_count`: **0**
+  - `historical_true_forward_count`: **0**
+  - `genuine_true_forward_observation_count`: **0**
+  - `genuine_forward_acquisition_status`: **NOT_OBSERVED**
+- **Static Safety Audit**: 0 violations, 0 forbidden symbols
+- **Frozen Baseline Integrity**: 41/41 files byte-identical (**PASS**)
+- **Safety Invariants**:
+  - `live_authorized = False`
+  - `execution_authorized = False`
+  - `forward_performance_evaluated = False`
+
+---
+
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:START -->
 ## Repository Evidence Location Note
 
