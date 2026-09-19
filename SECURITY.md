@@ -110,3 +110,4 @@ Security testing or fixing a vulnerability does not authorize live trading.
 
 ```text
 live_authorized = false
+```

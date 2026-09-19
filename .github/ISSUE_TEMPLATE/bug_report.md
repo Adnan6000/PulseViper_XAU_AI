@@ -59,3 +59,16 @@ Describe what actually happened.
 Paste only non-sensitive logs.
 
 ```text
+
+```
+
+## Research Safety Checklist
+
+- [ ] This report does not reveal protected TEST information.
+- [ ] I did not rerun consumed VALIDATION for performance-driven tuning.
+- [ ] No passwords, tokens, account numbers, API keys, or secrets are included.
+- [ ] If this is a security vulnerability, I will follow `SECURITY.md` instead of publicly disclosing sensitive details.
+
+## Additional Context
+
+Add any additional information that may help reproduce or understand the problem.
