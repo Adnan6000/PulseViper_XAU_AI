@@ -1,0 +1,99 @@
+{
+  "accuracy_evaluated": false,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_contract.py": "c07de67d9dee591195dc9e4cf5bb3e4d20791f691f8eadfcc6046351d494730a",
+    "04_Testing/production_portability/run_xauusd_gate_15c_forward_outcome_contract_evidence.py": "2565cfbc534a2bb69cc323afbcc19be9d3ececc9b9ff719977193b4aec87be7c",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_contract.py": "fcf0437cc451e3b0fd9457d198885a4b92a32ee4161b487c8e515ea953f0785d"
+  },
+  "contract": {
+    "base_timeframe": "M5",
+    "class_mapping": {
+      "LONG": 1,
+      "NO_TRADE": 0,
+      "SHORT": -1
+    },
+    "contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "contract_status": "DEFINED_NOT_YET_MATURED_OR_EVALUATED",
+    "contract_version": "FROZEN_C04_FORWARD_OUTCOME_CONTRACT_V1",
+    "horizon_bars": 12,
+    "horizon_minutes": 60,
+    "max_adverse_atr": 0.75,
+    "profit_atr": 1.25,
+    "reference_price": "DECISION_M5_CLOSE",
+    "reference_volatility": "DECISION_M5_ATR14",
+    "status": "PASS",
+    "target_contract": "CLEAN_DIRECTIONAL_EXCURSION_V2"
+  },
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "forward_outcome_definition_predefined": true,
+  "forward_outcomes_evaluated": false,
+  "forward_outcomes_matured": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15C \u2014 Frozen C04 Forward Outcome Contract",
+  "gate_id": "GATE_15C_FROZEN_FORWARD_OUTCOME_CONTRACT",
+  "live_authorized": false,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "new_forward_observation_acquired": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "branch": "main",
+    "committed_since_baseline": [
+      "02_AI/Models/frozen_c04_forward_outcome_contract.py",
+      "04_Testing/production_portability/run_xauusd_gate_15c_forward_outcome_contract_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_contract.py"
+    ],
+    "gate_15b_b_baseline": "811202d429165c89e4424b944ceaffb18b6d6f65",
+    "gate_15b_b_baseline_is_ancestor": true,
+    "head": "516fbad9b98d9a3e46e6e31a4beddc6f51279a71",
+    "head_equals_origin_main": true,
+    "local_gate_15c_paths": [
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15c_forward_outcome_contract_evidence.json"
+    ],
+    "origin_main": "516fbad9b98d9a3e46e6e31a4beddc6f51279a71",
+    "status": "PASS",
+    "unexpected_committed_paths": [],
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "schema_version": "1.0.0",
+  "shadow_ledger": {
+    "sha256_after": "27bb62d2b2d2818c72046ce176362135e386ee333ca73325a8622a041a11be33",
+    "sha256_before": "27bb62d2b2d2818c72046ce176362135e386ee333ca73325a8622a041a11be33",
+    "unchanged": true
+  },
+  "source_authority": {
+    "base_timeframe_verified": "M5",
+    "max_adverse_atr_verified": 0.75,
+    "profit_atr_verified": 1.25,
+    "source_authority_hashes": {
+      "02_AI/Dataset/training_matrix_builder.py": "5c26b7b2c06935e69f68455415115218d8ec3be2f73366197476bb701a45b744",
+      "02_AI/Dataset/training_target_relabeler.py": "073caf20348819fc1c42e700e9ff7681448d97abccabad18999225451a0aab4e",
+      "04_Testing/research/portable_331/train/design_xauusd_portable_331_train_model_research_protocol.py": "32e9ee1dd582c4f5f93367be5fe03a01598aec36b5a44c1cfac1c12c27603af2"
+    },
+    "status": "PASS",
+    "target_contract_verified": "CLEAN_DIRECTIONAL_EXCURSION_V2",
+    "target_horizon_bars_verified": 12
+  },
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_contract.py",
+      "04_Testing/production_portability/run_xauusd_gate_15c_forward_outcome_contract_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "................                                                         [100%]\n16 passed in 0.13s\n"
+  },
+  "test_partition_accessed": false,
+  "transaction_cost_evaluated": false,
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}
