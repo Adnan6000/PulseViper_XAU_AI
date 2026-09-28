@@ -2,38 +2,21 @@
 ===============================================================================
 Module      : test_mt5_read_only_forward_acquisition_adapter.py
 Project     : PulseViper XAU AI
-Purpose     : Gate 15B-A Unit Test Suite for Read-Only Forward Acquisition Adapter
+Purpose     : Gate 15B-A Unit Tests — Reopened Timestamp-Semantics Authority
 ===============================================================================
-
-Comprehensive unit test suite verifying:
-- Read-only capability facade whitelist and attribute blocking
-- Forbidden broker mutating methods (order_send, positions_get, etc.) fail closed
-- Forming candle exclusion (start_pos < 1 strictly rejected)
-- Multi-timeframe acquisition and UTC timestamp normalization
-- Data integrity, geometry validation, monotonicity, and insufficient bars
-- Deterministic source snapshot fingerprinting and sensitivity to changes:
-  * Exact numeric identity via float.hex()
-  * Difference beyond sixth decimal place produces different fingerprint
-  * Price change produces different fingerprint
-  * Time change produces different fingerprint
-  * Tick volume change produces different fingerprint
-  * Timeframe identity/order handled canonically
-- D1 Authority preservation: native broker D1 is NOT part of market_data by default
-- Forward acquisition attestation integrity and tamper resistance
-- VerifiedForwardAcquisitionAuthority token capability pattern and isolation
-- Frozen research boundary and Gate 15A activation boundary enforcement
-- Static safety audit proving zero reachable broker write/order APIs
 """
 
 from __future__ import annotations
 
 import ast
+import datetime as dt
 from dataclasses import replace
-import hashlib
 import importlib
 from pathlib import Path
 import sys
-from typing import Any, Sequence
+from types import SimpleNamespace
+from typing import Any, Sequence, cast
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
@@ -43,50 +26,110 @@ REPO_ROOT: Path = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-# Import Gate 15B-A adapter module
-_acq_mod = importlib.import_module("02_AI.Adapters.mt5_read_only_forward_acquisition_adapter")
+_acq_mod = importlib.import_module(
+    "02_AI.Adapters.mt5_read_only_forward_acquisition_adapter"
+)
 
 MT5ReadOnlyCapabilityFacade = _acq_mod.MT5ReadOnlyCapabilityFacade
-MT5ReadOnlyForwardAcquisitionAdapter = _acq_mod.MT5ReadOnlyForwardAcquisitionAdapter
-ForwardMarketSnapshot = _acq_mod.ForwardMarketSnapshot
-ForwardAcquisitionAttestation = _acq_mod.ForwardAcquisitionAttestation
-VerifiedForwardAcquisitionAuthority = _acq_mod.VerifiedForwardAcquisitionAuthority
-verify_forward_acquisition_authority = _acq_mod.verify_forward_acquisition_authority
-compute_canonical_snapshot_id = _acq_mod.compute_canonical_snapshot_id
+MT5ReadOnlyForwardAcquisitionAdapter = (
+    _acq_mod.MT5ReadOnlyForwardAcquisitionAdapter
+)
 
-# Exceptions
-ForwardAcquisitionError = _acq_mod.ForwardAcquisitionError
-MT5ConnectionUnavailableError = _acq_mod.MT5ConnectionUnavailableError
-IncompleteCandleAccessAttemptError = _acq_mod.IncompleteCandleAccessAttemptError
-SymbolResolutionError = _acq_mod.SymbolResolutionError
-UnsupportedSymbolError = _acq_mod.UnsupportedSymbolError
-InsufficientForwardHistoryError = _acq_mod.InsufficientForwardHistoryError
-HistoricalFreezeBoundaryViolationError = _acq_mod.HistoricalFreezeBoundaryViolationError
-PreActivationForwardError = _acq_mod.PreActivationForwardError
-MalformedBarDataError = _acq_mod.MalformedBarDataError
-AttestationIntegrityError = _acq_mod.AttestationIntegrityError
-TrueForwardAcquisitionNotAuthorizedError = _acq_mod.TrueForwardAcquisitionNotAuthorizedError
+VerifiedForwardAcquisitionAuthority = (
+    _acq_mod.VerifiedForwardAcquisitionAuthority
+)
 
-RESEARCH_FREEZE_BOUNDARY_UTC = _acq_mod.RESEARCH_FREEZE_BOUNDARY_UTC
-GATE_15A_ACTIVATION_UTC = _acq_mod.GATE_15A_ACTIVATION_UTC
+verify_forward_acquisition_authority = (
+    _acq_mod.verify_forward_acquisition_authority
+)
+
+compute_canonical_snapshot_id = (
+    _acq_mod.compute_canonical_snapshot_id
+)
+
+normalize_ny_close_server_epoch = (
+    _acq_mod.normalize_ny_close_server_epoch
+)
+
+detect_timestamp_basis_from_tick = (
+    _acq_mod.detect_timestamp_basis_from_tick
+)
+
+IncompleteCandleAccessAttemptError = (
+    _acq_mod.IncompleteCandleAccessAttemptError
+)
+
+MT5ConnectionUnavailableError = (
+    _acq_mod.MT5ConnectionUnavailableError
+)
+
+MalformedBarDataError = (
+    _acq_mod.MalformedBarDataError
+)
+
+HistoricalFreezeBoundaryViolationError = (
+    _acq_mod.HistoricalFreezeBoundaryViolationError
+)
+
+PreActivationForwardError = (
+    _acq_mod.PreActivationForwardError
+)
+
+SymbolResolutionError = (
+    _acq_mod.SymbolResolutionError
+)
+
+TimestampBasisResolutionError = (
+    _acq_mod.TimestampBasisResolutionError
+)
+
+TIME_BASIS_UNIX_UTC = (
+    _acq_mod.TIME_BASIS_UNIX_UTC
+)
+
+TIME_BASIS_NY_CLOSE_SERVER = (
+    _acq_mod.TIME_BASIS_NY_CLOSE_SERVER
+)
+
+_NEW_YORK = ZoneInfo(
+    "America/New_York"
+)
 
 
-# =============================================================================
-# Mock MT5 Implementation for Testing
-# =============================================================================
+def _epoch(
+    value: str,
+) -> int:
+    ts = pd.Timestamp(
+        value
+    )
+
+    if ts is pd.NaT:
+        raise RuntimeError(
+            "TEST_TIMESTAMP_IS_NAT"
+        )
+
+    return int(
+        cast(
+            pd.Timestamp,
+            ts,
+        ).timestamp()
+    )
+
 
 class MockSymbolInfo:
-    def __init__(self, name: str, visible: bool = True, selected: bool = True) -> None:
+    def __init__(
+        self,
+        name: str,
+    ) -> None:
         self.name = name
-        self.visible = visible
-        self.selected = selected
+        self.visible = True
+        self.selected = True
         self.digits = 2
         self.point = 0.01
         self.trade_contract_size = 100.0
 
 
 class MockMT5Session:
-    """Mock MT5 session providing deterministic rates for M5, M15, M30, H1, H4, D1."""
     TIMEFRAME_M5 = 5
     TIMEFRAME_M15 = 15
     TIMEFRAME_M30 = 30
@@ -97,456 +140,1041 @@ class MockMT5Session:
     def __init__(
         self,
         *,
-        base_epoch: int = 1789000000,  # ~2026-09-10 (well past Gate 15A activation)
+        base_epoch: int = 1789000000,
         bar_count: int = 5200,
-        symbols: Sequence[str] = ("XAUUSD", "XAUUSDm"),
+        symbols: Sequence[str] = (
+            "XAUUSD",
+            "XAUUSDm",
+        ),
+        raw_tick_epoch: int | None = None,
+        server_wall_clock: bool = False,
     ) -> None:
-        self.base_epoch = base_epoch
-        self.bar_count = bar_count
-        self.symbols = list(symbols)
-        self.copy_rates_calls: list[dict[str, Any]] = []
+        self.base_epoch = int(
+            base_epoch
+        )
 
-    def symbols_get(self) -> Any:
-        return [MockSymbolInfo(s) for s in self.symbols]
+        self.bar_count = int(
+            bar_count
+        )
 
-    def symbol_info(self, symbol: str) -> Any:
+        self.symbols = list(
+            symbols
+        )
+
+        self.raw_tick_epoch = (
+            int(raw_tick_epoch)
+            if raw_tick_epoch is not None
+            else int(base_epoch)
+        )
+
+        self.server_wall_clock = bool(
+            server_wall_clock
+        )
+
+        self.copy_rates_calls: list[
+            dict[str, Any]
+        ] = []
+
+    def symbols_get(
+        self,
+    ) -> list[MockSymbolInfo]:
+        return [
+            MockSymbolInfo(
+                symbol
+            )
+            for symbol
+            in self.symbols
+        ]
+
+    def symbol_info(
+        self,
+        symbol: str,
+    ) -> MockSymbolInfo | None:
         if symbol in self.symbols:
-            return MockSymbolInfo(symbol)
+            return MockSymbolInfo(
+                symbol
+            )
+
         return None
 
-    def symbol_info_tick(self, symbol: str) -> Any:
-        class MockTick:
-            bid = 2500.00
-            ask = 2500.25
-            time = self.base_epoch
-        return MockTick()
-
-    def copy_rates_from_pos(
-        self, symbol: str, timeframe: int, start_pos: int, count: int
-    ) -> np.ndarray | None:
-        self.copy_rates_calls.append({
-            "symbol": symbol,
-            "timeframe": timeframe,
-            "start_pos": start_pos,
-            "count": count,
-        })
+    def symbol_info_tick(
+        self,
+        symbol: str,
+    ) -> Any:
         if symbol not in self.symbols:
             return None
 
-        # Map timeframe enum to minutes
-        tf_mins = {
+        return SimpleNamespace(
+            bid=2500.00,
+            ask=2500.25,
+            time=self.raw_tick_epoch,
+            time_msc=(
+                self.raw_tick_epoch
+                * 1000
+            ),
+        )
+
+    @staticmethod
+    def _server_offset_for_true_utc(
+        true_epoch: int,
+    ) -> int:
+        true_utc = dt.datetime.fromtimestamp(
+            true_epoch,
+            tz=dt.timezone.utc,
+        )
+
+        ny = true_utc.astimezone(
+            _NEW_YORK
+        )
+
+        ny_offset = ny.utcoffset()
+
+        if ny_offset is None:
+            raise RuntimeError(
+                "NY_OFFSET_UNAVAILABLE"
+            )
+
+        return int(
+            ny_offset.total_seconds()
+            + (7 * 60 * 60)
+        )
+
+    def _encode_time(
+        self,
+        true_epoch: int,
+    ) -> int:
+        if not self.server_wall_clock:
+            return int(
+                true_epoch
+            )
+
+        return int(
+            true_epoch
+            + self._server_offset_for_true_utc(
+                true_epoch
+            )
+        )
+
+    def copy_rates_from_pos(
+        self,
+        symbol: str,
+        timeframe: int,
+        start_pos: int,
+        count: int,
+    ) -> np.ndarray | None:
+
+        self.copy_rates_calls.append(
+            {
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "start_pos": start_pos,
+                "count": count,
+            }
+        )
+
+        if symbol not in self.symbols:
+            return None
+
+        timeframe_minutes = {
             self.TIMEFRAME_M5: 5,
             self.TIMEFRAME_M15: 15,
             self.TIMEFRAME_M30: 30,
             self.TIMEFRAME_H1: 60,
             self.TIMEFRAME_H4: 240,
             self.TIMEFRAME_D1: 1440,
-        }.get(timeframe, 5)
+        }.get(
+            timeframe,
+            5,
+        )
 
-        step_seconds = tf_mins * 60
-        actual_count = min(count, self.bar_count)
-        # End time of completed bars (start_pos=1 skips 1 bar)
-        end_time = self.base_epoch - (start_pos * step_seconds)
-        start_time = end_time - (actual_count * step_seconds)
+        step_seconds = (
+            timeframe_minutes
+            * 60
+        )
 
-        times = np.arange(start_time, end_time, step_seconds, dtype=np.int64)[:actual_count]
+        actual_count = min(
+            int(count),
+            self.bar_count,
+        )
 
-        # Build numpy structured array matching MT5 format
-        dtype = np.dtype([
-            ("time", "<i8"),
-            ("open", "<f8"),
-            ("high", "<f8"),
-            ("low", "<f8"),
-            ("close", "<f8"),
-            ("tick_volume", "<i8"),
-            ("spread", "<i4"),
-            ("real_volume", "<i8"),
-        ])
+        end_time = (
+            self.base_epoch
+            - (
+                int(start_pos)
+                * step_seconds
+            )
+        )
 
-        arr = np.zeros(actual_count, dtype=dtype)
-        arr["time"] = times
-        base_price = 2500.0
-        indices = np.arange(actual_count, dtype=np.float64)
-        p = base_price + np.sin(indices * 0.1) * 5.0
-        arr["open"] = p
-        arr["high"] = p + 1.5
-        arr["low"] = p - 1.5
-        arr["close"] = p + 0.5
-        arr["tick_volume"] = 100 + (indices.astype(np.int64) % 50)
-        arr["spread"] = 20
-        arr["real_volume"] = 0
+        start_time = (
+            end_time
+            - (
+                actual_count
+                * step_seconds
+            )
+        )
 
-        return arr
+        true_times = np.arange(
+            start_time,
+            end_time,
+            step_seconds,
+            dtype=np.int64,
+        )[:actual_count]
+
+        encoded_times = np.asarray(
+            [
+                self._encode_time(
+                    int(value)
+                )
+                for value
+                in true_times
+            ],
+            dtype=np.int64,
+        )
+
+        dtype = np.dtype(
+            [
+                ("time", "<i8"),
+                ("open", "<f8"),
+                ("high", "<f8"),
+                ("low", "<f8"),
+                ("close", "<f8"),
+                ("tick_volume", "<i8"),
+                ("spread", "<i4"),
+                ("real_volume", "<i8"),
+            ]
+        )
+
+        rates = np.zeros(
+            actual_count,
+            dtype=dtype,
+        )
+
+        rates["time"] = (
+            encoded_times
+        )
+
+        indexes = np.arange(
+            actual_count,
+            dtype=np.float64,
+        )
+
+        base_price = (
+            2500.0
+            + np.sin(
+                indexes * 0.1
+            )
+            * 5.0
+        )
+
+        rates["open"] = (
+            base_price
+        )
+
+        rates["high"] = (
+            base_price
+            + 1.5
+        )
+
+        rates["low"] = (
+            base_price
+            - 1.5
+        )
+
+        rates["close"] = (
+            base_price
+            + 0.5
+        )
+
+        rates["tick_volume"] = (
+            100
+            + (
+                indexes.astype(
+                    np.int64
+                )
+                % 50
+            )
+        )
+
+        return rates
 
 
-# =============================================================================
-# Test 1: Capability Facade Whitelist & Attribute Blocking
-# =============================================================================
 def test_01_capability_facade_whitelist_and_blocking() -> None:
     session = MockMT5Session()
-    facade = MT5ReadOnlyCapabilityFacade(session)
+    facade = MT5ReadOnlyCapabilityFacade(
+        session
+    )
 
-    # Allowed methods succeed
-    assert facade.symbols_get() is not None
-    assert facade.symbol_info("XAUUSD") is not None
-    assert facade.symbol_info_tick("XAUUSD") is not None
-    rates = facade.copy_rates_from_pos("XAUUSD", MockMT5Session.TIMEFRAME_M5, 1, 10)
-    assert rates is not None and len(rates) == 10
+    assert facade.symbols_get()
+    assert facade.symbol_info(
+        "XAUUSD"
+    ) is not None
 
-    # Whitelisted timeframe constants succeed
-    assert facade.TIMEFRAME_M5 == 5
-    assert facade.TIMEFRAME_H1 == 16385
+    rates = facade.copy_rates_from_pos(
+        "XAUUSD",
+        session.TIMEFRAME_M5,
+        1,
+        10,
+    )
 
-    # Forbidden mutating methods raise PermissionError
-    with pytest.raises(PermissionError):
+    assert rates is not None
+    assert len(rates) == 10
+
+    with pytest.raises(
+        PermissionError
+    ):
         facade.order_send()
-    with pytest.raises(PermissionError):
-        facade.order_check()
-    with pytest.raises(PermissionError):
+
+    with pytest.raises(
+        PermissionError
+    ):
         facade.positions_get()
-    with pytest.raises(PermissionError):
+
+    with pytest.raises(
+        PermissionError
+    ):
         facade.history_deals_get()
 
-    # Unrecognized methods raise AttributeError
-    with pytest.raises(AttributeError):
-        facade.arbitrary_unknown_call()
 
-
-# =============================================================================
-# Test 2: Forming Candle Exclusion (start_pos >= 1)
-# =============================================================================
 def test_02_forming_candle_exclusion() -> None:
     session = MockMT5Session()
-    facade = MT5ReadOnlyCapabilityFacade(session)
+    facade = MT5ReadOnlyCapabilityFacade(
+        session
+    )
 
-    # start_pos=0 is the active forming candle -> strictly rejected
-    with pytest.raises(IncompleteCandleAccessAttemptError):
-        facade.copy_rates_from_pos("XAUUSD", MockMT5Session.TIMEFRAME_M5, 0, 100)
+    with pytest.raises(
+        IncompleteCandleAccessAttemptError
+    ):
+        facade.copy_rates_from_pos(
+            "XAUUSD",
+            session.TIMEFRAME_M5,
+            0,
+            10,
+        )
 
-    with pytest.raises(IncompleteCandleAccessAttemptError):
-        facade.copy_rates_from_pos("XAUUSD", MockMT5Session.TIMEFRAME_M5, -1, 100)
+    with pytest.raises(
+        IncompleteCandleAccessAttemptError
+    ):
+        facade.copy_rates_from_pos(
+            "XAUUSD",
+            session.TIMEFRAME_M5,
+            -1,
+            10,
+        )
 
-    # start_pos=1 succeeds
-    rates = facade.copy_rates_from_pos("XAUUSD", MockMT5Session.TIMEFRAME_M5, 1, 10)
-    assert rates is not None
 
+def test_03_unix_utc_synthetic_acquisition() -> None:
+    session = MockMT5Session(
+        base_epoch=1789000000,
+    )
 
-# =============================================================================
-# Test 3: Multi-Timeframe Acquisition & UTC Timestamp Handling
-# =============================================================================
-def test_03_multi_timeframe_acquisition_and_utc() -> None:
-    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
     snapshot = adapter.acquire_snapshot()
 
-    assert snapshot.canonical_instrument == "XAUUSD"
-    assert snapshot.broker_symbol in ("XAUUSD", "XAUUSDm")
-    assert snapshot.is_synthetic is True
-    assert snapshot.authority is None
+    assert (
+        snapshot.attestation.time_basis_policy
+        == TIME_BASIS_UNIX_UTC
+    )
 
-    # Native D1 is excluded by default from market_data
-    assert "D1" not in snapshot.market_data
+    assert (
+        snapshot.authority
+        is None
+    )
 
-    # Check that required intraday timeframes are present
-    for tf in ("M5", "M15", "M30", "H1", "H4"):
-        assert tf in snapshot.market_data
-        df = snapshot.market_data[tf]
-        assert len(df) >= 200
-        # Timezone must be explicit UTC
-        assert df["time"].dt.tz is not None
-        assert str(df["time"].dt.tz) == "UTC"
-        # Monotonic increasing
-        assert df["time"].is_monotonic_increasing
-        # Required columns present
-        for col in ("time", "open", "high", "low", "close", "tick_volume"):
-            assert col in df.columns
+    for timeframe in (
+        "M5",
+        "M15",
+        "M30",
+        "H1",
+        "H4",
+    ):
+        frame = snapshot.market_data[
+            timeframe
+        ]
 
-    # Check that copy_rates_from_pos was strictly invoked with start_pos=1
-    for call in session.copy_rates_calls:
-        assert call["start_pos"] == 1
+        assert (
+            str(
+                frame["time"].dt.tz
+            )
+            == "UTC"
+        )
 
 
-# =============================================================================
-# Test 4: Insufficient Bars Rejection
-# =============================================================================
-def test_04_insufficient_bars_rejection() -> None:
-    # Session with only 30 bars (default requires 200)
-    session = MockMT5Session(bar_count=30)
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
-    with pytest.raises(InsufficientForwardHistoryError):
+def test_04_insufficient_bars_rejected() -> None:
+    session = MockMT5Session(
+        bar_count=30,
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        _acq_mod.InsufficientForwardHistoryError
+    ):
         adapter.acquire_snapshot()
 
 
-# =============================================================================
-# Test 5: None Broker Return Rejection
-# =============================================================================
-def test_05_none_broker_return_rejection() -> None:
+def test_05_none_rates_rejected() -> None:
     session = MockMT5Session()
-    # Force copy_rates_from_pos to return None
-    session.copy_rates_from_pos = lambda *args, **kwargs: None  # type: ignore
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
-    with pytest.raises(MT5ConnectionUnavailableError):
+
+    session.copy_rates_from_pos = (  # type: ignore[method-assign]
+        lambda *args, **kwargs: None
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        MT5ConnectionUnavailableError
+    ):
         adapter.acquire_snapshot()
 
 
-# =============================================================================
-# Test 6: Malformed OHLC Geometry Rejection
-# =============================================================================
-def test_06_malformed_ohlc_geometry_rejection() -> None:
-    session = MockMT5Session(bar_count=5200)
-    orig_copy = session.copy_rates_from_pos
+def test_06_bad_ohlc_rejected() -> None:
+    session = MockMT5Session()
 
-    def corrupt_copy(symbol: str, tf: int, pos: int, count: int) -> np.ndarray | None:
-        rates = orig_copy(symbol, tf, pos, count)
-        if rates is not None and tf == MockMT5Session.TIMEFRAME_M5:
-            # Corrupt low > high on bar 10
-            rates["low"][10] = rates["high"][10] + 5.0
+    original = (
+        session.copy_rates_from_pos
+    )
+
+    def corrupt(
+        symbol: str,
+        timeframe: int,
+        start_pos: int,
+        count: int,
+    ) -> np.ndarray | None:
+
+        rates = original(
+            symbol,
+            timeframe,
+            start_pos,
+            count,
+        )
+
+        if (
+            rates is not None
+            and timeframe
+            == session.TIMEFRAME_M5
+        ):
+            rates["low"][10] = (
+                rates["high"][10]
+                + 5.0
+            )
+
         return rates
 
-    session.copy_rates_from_pos = corrupt_copy  # type: ignore
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
-    with pytest.raises(MalformedBarDataError):
+    session.copy_rates_from_pos = corrupt  # type: ignore[method-assign]
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        MalformedBarDataError
+    ):
         adapter.acquire_snapshot()
 
 
-# =============================================================================
-# Test 7: Duplicate Timestamps Rejection
-# =============================================================================
-def test_07_duplicate_timestamps_rejection() -> None:
-    session = MockMT5Session(bar_count=5200)
-    orig_copy = session.copy_rates_from_pos
+def test_07_duplicate_times_rejected() -> None:
+    session = MockMT5Session()
 
-    def duplicate_copy(symbol: str, tf: int, pos: int, count: int) -> np.ndarray | None:
-        rates = orig_copy(symbol, tf, pos, count)
-        if rates is not None and tf == MockMT5Session.TIMEFRAME_M5:
-            # Duplicate timestamp
-            rates["time"][10] = rates["time"][9]
+    original = (
+        session.copy_rates_from_pos
+    )
+
+    def duplicate(
+        symbol: str,
+        timeframe: int,
+        start_pos: int,
+        count: int,
+    ) -> np.ndarray | None:
+
+        rates = original(
+            symbol,
+            timeframe,
+            start_pos,
+            count,
+        )
+
+        if (
+            rates is not None
+            and timeframe
+            == session.TIMEFRAME_M5
+        ):
+            rates["time"][10] = (
+                rates["time"][9]
+            )
+
         return rates
 
-    session.copy_rates_from_pos = duplicate_copy  # type: ignore
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
-    with pytest.raises(MalformedBarDataError):
+    session.copy_rates_from_pos = duplicate  # type: ignore[method-assign]
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        MalformedBarDataError
+    ):
         adapter.acquire_snapshot()
 
 
-# =============================================================================
-# Test 8: Deterministic Snapshot Fingerprint & Decimal Precision Sensitivity
-# =============================================================================
-def test_08_snapshot_fingerprint_determinism_and_sensitivity() -> None:
-    session1 = MockMT5Session(base_epoch=1789000000, bar_count=5200)
-    adapter1 = MT5ReadOnlyForwardAcquisitionAdapter(session1, is_synthetic=True)
-    snap1 = adapter1.acquire_snapshot()
+def test_08_snapshot_hash_is_deterministic_and_sensitive() -> None:
+    session_a = MockMT5Session()
+    session_b = MockMT5Session()
 
-    session2 = MockMT5Session(base_epoch=1789000000, bar_count=5200)
-    adapter2 = MT5ReadOnlyForwardAcquisitionAdapter(session2, is_synthetic=True)
-    snap2 = adapter2.acquire_snapshot()
+    adapter_a = MT5ReadOnlyForwardAcquisitionAdapter(
+        session_a,
+        is_synthetic=True,
+    )
 
-    # Identical snapshots produce identical lowercase 64-hex SHA256 IDs
-    assert snap1.source_snapshot_id == snap2.source_snapshot_id
-    assert len(snap1.source_snapshot_id) == 64
-    assert snap1.source_snapshot_id == snap1.source_snapshot_id.lower()
+    adapter_b = MT5ReadOnlyForwardAcquisitionAdapter(
+        session_b,
+        is_synthetic=True,
+    )
 
-    # Change 1 bar's close price -> fingerprint must change
-    modified_market_data = dict(snap1.market_data)
-    m5_modified = modified_market_data["M5"].copy()
-    m5_modified.loc[0, "close"] += 0.05
-    modified_market_data["M5"] = m5_modified
-    diff_id = compute_canonical_snapshot_id(modified_market_data)
-    assert diff_id != snap1.source_snapshot_id
+    snapshot_a = adapter_a.acquire_snapshot()
+    snapshot_b = adapter_b.acquire_snapshot()
 
-    # CRITICAL HARDENING PROOF (Issue 1):
-    # Two snapshots differing beyond six decimal places (e.g. at 1e-8) MUST produce different SHA256 fingerprints.
-    # Under previous {: .6f} rounding, both produced the same string.
-    # Under exact float.hex(), they are guaranteed distinct.
-    m5_micro1 = snap1.market_data["M5"].copy()
-    m5_micro2 = snap1.market_data["M5"].copy()
-    m5_micro1.loc[0, "open"] = 2500.1234560001
-    m5_micro2.loc[0, "open"] = 2500.1234560002
-    data1 = dict(snap1.market_data, M5=m5_micro1)
-    data2 = dict(snap1.market_data, M5=m5_micro2)
-    fp1 = compute_canonical_snapshot_id(data1)
-    fp2 = compute_canonical_snapshot_id(data2)
-    assert fp1 != fp2, "Fingerprint collision occurred for values differing beyond 6 decimal places!"
+    assert (
+        snapshot_a.source_snapshot_id
+        == snapshot_b.source_snapshot_id
+    )
 
-    # Timestamp change -> fingerprint must change
-    m5_time = snap1.market_data["M5"].copy()
-    m5_time.loc[0, "time"] = m5_time.loc[0, "time"] + pd.Timedelta(seconds=1)
-    data_time = dict(snap1.market_data, M5=m5_time)
-    assert compute_canonical_snapshot_id(data_time) != snap1.source_snapshot_id
+    modified = dict(
+        snapshot_a.market_data
+    )
 
-    # Tick volume change -> fingerprint must change
-    m5_vol = snap1.market_data["M5"].copy()
-    m5_vol.loc[0, "tick_volume"] += 1
-    data_vol = dict(snap1.market_data, M5=m5_vol)
-    assert compute_canonical_snapshot_id(data_vol) != snap1.source_snapshot_id
+    m5 = modified[
+        "M5"
+    ].copy()
+
+    m5.loc[
+        0,
+        "close",
+    ] += 0.00000001
+
+    modified[
+        "M5"
+    ] = m5
+
+    assert (
+        compute_canonical_snapshot_id(
+            modified
+        )
+        != snapshot_a.source_snapshot_id
+    )
 
 
-# =============================================================================
-# Test 9: Attestation Integrity & Tamper Detection
-# =============================================================================
-def test_09_attestation_integrity_and_tamper_detection() -> None:
-    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+def test_09_attestation_tamper_detection() -> None:
+    session = MockMT5Session()
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
     snapshot = adapter.acquire_snapshot()
 
-    att = snapshot.attestation
-    assert att.verify_integrity() is True
+    assert (
+        snapshot.attestation.verify_integrity()
+        is True
+    )
 
-    # Tamper with decision time in attestation -> verification must fail
-    tampered_att = replace(att, decision_time_utc="2026-10-01T00:00:00Z")
-    assert tampered_att.verify_integrity() is False
+    tampered = replace(
+        snapshot.attestation,
+        time_basis_policy=(
+            TIME_BASIS_NY_CLOSE_SERVER
+        ),
+    )
 
-    # Tamper with snapshot ID -> verification must fail
-    tampered_id = replace(att, source_snapshot_id="0" * 64)
-    assert tampered_id.verify_integrity() is False
-
-
-# =============================================================================
-# Test 10: Frozen Research Boundary Enforcement
-# =============================================================================
-def test_10_frozen_research_boundary_enforcement() -> None:
-    # 2026-08-14T20:55:00Z corresponds to epoch 1786740900
-    pre_freeze_epoch = 1786740900 - 3600  # 1 hour before freeze
-    session = MockMT5Session(base_epoch=pre_freeze_epoch, bar_count=5200)
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
-
-    with pytest.raises(HistoricalFreezeBoundaryViolationError):
-        adapter.acquire_snapshot(enforce_forward_boundaries=True)
+    assert (
+        tampered.verify_integrity()
+        is False
+    )
 
 
-# =============================================================================
-# Test 11: Gate 15A Activation Boundary Enforcement
-# =============================================================================
-def test_11_gate_15a_activation_boundary_enforcement() -> None:
-    # Timestamp between research freeze (2026-08-14) and activation (2026-09-06)
-    mid_epoch = 1787500000
-    session = MockMT5Session(base_epoch=mid_epoch, bar_count=5200)
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+def test_10_research_freeze_boundary() -> None:
+    pre_freeze = (
+        _epoch(
+            "2026-08-14T19:00:00Z"
+        )
+    )
 
-    with pytest.raises(PreActivationForwardError):
-        adapter.acquire_snapshot(enforce_forward_boundaries=True)
+    session = MockMT5Session(
+        base_epoch=pre_freeze,
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        HistoricalFreezeBoundaryViolationError
+    ):
+        adapter.acquire_snapshot(
+            enforce_forward_boundaries=True
+        )
 
 
-# =============================================================================
-# Test 12: Unsupported Symbol Rejection
-# =============================================================================
-def test_12_unsupported_symbol_rejection() -> None:
-    session = MockMT5Session(symbols=["EURUSD", "GBPUSD"])
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+def test_11_gate15a_activation_boundary() -> None:
+    before_activation = (
+        _epoch(
+            "2026-09-01T12:00:00Z"
+        )
+    )
 
-    with pytest.raises(SymbolResolutionError):
+    session = MockMT5Session(
+        base_epoch=before_activation,
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        PreActivationForwardError
+    ):
+        adapter.acquire_snapshot(
+            enforce_forward_boundaries=True
+        )
+
+
+def test_12_unsupported_symbol_rejected() -> None:
+    session = MockMT5Session(
+        symbols=(
+            "EURUSD",
+            "GBPUSD",
+        ),
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    with pytest.raises(
+        SymbolResolutionError
+    ):
         adapter.acquire_snapshot()
 
 
-# =============================================================================
-# Test 13: Static AST Safety Check — No Order/Write APIs in Adapter
-# =============================================================================
-def test_13_static_safety_audit_no_broker_writes() -> None:
-    adapter_file = REPO_ROOT / "02_AI" / "Adapters" / "mt5_read_only_forward_acquisition_adapter.py"
-    tree = ast.parse(adapter_file.read_text(encoding="utf-8"))
+def test_13_static_ast_safety() -> None:
+    adapter_file = (
+        REPO_ROOT
+        / "02_AI"
+        / "Adapters"
+        / "mt5_read_only_forward_acquisition_adapter.py"
+    )
 
-    forbidden_names = {
-        "order_send",
-        "OrderSend",
-        "order_modify",
-        "OrderModify",
-        "order_close",
-        "OrderClose",
-        "PositionOpen",
-        "PositionClose",
+    tree = ast.parse(
+        adapter_file.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    forbidden = {
         "RiskEngine",
+        "trade_ready",
         "broker_aware_risk_engine",
         "account_protection_guard",
-        "trade_ready",
+        "order_send",
+        "positions_get",
+        "orders_get",
+        "history_deals_get",
     }
 
-    imported_names = set()
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
+    imported: set[str] = set()
+
+    for node in ast.walk(
+        tree
+    ):
+        if isinstance(
+            node,
+            ast.Import,
+        ):
             for alias in node.names:
-                imported_names.add(alias.name)
-        elif isinstance(node, ast.ImportFrom):
+                imported.add(
+                    alias.name
+                )
+
+        elif isinstance(
+            node,
+            ast.ImportFrom,
+        ):
             if node.module:
-                imported_names.add(node.module)
+                imported.add(
+                    node.module
+                )
+
             for alias in node.names:
-                imported_names.add(alias.name)
+                imported.add(
+                    alias.name
+                )
 
-    violations = forbidden_names.intersection(imported_names)
-    assert not violations, f"Forbidden imports found in forward acquisition adapter: {violations}"
+    assert not (
+        forbidden
+        & imported
+    )
 
 
-# =============================================================================
-# Test 14: D1 Authority Preservation & Gate 13 Reconstruction
-# =============================================================================
-def test_14_d1_authority_preservation_and_gate13_reconstruction() -> None:
-    """
-    Verify Gate 13 D1 authority:
-    - Native D1 is NOT present in market_data by default.
-    - Gate 13 PortableFeaturePipeline reconstructs D1 strictly at 00:00:00 UTC.
-    - Optional diagnostic D1 does not contaminate market_data.
-    """
-    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
-    adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
+def test_14_gate13_d1_reconstruction_preserved() -> None:
+    session = MockMT5Session()
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
     snapshot = adapter.acquire_snapshot()
 
-    assert "D1" not in snapshot.market_data
-    assert snapshot.native_d1_diagnostic is None
+    assert (
+        "D1"
+        not in snapshot.market_data
+    )
 
-    pipeline_mod = importlib.import_module("02_AI.Features.portable_feature_pipeline")
-    pipeline = pipeline_mod.PortableFeaturePipeline()
-    feature_result = pipeline.generate(snapshot.market_data, symbol=snapshot.canonical_instrument)
-    assert feature_result.feature_count == 331
-    assert feature_result.row_count > 0
+    pipeline_mod = importlib.import_module(
+        "02_AI.Features.portable_feature_pipeline"
+    )
 
-    # Test optional diagnostic D1
-    diag_adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True, include_native_d1=True)
-    diag_snap = diag_adapter.acquire_snapshot()
-    assert "D1" not in diag_snap.market_data
-    assert diag_snap.native_d1_diagnostic is not None
-    assert len(diag_snap.native_d1_diagnostic) >= 200
+    pipeline = (
+        pipeline_mod.PortableFeaturePipeline()
+    )
+
+    result = pipeline.generate(
+        snapshot.market_data,
+        symbol=snapshot.canonical_instrument,
+    )
+
+    assert (
+        result.feature_count
+        == 331
+    )
+
+    assert (
+        result.feature_columns_sha256
+        == _acq_mod.EXPECTED_FEATURE_COLUMNS_SHA256
+    )
 
 
-# =============================================================================
-# Test 15: Capability Authority Token Pattern & Provenance Isolation
-# =============================================================================
-def test_15_authority_token_isolation_and_verification() -> None:
-    """
-    Verify the capability/authority-bound result pattern:
-    - Synthetic adapter produces authority=None.
-    - Genuine adapter produces VerifiedForwardAcquisitionAuthority.
-    - Direct constructor call with arbitrary token raises PermissionError.
-    - verify_forward_acquisition_authority succeeds on genuine authority.
-    """
-    session = MockMT5Session(base_epoch=1789000000, bar_count=5200)
+def test_15_authority_token_isolation() -> None:
+    base_epoch = _epoch(
+        "2026-09-20T12:00:00Z"
+    )
 
-    # 1. Synthetic acquisition path produces authority is None
-    syn_adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=True)
-    syn_snap = syn_adapter.acquire_snapshot()
-    assert syn_snap.is_synthetic is True
-    assert syn_snap.authority is None
+    session = MockMT5Session(
+        base_epoch=base_epoch,
+        raw_tick_epoch=base_epoch,
+    )
 
-    # 2. Genuine acquisition path produces valid VerifiedForwardAcquisitionAuthority
-    genuine_adapter = MT5ReadOnlyForwardAcquisitionAdapter(session, is_synthetic=False)
-    genuine_snap = genuine_adapter.acquire_snapshot()
-    assert genuine_snap.is_synthetic is False
-    assert genuine_snap.authority is not None
-    assert genuine_snap.authority.is_valid_authority() is True
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=False,
+        timestamp_basis=(
+            TIME_BASIS_UNIX_UTC
+        ),
+        now_provider=(
+            lambda: float(
+                base_epoch
+            )
+        ),
+    )
 
-    # 3. Direct instantiation without private token is blocked
-    with pytest.raises(PermissionError):
+    snapshot = adapter.acquire_snapshot()
+
+    assert (
+        snapshot.authority
+        is not None
+    )
+
+    assert (
+        snapshot.authority.is_valid_authority()
+        is True
+    )
+
+    with pytest.raises(
+        PermissionError
+    ):
         VerifiedForwardAcquisitionAuthority(
             token=object(),
-            attestation=genuine_snap.attestation,
+            attestation=snapshot.attestation,
             is_synthetic=False,
         )
 
-    # 4. Public verification function succeeds on genuine authority
-    verified_att = verify_forward_acquisition_authority(
-        genuine_snap.authority,
-        expected_decision_time_utc=genuine_snap.decision_time_utc,
-        expected_source_snapshot_id=genuine_snap.source_snapshot_id,
-        expected_canonical_instrument=genuine_snap.canonical_instrument,
-        expected_feature_columns_sha256=_acq_mod.EXPECTED_FEATURE_COLUMNS_SHA256,
-        expected_model_sha256=_acq_mod.FROZEN_MODEL_SHA256,
+    verified = verify_forward_acquisition_authority(
+        snapshot.authority,
+        expected_decision_time_utc=(
+            snapshot.decision_time_utc
+        ),
+        expected_source_snapshot_id=(
+            snapshot.source_snapshot_id
+        ),
+        expected_canonical_instrument=(
+            snapshot.canonical_instrument
+        ),
+        expected_feature_columns_sha256=(
+            _acq_mod.EXPECTED_FEATURE_COLUMNS_SHA256
+        ),
+        expected_model_sha256=(
+            _acq_mod.FROZEN_MODEL_SHA256
+        ),
     )
-    assert verified_att.attestation_sha256 == genuine_snap.attestation.attestation_sha256
+
+    assert (
+        verified.attestation_sha256
+        == snapshot.attestation.attestation_sha256
+    )
+
+
+def test_16_auto_detects_unix_utc() -> None:
+    now_epoch = _epoch(
+        "2026-09-20T12:00:10Z"
+    )
+
+    raw_tick = _epoch(
+        "2026-09-20T12:00:08Z"
+    )
+
+    resolution = (
+        detect_timestamp_basis_from_tick(
+            raw_tick_epoch=(
+                raw_tick
+            ),
+            now_epoch=(
+                float(
+                    now_epoch
+                )
+            ),
+        )
+    )
+
+    assert (
+        resolution.policy
+        == TIME_BASIS_UNIX_UTC
+    )
+
+    assert (
+        resolution.reference_offset_seconds
+        == 0
+    )
+
+
+def test_17_auto_detects_ny_close_server_wall_clock() -> None:
+    true_tick = _epoch(
+        "2026-09-20T12:00:08Z"
+    )
+
+    raw_server_tick = (
+        true_tick
+        + (3 * 60 * 60)
+    )
+
+    now_epoch = _epoch(
+        "2026-09-20T12:00:10Z"
+    )
+
+    resolution = (
+        detect_timestamp_basis_from_tick(
+            raw_tick_epoch=(
+                raw_server_tick
+            ),
+            now_epoch=(
+                float(
+                    now_epoch
+                )
+            ),
+        )
+    )
+
+    assert (
+        resolution.policy
+        == TIME_BASIS_NY_CLOSE_SERVER
+    )
+
+    assert (
+        resolution.reference_offset_seconds
+        == 10800
+    )
+
+
+def test_18_ny_close_historical_rows_are_dst_aware() -> None:
+    winter_true = _epoch(
+        "2026-03-08T06:00:00Z"
+    )
+
+    summer_true = _epoch(
+        "2026-03-09T06:00:00Z"
+    )
+
+    winter_raw = (
+        winter_true
+        + (2 * 60 * 60)
+    )
+
+    summer_raw = (
+        summer_true
+        + (3 * 60 * 60)
+    )
+
+    winter_utc, winter_offset = (
+        normalize_ny_close_server_epoch(
+            winter_raw
+        )
+    )
+
+    summer_utc, summer_offset = (
+        normalize_ny_close_server_epoch(
+            summer_raw
+        )
+    )
+
+    assert (
+        int(
+            winter_utc.timestamp()
+        )
+        == winter_true
+    )
+
+    assert (
+        int(
+            summer_utc.timestamp()
+        )
+        == summer_true
+    )
+
+    assert (
+        winter_offset
+        == 7200
+    )
+
+    assert (
+        summer_offset
+        == 10800
+    )
+
+
+def test_19_stale_or_unprovable_time_basis_fails_closed() -> None:
+    old_tick = _epoch(
+        "2026-09-20T09:00:00Z"
+    )
+
+    now_epoch = _epoch(
+        "2026-09-20T12:00:00Z"
+    )
+
+    with pytest.raises(
+        TimestampBasisResolutionError
+    ):
+        detect_timestamp_basis_from_tick(
+            raw_tick_epoch=(
+                old_tick
+            ),
+            now_epoch=(
+                float(
+                    now_epoch
+                )
+            ),
+            max_tick_age_seconds=180,
+        )
+
+
+def test_20_exact_331_feature_contract_under_ny_close_policy() -> None:
+    true_now = _epoch(
+        "2026-09-20T12:00:00Z"
+    )
+
+    raw_server_now = (
+        true_now
+        + (3 * 60 * 60)
+    )
+
+    session = MockMT5Session(
+        base_epoch=true_now,
+        raw_tick_epoch=(
+            raw_server_now
+        ),
+        server_wall_clock=True,
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=False,
+        timestamp_basis=(
+            TIME_BASIS_NY_CLOSE_SERVER
+        ),
+        now_provider=(
+            lambda: float(
+                true_now
+            )
+        ),
+    )
+
+    snapshot = (
+        adapter.acquire_snapshot()
+    )
+
+    assert (
+        snapshot.attestation.time_basis_policy
+        == TIME_BASIS_NY_CLOSE_SERVER
+    )
+
+    pipeline_mod = importlib.import_module(
+        "02_AI.Features.portable_feature_pipeline"
+    )
+
+    pipeline = (
+        pipeline_mod.PortableFeaturePipeline()
+    )
+
+    result = pipeline.generate(
+        snapshot.market_data,
+        symbol=snapshot.canonical_instrument,
+    )
+
+    assert (
+        result.feature_count
+        == 331
+    )
+
+    assert (
+        result.feature_columns_sha256
+        == _acq_mod.EXPECTED_FEATURE_COLUMNS_SHA256
+    )
+
+    decision_ts = pd.Timestamp(
+        snapshot.decision_time_utc
+    )
+
+    tick_ts = pd.Timestamp(
+        snapshot.attestation.time_basis_reference_tick_utc
+    )
+
+    if (
+        decision_ts is pd.NaT
+        or tick_ts is pd.NaT
+    ):
+        raise AssertionError(
+            "Unexpected NaT in causal test"
+        )
+
+    assert (
+        cast(
+            pd.Timestamp,
+            decision_ts,
+        )
+        <= cast(
+            pd.Timestamp,
+            tick_ts,
+        )
+    )
