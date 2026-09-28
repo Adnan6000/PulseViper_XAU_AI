@@ -1,0 +1,239 @@
+{
+  "accuracy_evaluated": false,
+  "acquisition_authority": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+  "acquisition_schema_version": "2.1.0",
+  "acquisition_time_utc": "2026-09-28T11:46:50.738254Z",
+  "bid_ask_validation": {
+    "ask": 4154.06,
+    "bid": 4153.86,
+    "raw_tick_time_not_used_for_freshness": true,
+    "status": "PASS",
+    "valid_bid_ask": true
+  },
+  "broker_write_calls": 0,
+  "canonical_instrument": "XAUUSD",
+  "capability_manifest": [
+    "copy_rates_from_pos",
+    "symbol_info",
+    "symbol_info_tick",
+    "symbols_get"
+  ],
+  "closed_bar_enforced": true,
+  "decision_time_utc": "2026-09-28T11:45:00Z",
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "execution_dependencies": 0,
+  "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+  "forming_bar_start_pos_zero_used": false,
+  "forward_outcomes_evaluated": false,
+  "forward_outcomes_matured": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-B \u2014 First Prospective Post-Contract Genuine Forward Observation",
+  "gate13": {
+    "d1_source": "RECONSTRUCTED_FROM_H1",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "latest_feature_decision_time_utc": "2026-09-28T11:45:00Z",
+    "row_count": 181,
+    "status": "PASS"
+  },
+  "gate14": {
+    "inference_status": "SUCCESS_GATE_14",
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "status": "PASS"
+  },
+  "gate15a": {
+    "is_true_forward_eligible": true,
+    "observation_status": "RECORDED",
+    "source_provenance": "TRUE_FORWARD_OBSERVATION",
+    "status": "PASS"
+  },
+  "gate_15b_a_v2_1_authority": {
+    "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+    "authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_version": "2.1.0",
+    "historical_dst_normalization": "PER_ROW",
+    "inherited_41_of_41_status": "PASS",
+    "schema_version": "2.1.0",
+    "status": "PASS",
+    "verified_artifact_hashes": {
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "68ac2f836a368f9d15b46f3f2bd6482803259941702e9e29f352e2e8dfb9d875",
+      "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py": "3f50d3ba35f037e36c1b50bd5d006a5a5ac2b0e660d386aec0a3e375569441fc",
+      "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py": "e1920c176142069bf616ce4a651df14fd389f1494d504dfe62e828dece40b636"
+    }
+  },
+  "gate_15d_a_authority": {
+    "activation_utc": "2026-09-28T11:16:59Z",
+    "authority_commit": "4fc9e9e94573fd4e671973caf80054e6abe257c5",
+    "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "status": "PASS",
+    "verified_artifact_hashes": {
+      "02_AI/Models/frozen_c04_forward_outcome_eligibility.py": "d56fd43cc31577cf5aa454f6eec35ba64387d248c410bfabe5ced6a30582b82e",
+      "04_Testing/production_portability/run_xauusd_gate_15d_a_forward_outcome_eligibility_evidence.py": "857fce549cfd265a5edde5055253b2f18111c2bcf65ea5aa68e581929f9b14ae",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_eligibility.py": "2bb27794e15911bbdb0bff014949214bdc058c23ebadc4753b9586c9b6a096f4"
+    }
+  },
+  "gate_id": "GATE_15D_B_FIRST_PROSPECTIVE_POST_CONTRACT_GENUINE_OBSERVATION",
+  "generated_at_utc": "2026-09-28T11:46:54.243632Z",
+  "genuine_mt5_acquisition": true,
+  "git": {
+    "allowed_post_authority_tracked_paths_only": true,
+    "execution_head": "6de57fa954155523be79d6e55c7f5f2573c3370b",
+    "gate_15b_a_authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_15b_a_authority_is_ancestor": true,
+    "head_equals_origin_main": true,
+    "origin_main": "6de57fa954155523be79d6e55c7f5f2573c3370b"
+  },
+  "historical_replay": false,
+  "is_synthetic": false,
+  "ledger": {
+    "append_performed": true,
+    "idempotent_duplicate": false,
+    "integrity_verified": true,
+    "new_true_forward_observations_added": 1,
+    "runtime_ledger_committable": false,
+    "total_count_after": 2,
+    "total_count_before": 1,
+    "true_forward_count_after": 2,
+    "true_forward_count_before": 1
+  },
+  "live_authorized": false,
+  "logical_observation_id": "7e2b8241fa5c4437d60becae4e6be8d436daa9df9d6413ffe23bea7f305bf9bb",
+  "market_freshness": {
+    "authority": "GATE_15B_A_V2_1_NORMALIZED_TIME_BASIS_ATTESTATION",
+    "decision_time_not_after_normalized_tick": true,
+    "decision_time_not_future": true,
+    "max_future_tick_skew_seconds": 5,
+    "max_tick_age_seconds": 180,
+    "reference_offset_seconds": 10800,
+    "reference_tick_raw": 1790606812,
+    "reference_tick_utc": "2026-09-28T11:46:52Z",
+    "status": "PASS",
+    "tick_age_seconds": -1.2620172500610352,
+    "time_basis_policy": "NY_CLOSE_SERVER_WALL_CLOCK"
+  },
+  "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+  "outcome_contract_status": "DEFINED_NOT_YET_MATURED_OR_EVALUATED",
+  "outcome_horizon_contract_status": "DEFINED_NOT_YET_MATURED_OR_EVALUATED",
+  "outcome_maturation_authorized": false,
+  "pnl_evaluated": false,
+  "prospective_eligibility": {
+    "activation_authority_commit": "59f5b6815f0c8d0a51725aa5123812595566b530",
+    "activation_utc": "2026-09-28T11:16:59Z",
+    "decision_time_utc": "2026-09-28T11:45:00Z",
+    "eligibility_reason": "POST_CONTRACT_PROSPECTIVE_OBSERVATION",
+    "eligible_for_formal_maturation": true,
+    "execution_authorized": false,
+    "live_authorized": false,
+    "logical_observation_id": "7e2b8241fa5c4437d60becae4e6be8d436daa9df9d6413ffe23bea7f305bf9bb",
+    "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "performance_evaluation_authorized": false
+  },
+  "prospective_eligibility_status": "PASS",
+  "repository_authority": {
+    "allowed_post_authority_tracked_paths_only": true,
+    "allowed_untracked_paths_present": [],
+    "branch": "main",
+    "changed_since_gate_15d_a_authority": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_b_post_contract_genuine_observation.py"
+    ],
+    "execution_head": "6de57fa954155523be79d6e55c7f5f2573c3370b",
+    "gate_15b_a_v2_1": {
+      "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+      "authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+      "gate_version": "2.1.0",
+      "historical_dst_normalization": "PER_ROW",
+      "inherited_41_of_41_status": "PASS",
+      "schema_version": "2.1.0",
+      "status": "PASS",
+      "verified_artifact_hashes": {
+        "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "68ac2f836a368f9d15b46f3f2bd6482803259941702e9e29f352e2e8dfb9d875",
+        "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py": "3f50d3ba35f037e36c1b50bd5d006a5a5ac2b0e660d386aec0a3e375569441fc",
+        "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py": "e1920c176142069bf616ce4a651df14fd389f1494d504dfe62e828dece40b636"
+      }
+    },
+    "gate_15d_a": {
+      "activation_utc": "2026-09-28T11:16:59Z",
+      "authority_commit": "4fc9e9e94573fd4e671973caf80054e6abe257c5",
+      "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+      "status": "PASS",
+      "verified_artifact_hashes": {
+        "02_AI/Models/frozen_c04_forward_outcome_eligibility.py": "d56fd43cc31577cf5aa454f6eec35ba64387d248c410bfabe5ced6a30582b82e",
+        "04_Testing/production_portability/run_xauusd_gate_15d_a_forward_outcome_eligibility_evidence.py": "857fce549cfd265a5edde5055253b2f18111c2bcf65ea5aa68e581929f9b14ae",
+        "04_Testing/production_portability/test_frozen_c04_forward_outcome_eligibility.py": "2bb27794e15911bbdb0bff014949214bdc058c23ebadc4753b9586c9b6a096f4"
+      }
+    },
+    "gate_15d_a_authority_commit": "4fc9e9e94573fd4e671973caf80054e6abe257c5",
+    "gate_15d_a_authority_is_ancestor": true,
+    "head_equals_origin_main": true,
+    "origin_main": "6de57fa954155523be79d6e55c7f5f2573c3370b",
+    "status": "PASS",
+    "tracked_staged_change_count": 0,
+    "tracked_unstaged_change_count": 0,
+    "unexpected_untracked_path_count": 0
+  },
+  "resolved_broker_symbol": "XAUUSD",
+  "return_evaluated": false,
+  "risk_engine_dependencies": 0,
+  "runtime_authority": {
+    "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+    "acquisition_schema_version": "2.1.0",
+    "sklearn_version": "1.9.0",
+    "status": "PASS"
+  },
+  "schema_version": "1.0.0",
+  "semantic_record_fingerprint": "cad24109c1c619c9ca4c4098204cacbf8d963d7169163496ca03c4e4856b748e",
+  "source_snapshot_id": "b4ff2ae4e2fb5f2339ad128374961048dde61877e921c3095a22919908c97d71",
+  "static_safety": {
+    "audited_file_count": 5,
+    "audited_files": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_b_post_contract_genuine_observation.py",
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "02_AI/Features/portable_feature_pipeline.py",
+      "02_AI/Models/frozen_c04_inference_adapter.py",
+      "02_AI/Models/frozen_c04_shadow_observer.py"
+    ],
+    "facade_core_mutating_methods_blocked": true,
+    "forbidden_execution_dependency_count": 0,
+    "forbidden_write_call_count": 0,
+    "status": "PASS",
+    "violations": []
+  },
+  "status": "PASS",
+  "symbol_resolution_authority": "GATE_15B_A_V2_1_EXACT_SUPPORTED_SYMBOL",
+  "test_partition_accessed": false,
+  "time_basis": {
+    "historical_normalization": "GATE_15B_A_V2_1_PER_ROW",
+    "manual_fixed_offset_used_by_gate_15b_b": false,
+    "policy": "NY_CLOSE_SERVER_WALL_CLOCK",
+    "reference_offset_seconds": 10800,
+    "reference_tick_age_seconds": -1.2620172500610352,
+    "reference_tick_raw": 1790606812,
+    "reference_tick_utc": "2026-09-28T11:46:52Z"
+  },
+  "timestamp_resolution_normalization": {
+    "dtypes_after": {
+      "H1": "datetime64[ns, UTC]",
+      "H4": "datetime64[ns, UTC]",
+      "M15": "datetime64[ns, UTC]",
+      "M30": "datetime64[ns, UTC]",
+      "M5": "datetime64[ns, UTC]"
+    },
+    "dtypes_before": {
+      "H1": "datetime64[ns, UTC]",
+      "H4": "datetime64[ns, UTC]",
+      "M15": "datetime64[ns, UTC]",
+      "M30": "datetime64[ns, UTC]",
+      "M5": "datetime64[ns, UTC]"
+    },
+    "policy": "PANDAS_STORAGE_RESOLUTION_ONLY_UTC_NANOSECONDS",
+    "source_snapshot_id_after": "b4ff2ae4e2fb5f2339ad128374961048dde61877e921c3095a22919908c97d71",
+    "source_snapshot_id_before": "b4ff2ae4e2fb5f2339ad128374961048dde61877e921c3095a22919908c97d71",
+    "source_snapshot_identity_preserved": true,
+    "status": "PASS"
+  },
+  "trade_ready_dependencies": 0,
+  "validation_partition_accessed": false,
+  "verified_forward_authority": true,
+  "win_rate_evaluated": false
+}
