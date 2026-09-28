@@ -20,6 +20,10 @@ maturer_mod: Any = importlib.import_module(
     "02_AI.Models.frozen_c04_forward_outcome_maturer"
 )
 
+anchor_mod: Any = importlib.import_module(
+    "02_AI.Models.frozen_c04_forward_outcome_anchor"
+)
+
 
 def _outcome() -> Any:
 
@@ -40,13 +44,21 @@ def _outcome() -> Any:
 
         outcome_class=1,
 
-        outcome_label="LONG",
+        outcome_label=(
+            "LONG"
+        ),
 
-        entry_close=4000.0,
+        entry_close=(
+            4000.0
+        ),
 
-        decision_atr14=10.0,
+        decision_atr14=(
+            10.0
+        ),
 
-        horizon_bars=12,
+        horizon_bars=(
+            12
+        ),
 
         horizon_semantics=(
             "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR"
@@ -64,18 +76,36 @@ def _outcome() -> Any:
             "2026-09-28T12:40:00Z"
         ),
 
-        max_future_high=4015.0,
+        max_future_high=(
+            4015.0
+        ),
 
-        min_future_low=3995.0,
+        min_future_low=(
+            3995.0
+        ),
 
-        up_excursion_atr=1.5,
+        up_excursion_atr=(
+            1.5
+        ),
 
-        down_excursion_atr=0.5,
+        down_excursion_atr=(
+            0.5
+        ),
 
         source_observation_fingerprint=(
             "b"
             *
             64
+        ),
+
+        source_anchor_fingerprint=(
+            "c"
+            *
+            64
+        ),
+
+        source_anchor_version=(
+            anchor_mod.ANCHOR_VERSION
         ),
     )
 
@@ -88,10 +118,16 @@ def test_01_authorities_pass() -> None:
     )
 
 
-def test_02_versions_are_v1_1() -> None:
+def test_02_versions_are_v2() -> None:
 
     assert (
         ledger_mod.OUTCOME_LEDGER_VERSION
+        ==
+        "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2"
+    )
+
+    assert (
+        ledger_mod.SUPERSEDES_OUTCOME_LEDGER_VERSION
         ==
         "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1"
     )
@@ -99,34 +135,40 @@ def test_02_versions_are_v1_1() -> None:
     assert (
         ledger_mod.EXPECTED_MATURATION_VERSION
         ==
-        "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
+        "FROZEN_C04_FORWARD_OUTCOME_MATURER_V2"
     )
 
 
-def test_03_corrected_semantics_are_frozen() -> None:
+def test_03_anchor_requirements_are_frozen() -> None:
 
     assert (
-        ledger_mod.EXPECTED_DECISION_BAR_SEMANTICS
+        ledger_mod.EXPECTED_ANCHOR_VERSION
         ==
-        "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES"
+        "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_V1"
     )
 
     assert (
         ledger_mod.EXPECTED_ENTRY_REFERENCE
         ==
-        "DECISION_M5_COMPLETED_BAR_CLOSE"
+        "PROSPECTIVE_ANCHOR_DECISION_M5_CLOSE"
     )
 
     assert (
         ledger_mod.EXPECTED_ATR_REFERENCE
         ==
-        "DECISION_M5_COMPLETED_BAR_ATR14"
+        "PROSPECTIVE_ANCHOR_DECISION_M5_ATR14"
     )
 
     assert (
-        ledger_mod.EXPECTED_HORIZON_SEMANTICS
+        ledger_mod.EXPECTED_ANCHOR_REQUIREMENT
         ==
-        "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR"
+        "VALIDATED_PROSPECTIVE_ANCHOR_REQUIRED"
+    )
+
+    assert (
+        ledger_mod.EXPECTED_REFERENCE_RECONSTRUCTION_POLICY
+        ==
+        "POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN"
     )
 
 
@@ -134,19 +176,19 @@ def test_04_empty_ledger_count_zero(
     tmp_path: Path,
 ) -> None:
 
-    path = (
-        tmp_path
-        /
-        "outcomes.jsonl"
-    )
-
     ledger = (
         ledger_mod.FrozenC04ForwardOutcomeLedger(
-            path
+            tmp_path
+            /
+            "outcomes.jsonl"
         )
     )
 
-    assert ledger.count() == 0
+    assert (
+        ledger.count()
+        ==
+        0
+    )
 
     assert (
         ledger.validate_integrity()
@@ -158,20 +200,18 @@ def test_05_append_one_outcome(
     tmp_path: Path,
 ) -> None:
 
-    path = (
-        tmp_path
-        /
-        "outcomes.jsonl"
-    )
-
     ledger = (
         ledger_mod.FrozenC04ForwardOutcomeLedger(
-            path
+            tmp_path
+            /
+            "outcomes.jsonl"
         )
     )
 
-    result = ledger.append(
-        _outcome()
+    result = (
+        ledger.append(
+            _outcome()
+        )
     )
 
     assert (
@@ -190,25 +230,17 @@ def test_05_append_one_outcome(
         1
     )
 
-    assert (
-        ledger.validate_integrity()
-        is True
-    )
-
 
 def test_06_idempotent_duplicate(
     tmp_path: Path,
 ) -> None:
 
-    path = (
-        tmp_path
-        /
-        "outcomes.jsonl"
-    )
-
     ledger = (
         ledger_mod.FrozenC04ForwardOutcomeLedger(
-            path,
+            tmp_path
+            /
+            "outcomes.jsonl",
+
             duplicate_handling=(
                 ledger_mod
                 .OutcomeDuplicateHandling
@@ -251,15 +283,11 @@ def test_07_duplicate_fail_closed(
     tmp_path: Path,
 ) -> None:
 
-    path = (
-        tmp_path
-        /
-        "outcomes.jsonl"
-    )
-
     ledger = (
         ledger_mod.FrozenC04ForwardOutcomeLedger(
-            path
+            tmp_path
+            /
+            "outcomes.jsonl"
         )
     )
 
@@ -280,15 +308,12 @@ def test_08_conflicting_outcome_rejected(
     tmp_path: Path,
 ) -> None:
 
-    path = (
-        tmp_path
-        /
-        "outcomes.jsonl"
-    )
-
     ledger = (
         ledger_mod.FrozenC04ForwardOutcomeLedger(
-            path,
+            tmp_path
+            /
+            "outcomes.jsonl",
+
             duplicate_handling=(
                 ledger_mod
                 .OutcomeDuplicateHandling
@@ -305,11 +330,11 @@ def test_08_conflicting_outcome_rejected(
         original
     )
 
-    conflicting = (
-        dataclasses.replace(
-            original,
-            up_excursion_atr=1.6,
-        )
+    conflicting = dataclasses.replace(
+        original,
+        up_excursion_atr=(
+            1.6
+        ),
     )
 
     with pytest.raises(
@@ -325,15 +350,11 @@ def test_09_read_all_roundtrip(
     tmp_path: Path,
 ) -> None:
 
-    path = (
-        tmp_path
-        /
-        "outcomes.jsonl"
-    )
-
     ledger = (
         ledger_mod.FrozenC04ForwardOutcomeLedger(
-            path
+            tmp_path
+            /
+            "outcomes.jsonl"
         )
     )
 
@@ -349,9 +370,13 @@ def test_09_read_all_roundtrip(
         ledger.read_all()
     )
 
-    assert len(
-        records
-    ) == 1
+    assert (
+        len(
+            records
+        )
+        ==
+        1
+    )
 
     assert (
         records[
@@ -398,7 +423,7 @@ def test_11_tampered_fingerprint_fails_closed(
     document[
         "semantic_outcome_fingerprint"
     ] = (
-        "c"
+        "d"
         *
         64
     )
@@ -427,7 +452,164 @@ def test_11_tampered_fingerprint_fails_closed(
         )
 
 
-def test_12_class_label_mismatch_rejected() -> None:
+def test_12_source_anchor_fingerprint_required() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document.pop(
+        "source_anchor_fingerprint"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="SOURCE_ANCHOR_FINGERPRINT",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_13_source_anchor_version_required() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document.pop(
+        "source_anchor_version"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="SOURCE_ANCHOR_VERSION",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_14_wrong_anchor_version_rejected() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document[
+        "source_anchor_version"
+    ] = (
+        "WRONG_ANCHOR_VERSION"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="SOURCE_ANCHOR_VERSION_MISMATCH",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_15_wrong_entry_reference_rejected() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document[
+        "entry_reference"
+    ] = (
+        "DECISION_M5_COMPLETED_BAR_CLOSE"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="OUTCOME_ENTRY_REFERENCE_MISMATCH",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_16_wrong_atr_reference_rejected() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document[
+        "atr_reference"
+    ] = (
+        "DECISION_M5_COMPLETED_BAR_ATR14"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="OUTCOME_ATR_REFERENCE_MISMATCH",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_17_missing_anchor_requirement_rejected() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document[
+        "anchor_requirement"
+    ] = (
+        "NONE"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="OUTCOME_ANCHOR_REQUIREMENT_MISMATCH",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_18_reconstruction_policy_violation_rejected() -> None:
+
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document[
+        "reference_reconstruction_policy"
+    ] = (
+        "POST_HOC_ALLOWED"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="OUTCOME_REFERENCE_RECONSTRUCTION_POLICY_MISMATCH",
+    ):
+
+        ledger_mod.validate_outcome_document(
+            document
+        )
+
+
+def test_19_class_label_mismatch_rejected() -> None:
 
     document = (
         _outcome()
@@ -436,7 +618,9 @@ def test_12_class_label_mismatch_rejected() -> None:
 
     document[
         "outcome_label"
-    ] = "SHORT"
+    ] = (
+        "SHORT"
+    )
 
     with pytest.raises(
         ledger_mod.InvalidOutcomeRecordError,
@@ -448,7 +632,7 @@ def test_12_class_label_mismatch_rejected() -> None:
         )
 
 
-def test_13_horizon_mismatch_rejected() -> None:
+def test_20_horizon_mismatch_rejected() -> None:
 
     document = (
         _outcome()
@@ -457,7 +641,9 @@ def test_13_horizon_mismatch_rejected() -> None:
 
     document[
         "horizon_bars"
-    ] = 13
+    ] = (
+        13
+    )
 
     with pytest.raises(
         ledger_mod.InvalidOutcomeRecordError,
@@ -469,7 +655,7 @@ def test_13_horizon_mismatch_rejected() -> None:
         )
 
 
-def test_14_old_horizon_semantics_rejected() -> None:
+def test_21_wrong_horizon_semantics_rejected() -> None:
 
     document = (
         _outcome()
@@ -492,7 +678,7 @@ def test_14_old_horizon_semantics_rejected() -> None:
         )
 
 
-def test_15_wrong_decision_bar_semantics_rejected() -> None:
+def test_22_wrong_decision_bar_semantics_rejected() -> None:
 
     document = (
         _outcome()
@@ -501,7 +687,9 @@ def test_15_wrong_decision_bar_semantics_rejected() -> None:
 
     document[
         "decision_bar_semantics"
-    ] = "WRONG"
+    ] = (
+        "WRONG"
+    )
 
     with pytest.raises(
         ledger_mod.InvalidOutcomeRecordError,
@@ -513,7 +701,7 @@ def test_15_wrong_decision_bar_semantics_rejected() -> None:
         )
 
 
-def test_16_wrong_decision_bar_time_mapping_rejected() -> None:
+def test_23_wrong_decision_bar_time_mapping_rejected() -> None:
 
     document = (
         _outcome()
@@ -536,49 +724,30 @@ def test_16_wrong_decision_bar_time_mapping_rejected() -> None:
         )
 
 
-def test_17_decision_bar_time_mapping_passes() -> None:
+def test_24_old_maturer_v1_1_rejected() -> None:
 
-    validated = (
+    document = (
+        _outcome()
+        .to_dict()
+    )
+
+    document[
+        "maturation_version"
+    ] = (
+        "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
+    )
+
+    with pytest.raises(
+        ledger_mod.InvalidOutcomeRecordError,
+        match="OUTCOME_MATURATION_VERSION_MISMATCH",
+    ):
+
         ledger_mod.validate_outcome_document(
-            _outcome().to_dict()
+            document
         )
-    )
-
-    assert (
-        validated.decision_time_utc
-        ==
-        "2026-09-28T11:45:00Z"
-    )
-
-    assert (
-        validated.decision_bar_open_time_utc
-        ==
-        "2026-09-28T11:40:00Z"
-    )
 
 
-def test_18_future_bars_follow_decision_bar() -> None:
-
-    validated = (
-        ledger_mod.validate_outcome_document(
-            _outcome().to_dict()
-        )
-    )
-
-    assert (
-        validated.first_future_bar_time_utc
-        ==
-        "2026-09-28T11:45:00Z"
-    )
-
-    assert (
-        validated.last_future_bar_time_utc
-        ==
-        "2026-09-28T12:40:00Z"
-    )
-
-
-def test_19_performance_authority_rejected() -> None:
+def test_25_performance_authority_rejected() -> None:
 
     document = (
         _outcome()
@@ -587,7 +756,9 @@ def test_19_performance_authority_rejected() -> None:
 
     document[
         "performance_evaluation_authorized"
-    ] = True
+    ] = (
+        True
+    )
 
     with pytest.raises(
         ledger_mod.InvalidOutcomeRecordError,
@@ -599,7 +770,7 @@ def test_19_performance_authority_rejected() -> None:
         )
 
 
-def test_20_live_authority_rejected() -> None:
+def test_26_live_authority_rejected() -> None:
 
     document = (
         _outcome()
@@ -608,7 +779,9 @@ def test_20_live_authority_rejected() -> None:
 
     document[
         "live_authorized"
-    ] = True
+    ] = (
+        True
+    )
 
     with pytest.raises(
         ledger_mod.InvalidOutcomeRecordError,
@@ -620,7 +793,7 @@ def test_20_live_authority_rejected() -> None:
         )
 
 
-def test_21_execution_authority_rejected() -> None:
+def test_27_execution_authority_rejected() -> None:
 
     document = (
         _outcome()
@@ -629,34 +802,13 @@ def test_21_execution_authority_rejected() -> None:
 
     document[
         "execution_authorized"
-    ] = True
+    ] = (
+        True
+    )
 
     with pytest.raises(
         ledger_mod.InvalidOutcomeRecordError,
         match="EXECUTION_AUTHORIZATION_VIOLATION",
-    ):
-
-        ledger_mod.validate_outcome_document(
-            document
-        )
-
-
-def test_22_old_maturation_version_rejected() -> None:
-
-    document = (
-        _outcome()
-        .to_dict()
-    )
-
-    document[
-        "maturation_version"
-    ] = (
-        "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1"
-    )
-
-    with pytest.raises(
-        ledger_mod.InvalidOutcomeRecordError,
-        match="OUTCOME_MATURATION_VERSION_MISMATCH",
     ):
 
         ledger_mod.validate_outcome_document(

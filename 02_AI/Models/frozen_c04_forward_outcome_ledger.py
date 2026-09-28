@@ -2,32 +2,33 @@
 ===============================================================================
 Module      : frozen_c04_forward_outcome_ledger.py
 Project     : PulseViper XAU AI
-Purpose     : Gate 15D-C-B1 v1.1 — Append-Only Frozen Forward Outcome Ledger
+Purpose     : Gate 15D-C-B2C — Anchor-Required Forward Outcome Ledger V2
 ===============================================================================
 
-Durable append-only storage authority for matured prospective outcomes.
+Append-only storage authority for matured prospective outcomes.
 
-V1.1 aligns outcome storage with corrected frozen M5 semantics:
+V2 requires every stored outcome to be linked to a validated prospective anchor.
 
-- raw M5 `time` is bar OPEN time
-- decision_time is completed bar availability / close time
-- decision_bar_open_time = decision_time - 5 minutes
-- entry = completed decision bar CLOSE
-- ATR14 = completed decision bar ATR14
+Frozen requirements:
+- maturation authority = FROZEN_C04_FORWARD_OUTCOME_MATURER_V2
+- source observation fingerprint is mandatory
+- source anchor fingerprint is mandatory
+- source anchor version is mandatory
+- entry close comes from prospective anchor
+- ATR14 comes from prospective anchor
+- post-hoc entry / ATR reconstruction is forbidden
 - horizon = next 12 completed M5 rows after decision bar
+- exact duplicate may be idempotently ignored
+- conflicting outcome for same logical observation fails closed
+- corrupt / tampered ledger fails closed
+- locked append + flush + fsync
 
-Guarantees:
-- Separate from TRUE_FORWARD observation ledger.
-- One JSON record per line.
-- Locked append.
-- flush + fsync after append.
-- Exact duplicate can be idempotently ignored.
-- Same observation ID with conflicting outcome fails closed.
-- Corrupt / truncated / tampered records fail closed.
-- No MT5 access.
-- No performance evaluation.
-- No PnL evaluation.
-- No live/execution authority.
+NO:
+- MT5 access
+- performance evaluation
+- PnL evaluation
+- live authorization
+- execution authorization
 ===============================================================================
 """
 
@@ -52,41 +53,69 @@ _maturer: Any = importlib.import_module(
     "02_AI.Models.frozen_c04_forward_outcome_maturer"
 )
 
+_anchor_mod: Any = importlib.import_module(
+    "02_AI.Models.frozen_c04_forward_outcome_anchor"
+)
+
 FrozenC04ForwardOutcome: Any = (
     _maturer.FrozenC04ForwardOutcome
 )
 
 
+# =============================================================================
+# Frozen Authorities
+# =============================================================================
+
 OUTCOME_LEDGER_VERSION: str = (
+    "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2"
+)
+
+SUPERSEDES_OUTCOME_LEDGER_VERSION: str = (
     "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1"
 )
 
 EXPECTED_MATURATION_VERSION: str = (
-    "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
+    "FROZEN_C04_FORWARD_OUTCOME_MATURER_V2"
+)
+
+EXPECTED_ANCHOR_VERSION: str = (
+    "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_V1"
 )
 
 EXPECTED_CONTRACT_FINGERPRINT_SHA256: str = (
     "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87"
 )
 
-EXPECTED_HORIZON_BARS: int = 12
+EXPECTED_HORIZON_BARS: int = (
+    12
+)
 
-EXPECTED_BASE_TIMEFRAME_MINUTES: int = 5
+EXPECTED_BASE_TIMEFRAME_MINUTES: int = (
+    5
+)
 
 EXPECTED_DECISION_BAR_SEMANTICS: str = (
     "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES"
 )
 
 EXPECTED_ENTRY_REFERENCE: str = (
-    "DECISION_M5_COMPLETED_BAR_CLOSE"
+    "PROSPECTIVE_ANCHOR_DECISION_M5_CLOSE"
 )
 
 EXPECTED_ATR_REFERENCE: str = (
-    "DECISION_M5_COMPLETED_BAR_ATR14"
+    "PROSPECTIVE_ANCHOR_DECISION_M5_ATR14"
 )
 
 EXPECTED_HORIZON_SEMANTICS: str = (
     "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR"
+)
+
+EXPECTED_ANCHOR_REQUIREMENT: str = (
+    "VALIDATED_PROSPECTIVE_ANCHOR_REQUIRED"
+)
+
+EXPECTED_REFERENCE_RECONSTRUCTION_POLICY: str = (
+    "POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN"
 )
 
 PERFORMANCE_EVALUATION_AUTHORIZED: bool = False
@@ -95,18 +124,31 @@ LIVE_AUTHORIZED: bool = False
 EXECUTION_AUTHORIZED: bool = False
 
 
-_SHA256_RE = re.compile(
+_SHA256_RE: re.Pattern[str] = re.compile(
     r"^[a-f0-9]{64}$"
 )
 
+
+# =============================================================================
+# Duplicate Policy
+# =============================================================================
 
 class OutcomeDuplicateHandling(
     str,
     Enum,
 ):
-    FAIL_CLOSED = "FAIL_CLOSED"
-    IDEMPOTENT_IGNORE = "IDEMPOTENT_IGNORE"
+    FAIL_CLOSED = (
+        "FAIL_CLOSED"
+    )
 
+    IDEMPOTENT_IGNORE = (
+        "IDEMPOTENT_IGNORE"
+    )
+
+
+# =============================================================================
+# Errors
+# =============================================================================
 
 class FrozenC04OutcomeLedgerError(
     RuntimeError
@@ -138,15 +180,27 @@ class InvalidOutcomeRecordError(
     pass
 
 
+# =============================================================================
+# Result
+# =============================================================================
+
 @dataclasses.dataclass(
     frozen=True
 )
 class OutcomeAppendResult:
+
     record: Any
+
     is_duplicate: bool
+
     appended: bool
+
     message: str
 
+
+# =============================================================================
+# Primitive Validators
+# =============================================================================
 
 def _require_sha256(
     value: Any,
@@ -157,6 +211,7 @@ def _require_sha256(
         value,
         str,
     ):
+
         raise InvalidOutcomeRecordError(
             f"{field_name}_NOT_STRING"
         )
@@ -169,6 +224,7 @@ def _require_sha256(
     if not _SHA256_RE.fullmatch(
         normalized
     ):
+
         raise InvalidOutcomeRecordError(
             f"{field_name}_INVALID_SHA256"
         )
@@ -185,13 +241,17 @@ def _require_string(
         value,
         str,
     ):
+
         raise InvalidOutcomeRecordError(
             f"{field_name}_NOT_STRING"
         )
 
-    normalized = value.strip()
+    normalized = (
+        value.strip()
+    )
 
     if not normalized:
+
         raise InvalidOutcomeRecordError(
             f"{field_name}_EMPTY"
         )
@@ -204,9 +264,11 @@ def _require_utc_timestamp(
     field_name: str,
 ) -> str:
 
-    raw = _require_string(
-        value,
-        field_name,
+    raw = (
+        _require_string(
+            value,
+            field_name,
+        )
     )
 
     try:
@@ -238,8 +300,10 @@ def _require_utc_timestamp(
             f"{field_name}_MUST_BE_TIMEZONE_AWARE"
         )
 
-    converted = timestamp.tz_convert(
-        "UTC"
+    converted = (
+        timestamp.tz_convert(
+            "UTC"
+        )
     )
 
     if converted is pd.NaT:
@@ -253,7 +317,9 @@ def _require_utc_timestamp(
         converted,
     )
 
-    text = utc.isoformat()
+    text = (
+        utc.isoformat()
+    )
 
     if text.endswith(
         "+00:00"
@@ -276,11 +342,13 @@ def _require_finite_float(
 ) -> float:
 
     try:
+
         number = float(
             value
         )
 
     except Exception as exc:
+
         raise InvalidOutcomeRecordError(
             f"{field_name}_NOT_NUMERIC"
         ) from exc
@@ -288,12 +356,38 @@ def _require_finite_float(
     if not math.isfinite(
         number
     ):
+
         raise InvalidOutcomeRecordError(
             f"{field_name}_NON_FINITE"
         )
 
     return number
 
+
+def _require_positive_float(
+    value: Any,
+    field_name: str,
+) -> float:
+
+    number = (
+        _require_finite_float(
+            value,
+            field_name,
+        )
+    )
+
+    if number <= 0.0:
+
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_NON_POSITIVE"
+        )
+
+    return number
+
+
+# =============================================================================
+# Authority Validation
+# =============================================================================
 
 def verify_authorities() -> bool:
 
@@ -302,6 +396,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_MATURATION_VERSION
     ):
+
         raise InvalidOutcomeRecordError(
             "MATURATION_VERSION_AUTHORITY_MISMATCH"
         )
@@ -311,6 +406,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_CONTRACT_FINGERPRINT_SHA256
     ):
+
         raise InvalidOutcomeRecordError(
             "CONTRACT_FINGERPRINT_AUTHORITY_MISMATCH"
         )
@@ -320,6 +416,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_HORIZON_BARS
     ):
+
         raise InvalidOutcomeRecordError(
             "HORIZON_BARS_AUTHORITY_MISMATCH"
         )
@@ -329,6 +426,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_BASE_TIMEFRAME_MINUTES
     ):
+
         raise InvalidOutcomeRecordError(
             "BASE_TIMEFRAME_MINUTES_AUTHORITY_MISMATCH"
         )
@@ -338,6 +436,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_DECISION_BAR_SEMANTICS
     ):
+
         raise InvalidOutcomeRecordError(
             "DECISION_BAR_SEMANTICS_AUTHORITY_MISMATCH"
         )
@@ -347,6 +446,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_ENTRY_REFERENCE
     ):
+
         raise InvalidOutcomeRecordError(
             "ENTRY_REFERENCE_AUTHORITY_MISMATCH"
         )
@@ -356,6 +456,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_ATR_REFERENCE
     ):
+
         raise InvalidOutcomeRecordError(
             "ATR_REFERENCE_AUTHORITY_MISMATCH"
         )
@@ -365,8 +466,39 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_HORIZON_SEMANTICS
     ):
+
         raise InvalidOutcomeRecordError(
             "HORIZON_SEMANTICS_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _maturer.ANCHOR_REQUIREMENT
+        !=
+        EXPECTED_ANCHOR_REQUIREMENT
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "ANCHOR_REQUIREMENT_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _maturer.REFERENCE_RECONSTRUCTION_POLICY
+        !=
+        EXPECTED_REFERENCE_RECONSTRUCTION_POLICY
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "REFERENCE_RECONSTRUCTION_POLICY_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _anchor_mod.ANCHOR_VERSION
+        !=
+        EXPECTED_ANCHOR_VERSION
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "ANCHOR_VERSION_AUTHORITY_MISMATCH"
         )
 
     if (
@@ -378,12 +510,17 @@ def verify_authorities() -> bool:
         or
         EXECUTION_AUTHORIZED
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_LEDGER_AUTHORIZATION_BOUNDARY_VIOLATION"
         )
 
     return True
 
+
+# =============================================================================
+# Outcome Validation
+# =============================================================================
 
 def validate_outcome_document(
     document: Mapping[str, Any],
@@ -408,6 +545,34 @@ def validate_outcome_document(
             "SOURCE_OBSERVATION_FINGERPRINT",
         )
     )
+
+    source_anchor_fingerprint = (
+        _require_sha256(
+            document.get(
+                "source_anchor_fingerprint"
+            ),
+            "SOURCE_ANCHOR_FINGERPRINT",
+        )
+    )
+
+    source_anchor_version = (
+        _require_string(
+            document.get(
+                "source_anchor_version"
+            ),
+            "SOURCE_ANCHOR_VERSION",
+        )
+    )
+
+    if (
+        source_anchor_version
+        !=
+        EXPECTED_ANCHOR_VERSION
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "SOURCE_ANCHOR_VERSION_MISMATCH"
+        )
 
     semantic_outcome_fingerprint = (
         _require_sha256(
@@ -465,29 +630,25 @@ def validate_outcome_document(
         !=
         expected_decision_time
     ):
+
         raise InvalidOutcomeRecordError(
             "DECISION_BAR_TIME_MAPPING_MISMATCH"
         )
 
-    outcome_class_raw = document.get(
-        "outcome_class"
+    outcome_class_raw = (
+        document.get(
+            "outcome_class"
+        )
     )
 
     if not isinstance(
         outcome_class_raw,
         int,
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_CLASS_NOT_INTEGER"
         )
-
-    outcome_class = (
-        outcome_class_raw
-    )
-
-    outcome_label = document.get(
-        "outcome_label"
-    )
 
     valid_mapping = {
         -1: "SHORT",
@@ -496,26 +657,34 @@ def validate_outcome_document(
     }
 
     if (
-        outcome_class
+        outcome_class_raw
         not in valid_mapping
     ):
+
         raise InvalidOutcomeRecordError(
             "INVALID_OUTCOME_CLASS"
         )
+
+    outcome_label = (
+        document.get(
+            "outcome_label"
+        )
+    )
 
     if (
         outcome_label
         !=
         valid_mapping[
-            outcome_class
+            outcome_class_raw
         ]
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_CLASS_LABEL_MISMATCH"
         )
 
     entry_close = (
-        _require_finite_float(
+        _require_positive_float(
             document.get(
                 "entry_close"
             ),
@@ -524,7 +693,7 @@ def validate_outcome_document(
     )
 
     decision_atr14 = (
-        _require_finite_float(
+        _require_positive_float(
             document.get(
                 "decision_atr14"
             ),
@@ -532,37 +701,27 @@ def validate_outcome_document(
         )
     )
 
-    if entry_close <= 0.0:
-        raise InvalidOutcomeRecordError(
-            "ENTRY_CLOSE_NON_POSITIVE"
+    horizon_bars_raw = (
+        document.get(
+            "horizon_bars"
         )
-
-    if decision_atr14 <= 0.0:
-        raise InvalidOutcomeRecordError(
-            "DECISION_ATR14_NON_POSITIVE"
-        )
-
-    horizon_bars_raw = document.get(
-        "horizon_bars"
     )
 
     if not isinstance(
         horizon_bars_raw,
         int,
     ):
+
         raise InvalidOutcomeRecordError(
             "HORIZON_BARS_NOT_INTEGER"
         )
 
-    horizon_bars = (
-        horizon_bars_raw
-    )
-
     if (
-        horizon_bars
+        horizon_bars_raw
         !=
         EXPECTED_HORIZON_BARS
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_HORIZON_BARS_MISMATCH"
         )
@@ -581,6 +740,7 @@ def validate_outcome_document(
         !=
         EXPECTED_HORIZON_SEMANTICS
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_HORIZON_SEMANTICS_MISMATCH"
         )
@@ -599,8 +759,85 @@ def validate_outcome_document(
         !=
         EXPECTED_DECISION_BAR_SEMANTICS
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_DECISION_BAR_SEMANTICS_MISMATCH"
+        )
+
+    entry_reference = (
+        _require_string(
+            document.get(
+                "entry_reference"
+            ),
+            "ENTRY_REFERENCE",
+        )
+    )
+
+    if (
+        entry_reference
+        !=
+        EXPECTED_ENTRY_REFERENCE
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "OUTCOME_ENTRY_REFERENCE_MISMATCH"
+        )
+
+    atr_reference = (
+        _require_string(
+            document.get(
+                "atr_reference"
+            ),
+            "ATR_REFERENCE",
+        )
+    )
+
+    if (
+        atr_reference
+        !=
+        EXPECTED_ATR_REFERENCE
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "OUTCOME_ATR_REFERENCE_MISMATCH"
+        )
+
+    anchor_requirement = (
+        _require_string(
+            document.get(
+                "anchor_requirement"
+            ),
+            "ANCHOR_REQUIREMENT",
+        )
+    )
+
+    if (
+        anchor_requirement
+        !=
+        EXPECTED_ANCHOR_REQUIREMENT
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "OUTCOME_ANCHOR_REQUIREMENT_MISMATCH"
+        )
+
+    reference_reconstruction_policy = (
+        _require_string(
+            document.get(
+                "reference_reconstruction_policy"
+            ),
+            "REFERENCE_RECONSTRUCTION_POLICY",
+        )
+    )
+
+    if (
+        reference_reconstruction_policy
+        !=
+        EXPECTED_REFERENCE_RECONSTRUCTION_POLICY
+    ):
+
+        raise InvalidOutcomeRecordError(
+            "OUTCOME_REFERENCE_RECONSTRUCTION_POLICY_MISMATCH"
         )
 
     first_future_bar_time_utc = (
@@ -640,6 +877,7 @@ def validate_outcome_document(
         <=
         decision_bar_open_ts
     ):
+
         raise InvalidOutcomeRecordError(
             "FIRST_FUTURE_BAR_NOT_AFTER_DECISION_BAR"
         )
@@ -649,6 +887,7 @@ def validate_outcome_document(
         <=
         first_future_ts
     ):
+
         raise InvalidOutcomeRecordError(
             "LAST_FUTURE_BAR_NOT_AFTER_FIRST_FUTURE_BAR"
         )
@@ -703,6 +942,7 @@ def validate_outcome_document(
         !=
         EXPECTED_CONTRACT_FINGERPRINT_SHA256
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_CONTRACT_FINGERPRINT_MISMATCH"
         )
@@ -721,6 +961,7 @@ def validate_outcome_document(
         !=
         EXPECTED_MATURATION_VERSION
     ):
+
         raise InvalidOutcomeRecordError(
             "OUTCOME_MATURATION_VERSION_MISMATCH"
         )
@@ -731,6 +972,7 @@ def validate_outcome_document(
         )
         is not False
     ):
+
         raise InvalidOutcomeRecordError(
             "PERFORMANCE_AUTHORIZATION_VIOLATION"
         )
@@ -741,6 +983,7 @@ def validate_outcome_document(
         )
         is not False
     ):
+
         raise InvalidOutcomeRecordError(
             "LIVE_AUTHORIZATION_VIOLATION"
         )
@@ -751,6 +994,7 @@ def validate_outcome_document(
         )
         is not False
     ):
+
         raise InvalidOutcomeRecordError(
             "EXECUTION_AUTHORIZATION_VIOLATION"
         )
@@ -769,7 +1013,7 @@ def validate_outcome_document(
         ),
 
         outcome_class=(
-            outcome_class
+            outcome_class_raw
         ),
 
         outcome_label=(
@@ -787,7 +1031,7 @@ def validate_outcome_document(
         ),
 
         horizon_bars=(
-            horizon_bars
+            horizon_bars_raw
         ),
 
         horizon_semantics=(
@@ -825,6 +1069,14 @@ def validate_outcome_document(
         source_observation_fingerprint=(
             source_observation_fingerprint
         ),
+
+        source_anchor_fingerprint=(
+            source_anchor_fingerprint
+        ),
+
+        source_anchor_version=(
+            source_anchor_version
+        ),
     )
 
     recomputed = (
@@ -836,6 +1088,7 @@ def validate_outcome_document(
         !=
         semantic_outcome_fingerprint
     ):
+
         raise InvalidOutcomeRecordError(
             (
                 "SEMANTIC_OUTCOME_FINGERPRINT_MISMATCH:"
@@ -846,6 +1099,10 @@ def validate_outcome_document(
 
     return outcome
 
+
+# =============================================================================
+# File Lock
+# =============================================================================
 
 @contextlib.contextmanager
 def _file_lock(
@@ -872,6 +1129,7 @@ def _file_lock(
         )
 
         try:
+
             yield
 
         finally:
@@ -897,6 +1155,7 @@ def _file_lock(
         )
 
         try:
+
             yield
 
         finally:
@@ -906,6 +1165,10 @@ def _file_lock(
                 fcntl.LOCK_UN,
             )
 
+
+# =============================================================================
+# Append-Only Ledger
+# =============================================================================
 
 class FrozenC04ForwardOutcomeLedger:
 
@@ -957,6 +1220,7 @@ class FrozenC04ForwardOutcomeLedger:
         self._index.clear()
 
         if not self._path.is_file():
+
             return
 
         with self._path.open(
@@ -972,9 +1236,12 @@ class FrozenC04ForwardOutcomeLedger:
                 start=1,
             ):
 
-                line = raw_line.strip()
+                line = (
+                    raw_line.strip()
+                )
 
                 if not line:
+
                     continue
 
                 try:
@@ -987,6 +1254,7 @@ class FrozenC04ForwardOutcomeLedger:
                         value,
                         dict,
                     ):
+
                         raise InvalidOutcomeRecordError(
                             "OUTCOME_RECORD_NOT_OBJECT"
                         )
@@ -1038,7 +1306,9 @@ class FrozenC04ForwardOutcomeLedger:
 
                 self._index[
                     logical_id
-                ] = semantic_fp
+                ] = (
+                    semantic_fp
+                )
 
     def validate_integrity(
         self,
@@ -1061,9 +1331,27 @@ class FrozenC04ForwardOutcomeLedger:
         outcome: Any,
     ) -> OutcomeAppendResult:
 
+        if not hasattr(
+            outcome,
+            "to_dict",
+        ):
+
+            raise InvalidOutcomeRecordError(
+                "OUTCOME_OBJECT_MISSING_TO_DICT"
+            )
+
         document = (
             outcome.to_dict()
         )
+
+        if not isinstance(
+            document,
+            dict,
+        ):
+
+            raise InvalidOutcomeRecordError(
+                "OUTCOME_TO_DICT_NOT_OBJECT"
+            )
 
         validated = (
             validate_outcome_document(
@@ -1182,7 +1470,9 @@ class FrozenC04ForwardOutcomeLedger:
 
         self._index[
             logical_id
-        ] = semantic_fp
+        ] = (
+            semantic_fp
+        )
 
         return OutcomeAppendResult(
             record=(
@@ -1206,6 +1496,7 @@ class FrozenC04ForwardOutcomeLedger:
         records: list[Any] = []
 
         if not self._path.exists():
+
             return records
 
         with self._path.open(
@@ -1221,9 +1512,12 @@ class FrozenC04ForwardOutcomeLedger:
                 start=1,
             ):
 
-                line = raw_line.strip()
+                line = (
+                    raw_line.strip()
+                )
 
                 if not line:
+
                     continue
 
                 try:
@@ -1236,6 +1530,7 @@ class FrozenC04ForwardOutcomeLedger:
                         value,
                         dict,
                     ):
+
                         raise InvalidOutcomeRecordError(
                             "OUTCOME_RECORD_NOT_OBJECT"
                         )

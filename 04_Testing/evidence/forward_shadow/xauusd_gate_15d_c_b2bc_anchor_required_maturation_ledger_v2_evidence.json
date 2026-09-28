@@ -1,0 +1,128 @@
+{
+  "accuracy_evaluated": false,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "6781e04d79377784de257177191007ec707a486ead4ca88ee70a7a714f89d8ec",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "f2100d092874ca8acbcc0a43131540be0cebe1975f2fcd875f81ac44be50901f",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2bc_anchor_required_maturation_ledger_v2_evidence.py": "3cf0b8edad66734ff9f2c8739cbdd9eaf9fc357f6a670188d79ed784d1dc2ebe",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py": "b8bf7dd429fb56f5e5d6fba24d6718f1bec5076be6588e43425350aba6e6743c",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py": "18ad61cc3e36884732eb79ad5c983dcc7dc79e8209b0dcdd5e877f4a6a378d8e"
+  },
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-C-B2B/B2C \u2014 Anchor-Required Maturation + Outcome Ledger V2",
+  "gate_id": "GATE_15D_C_B2BC_ANCHOR_REQUIRED_MATURATION_LEDGER_V2",
+  "genuine_anchor_appended": false,
+  "genuine_forward_observation_captured": false,
+  "genuine_forward_observation_matured": false,
+  "genuine_outcome_appended": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "pnl_evaluated": false,
+  "protocol_boundary": {
+    "decision_atr14_must_come_from_anchor": true,
+    "entry_close_must_come_from_anchor": true,
+    "existing_2026_09_28_1145_exclusion_reason": "POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR",
+    "existing_2026_09_28_1145_observation_formally_scoreable": false,
+    "later_m5_data_used_only_for_future_outcome_rows": true,
+    "post_hoc_atr_reconstruction_forbidden": true,
+    "post_hoc_entry_reconstruction_forbidden": true,
+    "prospective_anchor_required": true
+  },
+  "repository_authority": {
+    "base_repository_authority_commit": "3279038818c92b6e11bdbcbe175fd6ffc4878587",
+    "branch": "main",
+    "candidate_local_paths": [
+      "02_AI/Models/frozen_c04_forward_outcome_ledger.py",
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2bc_anchor_required_maturation_ledger_v2_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py"
+    ],
+    "head": "3279038818c92b6e11bdbcbe175fd6ffc4878587",
+    "head_equals_origin_main": true,
+    "origin_main": "3279038818c92b6e11bdbcbe175fd6ffc4878587",
+    "status": "PASS",
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "runtime_anchor_ledger": {
+    "existed_before": false,
+    "exists_after": false,
+    "path": "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl",
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "runtime_authorities": {
+    "anchor_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_LEDGER_V1",
+    "anchor_requirement": "VALIDATED_PROSPECTIVE_ANCHOR_REQUIRED",
+    "anchor_version": "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_V1",
+    "atr_reference": "PROSPECTIVE_ANCHOR_DECISION_M5_ATR14",
+    "decision_bar_semantics": "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES",
+    "entry_reference": "PROSPECTIVE_ANCHOR_DECISION_M5_CLOSE",
+    "execution_authorized": false,
+    "formal_maturation_requires_anchor": true,
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR",
+    "live_authorized": false,
+    "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V2",
+    "outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2",
+    "performance_evaluation_authorized": false,
+    "pnl_evaluation_authorized": false,
+    "reference_reconstruction_policy": "POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN",
+    "status": "PASS",
+    "supersedes_maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1",
+    "supersedes_outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1"
+  },
+  "runtime_outcome_ledger": {
+    "existed_before": false,
+    "exists_after": false,
+    "path": "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl",
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "schema_version": "2.0.0",
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "02_AI/Models/frozen_c04_forward_outcome_ledger.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2bc_anchor_required_maturation_ledger_v2_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "supersession": {
+    "historical_commits_rewritten": false,
+    "historical_evidence_deleted": false,
+    "maturation_version": {
+      "replacement": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V2",
+      "supersedes": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
+    },
+    "outcome_ledger_version": {
+      "replacement": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2",
+      "supersedes": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1"
+    }
+  },
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "........................................................................ [ 74%]\n.........................                                                [100%]\n97 passed in 2.75s\n"
+  },
+  "test_partition_accessed": false,
+  "true_forward_observation_ledger": {
+    "existed_before": true,
+    "exists_after": true,
+    "path": "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl",
+    "sha256_after": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "sha256_before": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "unchanged": true
+  },
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}
