@@ -1,31 +1,112 @@
 {
-  "gate": "Gate 15B-A \u2014 Read-Only Forward Acquisition Authority",
-  "gate_version": "1.0.0",
-  "timestamp_generated_utc": "2026-09-15T05:26:07.029982+00:00",
-  "accepted_git_commit": "18e32e4eea2a065de29ab95cbf393cce404d8c9c",
-  "architecture": "OPTION_B_HYBRID_READ_ONLY_ACQUISITION_FACADE",
-  "status": "PASS",
+  "authority": {
+    "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+    "fixed_broker_offset_used": false,
+    "historical_dst_normalization": "PER_ROW",
+    "schema_version": "2.1.0",
+    "supported_resolved_policies": [
+      "UNIX_UTC",
+      "NY_CLOSE_SERVER_WALL_CLOCK"
+    ],
+    "timestamp_semantics": "FAIL_CLOSED_EXPLICIT_TIME_BASIS"
+  },
+  "candidate_artifact_hashes": {
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "68ac2f836a368f9d15b46f3f2bd6482803259941702e9e29f352e2e8dfb9d875",
+    "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py": "3f50d3ba35f037e36c1b50bd5d006a5a5ac2b0e660d386aec0a3e375569441fc",
+    "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py": "e1920c176142069bf616ce4a651df14fd389f1494d504dfe62e828dece40b636"
+  },
+  "frozen_contracts": {
+    "expected_sklearn_version": "1.9.0",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769"
+  },
+  "gate": "Gate 15B-A \u2014 Reopened Read-Only Forward Acquisition Authority",
+  "gate_version": "2.1.0",
+  "git_authority": {
+    "accepted_baseline": "58b12b8d6e5cdb69acb3e9c4cd5c19cd744d30c5",
+    "accepted_baseline_is_ancestor": true,
+    "allowed_local_worktree_paths": [
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15b_a_read_only_forward_acquisition_evidence.json",
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15b_b_first_genuine_forward_observation_blocked.json",
+      "04_Testing/production_portability/diagnose_xauusd_icmarkets_server_time_history.py",
+      "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py",
+      "04_Testing/production_portability/run_xauusd_gate_15b_b_genuine_forward_observation.py",
+      "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py"
+    ],
+    "committed_paths_since_baseline": [
+      ".github/ISSUE_TEMPLATE/bug_report.md",
+      ".github/ISSUE_TEMPLATE/feature_request.md",
+      ".github/pull_request_template.md",
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py",
+      "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py",
+      "CODE_OF_CONDUCT.md",
+      "CONTRIBUTING.md",
+      "README.md",
+      "SECURITY.md"
+    ],
+    "head": "9264eb2632f6702df114f03461b61d5dd08b5c8e",
+    "head_equals_origin_main": true,
+    "local_worktree_paths": [
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15b_a_read_only_forward_acquisition_evidence.json",
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15b_b_first_genuine_forward_observation_blocked.json",
+      "04_Testing/production_portability/diagnose_xauusd_icmarkets_server_time_history.py",
+      "04_Testing/production_portability/run_xauusd_gate_15b_b_genuine_forward_observation.py"
+    ],
+    "origin_main": "9264eb2632f6702df114f03461b61d5dd08b5c8e",
+    "status": "PASS",
+    "unexpected_committed_paths": [],
+    "unexpected_local_paths": []
+  },
+  "inherited_frozen_baseline": {
+    "accepted_baseline_commit": "58b12b8d6e5cdb69acb3e9c4cd5c19cd744d30c5",
+    "fresh_41_file_rehash_performed": false,
+    "note": "Previous 41/41 integrity authority is inherited. Reopened Gate 15B-A files are validated separately.",
+    "previous_total_count": 41,
+    "previous_verified_count": 41,
+    "reopened_gate_paths": [
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15b_a_read_only_forward_acquisition_evidence.json",
+      "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py",
+      "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py"
+    ],
+    "status": "PASS",
+    "verification_mode": "INHERITED_ACCEPTED_AUTHORITY"
+  },
+  "ny_close_server_policy_verification": {
+    "decision_time_utc": "2026-09-20T11:55:00Z",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "reference_offset_seconds": 10800,
+    "status": "PASS",
+    "summer_offset_seconds": 10800,
+    "time_basis_policy": "NY_CLOSE_SERVER_WALL_CLOCK",
+    "winter_offset_seconds": 7200
+  },
   "safety_invariants": {
-    "live_authorized": false,
     "execution_authorized": false,
     "forward_performance_evaluated": false,
-    "outcome_horizon_contract_status": "BLOCKED_NOT_PREDEFINED"
+    "genuine_mt5_acquisition": false,
+    "live_authorized": false,
+    "outcome_horizon_contract_status": "BLOCKED_NOT_PREDEFINED",
+    "true_forward_observation_recorded": false
   },
-  "observation_counts": {
-    "synthetic_true_forward_count": 0,
-    "historical_true_forward_count": 0,
-    "genuine_true_forward_observation_count": 0,
-    "synthetic_observation_recorded": 1,
-    "is_true_forward_eligible": false
+  "sklearn_runtime_authority": {
+    "actual_version": "1.9.0",
+    "expected_version": "1.9.0",
+    "frozen_model_runtime_compatible": true,
+    "model_unpickle_allowed": true,
+    "status": "PASS"
   },
-  "read_only_capability_facade": {
-    "allowed_methods": [
-      "copy_rates_from_pos",
-      "symbol_info",
-      "symbol_info_tick",
-      "symbols_get"
+  "static_safety_audit": {
+    "audited_files": [
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py"
     ],
-    "forbidden_mutating_methods_blocked": [
+    "facade_required_mutating_methods_blocked": true,
+    "required_forbidden_broker_methods": [
       "history_deals_get",
       "history_orders_get",
       "order_calc_margin",
@@ -37,70 +118,30 @@
       "positions_get",
       "positions_total"
     ],
-    "forming_candle_start_pos_lt_1_blocked": true,
-    "status": "PASS"
-  },
-  "forward_acquisition_adapter": {
-    "schema_version": "2.0.0",
-    "canonical_instrument": "XAUUSD",
-    "resolved_broker_symbol": "XAUUSD",
-    "required_timeframes": [
-      "M5",
-      "M15",
-      "M30",
-      "H1",
-      "H4"
-    ],
-    "source_snapshot_id": "eb9cc501424ccfcc00abdd4500367160728252933da89923de1c7922fa02a934",
-    "attestation_sha256": "930ed7824d3143c60148d82eef0ca4193bb55b83f246b313f650fa6b8e0f6136",
-    "attestation_integrity_verified": true,
-    "is_synthetic": true,
-    "status": "PASS"
-  },
-  "gate_13_handoff": {
-    "consumed_timeframes": [
-      "H1",
-      "H4",
-      "M15",
-      "M30",
-      "M5"
-    ],
-    "feature_count": 331,
-    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
-    "row_count": 181,
-    "status": "PASS"
-  },
-  "gate_14_handoff": {
-    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
-    "model_class": "ExtraTreesClassifier",
-    "predicted_class": 0,
-    "predicted_label": "NO_TRADE",
-    "winning_probability": 0.3539416001184647,
-    "status": "PASS"
-  },
-  "gate_15a_handoff": {
-    "logical_observation_id": "685c60cc6e61b02ea96576f53ba8eb4b937bfed74dbf7d43ee73598a38d0c887",
-    "semantic_record_fingerprint": "f1dfdfd6b0021b7f0d8aad3556e6f11ee1834a780f3fb2902125163b4c9aaad9",
-    "provenance_escalation_prevented": true,
-    "status": "PASS"
-  },
-  "static_safety_audit": {
     "status": "PASS",
+    "test_negative_calls_excluded_from_production_violation_scan": true,
     "violation_count": 0,
-    "violations": [],
-    "audited_files": [
-      "mt5_read_only_forward_acquisition_adapter.py",
-      "frozen_c04_shadow_observer.py"
-    ]
+    "violations": []
   },
-  "frozen_baseline_integrity": {
+  "status": "PASS",
+  "synthetic_pipeline_verification": {
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "predicted_class": 0,
+    "source_snapshot_id": "7d03e486e3dc2ea6efac093f806194493bb3b6e7b8b1d1c0ce5414547a4b42af",
     "status": "PASS",
-    "verified_count": 41,
-    "total_count": 41,
-    "mismatches": []
+    "synthetic_provenance_escalation_prevented": true
   },
-  "terminal_live_status": {
-    "genuine_forward_acquisition_status": "NOT_OBSERVED",
-    "message": "Infrastructure verified using mock read-only session; genuine MT5 live terminal acquisition not yet executed."
+  "targeted_pytest": {
+    "return_code": 0,
+    "status": "PASS",
+    "stderr": "",
+    "stdout": "....................                                                     [100%]\n20 passed in 10.83s"
+  },
+  "unix_utc_policy_verification": {
+    "authority_valid": true,
+    "decision_time_utc": "2026-09-20T11:55:00Z",
+    "status": "PASS",
+    "time_basis_policy": "UNIX_UTC"
   }
 }
