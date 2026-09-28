@@ -1,0 +1,91 @@
+{
+  "accuracy_evaluated": false,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "4db908f6b4f23ad3294e03b8c2b7dbc1f4ee4f9c1cb05684753942ce6ea64f9a",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_a_forward_outcome_maturation_evidence.py": "7fe49526842459294776efbfde89c567b9636fd88fb4aa428253a748bcf5635d",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py": "5d1adc8f89f0656494fe83a2a6e1e0b2410c4eb5a4179a6770953958a2831c45"
+  },
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-C-A \u2014 Frozen Forward Outcome Maturation Authority",
+  "gate_id": "GATE_15D_C_A_FROZEN_FORWARD_OUTCOME_MATURATION",
+  "genuine_forward_observation_matured": false,
+  "live_authorized": false,
+  "maturation_semantics_frozen": true,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "observation_ledger": {
+    "sha256_after": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "sha256_before": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "unchanged": true
+  },
+  "outcome_ledger_created": false,
+  "outcome_ledger_mutated": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "branch": "main",
+    "committed_since_gate_15d_b": [
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_a_forward_outcome_maturation_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py"
+    ],
+    "gate_15d_b_authority_commit": "9d14734e36667a28738b2fe4f4c610553e7269e1",
+    "gate_15d_b_authority_is_ancestor": true,
+    "head": "ea03cdf921d71d4ca33dd82e85bd1143bd335872",
+    "head_equals_origin_main": true,
+    "local_gate_paths": [
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_a_forward_outcome_maturation_evidence.json"
+    ],
+    "origin_main": "ea03cdf921d71d4ca33dd82e85bd1143bd335872",
+    "status": "PASS",
+    "unexpected_committed_paths": [],
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "runtime_authority": {
+    "base_timeframe": "M5",
+    "horizon_bars": 12,
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW",
+    "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1",
+    "max_adverse_atr": 0.75,
+    "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "profit_atr": 1.25,
+    "status": "PASS"
+  },
+  "schema_version": "1.0.0",
+  "source_semantics": {
+    "atr_algorithm": "TRUE_RANGE_ROLLING_14_SIMPLE_MEAN",
+    "atr_reference": "DECISION_M5_ATR14",
+    "entry_reference": "DECISION_M5_CLOSE",
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW",
+    "max_adverse_atr": 0.75,
+    "profit_atr": 1.25,
+    "source_hashes": {
+      "02_AI/Dataset/training_matrix_builder.py": "5c26b7b2c06935e69f68455415115218d8ec3be2f73366197476bb701a45b744",
+      "02_AI/Dataset/training_target_relabeler.py": "073caf20348819fc1c42e700e9ff7681448d97abccabad18999225451a0aab4e",
+      "02_AI/Features/feature_generator.py": "21339b1d970f01cdbc3b93cbaa9cac98218572e4e82dbebebe4822aebeb23b13",
+      "02_AI/Features/volatility_features.py": "3ed09eb499e7f9304f4af864b75f840250c4fe1794352cea6ac355b8d4a84cef"
+    },
+    "status": "PASS"
+  },
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_a_forward_outcome_maturation_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "............................................                             [100%]\n44 passed in 1.68s\n"
+  },
+  "test_partition_accessed": false,
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}
