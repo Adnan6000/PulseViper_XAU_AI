@@ -1,0 +1,197 @@
+{
+  "acquisition_authority": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+  "acquisition_schema_version": "2.1.0",
+  "acquisition_time_utc": "2026-09-28T10:16:13.262123Z",
+  "bid_ask_validation": {
+    "ask": 4156.23,
+    "bid": 4156.04,
+    "raw_tick_time_not_used_for_freshness": true,
+    "status": "PASS",
+    "valid_bid_ask": true
+  },
+  "broker_write_calls": 0,
+  "canonical_instrument": "XAUUSD",
+  "capability_manifest": [
+    "copy_rates_from_pos",
+    "symbol_info",
+    "symbol_info_tick",
+    "symbols_get"
+  ],
+  "closed_bar_enforced": true,
+  "decision_time_utc": "2026-09-28T10:15:00Z",
+  "execution_authorized": false,
+  "execution_dependencies": 0,
+  "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+  "forming_bar_start_pos_zero_used": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15B-B \u2014 First Genuine Read-Only Forward Observation",
+  "gate13": {
+    "d1_source": "RECONSTRUCTED_FROM_H1",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "latest_feature_decision_time_utc": "2026-09-28T10:15:00Z",
+    "row_count": 181,
+    "status": "PASS"
+  },
+  "gate14": {
+    "inference_status": "SUCCESS_GATE_14",
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "status": "PASS"
+  },
+  "gate15a": {
+    "is_true_forward_eligible": true,
+    "observation_status": "RECORDED",
+    "source_provenance": "TRUE_FORWARD_OBSERVATION",
+    "status": "PASS"
+  },
+  "gate_15b_a_v2_1_authority": {
+    "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+    "authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_version": "2.1.0",
+    "historical_dst_normalization": "PER_ROW",
+    "inherited_41_of_41_status": "PASS",
+    "schema_version": "2.1.0",
+    "status": "PASS",
+    "verified_artifact_hashes": {
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "68ac2f836a368f9d15b46f3f2bd6482803259941702e9e29f352e2e8dfb9d875",
+      "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py": "3f50d3ba35f037e36c1b50bd5d006a5a5ac2b0e660d386aec0a3e375569441fc",
+      "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py": "e1920c176142069bf616ce4a651df14fd389f1494d504dfe62e828dece40b636"
+    }
+  },
+  "gate_id": "GATE_15B_B_FIRST_GENUINE_FORWARD_OBSERVATION",
+  "generated_at_utc": "2026-09-28T10:16:17.610904Z",
+  "genuine_mt5_acquisition": true,
+  "git": {
+    "allowed_post_authority_tracked_paths_only": true,
+    "execution_head": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_15b_a_authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_15b_a_authority_is_ancestor": true,
+    "head_equals_origin_main": true,
+    "origin_main": "e4359f4888c4051b8dc547740bf196f23b245003"
+  },
+  "historical_replay": false,
+  "is_synthetic": false,
+  "ledger": {
+    "append_performed": true,
+    "idempotent_duplicate": false,
+    "integrity_verified": true,
+    "new_true_forward_observations_added": 1,
+    "runtime_ledger_committable": false,
+    "total_count_after": 1,
+    "total_count_before": 0,
+    "true_forward_count_after": 1,
+    "true_forward_count_before": 0
+  },
+  "live_authorized": false,
+  "logical_observation_id": "42a457bffe6c6c14edfb4e7b4c6cf656ed27e10579e84f14e771853f5732ba4f",
+  "market_freshness": {
+    "authority": "GATE_15B_A_V2_1_NORMALIZED_TIME_BASIS_ATTESTATION",
+    "decision_time_not_after_normalized_tick": true,
+    "decision_time_not_future": true,
+    "max_future_tick_skew_seconds": 5,
+    "max_tick_age_seconds": 180,
+    "reference_offset_seconds": 10800,
+    "reference_tick_raw": 1790601375,
+    "reference_tick_utc": "2026-09-28T10:16:15Z",
+    "status": "PASS",
+    "tick_age_seconds": -1.738152265548706,
+    "time_basis_policy": "NY_CLOSE_SERVER_WALL_CLOCK"
+  },
+  "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+  "outcome_horizon_contract_status": "BLOCKED_NOT_PREDEFINED",
+  "repository_authority": {
+    "allowed_post_authority_tracked_paths_only": true,
+    "allowed_untracked_paths_present": [
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15b_b_first_genuine_forward_observation_blocked.json",
+      "04_Testing/production_portability/diagnose_xauusd_icmarkets_server_time_history.py",
+      "04_Testing/production_portability/run_xauusd_gate_15b_b_genuine_forward_observation.py"
+    ],
+    "branch": "main",
+    "changed_since_gate_15b_a_authority": [],
+    "execution_head": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_15b_a_authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "gate_15b_a_authority_is_ancestor": true,
+    "gate_15b_a_v2_1": {
+      "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+      "authority_commit": "e4359f4888c4051b8dc547740bf196f23b245003",
+      "gate_version": "2.1.0",
+      "historical_dst_normalization": "PER_ROW",
+      "inherited_41_of_41_status": "PASS",
+      "schema_version": "2.1.0",
+      "status": "PASS",
+      "verified_artifact_hashes": {
+        "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "68ac2f836a368f9d15b46f3f2bd6482803259941702e9e29f352e2e8dfb9d875",
+        "04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py": "3f50d3ba35f037e36c1b50bd5d006a5a5ac2b0e660d386aec0a3e375569441fc",
+        "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py": "e1920c176142069bf616ce4a651df14fd389f1494d504dfe62e828dece40b636"
+      }
+    },
+    "head_equals_origin_main": true,
+    "origin_main": "e4359f4888c4051b8dc547740bf196f23b245003",
+    "status": "PASS",
+    "tracked_staged_change_count": 0,
+    "tracked_unstaged_change_count": 0,
+    "unexpected_untracked_path_count": 0
+  },
+  "resolved_broker_symbol": "XAUUSD",
+  "risk_engine_dependencies": 0,
+  "runtime_authority": {
+    "acquisition_authority_id": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+    "acquisition_schema_version": "2.1.0",
+    "sklearn_version": "1.9.0",
+    "status": "PASS"
+  },
+  "schema_version": "2.0.0",
+  "semantic_record_fingerprint": "6fae6f8f3af934360588ccee8d6ea879de47efabb5212bab3fabd7449d53e90b",
+  "source_snapshot_id": "a307cca87193d64447a378decdc752341d37f36138ddbe6a3da099d3e7bdc806",
+  "static_safety": {
+    "audited_file_count": 5,
+    "audited_files": [
+      "04_Testing/production_portability/run_xauusd_gate_15b_b_genuine_forward_observation.py",
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "02_AI/Features/portable_feature_pipeline.py",
+      "02_AI/Models/frozen_c04_inference_adapter.py",
+      "02_AI/Models/frozen_c04_shadow_observer.py"
+    ],
+    "facade_core_mutating_methods_blocked": true,
+    "forbidden_execution_dependency_count": 0,
+    "forbidden_write_call_count": 0,
+    "status": "PASS",
+    "violations": []
+  },
+  "status": "PASS",
+  "symbol_resolution_authority": "GATE_15B_A_V2_1_EXACT_SUPPORTED_SYMBOL",
+  "test_partition_accessed": false,
+  "time_basis": {
+    "historical_normalization": "GATE_15B_A_V2_1_PER_ROW",
+    "manual_fixed_offset_used_by_gate_15b_b": false,
+    "policy": "NY_CLOSE_SERVER_WALL_CLOCK",
+    "reference_offset_seconds": 10800,
+    "reference_tick_age_seconds": -1.738152265548706,
+    "reference_tick_raw": 1790601375,
+    "reference_tick_utc": "2026-09-28T10:16:15Z"
+  },
+  "timestamp_resolution_normalization": {
+    "dtypes_after": {
+      "H1": "datetime64[ns, UTC]",
+      "H4": "datetime64[ns, UTC]",
+      "M15": "datetime64[ns, UTC]",
+      "M30": "datetime64[ns, UTC]",
+      "M5": "datetime64[ns, UTC]"
+    },
+    "dtypes_before": {
+      "H1": "datetime64[ns, UTC]",
+      "H4": "datetime64[ns, UTC]",
+      "M15": "datetime64[ns, UTC]",
+      "M30": "datetime64[ns, UTC]",
+      "M5": "datetime64[ns, UTC]"
+    },
+    "policy": "PANDAS_STORAGE_RESOLUTION_ONLY_UTC_NANOSECONDS",
+    "source_snapshot_id_after": "a307cca87193d64447a378decdc752341d37f36138ddbe6a3da099d3e7bdc806",
+    "source_snapshot_id_before": "a307cca87193d64447a378decdc752341d37f36138ddbe6a3da099d3e7bdc806",
+    "source_snapshot_identity_preserved": true,
+    "status": "PASS"
+  },
+  "trade_ready_dependencies": 0,
+  "validation_partition_accessed": false,
+  "verified_forward_authority": true
+}
