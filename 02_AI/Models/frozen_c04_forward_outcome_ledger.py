@@ -2,19 +2,28 @@
 ===============================================================================
 Module      : frozen_c04_forward_outcome_ledger.py
 Project     : PulseViper XAU AI
-Purpose     : Gate 15D-C-B1 — Append-Only Frozen Forward Outcome Ledger
+Purpose     : Gate 15D-C-B1 v1.1 — Append-Only Frozen Forward Outcome Ledger
 ===============================================================================
 
 Durable append-only storage authority for matured prospective outcomes.
 
+V1.1 aligns outcome storage with corrected frozen M5 semantics:
+
+- raw M5 `time` is bar OPEN time
+- decision_time is completed bar availability / close time
+- decision_bar_open_time = decision_time - 5 minutes
+- entry = completed decision bar CLOSE
+- ATR14 = completed decision bar ATR14
+- horizon = next 12 completed M5 rows after decision bar
+
 Guarantees:
 - Separate from TRUE_FORWARD observation ledger.
 - One JSON record per line.
-- File locking during append.
+- Locked append.
 - flush + fsync after append.
-- Same logical observation + same semantic outcome = idempotent retry.
-- Same logical observation + different semantic outcome = fail closed.
-- Corrupt/truncated/tampered records fail closed.
+- Exact duplicate can be idempotently ignored.
+- Same observation ID with conflicting outcome fails closed.
+- Corrupt / truncated / tampered records fail closed.
 - No MT5 access.
 - No performance evaluation.
 - No PnL evaluation.
@@ -34,7 +43,9 @@ import os
 from pathlib import Path
 import re
 import sys
-from typing import Any, Generator, Mapping
+from typing import Any, Generator, Mapping, cast
+
+import pandas as pd
 
 
 _maturer: Any = importlib.import_module(
@@ -47,11 +58,11 @@ FrozenC04ForwardOutcome: Any = (
 
 
 OUTCOME_LEDGER_VERSION: str = (
-    "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1"
+    "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1"
 )
 
 EXPECTED_MATURATION_VERSION: str = (
-    "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1"
+    "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
 )
 
 EXPECTED_CONTRACT_FINGERPRINT_SHA256: str = (
@@ -60,8 +71,22 @@ EXPECTED_CONTRACT_FINGERPRINT_SHA256: str = (
 
 EXPECTED_HORIZON_BARS: int = 12
 
+EXPECTED_BASE_TIMEFRAME_MINUTES: int = 5
+
+EXPECTED_DECISION_BAR_SEMANTICS: str = (
+    "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES"
+)
+
+EXPECTED_ENTRY_REFERENCE: str = (
+    "DECISION_M5_COMPLETED_BAR_CLOSE"
+)
+
+EXPECTED_ATR_REFERENCE: str = (
+    "DECISION_M5_COMPLETED_BAR_ATR14"
+)
+
 EXPECTED_HORIZON_SEMANTICS: str = (
-    "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW"
+    "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR"
 )
 
 PERFORMANCE_EVALUATION_AUTHORIZED: bool = False
@@ -136,7 +161,10 @@ def _require_sha256(
             f"{field_name}_NOT_STRING"
         )
 
-    normalized = value.strip().lower()
+    normalized = (
+        value.strip()
+        .lower()
+    )
 
     if not _SHA256_RE.fullmatch(
         normalized
@@ -146,6 +174,100 @@ def _require_sha256(
         )
 
     return normalized
+
+
+def _require_string(
+    value: Any,
+    field_name: str,
+) -> str:
+
+    if not isinstance(
+        value,
+        str,
+    ):
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_NOT_STRING"
+        )
+
+    normalized = value.strip()
+
+    if not normalized:
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_EMPTY"
+        )
+
+    return normalized
+
+
+def _require_utc_timestamp(
+    value: Any,
+    field_name: str,
+) -> str:
+
+    raw = _require_string(
+        value,
+        field_name,
+    )
+
+    try:
+
+        parsed = pd.Timestamp(
+            raw
+        )
+
+    except Exception as exc:
+
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_INVALID_TIMESTAMP"
+        ) from exc
+
+    if parsed is pd.NaT:
+
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_INVALID_TIMESTAMP"
+        )
+
+    timestamp = cast(
+        pd.Timestamp,
+        parsed,
+    )
+
+    if timestamp.tzinfo is None:
+
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_MUST_BE_TIMEZONE_AWARE"
+        )
+
+    converted = timestamp.tz_convert(
+        "UTC"
+    )
+
+    if converted is pd.NaT:
+
+        raise InvalidOutcomeRecordError(
+            f"{field_name}_UTC_CONVERSION_FAILED"
+        )
+
+    utc = cast(
+        pd.Timestamp,
+        converted,
+    )
+
+    text = utc.isoformat()
+
+    if text.endswith(
+        "+00:00"
+    ):
+
+        text = (
+            text[
+                :-6
+            ]
+            +
+            "Z"
+        )
+
+    return text
 
 
 def _require_finite_float(
@@ -200,6 +322,42 @@ def verify_authorities() -> bool:
     ):
         raise InvalidOutcomeRecordError(
             "HORIZON_BARS_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _maturer.EXPECTED_BASE_TIMEFRAME_MINUTES
+        !=
+        EXPECTED_BASE_TIMEFRAME_MINUTES
+    ):
+        raise InvalidOutcomeRecordError(
+            "BASE_TIMEFRAME_MINUTES_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _maturer.DECISION_BAR_SEMANTICS
+        !=
+        EXPECTED_DECISION_BAR_SEMANTICS
+    ):
+        raise InvalidOutcomeRecordError(
+            "DECISION_BAR_SEMANTICS_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _maturer.ENTRY_REFERENCE
+        !=
+        EXPECTED_ENTRY_REFERENCE
+    ):
+        raise InvalidOutcomeRecordError(
+            "ENTRY_REFERENCE_AUTHORITY_MISMATCH"
+        )
+
+    if (
+        _maturer.ATR_REFERENCE
+        !=
+        EXPECTED_ATR_REFERENCE
+    ):
+        raise InvalidOutcomeRecordError(
+            "ATR_REFERENCE_AUTHORITY_MISMATCH"
         )
 
     if (
@@ -260,16 +418,55 @@ def validate_outcome_document(
         )
     )
 
-    decision_time_utc = document.get(
-        "decision_time_utc"
+    decision_time_utc = (
+        _require_utc_timestamp(
+            document.get(
+                "decision_time_utc"
+            ),
+            "DECISION_TIME_UTC",
+        )
     )
 
-    if not isinstance(
-        decision_time_utc,
-        str,
+    decision_bar_open_time_utc = (
+        _require_utc_timestamp(
+            document.get(
+                "decision_bar_open_time_utc"
+            ),
+            "DECISION_BAR_OPEN_TIME_UTC",
+        )
+    )
+
+    decision_time_ts = cast(
+        pd.Timestamp,
+        pd.Timestamp(
+            decision_time_utc
+        ),
+    )
+
+    decision_bar_open_ts = cast(
+        pd.Timestamp,
+        pd.Timestamp(
+            decision_bar_open_time_utc
+        ),
+    )
+
+    expected_decision_time = (
+        decision_bar_open_ts
+        +
+        pd.Timedelta(
+            minutes=(
+                EXPECTED_BASE_TIMEFRAME_MINUTES
+            )
+        )
+    )
+
+    if (
+        decision_time_ts
+        !=
+        expected_decision_time
     ):
         raise InvalidOutcomeRecordError(
-            "DECISION_TIME_UTC_NOT_STRING"
+            "DECISION_BAR_TIME_MAPPING_MISMATCH"
         )
 
     outcome_class_raw = document.get(
@@ -360,6 +557,7 @@ def validate_outcome_document(
     horizon_bars = (
         horizon_bars_raw
     )
+
     if (
         horizon_bars
         !=
@@ -369,8 +567,13 @@ def validate_outcome_document(
             "OUTCOME_HORIZON_BARS_MISMATCH"
         )
 
-    horizon_semantics = document.get(
-        "horizon_semantics"
+    horizon_semantics = (
+        _require_string(
+            document.get(
+                "horizon_semantics"
+            ),
+            "HORIZON_SEMANTICS",
+        )
     )
 
     if (
@@ -382,32 +585,72 @@ def validate_outcome_document(
             "OUTCOME_HORIZON_SEMANTICS_MISMATCH"
         )
 
+    decision_bar_semantics = (
+        _require_string(
+            document.get(
+                "decision_bar_semantics"
+            ),
+            "DECISION_BAR_SEMANTICS",
+        )
+    )
+
+    if (
+        decision_bar_semantics
+        !=
+        EXPECTED_DECISION_BAR_SEMANTICS
+    ):
+        raise InvalidOutcomeRecordError(
+            "OUTCOME_DECISION_BAR_SEMANTICS_MISMATCH"
+        )
+
     first_future_bar_time_utc = (
-        document.get(
-            "first_future_bar_time_utc"
+        _require_utc_timestamp(
+            document.get(
+                "first_future_bar_time_utc"
+            ),
+            "FIRST_FUTURE_BAR_TIME_UTC",
         )
     )
 
     last_future_bar_time_utc = (
-        document.get(
-            "last_future_bar_time_utc"
+        _require_utc_timestamp(
+            document.get(
+                "last_future_bar_time_utc"
+            ),
+            "LAST_FUTURE_BAR_TIME_UTC",
         )
     )
 
-    if not isinstance(
-        first_future_bar_time_utc,
-        str,
+    first_future_ts = cast(
+        pd.Timestamp,
+        pd.Timestamp(
+            first_future_bar_time_utc
+        ),
+    )
+
+    last_future_ts = cast(
+        pd.Timestamp,
+        pd.Timestamp(
+            last_future_bar_time_utc
+        ),
+    )
+
+    if (
+        first_future_ts
+        <=
+        decision_bar_open_ts
     ):
         raise InvalidOutcomeRecordError(
-            "FIRST_FUTURE_BAR_TIME_NOT_STRING"
+            "FIRST_FUTURE_BAR_NOT_AFTER_DECISION_BAR"
         )
 
-    if not isinstance(
-        last_future_bar_time_utc,
-        str,
+    if (
+        last_future_ts
+        <=
+        first_future_ts
     ):
         raise InvalidOutcomeRecordError(
-            "LAST_FUTURE_BAR_TIME_NOT_STRING"
+            "LAST_FUTURE_BAR_NOT_AFTER_FIRST_FUTURE_BAR"
         )
 
     max_future_high = (
@@ -464,8 +707,13 @@ def validate_outcome_document(
             "OUTCOME_CONTRACT_FINGERPRINT_MISMATCH"
         )
 
-    maturation_version = document.get(
-        "maturation_version"
+    maturation_version = (
+        _require_string(
+            document.get(
+                "maturation_version"
+            ),
+            "MATURATION_VERSION",
+        )
     )
 
     if (
@@ -511,49 +759,69 @@ def validate_outcome_document(
         logical_observation_id=(
             logical_observation_id
         ),
+
         decision_time_utc=(
             decision_time_utc
         ),
+
+        decision_bar_open_time_utc=(
+            decision_bar_open_time_utc
+        ),
+
         outcome_class=(
             outcome_class
         ),
+
         outcome_label=(
             str(
                 outcome_label
             )
         ),
+
         entry_close=(
             entry_close
         ),
+
         decision_atr14=(
             decision_atr14
         ),
+
         horizon_bars=(
             horizon_bars
         ),
+
         horizon_semantics=(
-            str(
-                horizon_semantics
-            )
+            horizon_semantics
         ),
+
+        decision_bar_semantics=(
+            decision_bar_semantics
+        ),
+
         first_future_bar_time_utc=(
             first_future_bar_time_utc
         ),
+
         last_future_bar_time_utc=(
             last_future_bar_time_utc
         ),
+
         max_future_high=(
             max_future_high
         ),
+
         min_future_low=(
             min_future_low
         ),
+
         up_excursion_atr=(
             up_excursion_atr
         ),
+
         down_excursion_atr=(
             down_excursion_atr
         ),
+
         source_observation_fingerprint=(
             source_observation_fingerprint
         ),
@@ -619,7 +887,7 @@ def _file_lock(
                 1,
             )
 
-    else:  
+    else:
 
         import fcntl
 
@@ -632,6 +900,7 @@ def _file_lock(
             yield
 
         finally:
+
             fcntl.flock(
                 fd.fileno(),
                 fcntl.LOCK_UN,
@@ -759,6 +1028,7 @@ class FrozenC04ForwardOutcomeLedger:
                         !=
                         semantic_fp
                     ):
+
                         raise ConflictingOutcomeError(
                             (
                                 "CONFLICTING_OUTCOMES_IN_LEDGER:"
@@ -822,6 +1092,7 @@ class FrozenC04ForwardOutcomeLedger:
                 !=
                 semantic_fp
             ):
+
                 raise ConflictingOutcomeError(
                     (
                         "CONFLICTING_OUTCOME:"
@@ -836,6 +1107,7 @@ class FrozenC04ForwardOutcomeLedger:
                 ==
                 OutcomeDuplicateHandling.FAIL_CLOSED
             ):
+
                 raise DuplicateOutcomeError(
                     (
                         "DUPLICATE_OUTCOME_REJECTED:"
@@ -847,8 +1119,11 @@ class FrozenC04ForwardOutcomeLedger:
                 record=(
                     validated
                 ),
+
                 is_duplicate=True,
+
                 appended=False,
+
                 message=(
                     "IDEMPOTENT_DUPLICATE_IGNORED:"
                     f"{logical_id}"
@@ -913,8 +1188,11 @@ class FrozenC04ForwardOutcomeLedger:
             record=(
                 validated
             ),
+
             is_duplicate=False,
+
             appended=True,
+
             message=(
                 "OUTCOME_RECORDED:"
                 f"{logical_id}"

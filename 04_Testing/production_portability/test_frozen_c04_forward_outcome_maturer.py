@@ -29,26 +29,35 @@ def _observation() -> dict[str, Any]:
             *
             64
         ),
+
         "semantic_record_fingerprint": (
             "b"
             *
             64
         ),
+
         "decision_time_utc": (
             DECISION_TIME
         ),
+
         "canonical_instrument": "XAUUSD",
+
         "source_provenance": (
             "TRUE_FORWARD_OBSERVATION"
         ),
+
         "is_true_forward_eligible": True,
+
         "feature_columns_sha256": (
             "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2"
         ),
+
         "model_sha256": (
             "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769"
         ),
+
         "live_authorized": False,
+
         "execution_authorized": False,
     }
 
@@ -59,12 +68,22 @@ def _base_frame(
     future_low_offset: float = 0.5,
 ) -> pd.DataFrame:
 
-    decision = pd.Timestamp(
-        DECISION_TIME
+    decision_time = (
+        pd.Timestamp(
+            DECISION_TIME
+        )
+    )
+
+    decision_bar_open = (
+        decision_time
+        -
+        pd.Timedelta(
+            minutes=5
+        )
     )
 
     start = (
-        decision
+        decision_bar_open
         -
         pd.Timedelta(
             minutes=(
@@ -98,44 +117,49 @@ def _base_frame(
     frame = pd.DataFrame(
         {
             "time": times,
+
             "open": prices,
+
             "high": (
                 prices
                 +
                 1.0
             ),
+
             "low": (
                 prices
                 -
                 1.0
             ),
+
             "close": (
                 prices
                 +
                 0.2
             ),
+
             "tick_volume": 100,
         }
     )
 
-    decision_positions = np.flatnonzero(
+    positions = np.flatnonzero(
         (
             frame[
                 "time"
             ]
             ==
-            decision
+            decision_bar_open
         ).to_numpy(
             dtype=bool
         )
     )
 
     assert len(
-        decision_positions
+        positions
     ) == 1
 
     decision_index = int(
-        decision_positions[
+        positions[
             0
         ]
     )
@@ -148,7 +172,7 @@ def _base_frame(
         ]
     )
 
-    # Stable historical TR = 2.0.
+    # Stable true range = 2.0.
     # Therefore decision ATR14 = 2.0.
     frame.loc[
         :,
@@ -186,6 +210,10 @@ def _base_frame(
         +
         13
     ]
+
+    assert len(
+        future_indexes
+    ) == 12
 
     frame.loc[
         future_indexes,
@@ -226,12 +254,27 @@ def test_01_authorities_pass() -> None:
     )
 
 
-def test_02_exact_frozen_parameters() -> None:
+def test_02_version_is_v1_1() -> None:
+
+    assert (
+        module.MATURATION_VERSION
+        ==
+        "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
+    )
+
+
+def test_03_exact_frozen_parameters() -> None:
 
     assert (
         module.EXPECTED_BASE_TIMEFRAME
         ==
         "M5"
+    )
+
+    assert (
+        module.EXPECTED_BASE_TIMEFRAME_MINUTES
+        ==
+        5
     )
 
     assert (
@@ -256,14 +299,29 @@ def test_02_exact_frozen_parameters() -> None:
         )
     )
 
+
+def test_04_decision_bar_semantics() -> None:
+
     assert (
-        module.HORIZON_SEMANTICS
+        module.DECISION_BAR_SEMANTICS
         ==
-        "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW"
+        "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES"
+    )
+
+    assert (
+        module.ENTRY_REFERENCE
+        ==
+        "DECISION_M5_COMPLETED_BAR_CLOSE"
+    )
+
+    assert (
+        module.ATR_REFERENCE
+        ==
+        "DECISION_M5_COMPLETED_BAR_ATR14"
     )
 
 
-def test_03_no_performance_or_execution_authority() -> None:
+def test_05_no_performance_or_execution_authority() -> None:
 
     assert (
         module.OUTCOME_MATURATION_AUTHORIZED
@@ -291,11 +349,8 @@ def test_03_no_performance_or_execution_authority() -> None:
     )
 
 
-def test_04_long_outcome() -> None:
+def test_06_long_outcome() -> None:
 
-    # ATR14 = 2.0.
-    # Up = 3.0 / 2.0 = 1.5 ATR.
-    # Down = 1.0 / 2.0 = 0.5 ATR.
     frame = _base_frame(
         future_high_offset=3.0,
         future_low_offset=1.0,
@@ -337,7 +392,7 @@ def test_04_long_outcome() -> None:
     )
 
 
-def test_05_short_outcome() -> None:
+def test_07_short_outcome() -> None:
 
     frame = _base_frame(
         future_high_offset=1.0,
@@ -363,24 +418,8 @@ def test_05_short_outcome() -> None:
         "SHORT"
     )
 
-    assert (
-        outcome.up_excursion_atr
-        ==
-        pytest.approx(
-            0.5
-        )
-    )
 
-    assert (
-        outcome.down_excursion_atr
-        ==
-        pytest.approx(
-            1.5
-        )
-    )
-
-
-def test_06_no_trade_when_neither_clean_direction() -> None:
+def test_08_no_trade_when_neither_clean_direction() -> None:
 
     frame = _base_frame(
         future_high_offset=1.0,
@@ -407,7 +446,7 @@ def test_06_no_trade_when_neither_clean_direction() -> None:
     )
 
 
-def test_07_no_trade_when_both_sides_large() -> None:
+def test_09_no_trade_when_both_sides_large() -> None:
 
     frame = _base_frame(
         future_high_offset=3.0,
@@ -427,14 +466,56 @@ def test_07_no_trade_when_both_sides_large() -> None:
         0
     )
 
+
+def test_10_decision_bar_open_is_decision_minus_5() -> None:
+
+    outcome = (
+        module.mature_observation(
+            observation=_observation(),
+            completed_m5_bars=(
+                _base_frame()
+            ),
+        )
+    )
+
     assert (
-        outcome.outcome_label
+        outcome.decision_time_utc
         ==
-        "NO_TRADE"
+        "2026-09-28T12:00:00Z"
+    )
+
+    assert (
+        outcome.decision_bar_open_time_utc
+        ==
+        "2026-09-28T11:55:00Z"
     )
 
 
-def test_08_exact_12_future_rows_required() -> None:
+def test_11_first_future_bar_is_next_row_after_decision_bar() -> None:
+
+    outcome = (
+        module.mature_observation(
+            observation=_observation(),
+            completed_m5_bars=(
+                _base_frame()
+            ),
+        )
+    )
+
+    assert (
+        outcome.first_future_bar_time_utc
+        ==
+        "2026-09-28T12:00:00Z"
+    )
+
+    assert (
+        outcome.last_future_bar_time_utc
+        ==
+        "2026-09-28T12:55:00Z"
+    )
+
+
+def test_12_exact_12_future_rows_required() -> None:
 
     frame = (
         _base_frame()
@@ -450,58 +531,69 @@ def test_08_exact_12_future_rows_required() -> None:
             "INSUFFICIENT_COMPLETED_FUTURE_M5_BARS"
         ),
     ):
+
         module.mature_observation(
             observation=_observation(),
             completed_m5_bars=frame,
         )
 
 
-def test_09_missing_decision_bar_rejected() -> None:
+def test_13_wrong_decision_open_mapping_rejected() -> None:
 
     frame = _base_frame()
+
+    correct_open = (
+        pd.Timestamp(
+            DECISION_TIME
+        )
+        -
+        pd.Timedelta(
+            minutes=5
+        )
+    )
 
     frame = frame[
         frame[
             "time"
         ]
         !=
-        pd.Timestamp(
-            DECISION_TIME
-        )
+        correct_open
     ].copy()
 
     with pytest.raises(
         module.ForwardOutcomeMaturationError,
         match="DECISION_M5_BAR_NOT_UNIQUE",
     ):
+
         module.mature_observation(
             observation=_observation(),
             completed_m5_bars=frame,
         )
 
 
-def test_10_market_gap_does_not_change_row_horizon() -> None:
+def test_14_market_gap_does_not_change_row_horizon() -> None:
 
     frame = _base_frame(
         future_high_offset=3.0,
         future_low_offset=1.0,
     )
 
-    decision = pd.Timestamp(
-        DECISION_TIME
+    decision_time = (
+        pd.Timestamp(
+            DECISION_TIME
+        )
     )
 
-    # Simulate a session/weekend-style gap after the third future bar.
     mask = (
         frame[
             "time"
         ]
         >
         (
-            decision
+            decision_time
             +
             pd.Timedelta(
-                minutes=15
+                minutes=10
             )
         )
     )
@@ -540,9 +632,11 @@ def test_10_market_gap_does_not_change_row_horizon() -> None:
     )
 
 
-def test_11_pre_contract_observation_rejected() -> None:
+def test_15_pre_contract_observation_rejected() -> None:
 
-    observation = _observation()
+    observation = (
+        _observation()
+    )
 
     observation[
         "decision_time_utc"
@@ -554,6 +648,7 @@ def test_11_pre_contract_observation_rejected() -> None:
         module.ForwardOutcomeMaturationError,
         match="OBSERVATION_NOT_PROSPECTIVELY_ELIGIBLE",
     ):
+
         module.mature_observation(
             observation=observation,
             completed_m5_bars=(
@@ -562,7 +657,7 @@ def test_11_pre_contract_observation_rejected() -> None:
         )
 
 
-def test_12_semantic_fingerprint_is_deterministic() -> None:
+def test_16_semantic_fingerprint_is_deterministic() -> None:
 
     frame = _base_frame(
         future_high_offset=3.0,
@@ -579,7 +674,9 @@ def test_12_semantic_fingerprint_is_deterministic() -> None:
     second = (
         module.mature_observation(
             observation=_observation(),
-            completed_m5_bars=frame.copy(),
+            completed_m5_bars=(
+                frame.copy()
+            ),
         )
     )
 
@@ -590,7 +687,7 @@ def test_12_semantic_fingerprint_is_deterministic() -> None:
     )
 
 
-def test_13_source_observation_fingerprint_preserved() -> None:
+def test_17_source_observation_fingerprint_preserved() -> None:
 
     outcome = (
         module.mature_observation(
@@ -612,37 +709,7 @@ def test_13_source_observation_fingerprint_preserved() -> None:
     )
 
 
-def test_14_future_window_boundaries() -> None:
-
-    outcome = (
-        module.mature_observation(
-            observation=_observation(),
-            completed_m5_bars=(
-                _base_frame()
-            ),
-        )
-    )
-
-    assert (
-        outcome.first_future_bar_time_utc
-        ==
-        "2026-09-28T12:05:00Z"
-    )
-
-    assert (
-        outcome.last_future_bar_time_utc
-        ==
-        "2026-09-28T13:00:00Z"
-    )
-
-    assert (
-        outcome.horizon_bars
-        ==
-        12
-    )
-
-
-def test_15_decision_atr_matches_frozen_feature_generator() -> None:
+def test_18_decision_atr_matches_frozen_feature_generator() -> None:
 
     outcome = (
         module.mature_observation(
@@ -662,7 +729,7 @@ def test_15_decision_atr_matches_frozen_feature_generator() -> None:
     )
 
 
-def test_16_outcome_semantics_are_row_based() -> None:
+def test_19_horizon_is_row_based() -> None:
 
     outcome = (
         module.mature_observation(
@@ -676,5 +743,63 @@ def test_16_outcome_semantics_are_row_based() -> None:
     assert (
         outcome.horizon_semantics
         ==
-        "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW"
+        "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR"
+    )
+
+
+def test_20_entry_is_completed_decision_bar_close() -> None:
+
+    frame = _base_frame()
+
+    decision_open = (
+        pd.Timestamp(
+            DECISION_TIME
+        )
+        -
+        pd.Timedelta(
+            minutes=5
+        )
+    )
+
+    positions = np.flatnonzero(
+        (
+            frame[
+                "time"
+            ]
+            ==
+            decision_open
+        ).to_numpy(
+            dtype=bool
+        )
+    )
+
+    assert len(
+        positions
+    ) == 1
+
+    expected_close = float(
+        frame.iloc[
+            int(
+                positions[
+                    0
+                ]
+            )
+        ][
+            "close"
+        ]
+    )
+
+    outcome = (
+        module.mature_observation(
+            observation=_observation(),
+            completed_m5_bars=frame,
+        )
+    )
+
+    assert (
+        outcome.entry_close
+        ==
+        pytest.approx(
+            expected_close
+        )
     )

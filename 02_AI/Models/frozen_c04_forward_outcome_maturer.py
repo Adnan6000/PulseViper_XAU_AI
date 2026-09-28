@@ -2,33 +2,30 @@
 ===============================================================================
 Module      : frozen_c04_forward_outcome_maturer.py
 Project     : PulseViper XAU AI
-Purpose     : Gate 15D-C-A — Frozen Forward Outcome Maturation Authority
+Purpose     : Gate 15D-C-A v1.1 — Frozen Forward Outcome Maturation Authority
 ===============================================================================
 
 Pure / offline forward-outcome maturation authority.
 
-This module:
-- requires a prospectively eligible TRUE_FORWARD observation
-- requires the exact decision M5 bar
-- reconstructs decision ATR14 using the frozen FeatureGenerator semantics
-- requires exactly the next 12 completed M5 rows after the decision row
-- calculates frozen V2 directional excursions
-- derives LONG / SHORT / NO_TRADE outcome class
+Frozen timestamp semantics:
+- Raw M5 `time` is candle OPEN time.
+- Gate 13 decision_time = M5 open time + 5 minutes.
+- Therefore the decision candle for decision_time T has open time T - 5 minutes.
+- Entry close and ATR14 belong to that completed decision candle.
+- Outcome horizon is the NEXT 12 COMPLETED M5 ROWS after that decision candle.
 
-IMPORTANT:
-The frozen historical target used row-based horizon semantics:
+This exactly follows the historical training lineage:
+    available_time = time + timeframe_minutes
+    entry = close[index]
+    current_atr = atr[index]
     future_slice = index + 1 : index + horizon_bars + 1
-
-Therefore the maturation horizon is the NEXT 12 COMPLETED M5 ROWS.
-It is NOT defined as an unconditional wall-clock +60 minute requirement.
-Market/session gaps do not change the row-count contract.
 
 It does NOT:
 - access MT5
 - acquire market data
 - calculate model performance
 - calculate accuracy / win rate / PnL / return / drawdown
-- mutate the TRUE_FORWARD observation ledger
+- mutate any runtime ledger
 - authorize live trading
 - authorize execution
 ===============================================================================
@@ -65,7 +62,7 @@ FeatureGenerator: Any = (
 
 
 MATURATION_VERSION: str = (
-    "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1"
+    "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1"
 )
 
 EXPECTED_CONTRACT_FINGERPRINT_SHA256: str = (
@@ -76,12 +73,26 @@ EXPECTED_HORIZON_BARS: int = 12
 
 EXPECTED_BASE_TIMEFRAME: str = "M5"
 
+EXPECTED_BASE_TIMEFRAME_MINUTES: int = 5
+
 EXPECTED_PROFIT_ATR: float = 1.25
 
 EXPECTED_MAX_ADVERSE_ATR: float = 0.75
 
+DECISION_BAR_SEMANTICS: str = (
+    "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES"
+)
+
+ENTRY_REFERENCE: str = (
+    "DECISION_M5_COMPLETED_BAR_CLOSE"
+)
+
+ATR_REFERENCE: str = (
+    "DECISION_M5_COMPLETED_BAR_ATR14"
+)
+
 HORIZON_SEMANTICS: str = (
-    "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW"
+    "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR"
 )
 
 OUTCOME_MATURATION_AUTHORIZED: bool = True
@@ -110,7 +121,9 @@ class InsufficientFutureBarsError(
 @dataclass(frozen=True)
 class FrozenC04ForwardOutcome:
     logical_observation_id: str
+
     decision_time_utc: str
+    decision_bar_open_time_utc: str
 
     outcome_class: int
     outcome_label: str
@@ -120,6 +133,7 @@ class FrozenC04ForwardOutcome:
 
     horizon_bars: int
     horizon_semantics: str
+    decision_bar_semantics: str
 
     first_future_bar_time_utc: str
     last_future_bar_time_utc: str
@@ -152,56 +166,83 @@ class FrozenC04ForwardOutcome:
             "logical_observation_id": (
                 self.logical_observation_id
             ),
+
             "decision_time_utc": (
                 self.decision_time_utc
             ),
+
+            "decision_bar_open_time_utc": (
+                self.decision_bar_open_time_utc
+            ),
+
             "outcome_class": (
                 self.outcome_class
             ),
+
             "outcome_label": (
                 self.outcome_label
             ),
+
             "entry_close": (
                 self.entry_close
             ),
+
             "decision_atr14": (
                 self.decision_atr14
             ),
+
             "horizon_bars": (
                 self.horizon_bars
             ),
+
             "horizon_semantics": (
                 self.horizon_semantics
             ),
+
+            "decision_bar_semantics": (
+                self.decision_bar_semantics
+            ),
+
             "first_future_bar_time_utc": (
                 self.first_future_bar_time_utc
             ),
+
             "last_future_bar_time_utc": (
                 self.last_future_bar_time_utc
             ),
+
             "max_future_high": (
                 self.max_future_high
             ),
+
             "min_future_low": (
                 self.min_future_low
             ),
+
             "up_excursion_atr": (
                 self.up_excursion_atr
             ),
+
             "down_excursion_atr": (
                 self.down_excursion_atr
             ),
+
             "source_observation_fingerprint": (
                 self.source_observation_fingerprint
             ),
+
             "contract_fingerprint_sha256": (
                 self.contract_fingerprint_sha256
             ),
+
             "maturation_version": (
                 self.maturation_version
             ),
+
             "performance_evaluation_authorized": False,
+
             "live_authorized": False,
+
             "execution_authorized": False,
         }
 
@@ -247,16 +288,19 @@ def _utc_timestamp(
 ) -> pd.Timestamp:
 
     try:
+
         raw = pd.Timestamp(
             value
         )
 
     except Exception as exc:
+
         raise ForwardOutcomeMaturationError(
             "INVALID_TIMESTAMP"
         ) from exc
 
     if raw is pd.NaT:
+
         raise ForwardOutcomeMaturationError(
             "INVALID_TIMESTAMP_NAT"
         )
@@ -267,6 +311,7 @@ def _utc_timestamp(
     )
 
     if timestamp.tzinfo is None:
+
         raise ForwardOutcomeMaturationError(
             "TIMESTAMP_MUST_BE_TIMEZONE_AWARE"
         )
@@ -276,6 +321,7 @@ def _utc_timestamp(
     )
 
     if converted is pd.NaT:
+
         raise ForwardOutcomeMaturationError(
             "TIMESTAMP_UTC_CONVERSION_FAILED"
         )
@@ -299,8 +345,11 @@ def _utc_iso(
     if output.endswith(
         "+00:00"
     ):
+
         return (
-            output[:-6]
+            output[
+                :-6
+            ]
             +
             "Z"
         )
@@ -315,6 +364,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_CONTRACT_FINGERPRINT_SHA256
     ):
+
         raise ForwardOutcomeMaturationError(
             "OUTCOME_CONTRACT_FINGERPRINT_MISMATCH"
         )
@@ -324,6 +374,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_BASE_TIMEFRAME
     ):
+
         raise ForwardOutcomeMaturationError(
             "BASE_TIMEFRAME_AUTHORITY_MISMATCH"
         )
@@ -333,6 +384,7 @@ def verify_authorities() -> bool:
         !=
         EXPECTED_HORIZON_BARS
     ):
+
         raise ForwardOutcomeMaturationError(
             "HORIZON_AUTHORITY_MISMATCH"
         )
@@ -345,6 +397,7 @@ def verify_authorities() -> bool:
         rel_tol=0.0,
         abs_tol=1e-12,
     ):
+
         raise ForwardOutcomeMaturationError(
             "PROFIT_ATR_AUTHORITY_MISMATCH"
         )
@@ -357,6 +410,7 @@ def verify_authorities() -> bool:
         rel_tol=0.0,
         abs_tol=1e-12,
     ):
+
         raise ForwardOutcomeMaturationError(
             "MAX_ADVERSE_ATR_AUTHORITY_MISMATCH"
         )
@@ -370,6 +424,7 @@ def verify_authorities() -> bool:
         or
         EXECUTION_AUTHORIZED
     ):
+
         raise ForwardOutcomeMaturationError(
             "MATURATION_AUTHORIZATION_BOUNDARY_VIOLATION"
         )
@@ -386,6 +441,7 @@ def _validate_m5_frame(
         or
         frame.empty
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_FRAME_EMPTY"
         )
@@ -407,6 +463,7 @@ def _validate_m5_frame(
     )
 
     if missing:
+
         raise ForwardOutcomeMaturationError(
             (
                 "M5_REQUIRED_COLUMNS_MISSING:"
@@ -417,6 +474,7 @@ def _validate_m5_frame(
     output = frame.copy()
 
     try:
+
         output[
             "time"
         ] = pd.to_datetime(
@@ -428,6 +486,7 @@ def _validate_m5_frame(
         )
 
     except Exception as exc:
+
         raise ForwardOutcomeMaturationError(
             "M5_TIMESTAMP_NORMALIZATION_FAILED"
         ) from exc
@@ -446,6 +505,7 @@ def _validate_m5_frame(
             "time"
         ].duplicated().any()
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_DUPLICATE_TIMESTAMPS"
         )
@@ -455,6 +515,7 @@ def _validate_m5_frame(
             "time"
         ].is_monotonic_increasing
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_TIMESTAMPS_NOT_MONOTONIC"
         )
@@ -465,6 +526,7 @@ def _validate_m5_frame(
         "low",
         "close",
     ):
+
         output[
             column
         ] = pd.to_numeric(
@@ -490,6 +552,7 @@ def _validate_m5_frame(
             numeric
         ).all()
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_NON_FINITE_OHLC"
         )
@@ -503,6 +566,7 @@ def _validate_m5_frame(
             0.0
         ).any()
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_NON_POSITIVE_LOW"
         )
@@ -518,6 +582,7 @@ def _validate_m5_frame(
             ]
         ).any()
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_HIGH_BELOW_LOW"
         )
@@ -543,6 +608,7 @@ def _validate_m5_frame(
             ]
         ).any()
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_HIGH_GEOMETRY_INVALID"
         )
@@ -568,6 +634,7 @@ def _validate_m5_frame(
             ]
         ).any()
     ):
+
         raise ForwardOutcomeMaturationError(
             "M5_LOW_GEOMETRY_INVALID"
         )
@@ -606,17 +673,20 @@ def _label_outcome(
         and
         short_mask
     ):
+
         raise ForwardOutcomeMaturationError(
             "IMPOSSIBLE_TARGET_OVERLAP"
         )
 
     if long_mask:
+
         return (
             1,
             "LONG",
         )
 
     if short_mask:
+
         return (
             -1,
             "SHORT",
@@ -647,6 +717,7 @@ def mature_observation(
         .eligible_for_formal_maturation
         is not True
     ):
+
         raise ForwardOutcomeMaturationError(
             (
                 "OBSERVATION_NOT_PROSPECTIVELY_ELIGIBLE:"
@@ -654,22 +725,29 @@ def mature_observation(
             )
         )
 
-    logical_observation_id = observation.get(
-        "logical_observation_id"
+    logical_observation_id = (
+        observation.get(
+            "logical_observation_id"
+        )
     )
 
-    source_observation_fingerprint = observation.get(
-        "semantic_record_fingerprint"
+    source_observation_fingerprint = (
+        observation.get(
+            "semantic_record_fingerprint"
+        )
     )
 
-    decision_time_raw = observation.get(
-        "decision_time_utc"
+    decision_time_raw = (
+        observation.get(
+            "decision_time_utc"
+        )
     )
 
     if not isinstance(
         logical_observation_id,
         str,
     ):
+
         raise ForwardOutcomeMaturationError(
             "LOGICAL_OBSERVATION_ID_MISSING"
         )
@@ -678,6 +756,7 @@ def mature_observation(
         source_observation_fingerprint,
         str,
     ):
+
         raise ForwardOutcomeMaturationError(
             "SOURCE_OBSERVATION_FINGERPRINT_MISSING"
         )
@@ -686,16 +765,31 @@ def mature_observation(
         decision_time_raw,
         str,
     ):
+
         raise ForwardOutcomeMaturationError(
             "DECISION_TIME_MISSING"
         )
 
-    decision_time = _utc_timestamp(
-        decision_time_raw
+    decision_time = (
+        _utc_timestamp(
+            decision_time_raw
+        )
     )
 
-    raw = _validate_m5_frame(
-        completed_m5_bars
+    decision_bar_open_time = (
+        decision_time
+        -
+        pd.Timedelta(
+            minutes=(
+                EXPECTED_BASE_TIMEFRAME_MINUTES
+            )
+        )
+    )
+
+    raw = (
+        _validate_m5_frame(
+            completed_m5_bars
+        )
     )
 
     decision_mask = (
@@ -703,22 +797,27 @@ def mature_observation(
             "time"
         ]
         ==
-        decision_time
+        decision_bar_open_time
     ).to_numpy(
         dtype=bool
     )
 
-    decision_positions = np.flatnonzero(
-        decision_mask
+    decision_positions = (
+        np.flatnonzero(
+            decision_mask
+        )
     )
 
     if len(
         decision_positions
     ) != 1:
+
         raise ForwardOutcomeMaturationError(
             (
                 "DECISION_M5_BAR_NOT_UNIQUE:"
-                f"{len(decision_positions)}"
+                f"{len(decision_positions)}:"
+                f"expected_open="
+                f"{_utc_iso(decision_bar_open_time)}"
             )
         )
 
@@ -728,10 +827,8 @@ def mature_observation(
         ]
     )
 
-    # ATR14 at the decision bar needs the decision row plus sufficient
-    # historical rows. We intentionally require more than the mathematical
-    # minimum to fail closed around warm-up semantics.
     if decision_index < 13:
+
         raise ForwardOutcomeMaturationError(
             "INSUFFICIENT_PRE_DECISION_HISTORY_FOR_ATR14"
         )
@@ -751,6 +848,7 @@ def mature_observation(
     if future_end > len(
         raw
     ):
+
         available = max(
             0,
             len(
@@ -782,6 +880,7 @@ def mature_observation(
     if len(
         future
     ) != EXPECTED_HORIZON_BARS:
+
         raise InsufficientFutureBarsError(
             "EXACT_12_FUTURE_M5_ROWS_REQUIRED"
         )
@@ -797,6 +896,7 @@ def mature_observation(
         future_times
         .is_monotonic_increasing
     ):
+
         raise ForwardOutcomeMaturationError(
             "FUTURE_M5_ROWS_NOT_MONOTONIC"
         )
@@ -806,6 +906,7 @@ def mature_observation(
         .duplicated()
         .any()
     ):
+
         raise ForwardOutcomeMaturationError(
             "FUTURE_M5_ROWS_CONTAIN_DUPLICATE_TIMESTAMPS"
         )
@@ -822,10 +923,11 @@ def mature_observation(
     if (
         first_future_time
         <=
-        decision_time
+        decision_bar_open_time
     ):
+
         raise ForwardOutcomeMaturationError(
-            "FIRST_FUTURE_BAR_NOT_AFTER_DECISION"
+            "FIRST_FUTURE_BAR_NOT_AFTER_DECISION_BAR"
         )
 
     last_future_time = cast(
@@ -842,12 +944,11 @@ def mature_observation(
         <=
         first_future_time
     ):
+
         raise ForwardOutcomeMaturationError(
             "LAST_FUTURE_BAR_NOT_AFTER_FIRST_FUTURE_BAR"
         )
 
-    # Exact frozen ATR semantics:
-    # FeatureGenerator -> VolatilityFeatures -> TR rolling(14).mean().
     feature_generator = (
         FeatureGenerator()
     )
@@ -867,6 +968,7 @@ def mature_observation(
         "atr14"
         not in featured.columns
     ):
+
         raise ForwardOutcomeMaturationError(
             "ATR14_NOT_GENERATED"
         )
@@ -896,6 +998,7 @@ def mature_observation(
         <=
         0.0
     ):
+
         raise ForwardOutcomeMaturationError(
             "DECISION_ENTRY_CLOSE_INVALID"
         )
@@ -909,6 +1012,7 @@ def mature_observation(
         <=
         0.0
     ):
+
         raise ForwardOutcomeMaturationError(
             "DECISION_ATR14_INVALID"
         )
@@ -946,6 +1050,7 @@ def mature_observation(
             down_excursion_atr
         )
     ):
+
         raise ForwardOutcomeMaturationError(
             "NON_FINITE_OUTCOME_EXCURSION"
         )
@@ -965,51 +1070,75 @@ def mature_observation(
         logical_observation_id=(
             logical_observation_id
         ),
+
         decision_time_utc=(
             _utc_iso(
                 decision_time
             )
         ),
+
+        decision_bar_open_time_utc=(
+            _utc_iso(
+                decision_bar_open_time
+            )
+        ),
+
         outcome_class=(
             outcome_class
         ),
+
         outcome_label=(
             outcome_label
         ),
+
         entry_close=(
             entry_close
         ),
+
         decision_atr14=(
             decision_atr14
         ),
+
         horizon_bars=(
             EXPECTED_HORIZON_BARS
         ),
+
         horizon_semantics=(
             HORIZON_SEMANTICS
         ),
+
+        decision_bar_semantics=(
+            DECISION_BAR_SEMANTICS
+        ),
+
         first_future_bar_time_utc=(
             _utc_iso(
                 first_future_time
             )
         ),
+
         last_future_bar_time_utc=(
             _utc_iso(
                 last_future_time
             )
         ),
+
         max_future_high=(
             max_future_high
         ),
+
         min_future_low=(
             min_future_low
         ),
+
         up_excursion_atr=(
             up_excursion_atr
         ),
+
         down_excursion_atr=(
             down_excursion_atr
         ),
+
         source_observation_fingerprint=(
             source_observation_fingerprint
         ),
