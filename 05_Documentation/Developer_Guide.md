@@ -2163,8 +2163,55 @@ else:
 
 ### Safety & Operational Rules:
 1. **Zero Execution Authority**: `live_authorized = False`, `execution_authorized = False`.
-2. **True Forward Eligibility**: Strictly requires (a) `TRUE_FORWARD_OBSERVATION` provenance, (b) decision timestamp after freeze boundary (`2026-08-14T20:55:00Z`), (c) observation timestamp after Gate 15A activation (`2026-09-06T13:20:00Z`), and (d) verified model/feature hashes. Attempts to submit `TRUE_FORWARD_OBSERVATION` in Gate 15A fail closed because live read authority is not yet connected.
+2. **True Forward Eligibility**: Strictly requires (a) `TRUE_FORWARD_OBSERVATION` provenance, (b) decision timestamp after freeze boundary (`2026-08-14T20:55:00Z`), (c) observation timestamp after Gate 15A activation (`2026-09-06T13:20:00Z`), and (d) verified model/feature hashes.
 3. **Decoupled Identities**: `logical_observation_id` indexes the market decision point. `semantic_record_fingerprint` hashes the observation content. Conflicting content for the same logical ID raises `ConflictingObservationError`.
 4. **Locked Durable Append**: Uses OS file locking (`msvcrt`/`fcntl`) and fsync. Corrupted/partial records raise `CorruptedLedgerError` (fail closed).
-5. **Outcome Contract Blocked**: `outcome_horizon_contract_status = BLOCKED_NOT_PREDEFINED`. No forward performance metrics are evaluated during Gate 15A (`forward_performance_evaluated = False`).
+5. **Outcome Contract Blocked**: In Gate 15A, outcome horizons were blocked. In Gate 15C, the contract was formalized as `CLEAN_DIRECTIONAL_EXCURSION_V2`.
 <!-- GATE-15A-DEVELOPER-GUIDE:END -->
+
+<!-- GATE-15B-A-DEVELOPER-GUIDE:START -->
+## Read-Only MT5 Forward Acquisition Adapter (`MT5ReadOnlyForwardAcquisitionAdapter`)
+
+Gate 15B-A v2.1.0 establishes safe read-only connected market data acquisition from MetaTrader 5.
+
+### Capability Isolation & Safety Rules:
+1. **Approved Read-Only Facade**: Real MT5 connections must be wrapped in `MT5ReadOnlyCapabilityFacade`. Allowed calls: `symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`.
+2. **Forbidden Mutating APIs**: All execution, order, position, and history APIs (`order_send`, `positions_get`, etc.) are blocked and raise `PermissionError`.
+3. **Closed Candles Only**: `copy_rates_from_pos` must strictly enforce `start_pos >= 1`. Never access forming candle `start_pos = 0`.
+4. **Broker Timezone Handling**: Default `NY_CLOSE_SERVER_WALL_CLOCK` dynamically derives UTC offset per row based on US DST transitions (UTC+2 in winter, UTC+3 in summer). Never assume a fixed broker offset.
+5. **Content-Addressed Snapshots**: Generates lowercase 64-hex SHA256 snapshot ID.
+<!-- GATE-15B-A-DEVELOPER-GUIDE:END -->
+
+<!-- GATE-15C-DEVELOPER-GUIDE:START -->
+## Frozen C04 Forward Outcome Contract (`FROZEN_C04_FORWARD_OUTCOME_CONTRACT_V1`)
+
+Gate 15C establishes the declarative outcome specification for the frozen C04 model target:
+- Contract SHA256: `01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87`.
+- Target: `CLEAN_DIRECTIONAL_EXCURSION_V2`.
+- Thresholds: 1.25 ATR profit, 0.75 ATR adverse excursion.
+- Horizon: Exactly 12 completed M5 rows (row-based, not wall-clock).
+- Class mapping: SHORT = -1, NO_TRADE = 0, LONG = 1.
+- Evaluates directional excursions (not barrier-first / first-touch logic).
+<!-- GATE-15C-DEVELOPER-GUIDE:END -->
+
+<!-- GATE-15D-DEVELOPER-GUIDE:START -->
+## Prospective Outcome Anchor & Maturer V2 Protocol
+
+The active forward outcome framework enforces prospective anchoring before maturation.
+
+### Key Developer Principles:
+1. **Prospective Eligibility**: Observations must have `decision_time > 2026-09-28T11:16:59Z` to be prospectively eligible.
+2. **Mandatory Same-Snapshot Anchor**:
+   - Entry reference close and ATR14 must be captured prospectively from the **exact same market data snapshot** as the observation before any future M5 rows exist.
+   - Captured into `01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl`.
+3. **Post-Hoc Reconstruction Forbidden**:
+   - `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2` strictly forbids reconstructing entry close or ATR14 from later completed frames (`POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN`).
+   - The later completed frame is used ONLY to identify the decision row and collect the NEXT 12 completed M5 rows.
+4. **Exclusion of Observation 2 (11:45 UTC)**:
+   - Observation 2 (`2026-09-28T11:45:00Z`) is a genuine acquisition proof, but is permanently excluded from formal scoring (`POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR`) because it lacked a prospective anchor at acquisition time.
+   - Never retroactively generate an anchor for it.
+5. **Next Gate Integration (Gate 15D-C-B2D)**:
+   - When integrating real acquisition with anchor capture:
+     Capture Anchor FIRST -> Durably Append Anchor -> Verify Anchor Integrity -> Append Observation SECOND -> Verify Observation Integrity.
+   - If observation append fails after anchor append succeeds, the anchor remains an orphan prospective anchor (never delete or truncate).
+<!-- GATE-15D-DEVELOPER-GUIDE:END -->

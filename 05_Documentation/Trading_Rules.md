@@ -24,32 +24,58 @@ The central rule is:
 
 # 2. Current Operational State
 
-Current frozen research state:
+Current frozen research and validation state (Baseline Commit `cbdeb30934213dc36863c334eb1e50879ba0dde1`):
 
 ```text
 TRAIN:
-complete
+complete (C04 winner selected and fit)
 
 VALIDATION:
-passed and consumed
+passed and consumed (ONE_TIME_VALIDATION_ACCEPTED)
 
 TEST:
-not yet consumed
+protected holdout (untouched)
 
-Shadow ML integration:
-not yet authorized
+Production broker feature parity:
+complete (Gate 13)
+
+Frozen offline inference adapter:
+complete (Gate 14)
+
+Forward shadow observation infrastructure:
+complete (Gate 15A)
+
+Read-only MT5 forward acquisition:
+active (Gate 15B-A v2.1.0, strictly read-only facade)
+
+Prospective forward outcome protocol:
+complete (Gates 15C, 15D-A, 15D-C-B2A, 15D-C-B2B, 15D-C-B2C)
+
+Next engineering gate:
+Gate 15D-C-B2D (Genuine Observation + Same-Snapshot Anchor Integration)
+
+Forward performance scoring:
+NOT STARTED (forward_performance_evaluated = false)
 
 Live ML trading:
-not authorized
+NOT AUTHORIZED (live_authorized = false)
+
+Execution:
+NOT AUTHORIZED (execution_authorized = false)
 ```
 
 Therefore:
 
 ```text
 live_authorized = false
+execution_authorized = false
+forward_performance_evaluated = false
 ```
 
-Nothing in historical ML research overrides this state.
+### Critical Safety Distinction: Read-Only Acquisition vs Execution Authority
+Connected MetaTrader 5 access is strictly limited to read-only market data acquisition (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`). All order routing, trade execution, position management, account modification, and risk sizing components remain completely isolated and unauthorized.
+
+Nothing in historical ML research or read-only forward acquisition overrides this state.
 
 ---
 

@@ -18,11 +18,23 @@ The goal is a reproducible, safety-gated ML research framework, not a “profita
 
 ## Key Highlights
 
-- **331 portable features** with frozen order and SHA256 fingerprints
-- **Frozen C04 ExtraTrees model** trained on ~70k rows
+- **331 portable features** with frozen order and SHA256 fingerprints (`65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`)
+- **Frozen C04 ExtraTrees model** (`C04_FLAT_EXTRA_TREES_CONSTRAINED`, SHA `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`)
 - **One-time VALIDATION** completed and permanently consumed
-- **Final TEST** still untouched
-- **Live trading:** NOT AUTHORIZED
+- **Final TEST** holdout still protected and untouched
+- **Production broker feature parity:** COMPLETE (Gate 13)
+- **Frozen offline inference adapter:** COMPLETE (Gate 14)
+- **Read-only MT5 acquisition adapter:** COMPLETE (Gate 15B-A v2.1.0, NY close server epoch, per-row DST normalization)
+- **Frozen forward outcome contract V1:** COMPLETE (Gate 15C, `CLEAN_DIRECTIONAL_EXCURSION_V2`, 1.25/0.75 ATR, 12 M5 rows, SHA `01fe52a...`)
+- **Prospective forward eligibility:** COMPLETE (Gate 15D-A, activation cutoff `2026-09-28T11:16:59Z`)
+- **Prospective outcome anchor authority V1:** COMPLETE (Gate 15D-C-B2A, `SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS`)
+- **Anchor-required forward outcome maturer V2:** COMPLETE (Gate 15D-C-B2B, supersedes V1.1, post-hoc reconstruction forbidden)
+- **Anchor-required forward outcome ledger V2:** COMPLETE (Gate 15D-C-B2C, supersedes V1.1)
+- **Current published baseline commit:** `cbdeb30934213dc36863c334eb1e50879ba0dde1`
+- **Current phase:** Prospective Forward Observation + Anchor Integration Preparation
+- **Next planned gate:** `Gate 15D-C-B2D` (Genuine Prospective Observation + Same-Snapshot Anchor Integration)
+- **Forward performance scoring:** NOT STARTED (`forward_performance_evaluated = false`)
+- **Live trading / execution:** NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
 
 ## Tech Stack
 
@@ -80,12 +92,16 @@ PulseViper XAU AI
 
 A research-first, safety-gated Python framework for **XAUUSD / XAUUSDm machine-learning research, broker-portable feature generation, shadow trading, risk management, and MetaTrader 5 execution**.
 
-> **Current status:** Research / validation stage  
-> **Frozen model:** C04 constrained ExtraTrees, 331 portable features  
+> **Current status:** Controlled read-only forward validation (Gate 15D-C-B2BC baseline)  
+> **Published authority commit:** `cbdeb30934213dc36863c334eb1e50879ba0dde1`  
+> **Frozen model:** C04 constrained ExtraTrees (`C04_FLAT_EXTRA_TREES_CONSTRAINED`), 331 portable features  
 > **Untouched VALIDATION:** Passed and permanently consumed  
-> **Final TEST:** Not yet consumed  
-> **Shadow deployment:** Not yet authorized  
-> **Live trading:** Not authorized
+> **Final TEST:** Protected holdout (untouched)  
+> **Read-only forward acquisition:** Active (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`)  
+> **Forward outcome authority:** Maturer V2 & Outcome Ledger V2 (requires prospective anchor)  
+> **Current phase:** Prospective Forward Observation + Anchor Integration Preparation (`Gate 15D-C-B2D` next)  
+> **Forward performance scoring:** NOT STARTED (`forward_performance_evaluated = false`)  
+> **Live trading / execution:** NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
 
 Table of Contents
 -----------------
@@ -193,72 +209,127 @@ When artifact identity, feature order, dataset identity, protected-data state, o
 Current Research Status
 =======================
 
-The current portable ML experiment has completed the following stages:
+The current portable ML experiment and forward validation framework have completed the following stages:
 
-Portable feature research ✅  
-331-feature contract ✅  
-Portable TRAIN dataset ✅  
-TRAIN input loader ✅  
-Target loader ✅  
-Supervised TRAIN batch ✅  
-TRAIN-only research protocol ✅  
-Frozen six-model candidate registry ✅  
-4-fold purged walk-forward evaluation ✅  
-TRAIN-internal winner selection ✅  
-Full TRAIN model fit ✅  
-Model artifact verification ✅  
-VALIDATION protocol freeze ✅  
-One-time VALIDATION infrastructure ✅  
-Untouched VALIDATION ✅  
-PASSED VALIDATION result freeze ✅  
-Final untouched TEST ⏳  
-NEXT Final research verdict ⏳  
-Production broker feature parity ⏳  
-Frozen-model inference integration ⏳  
-Shadow deployment ⏳  
-Forward shadow validation ⏳  
-Live promotion ⛔ NOT AUTHORIZED  
+1. Portable feature research ✅  
+2. 331-feature contract ✅  
+3. Portable TRAIN dataset ✅  
+4. TRAIN input loader ✅  
+5. Target loader ✅  
+6. Supervised TRAIN batch ✅  
+7. TRAIN-only research protocol ✅  
+8. Frozen six-model candidate registry ✅  
+9. 4-fold purged walk-forward evaluation ✅  
+10. TRAIN-internal winner selection (`C04_FLAT_EXTRA_TREES_CONSTRAINED`) ✅  
+11. Full TRAIN model fit (`xauusd_portable_331_c04_full_train_model.joblib`) ✅  
+12. Model artifact verification ✅  
+13. VALIDATION protocol freeze ✅  
+14. One-time VALIDATION infrastructure ✅  
+15. Untouched VALIDATION (ONE_TIME_VALIDATION_ACCEPTED) ✅  
+16. PASSED VALIDATION result freeze ✅  
+17. Final TEST holdout (protected, untouched) ⏳  
+18. Production broker feature parity (Gate 13: 331 features, SHA verified) ✅  
+19. Frozen-model production inference adapter (Gate 14: raw argmax, `[-1, 0, 1]`) ✅  
+20. Forward shadow observation infrastructure (Gate 15A: locked append ledger) ✅  
+21. Read-only MT5 forward acquisition (Gate 15B-A v2.1.0: NY close server epoch, per-row DST) ✅  
+22. First genuine read-only forward observation proof (Gate 15B-B: Obs 1, audit only) ✅  
+23. Frozen forward outcome contract V1 (Gate 15C: `CLEAN_DIRECTIONAL_EXCURSION_V2`, 1.25/0.75 ATR, 12 M5 rows) ✅  
+24. Prospective forward outcome eligibility (Gate 15D-A: activation cutoff `2026-09-28T11:16:59Z`) ✅  
+25. Prospective post-contract forward observation (Gate 15D-B: Obs 2, genuine acquisition proof) ✅  
+26. Decision-bar timing semantic correction (Gate 15D-C-A v1.1: `decision_bar_open = decision_time - 5m`) ✅  
+27. Prospective forward outcome anchor authority (Gate 15D-C-B2A: same-snapshot anchor protocol) ✅  
+28. Anchor-required forward outcome maturer V2 (Gate 15D-C-B2B: post-hoc reconstruction forbidden) ✅  
+29. Anchor-required forward outcome ledger V2 (Gate 15D-C-B2C: compatible with Maturer V2) ✅  
+30. Genuine Prospective Observation + Same-Snapshot Anchor Integration (`Gate 15D-C-B2D`) 🟢 NEXT PLANNED GATE  
+31. Matured forward shadow evaluation (`Gate 15E`) ⬜ PENDING  
+32. Production safety review ⬜ PENDING  
+33. Live promotion ⛔ NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
+
+Runtime Observation Ledger Status
+---------------------------------
+
+Operational runtime ledger:
+
+```text
+01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl
+```
+
+- Append-only, local, gitignored, immutable operational history.
+- Must never be truncated, rewritten, deleted for cleanup, or committed.
+- Known `TRUE_FORWARD` observation count: **2**
+
+1. **Observation 1 (Decision time `2026-09-28T10:15:00Z`)**:
+   - Acquired during Gate 15B-B.
+   - Pre-contract observation (captured prior to Gate 15C activation `2026-09-28T11:16:59Z`).
+   - Retained permanently for pipeline audit; strictly excluded from formal forward performance.
+
+2. **Observation 2 (Decision time `2026-09-28T11:45:00Z`)**:
+   - Acquired during Gate 15D-B as genuine post-contract acquisition proof.
+   - **NOT FORMALLY SCOREABLE**: Did not receive a prospective frozen outcome anchor at acquisition time.
+   - Status: `POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR`.
+   - The genuine acquisition proof is retained, but no outcome anchor will ever be retroactively manufactured for it.
+
+Formal Forward Scoring Requirements
+-----------------------------------
+
+Under the active Maturer V2 / Outcome Ledger V2 authority, an observation is formally scoreable **only if all 11 conditions are satisfied**:
+
+1. Genuine approved read-only forward acquisition (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`);
+2. `TRUE_FORWARD_OBSERVATION` provenance;
+3. Frozen Gate 13 feature authority (`331` columns, hash `65637cc2...`);
+4. Frozen Gate 14 model authority (`C04_FLAT_EXTRA_TREES_CONSTRAINED`, hash `48a1d7...`);
+5. Post-contract prospective eligibility (`decision_time > 2026-09-28T11:16:59Z`);
+6. Valid same-snapshot prospective anchor captured at acquisition time;
+7. Anchor captured and persisted BEFORE future outcome exposure;
+8. Correct decision-bar timing semantics (`decision_bar_open = decision_time - 5 minutes`);
+9. Exact 12 completed future M5 rows after the decision bar;
+10. Execution via `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2`;
+11. Persistence into `FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2`.
 
 System Overview
 ===============
 
-A simplified research-to-production flow is:
+The research-to-production flow is:
 
 Historical XAUUSD Data  
 ↓  
-Feature Pipeline  
+Portable Feature Pipeline (331 features)  
 ↓  
-Portable Projection  
+Train-Internal Research & Selection (C04 winner)  
 ↓  
-331 Ordered Features  
+Full TRAIN Fit & Verification  
 ↓  
-Frozen Target Labels  
+Untouched VALIDATION (Passed & Frozen)  
 ↓  
-TRAIN Dataset  
+Final TEST (Protected Holdout)  
 ↓  
-Purged Walk-Forward Research  
+Gate 13: Production Broker Feature Parity (COMPLETE)  
 ↓  
-Frozen Candidate Winner  
+Gate 14: Frozen Offline Inference Adapter (COMPLETE)  
 ↓  
-Full TRAIN Fit  
+Gate 15A: Forward Shadow Observation Infrastructure (COMPLETE)  
 ↓  
-Untouched VALIDATION  
+Gate 15B-A: MT5 Read-Only Acquisition Adapter v2.1.0 (COMPLETE)  
 ↓  
-Final TEST  
+Gate 15C: Frozen Forward Outcome Contract V1 (COMPLETE)  
 ↓  
-Production Feature Parity  
+Gate 15D-A: Prospective Eligibility Authority (COMPLETE)  
 ↓  
-Shadow Inference  
+Gate 15D-C-B2A: Prospective Outcome Anchor Authority V1 (COMPLETE)  
 ↓  
-Forward Validation  
+Gate 15D-C-B2B/C: Maturer V2 & Outcome Ledger V2 (COMPLETE)  
 ↓  
-Possible Live Promotion  
+Gate 15D-C-B2D: Prospective Observation + Same-Snapshot Anchor Integration (🟢 NEXT)  
+↓  
+Gate 15E: Matured Forward Shadow Evaluation (PENDING)  
+↓  
+Possible Live Promotion Decision (⛔ NOT AUTHORIZED)
 
-The current project is between:
+The current project position is:
 
-VALIDATION RESULT FROZEN  
+GATE 15D-C-B2BC PUBLISHED BASELINE (`cbdeb30934213dc36863c334eb1e50879ba0dde1`)  
 ↓  
-FINAL TEST  
+GATE 15D-C-B2D PREPARATION (Prospective Observation + Same-Snapshot Anchor Integration)  
 
 Repository Structure
 ====================
@@ -392,6 +463,19 @@ Prediction rule:
 
 probabilities = model.predict_proba(X)
 prediction = model.classes_[probabilities.argmax(axis=1)]
+
+Supported symbols:
+
+- `XAUUSD` (primary)
+- `XAUUSDm` (micro / fallback)
+
+Historical research freeze boundary:
+
+`2026-08-14T20:55:00Z`
+
+Gate 15A activation:
+
+`2026-09-06T13:20:00Z`
 
 No post-validation threshold tuning or probability calibration is allowed for this frozen experiment.
 
@@ -644,35 +728,41 @@ Major engineering and research milestones.
 Remaining Roadmap
 =================
 
-Immediate next milestone:
+Immediate next engineering milestone:
 
-Final one-time TEST infrastructure  
+Gate 15D-C-B2D: Genuine Prospective Observation + Same-Snapshot Anchor Integration  
 ↓  
-Dry preflight  
+Verify same-snapshot anchor persistence before observation append  
 ↓  
-First and only TEST evaluation  
+Accumulate genuine forward shadow observations across real calendar time  
 ↓  
-Final research verdict  
+Gate 15E: Matured forward shadow evaluation (Maturer V2 + Outcome Ledger V2)  
+↓  
+Production safety and monitoring review  
+↓  
+Possible live promotion review (requires explicit external authorization)
 
-After research completion:
+Completed milestones preceding this phase:
 
-Production broker feature parity  
-↓  
-Broker-time canonicalization  
-↓  
-D1 reconstruction  
-↓  
-Frozen-model inference adapter  
-↓  
-Shadow integration  
-↓  
-Forward unseen-market validation  
-↓  
-Production safety review  
-↓  
-Possible live promotion decision  
+- Research & 331 Portable Feature Pipeline ✅
+- Frozen C04 ExtraTrees Winner Selection & Fit ✅
+- One-Time VALIDATION (Passed & Permanently Consumed) ✅
+- Final TEST Holdout (Protected & Untouched) ⏳
+- Gate 13: Production Broker Feature Parity ✅
+- Gate 14: Frozen Offline Inference Adapter ✅
+- Gate 15A: Forward Shadow Observation Infrastructure ✅
+- Gate 15B-A: MT5 Read-Only Acquisition Adapter v2.1.0 ✅
+- Gate 15B-B: First Genuine Forward Observation Proof (Obs 1: 10:15 UTC, audit-only) ✅
+- Gate 15C: Frozen C04 Forward Outcome Contract V1 (`01fe52a...`) ✅
+- Gate 15D-A: Prospective Forward Outcome Eligibility Authority ✅
+- Gate 15D-B: Prospective Post-Contract Genuine Observation Proof (Obs 2: 11:45 UTC, excluded from scoring) ✅
+- Gate 15D-C-A v1.1: Decision-Bar Timing Semantic Correction (Historical / Superseded) ✅
+- Gate 15D-C-B1 v1.1: Outcome Ledger Semantic Alignment (Historical / Superseded) ✅
+- Gate 15D-C-B2A: Prospective Forward Outcome Anchor Authority V1 ✅
+- Gate 15D-C-B2B: Anchor-Required Forward Outcome Maturer V2 ✅
+- Gate 15D-C-B2C: Forward Outcome Ledger V2 ✅
 
-The current project must not be described as live-ready.
+The current project must not be described as live-ready or execution-authorized.
 
 Security and Secrets
 ====================

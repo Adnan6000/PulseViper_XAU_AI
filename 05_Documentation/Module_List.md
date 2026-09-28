@@ -407,7 +407,7 @@ Production-side observation infrastructure for future unseen-regime forward shad
 
 # 8.5 `02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py`
 
-**Area:** Read-only forward market data acquisition authority (Gate 15B-A)
+**Area:** Read-only forward market data acquisition authority (Gate 15B-A v2.1.0)
 **Safety:** YELLOW / READ-ONLY MARKET DATA / ZERO TRADING WRITE
 
 ## Responsibility
@@ -416,13 +416,104 @@ Production-safe, provably isolated, read-only MetaTrader 5 market data acquisiti
 - Wraps MT5 session in `MT5ReadOnlyCapabilityFacade`, exposing strictly whitelisted read-only methods (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`).
 - Raises `PermissionError` on any attempt to invoke mutating broker/order methods (`order_send`, `positions_get`, etc.).
 - Enforces `start_pos >= 1` in rate requests to strictly exclude forming/incomplete candles.
-- Normalizes integer Unix timestamps to UTC (`pd.to_datetime(..., unit='s', utc=True)`).
+- Supports `AUTO`, `UNIX_UTC`, and `NY_CLOSE_SERVER_WALL_CLOCK` timestamp interpretation with dynamic per-row historical DST normalization (no fixed broker offset assumption).
 - Acquires complete multi-timeframe OHLCV bars (`M5`, `M15`, `M30`, `H1`, `H4`, `D1`) required by Gate 13.
 - Computes deterministic lowercase 64-hex SHA256 snapshot fingerprint (`source_snapshot_id`).
 - Produces tamper-evident `ForwardAcquisitionAttestation` and `ForwardMarketSnapshot`.
 - Strictly marks synthetic/mock data to prevent unauthorized true-forward escalation.
 - Enforces frozen research boundary (`2026-08-14T20:55:00Z`) and Gate 15A activation authority (`2026-09-06T13:20:00Z`).
 - Zero dependencies on `RiskEngine`, `trade_ready`, or execution order routing.
+
+---
+
+# 8.6 `02_AI/Models/frozen_c04_forward_outcome_contract.py`
+
+**Area:** Frozen forward outcome contract authority (Gate 15C)
+**Safety:** YELLOW / SPECIFICATION ONLY / ZERO RUNTIME MUTATION
+
+## Responsibility
+
+Pure declarative outcome specification for the frozen C04 model target:
+- Freezes contract version: `FROZEN_C04_FORWARD_OUTCOME_CONTRACT_V1`.
+- Fingerprint SHA256: `01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87`.
+- Target contract: `CLEAN_DIRECTIONAL_EXCURSION_V2`.
+- Base timeframe: `M5`.
+- Horizon: `12 completed M5 rows` (row-based, not wall-clock).
+- Profit threshold: `1.25 ATR`.
+- Maximum adverse excursion (MAE): `0.75 ATR`.
+- Classes: SHORT = -1, NO_TRADE = 0, LONG = 1.
+- Directional excursion rules (not barrier-first logic).
+- Zero market data access, zero outcome calculation, zero performance evaluation, zero trading.
+
+---
+
+# 8.7 `02_AI/Models/frozen_c04_forward_outcome_eligibility.py`
+
+**Area:** Prospective forward outcome eligibility authority (Gate 15D-A)
+**Safety:** YELLOW / ELIGIBILITY AUDIT ONLY / ZERO RUNTIME MUTATION
+
+## Responsibility
+
+Prospective eligibility gate for formal forward performance evaluation:
+- Freezes eligibility version: `FROZEN_C04_FORWARD_OUTCOME_ELIGIBILITY_V1`.
+- Gate 15C activation cutoff: `2026-09-28T11:16:59Z`.
+- Policy: Observations recorded at or before activation are classified `PRE_CONTRACT_AUDIT_ONLY`; retained for pipeline audit but permanently excluded from formal forward performance.
+- Prospective rule: `decision_time > 2026-09-28T11:16:59Z`.
+- Validates model SHA256, feature contract SHA256, and canonical instrument (`XAUUSD`).
+- Enforces that timestamp eligibility alone does not constitute formal scoreability (a valid prospective anchor is also mandatory).
+
+---
+
+# 8.8 `02_AI/Models/frozen_c04_forward_outcome_anchor.py`
+
+**Area:** Prospective forward outcome anchor authority (Gate 15D-C-B2A)
+**Safety:** YELLOW / ANCHOR STORAGE ONLY / ZERO TRADING WRITE
+
+## Responsibility
+
+Prospective reference value capture from the same acquisition snapshot:
+- Freezes anchor version: `FROZEN_C04_FORWARD_OUTCOME_ANCHOR_V1`.
+- Freezes anchor ledger version: `FROZEN_C04_FORWARD_OUTCOME_ANCHOR_LEDGER_V1`.
+- Capture policy: `SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS`.
+- Enforces `FORMAL_MATURATION_REQUIRES_ANCHOR = true`.
+- Freezes decision-bar open time (`decision_time - 5m`), exact decision M5 close, and exact decision M5 ATR14 before future outcome exposure.
+- Implements `FrozenC04ForwardOutcomeAnchorLedger` providing locked durable append (`msvcrt`/`fcntl`) with byte-0 seek alignment, flush, and fsync into `01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl`.
+- Enforces orphan anchor retention rule (never delete, rewrite, or truncate anchor ledger).
+
+---
+
+# 8.9 `02_AI/Models/frozen_c04_forward_outcome_maturer.py`
+
+**Area:** Anchor-required forward outcome maturation authority (Gate 15D-C-B2B)
+**Safety:** YELLOW / OFFLINE MATURATION ONLY / ZERO LIVE TRADING
+
+## Responsibility
+
+Anchor-required prospective forward outcome maturation:
+- Freezes maturation version: `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2`.
+- Supersedes `FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1` (which established `decision_bar_open = decision_time - 5m` but retrospectively reconstructed entry close and ATR14).
+- Entry reference policy: `PROSPECTIVE_ANCHOR_DECISION_M5_CLOSE`.
+- ATR reference policy: `PROSPECTIVE_ANCHOR_DECISION_M5_ATR14`.
+- Enforces `POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN`.
+- Later completed M5 frame is used strictly to locate the decision row and collect the NEXT 12 completed M5 rows.
+- Links output outcomes to source observation fingerprint, source anchor fingerprint, and source anchor version.
+
+---
+
+# 8.10 `02_AI/Models/frozen_c04_forward_outcome_ledger.py`
+
+**Area:** Anchor-required forward outcome ledger authority (Gate 15D-C-B2C)
+**Safety:** YELLOW / DURABLE OUTCOME STORAGE / ZERO TRADING WRITE
+
+## Responsibility
+
+Append-only storage authority for matured prospective outcomes:
+- Freezes ledger version: `FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2`.
+- Supersedes `FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1`.
+- Accepts only outcomes produced by `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2`.
+- Persists source observation fingerprint, source anchor fingerprint, source anchor version, anchor entry reference, anchor ATR reference, and reconstruction-forbidden policy.
+- Implements `FrozenC04ForwardOutcomeLedger` with locked append, flush, and fsync into `01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl`.
+- Rejects conflicting outcomes fail-closed; detects corruption fail-closed.
 
 ---
 

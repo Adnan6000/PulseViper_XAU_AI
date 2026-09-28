@@ -1655,27 +1655,74 @@ One-time VALIDATION and TEST holdouts are never executed or touched.
 Gate 15A establishes the observation infrastructure required for future forward shadow validation:
 
 - `04_Testing/production_portability/test_frozen_c04_shadow_observer.py`:
-  Comprehensive 25-case test suite covering:
-  - Valid observation creation and typing;
-  - Exact model identity and feature contract propagation;
-  - Class/probability mapping and winning probability validation;
-  - UTC decision timestamp handling and fail-closed naive timestamp rejection;
-  - Duplicate detection under `FAIL_CLOSED` and `IDEMPOTENT_IGNORE`;
-  - Conflicting observation fail-closed rejection (`ConflictingObservationError`);
-  - Ledger recovery, durability, and corruption detection (`CorruptedLedgerError`);
-  - Locked durable append with fail-closed partial record handling;
-  - Immutable record behavior (`dataclasses.FrozenInstanceError`);
-  - Row and source identity preservation (64-hex SHA256 validation);
-  - Static AST checks: zero order execution, RiskEngine, or `trade_ready` dependencies;
-  - Static reachable dependency graph audit: zero reachable broker write APIs;
-  - Safety invariants: `live_authorized = False`, `execution_authorized = False`;
-  - Provenance enforcement: historical replay and synthetic data are never forward eligible;
-  - Forward boundary authority (`2026-08-14T20:55:00Z`) and activation authority (`2026-09-06T13:20:00Z`);
-  - Rejection of `TRUE_FORWARD_OBSERVATION` attempts (fail closed without live acquisition);
-  - Blocked outcome contract status (`BLOCKED_NOT_PREDEFINED`);
-  - Numerical determinism and machine precision repeat tolerance.
+  Comprehensive test suite covering valid observation creation, model/feature verification, locked durable append, fail-closed duplicate/conflict/corruption handling, and provenance enforcement.
 - `04_Testing/production_portability/run_xauusd_frozen_c04_shadow_observation_evidence.py`:
-  Standalone reproducible verification harness executing end-to-end observation and generating `xauusd_frozen_c04_shadow_observation_infrastructure_evidence.json`.
-
-One-time VALIDATION and TEST holdouts are never executed or touched.
+  Verification harness generating `xauusd_frozen_c04_shadow_observation_infrastructure_evidence.json`.
 <!-- GATE-15A-SHADOW-TESTING:END -->
+
+<!-- GATE-15B-A-ACQUISITION-TESTING:START -->
+## Gate 15B-A Read-Only MT5 Acquisition Tests
+
+- `04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py`:
+  Comprehensive suite validating:
+  - Whitelist of approved read-only facade methods (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`);
+  - Rejection with `PermissionError` of 10 mutating broker/order APIs;
+  - Enforcement of completed candles only (`start_pos >= 1`);
+  - Timestamp interpretation modes (`AUTO`, `UNIX_UTC`, `NY_CLOSE_SERVER_WALL_CLOCK`);
+  - Dynamic per-row historical DST normalization without fixed broker offset assumptions;
+  - Snapshot fingerprint determinism and tamper-evident attestation creation;
+  - Fail-closed broker connection failure.
+- `04_Testing/production_portability/run_xauusd_gate_15b_a_read_only_forward_acquisition_evidence.py`:
+  Verification harness generating `xauusd_gate_15b_a_read_only_forward_acquisition_evidence.json`.
+<!-- GATE-15B-A-ACQUISITION-TESTING:END -->
+
+<!-- GATE-15C-CONTRACT-TESTING:START -->
+## Gate 15C Frozen Forward Outcome Contract Tests
+
+- `04_Testing/production_portability/test_frozen_c04_forward_outcome_contract.py`:
+  Validates:
+  - Declarative contract parameters: `CLEAN_DIRECTIONAL_EXCURSION_V2`, 1.25 ATR profit, 0.75 ATR adverse, 12 completed M5 rows;
+  - SHA256 fingerprint verification (`01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87`);
+  - Static AST audit: zero MT5 calls, zero performance evaluations, zero trading runtime imports.
+- `04_Testing/production_portability/run_xauusd_gate_15c_forward_outcome_contract_evidence.py`:
+  Verification harness generating `xauusd_gate_15c_forward_outcome_contract_evidence.json`.
+<!-- GATE-15C-CONTRACT-TESTING:END -->
+
+<!-- GATE-15D-A-ELIGIBILITY-TESTING:START -->
+## Gate 15D-A Prospective Outcome Eligibility Tests
+
+- `04_Testing/production_portability/test_frozen_c04_forward_outcome_eligibility.py`:
+  Validates:
+  - Prospective cutoff boundary: `2026-09-28T11:16:59Z`;
+  - Pre-contract classification (`PRE_CONTRACT_AUDIT_ONLY`) and exclusion from formal forward scoring;
+  - Rejection of timestamps prior to or equal to activation;
+  - Rejection of non-canonical instruments or mismatched model/feature hashes;
+  - Verification that observation ledger is never mutated by eligibility checks.
+- `04_Testing/production_portability/run_xauusd_gate_15d_a_forward_outcome_eligibility_evidence.py`:
+  Verification harness generating `xauusd_gate_15d_a_forward_outcome_eligibility_evidence.json`.
+<!-- GATE-15D-A-ELIGIBILITY-TESTING:END -->
+
+<!-- GATE-15D-C-ANCHOR-MATURATION-TESTING:START -->
+## Gate 15D-C-B2A/B2B/B2C Anchor, Maturer V2 & Outcome Ledger V2 Tests
+
+- `04_Testing/production_portability/test_frozen_c04_forward_outcome_anchor.py`:
+  Validates:
+  - Prospective anchor creation from same acquisition snapshot;
+  - Rejection if snapshot contains future rows beyond decision bar;
+  - Locked append-only anchor ledger durability, idempotent duplicates, and fail-closed conflict/corruption;
+  - Retention of orphan prospective anchors.
+- `04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py`:
+  Validates:
+  - `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2` requires validated prospective anchor;
+  - Post-hoc entry close and ATR14 reconstruction strictly forbidden;
+  - Correct decision-bar timing: `decision_bar_open = decision_time - 5 minutes`;
+  - Outcome evaluation across exact 12 future completed M5 rows;
+  - Directional excursion rules (LONG, SHORT, NO_TRADE).
+- `04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py`:
+  Validates:
+  - `FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2` append-only storage;
+  - Enforces linked prospective anchor fingerprint and Maturer V2 authority;
+  - Locked append, flush, and fsync into `01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl`.
+- `04_Testing/production_portability/run_xauusd_gate_15d_c_b2bc_anchor_required_maturation_ledger_v2_evidence.json`:
+  Offline evidence generator verifying zero genuine outcomes or anchors appended during baseline freeze.
+<!-- GATE-15D-C-ANCHOR-MATURATION-TESTING:END -->

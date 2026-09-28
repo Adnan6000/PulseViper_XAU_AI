@@ -1,4 +1,4 @@
-﻿# PulseViper XAU AI — Feature Contract & Feature Guide
+# PulseViper XAU AI — Feature Contract & Feature Guide
 
 ## 1. Purpose
 
@@ -1608,7 +1608,10 @@ TEST:
 NOT YET CONSUMED
 
 Production feature parity:
-PENDING
+COMPLETE (Gate 13)
+
+Forward shadow observation:
+ACTIVE (Gates 15A through 15D-C-B2C)
 
 Live:
 NOT AUTHORIZED

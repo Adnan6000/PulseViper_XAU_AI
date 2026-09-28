@@ -1394,3 +1394,109 @@ Executed the final coordinated cleanup of all remaining 73 `REVIEW_REQUIRED` fil
 
 Final migration state: 78 READY EXECUTED, 77 REVIEW_EXECUTED, 0 REVIEW_REQUIRED, 18 FROZEN_STAY, 1 SUPPORT_STAY.
 <!-- V2-FINAL-COORDINATED-CLEANUP:END -->
+
+<!-- GATE-12-TEST-PROTECTION:START -->
+## Protected TEST Holdout Preservation (Gate 12)
+
+The final TEST holdout remains protected and unconsumed. The one-time VALIDATION evaluation was completed, passed, and permanently frozen (`ONE_TIME_VALIDATION_ACCEPTED`).
+<!-- GATE-12-TEST-PROTECTION:END -->
+
+<!-- GATE-13-FEATURE-PARITY:START -->
+## Production Broker Feature Parity (Gate 13)
+
+Established 331-feature production parity on canonical broker historical snapshots:
+- Feature column SHA256: `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`.
+- Matches historical ML research feature vector with zero leakage.
+<!-- GATE-13-FEATURE-PARITY:END -->
+
+<!-- GATE-14-INFERENCE-ADAPTER:START -->
+## Frozen C04 Production Inference Adapter (Gate 14)
+
+Created `02_AI/Models/frozen_c04_inference_adapter.py` wrapping the frozen C04 ExtraTrees model (`48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`):
+- Implements deterministic raw argmax decision rule across classes `[-1, 0, 1]`.
+- Enforces `live_authorized = False` and `shadow_authorized = False`.
+<!-- GATE-14-INFERENCE-ADAPTER:END -->
+
+<!-- GATE-15A-SHADOW-OBSERVER:START -->
+## Forward Shadow Observation Infrastructure (Gate 15A)
+
+Created `02_AI/Models/frozen_c04_shadow_observer.py`:
+- Locked, durable, append-only ledger (`01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl`).
+- Machine-readable freeze boundary (`2026-08-14T20:55:00Z`) and activation authority (`2026-09-06T13:20:00Z`).
+- Provenance enforcement (`HISTORICAL_ENGINEERING`, `SYNTHETIC_ENGINEERING`, `TRUE_FORWARD_OBSERVATION`).
+- Blocked outcome contract status (`BLOCKED_NOT_PREDEFINED`).
+<!-- GATE-15A-SHADOW-OBSERVER:END -->
+
+<!-- GATE-15B-A-ACQUISITION-ADAPTER:START -->
+## MT5 Read-Only Forward Acquisition Adapter v2.1.0 (Gate 15B-A)
+
+Reopened and hardened `02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py`:
+- `MT5ReadOnlyCapabilityFacade` restricts connected MT5 access to approved read-only methods (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`).
+- Blocks 10 mutating broker/order APIs with `PermissionError`.
+- Forbids forming candles (`start_pos >= 1`).
+- Dynamically resolves per-row historical DST transitions under `NY_CLOSE_SERVER_WALL_CLOCK` without fixed broker offset assumptions.
+<!-- GATE-15B-A-ACQUISITION-ADAPTER:END -->
+
+<!-- GATE-15B-B-GENUINE-OBSERVATION:START -->
+## First Genuine Read-Only Forward Observation Proof (Gate 15B-B)
+
+Recorded first real forward observation from connected MetaTrader 5:
+- Decision time: `2026-09-28T10:15:00Z`.
+- Canonical instrument: `XAUUSD`.
+- Status: Pre-contract observation (captured prior to Gate 15C activation); retained permanently for pipeline audit, strictly excluded from formal forward performance.
+<!-- GATE-15B-B-GENUINE-OBSERVATION:END -->
+
+<!-- GATE-15C-OUTCOME-CONTRACT:START -->
+## Frozen C04 Forward Outcome Contract V1 (Gate 15C)
+
+Created `02_AI/Models/frozen_c04_forward_outcome_contract.py`:
+- Contract version: `FROZEN_C04_FORWARD_OUTCOME_CONTRACT_V1`.
+- Contract fingerprint SHA256: `01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87`.
+- Target: `CLEAN_DIRECTIONAL_EXCURSION_V2` (1.25 ATR profit threshold, 0.75 ATR adverse excursion, 12 completed M5 rows).
+<!-- GATE-15C-OUTCOME-CONTRACT:END -->
+
+<!-- GATE-15D-A-ELIGIBILITY:START -->
+## Prospective Forward Outcome Eligibility Authority (Gate 15D-A)
+
+Created `02_AI/Models/frozen_c04_forward_outcome_eligibility.py`:
+- Formal activation cutoff: `2026-09-28T11:16:59Z`.
+- Observations prior to cutoff are permanently excluded from formal scoring.
+<!-- GATE-15D-A-ELIGIBILITY:END -->
+
+<!-- GATE-15D-B-POST-CONTRACT-OBSERVATION:START -->
+## First Prospective Post-Contract Forward Observation (Gate 15D-B)
+
+Acquired genuine post-contract observation proof:
+- Decision time: `2026-09-28T11:45:00Z`.
+- Passed Gate 15D-A prospective eligibility.
+- **Formal Scoring Status**: Excluded from formal forward scoring (`POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR`) because it lacked a prospective outcome anchor at acquisition time. Valid as genuine acquisition proof only.
+<!-- GATE-15D-B-POST-CONTRACT-OBSERVATION:END -->
+
+<!-- GATE-15D-C-A-B1-HISTORICAL-CORRECTION:START -->
+## Outcome Maturation Semantic Correction & Alignment [SUPERSEDED] (Gate 15D-C-A/B1 v1.1)
+
+Corrected decision-bar timing semantics:
+- Established that raw M5 `time` represents bar open, hence `decision_bar_open = decision_time - 5 minutes`.
+- **Superseded Status**: Superseded by Maturer V2 because V1.1 retrospectively reconstructed decision close and ATR14 from later completed data.
+<!-- GATE-15D-C-A-B1-HISTORICAL-CORRECTION:END -->
+
+<!-- GATE-15D-C-B2A-ANCHOR:START -->
+## Prospective Forward Outcome Anchor Authority V1 (Gate 15D-C-B2A)
+
+Created `02_AI/Models/frozen_c04_forward_outcome_anchor.py`:
+- Captures exact decision close and ATR14 from the **SAME acquisition snapshot** before future outcome rows exist (`SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS`).
+- Enforces `FORMAL_MATURATION_REQUIRES_ANCHOR = true`.
+- Locked append-only ledger `01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl`.
+- Enforces orphan anchor retention rule.
+<!-- GATE-15D-C-B2A-ANCHOR:END -->
+
+<!-- GATE-15D-C-B2BC-MATURER-LEDGER-V2:START -->
+## Anchor-Required Forward Outcome Maturer V2 & Outcome Ledger V2 (Gate 15D-C-B2B/B2C)
+
+Published baseline commit `cbdeb30934213dc36863c334eb1e50879ba0dde1`:
+- `02_AI/Models/frozen_c04_forward_outcome_maturer.py` (Maturer V2): Requires validated prospective anchor; strictly forbids post-hoc reconstruction of entry close and ATR14 (`POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN`).
+- `02_AI/Models/frozen_c04_forward_outcome_ledger.py` (Ledger V2): Durably stores outcomes linked to prospective anchors and Maturer V2 into `01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl`.
+- Confirms existing 11:45 UTC observation is excluded from formal scoring (`POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR`).
+- Prepares for Gate 15D-C-B2D (Genuine Prospective Observation + Same-Snapshot Anchor Integration).
+<!-- GATE-15D-C-B2BC-MATURER-LEDGER-V2:END -->
+
