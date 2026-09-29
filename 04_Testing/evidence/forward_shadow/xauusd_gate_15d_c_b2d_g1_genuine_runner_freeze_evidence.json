@@ -1,0 +1,140 @@
+{
+  "accuracy_evaluated": false,
+  "anchor_ledger_unchanged": true,
+  "base_authority_commit": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+  "candidate_artifact_hashes": {
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py": "2d6f77e366f6f3ee263d02633d23c4bb790117026cb9324497054fed5ab37428",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "5f8ad1ea362c6ae9c7e7b34d64dfee7c87aad2254726c0ab6b6591c932491138",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "2537eee3958bc879e5f80973decacd55a431ac6e99e6d7064381ba086d03f325"
+  },
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "forward_performance_evaluated": false,
+  "frozen_g1_protocol": {
+    "anchor_append_first": true,
+    "anchor_first_coordinator_required": true,
+    "atomic_anchor_ledger_required": true,
+    "atomic_observation_ledger_required": true,
+    "gate13_before_gate14": true,
+    "genuine_runner_not_executed_during_freeze": true,
+    "no_execution_authorization": true,
+    "no_live_authorization": true,
+    "no_outcome_maturation": true,
+    "no_performance_evaluation": true,
+    "observation_append_second": true,
+    "orphan_anchor_preservation_policy": true,
+    "outcome_ledger_must_remain_unchanged": true,
+    "prospective_eligibility_before_persistence": true,
+    "raw_mt5_lifecycle_only": true,
+    "read_only_mt5_only": true,
+    "same_snapshot_required": true
+  },
+  "gate": "Gate 15D-C-B2D-G1 \u2014 Genuine Anchored Forward Capture Runner Freeze",
+  "gate_id": "GATE_15D_C_B2D_G1_GENUINE_RUNNER_FREEZE",
+  "genuine_anchor_appended": false,
+  "genuine_forward_observation_matured": false,
+  "genuine_mt5_acquisition": false,
+  "genuine_observation_appended": false,
+  "genuine_outcome_appended": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "mt5_initialized": false,
+  "next_gate": "PUBLISH_AND_HASH_BIND_G1_RUNNER_FREEZE_BEFORE_GENUINE_MT5_EXECUTION",
+  "observation_ledger_unchanged": true,
+  "outcome_ledger_unchanged": true,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "allowed_local_paths_only": true,
+    "base_authority_commit": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "branch": "main",
+    "execution_head": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "head_equals_origin_main": true,
+    "local_candidate_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py"
+    ],
+    "origin_main": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "status": "PASS"
+  },
+  "return_evaluated": false,
+  "runtime_authority": {
+    "anchor_version": "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_V1",
+    "atomic_ledger_authority": "FROZEN_C04_FORWARD_RUNTIME_ATOMIC_LEDGERS_V1",
+    "b2d_authority_commit": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "coordinator_authority": "FROZEN_C04_FORWARD_ANCHOR_FIRST_COORDINATOR_V1",
+    "execution_authorized": false,
+    "g1_gate_id": "GATE_15D_C_B2D_G1_GENUINE_ANCHORED_FORWARD_CAPTURE",
+    "g1_schema_version": "1.0.0",
+    "live_authorized": false,
+    "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V2",
+    "orphan_anchor_policy": "PRESERVE_IMMUTABLE_ANCHOR_IF_OBSERVATION_APPEND_FAILS",
+    "outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2",
+    "outcome_maturation_authorized": false,
+    "performance_evaluation_authorized": false,
+    "persistence_order": "ANCHOR_FIRST_THEN_OBSERVATION",
+    "pnl_evaluation_authorized": false,
+    "status": "PASS"
+  },
+  "runtime_ledger_state_after": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": {
+      "exists": false,
+      "sha256": null,
+      "size_bytes": 0
+    },
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": {
+      "exists": false,
+      "sha256": null,
+      "size_bytes": 0
+    },
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": {
+      "exists": true,
+      "sha256": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+      "size_bytes": 2327
+    }
+  },
+  "runtime_ledger_state_before": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": {
+      "exists": false,
+      "sha256": null,
+      "size_bytes": 0
+    },
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": {
+      "exists": false,
+      "sha256": null,
+      "size_bytes": 0
+    },
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": {
+      "exists": true,
+      "sha256": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+      "size_bytes": 2327
+    }
+  },
+  "schema_version": "1.0.0",
+  "static_runner_audit": {
+    "anchor_first_coordinator_used": true,
+    "direct_anchor_append": false,
+    "direct_observation_append": false,
+    "gate13_before_gate14": true,
+    "outcome_ledger_append_calls": 0,
+    "outcome_maturation_calls": 0,
+    "prospective_eligibility_before_persistence": true,
+    "raw_mt5_calls": [
+      "initialize",
+      "shutdown"
+    ],
+    "raw_mt5_lifecycle_only": true,
+    "risk_engine_dependencies": 0,
+    "status": "PASS",
+    "trade_ready_dependencies": 0,
+    "trading_api_calls": 0
+  },
+  "status": "PASS",
+  "targeted_pytest": {
+    "command": "C:\\Python314\\python.exe -m pytest 04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py -q",
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "..................                                                       [100%]\n18 passed in 2.69s\n"
+  },
+  "win_rate_evaluated": false
+}
