@@ -108,7 +108,7 @@ B2D_AUTHORITY_COMMIT: str = (
 )
 
 G1_FREEZE_BASE_COMMIT: str = (
-    "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+    "1d8d3f8380d038d00628b64473b4257bbbfce361"
 )
 
 B2D_EVIDENCE_REL_PATH: str = (
@@ -1752,15 +1752,12 @@ def run_gate(
         )
 
         require(
-            broker_symbol
-            in
-            set(
-                SUPPORTED_SYMBOLS
+            bool(
+                str(
+                    broker_symbol
+                ).strip()
             ),
-            (
-                "UNSUPPORTED_BROKER_SYMBOL:"
-                f"{broker_symbol}"
-            ),
+            "RESOLVED_BROKER_SYMBOL_EMPTY",
         )
 
         bid_ask = (
@@ -1780,6 +1777,27 @@ def run_gate(
             snapshot.is_synthetic
             is False,
             "SNAPSHOT_MUST_BE_GENUINE",
+        )
+
+        require(
+            snapshot.broker_symbol
+            ==
+            broker_symbol,
+            (
+                "BROKER_SYMBOL_CHANGED_DURING_ACQUISITION:"
+                f"{broker_symbol}!="
+                f"{snapshot.broker_symbol}"
+            ),
+        )
+
+        require(
+            snapshot.canonical_instrument
+            ==
+            "XAUUSD",
+            (
+                "UNEXPECTED_CANONICAL_INSTRUMENT:"
+                f"{snapshot.canonical_instrument}"
+            ),
         )
 
         require(

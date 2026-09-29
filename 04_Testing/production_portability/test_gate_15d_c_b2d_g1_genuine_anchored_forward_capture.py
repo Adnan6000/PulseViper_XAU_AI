@@ -550,7 +550,7 @@ def test_20_repository_authority_uses_published_g1_hash_binding() -> None:
     assert (
         runner.G1_FREEZE_BASE_COMMIT
         ==
-        "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+        "1d8d3f8380d038d00628b64473b4257bbbfce361"
     )
 
 
@@ -612,5 +612,79 @@ def test_22_g1_freeze_hash_binds_dynamic_broker_dependencies() -> None:
     assert (
         "ACQUISITION_ADAPTER_REL_PATH"
         in source
+    )
+
+
+def test_23_g1_runner_accepts_proven_dynamic_broker_symbol() -> None:
+
+    source = inspect.getsource(
+        runner.run_gate
+    )
+
+    assert (
+        "UNSUPPORTED_BROKER_SYMBOL"
+        not in source
+    )
+
+    assert (
+        "broker_symbol\n            in\n            set"
+        not in source
+    )
+
+    assert (
+        "snapshot.broker_symbol"
+        in source
+    )
+
+    assert (
+        "snapshot.canonical_instrument"
+        in source
+    )
+
+    assert (
+        "BROKER_SYMBOL_CHANGED_DURING_ACQUISITION"
+        in source
+    )
+
+    assert (
+        "UNEXPECTED_CANONICAL_INSTRUMENT"
+        in source
+    )
+
+
+def test_24_freeze_distinguishes_local_candidates_from_hash_bound_dependencies() -> None:
+
+    freeze_mod: Any = importlib.import_module(
+        "04_Testing.production_portability."
+        "run_xauusd_gate_15d_c_b2d_g1_freeze_evidence"
+    )
+
+    source = inspect.getsource(
+        freeze_mod.verify_repository_authority
+    )
+
+    assert (
+        "required_local_candidates"
+        in source
+    )
+
+    assert (
+        "required_hash_bound_artifacts"
+        in source
+    )
+
+    assert (
+        "EXPECTED_G1_LOCAL_CANDIDATE_PATHS_MISSING"
+        in source
+    )
+
+    assert (
+        "G1_HASH_BOUND_ARTIFACTS_MISSING"
+        in source
+    )
+
+    assert (
+        "EXPECTED_G1_CANDIDATE_PATHS_MISSING"
+        not in source
     )
 

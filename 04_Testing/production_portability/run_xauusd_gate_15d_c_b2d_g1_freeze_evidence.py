@@ -71,7 +71,7 @@ GATE_ID: str = (
 SCHEMA_VERSION: str = "1.0.0"
 
 BASE_AUTHORITY_COMMIT: str = (
-    "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+    "1d8d3f8380d038d00628b64473b4257bbbfce361"
 )
 
 
@@ -554,7 +554,27 @@ def verify_repository_authority() -> dict[str, Any]:
         ),
     )
 
-    required_candidates = {
+    required_local_candidates = {
+        G1_RUNNER_REL_PATH,
+        G1_TEST_REL_PATH,
+        FREEZE_RUNNER_REL_PATH,
+    }
+
+    missing_local = (
+        required_local_candidates
+        -
+        local_paths
+    )
+
+    require(
+        not missing_local,
+        (
+            "EXPECTED_G1_LOCAL_CANDIDATE_PATHS_MISSING:"
+            f"{sorted(missing_local)}"
+        ),
+    )
+
+    required_hash_bound_artifacts = {
         G1_RUNNER_REL_PATH,
         G1_TEST_REL_PATH,
         FREEZE_RUNNER_REL_PATH,
@@ -564,17 +584,22 @@ def verify_repository_authority() -> dict[str, Any]:
         ACQUISITION_ADAPTER_TEST_REL_PATH,
     }
 
-    missing = (
-        required_candidates
-        -
-        local_paths
-    )
+    missing_artifacts = {
+        relative
+        for relative
+        in required_hash_bound_artifacts
+        if not (
+            REPO_ROOT
+            /
+            relative
+        ).is_file()
+    }
 
     require(
-        not missing,
+        not missing_artifacts,
         (
-            "EXPECTED_G1_CANDIDATE_PATHS_MISSING:"
-            f"{sorted(missing)}"
+            "G1_HASH_BOUND_ARTIFACTS_MISSING:"
+            f"{sorted(missing_artifacts)}"
         ),
     )
 

@@ -3,11 +3,11 @@
   "forward_performance_evaluated": false,
   "gate": "Gate 15D-C-B2D-G1 \u2014 Genuine Anchored Forward Capture",
   "gate_id": "GATE_15D_C_B2D_G1_GENUINE_ANCHORED_FORWARD_CAPTURE",
-  "generated_at_utc": "2026-09-29T14:26:00.961204Z",
+  "generated_at_utc": "2026-09-29T15:10:43.517908Z",
   "git": {
-    "execution_head": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6",
+    "execution_head": "1d8d3f8380d038d00628b64473b4257bbbfce361",
     "head_equals_origin_main": true,
-    "origin_main": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+    "origin_main": "1d8d3f8380d038d00628b64473b4257bbbfce361"
   },
   "live_authorized": false,
   "outcome_maturation_authorized": false,
@@ -22,7 +22,7 @@
     "gate14_status": "NOT_RUN",
     "genuine_mt5_acquisition": false,
     "logical_observation_id": null,
-    "mt5_initialized": false,
+    "mt5_initialized": true,
     "observation_append_performed": false,
     "observation_idempotent_duplicate": false,
     "observation_integrity_verified": false,
@@ -32,7 +32,7 @@
     "verified_forward_authority": false
   },
   "reason": {
-    "error_text": "UNEXPECTED_G1_FREEZE_BASE:45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6!=03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "error_text": "UNSUPPORTED_BROKER_SYMBOL:XAUUSDb",
     "error_type": "Gate15DCB2DG1BlockedError"
   },
   "runtime_ledger_files": {
