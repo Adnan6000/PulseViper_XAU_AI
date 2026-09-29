@@ -464,6 +464,96 @@ class TestXAUUSDBrokerAdapter(
             "GOLDmicro",
         )
 
+    def test_hfm_zero_xauusdb_resolves_as_canonical_gold(
+        self,
+    ) -> None:
+
+        symbol = (
+            _symbol(
+                "XAUUSDb",
+                description=(
+                    "Gold Spot"
+                ),
+                path=(
+                    "Metals & Energies\\Spot\\"
+                    "Gold & Silver Zero\\XAUUSDb"
+                ),
+                currency_base=(
+                    "USD"
+                ),
+                currency_profit=(
+                    "USD"
+                ),
+                visible=True,
+            )
+        )
+
+        semantics = (
+            gold_usd_semantics(
+                symbol
+            )
+        )
+
+        self.assertTrue(
+            semantics[
+                "accepted"
+            ]
+        )
+
+        self.assertTrue(
+            semantics[
+                "name_xauusd_family"
+            ]
+        )
+
+        self.assertTrue(
+            semantics[
+                "metal_like"
+            ]
+        )
+
+        self.assertFalse(
+            semantics[
+                "semantic_xau_usd"
+            ]
+        )
+
+        fake = FakeMT5(
+            symbols=[
+                symbol
+            ],
+            ticks={
+                "XAUUSDb": (
+                    _tick(
+                        bid=4167.78,
+                        ask=4167.87,
+                        time_value=995,
+                    )
+                )
+            },
+        )
+
+        result = (
+            CanonicalGoldResolver(
+                fake,
+                now_provider=lambda: (
+                    1000.0
+                ),
+            )
+            .resolve()
+        )
+
+        self.assertEqual(
+            result.canonical_symbol,
+            "XAUUSD",
+        )
+
+        self.assertEqual(
+            result.broker_symbol,
+            "XAUUSDb",
+        )
+
+
     def test_stale_tick_keeps_symbol_resolution_but_blocks_cost_use(
         self,
     ) -> None:

@@ -1,0 +1,57 @@
+{
+  "execution_authorized": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-C-B2D-G1 \u2014 Genuine Anchored Forward Capture",
+  "gate_id": "GATE_15D_C_B2D_G1_GENUINE_ANCHORED_FORWARD_CAPTURE",
+  "generated_at_utc": "2026-09-29T14:26:00.961204Z",
+  "git": {
+    "execution_head": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6",
+    "head_equals_origin_main": true,
+    "origin_main": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+  },
+  "live_authorized": false,
+  "outcome_maturation_authorized": false,
+  "pnl_evaluated": false,
+  "progress_before_block": {
+    "anchor_append_performed": false,
+    "anchor_idempotent_duplicate": false,
+    "anchor_integrity_verified": false,
+    "anchor_semantic_fingerprint": null,
+    "decision_time_utc": null,
+    "gate13_status": "NOT_RUN",
+    "gate14_status": "NOT_RUN",
+    "genuine_mt5_acquisition": false,
+    "logical_observation_id": null,
+    "mt5_initialized": false,
+    "observation_append_performed": false,
+    "observation_idempotent_duplicate": false,
+    "observation_integrity_verified": false,
+    "orphan_anchor_preserved": false,
+    "prospective_eligibility_status": "NOT_RUN",
+    "source_snapshot_id": null,
+    "verified_forward_authority": false
+  },
+  "reason": {
+    "error_text": "UNEXPECTED_G1_FREEZE_BASE:45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6!=03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "error_type": "Gate15DCB2DG1BlockedError"
+  },
+  "runtime_ledger_files": {
+    "anchor": {
+      "exists": false,
+      "sha256": null,
+      "size_bytes": 0
+    },
+    "observation": {
+      "exists": true,
+      "sha256": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+      "size_bytes": 2327
+    },
+    "outcome": {
+      "exists": false,
+      "sha256": null,
+      "size_bytes": 0
+    }
+  },
+  "schema_version": "1.0.0",
+  "status": "BLOCKED"
+}

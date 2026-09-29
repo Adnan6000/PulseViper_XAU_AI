@@ -128,6 +128,22 @@ class MockSymbolInfo:
         self.point = 0.01
         self.trade_contract_size = 100.0
 
+        if name == "XAUUSDb":
+            self.description = "Gold Spot"
+            self.path = (
+                "Metals & Energies\\Spot\\"
+                "Gold & Silver Zero\\XAUUSDb"
+            )
+            self.currency_base = "USD"
+            self.currency_profit = "USD"
+            self.trade_mode = 4
+        else:
+            self.description = ""
+            self.path = ""
+            self.currency_base = ""
+            self.currency_profit = ""
+            self.trade_mode = 4
+
 
 class MockMT5Session:
     TIMEFRAME_M5 = 5
@@ -1178,3 +1194,98 @@ def test_20_exact_331_feature_contract_under_ny_close_policy() -> None:
             tick_ts,
         )
     )
+
+
+def test_21_hfm_xauusdb_dynamic_broker_symbol_resolution() -> None:
+
+    session = MockMT5Session(
+        symbols=(
+            "XAUUSDb",
+        ),
+    )
+
+    adapter = MT5ReadOnlyForwardAcquisitionAdapter(
+        session,
+        is_synthetic=True,
+    )
+
+    resolved = (
+        adapter.resolve_broker_symbol()
+    )
+
+    assert (
+        resolved
+        ==
+        "XAUUSDb"
+    )
+
+    snapshot = (
+        adapter.acquire_snapshot()
+    )
+
+    assert (
+        snapshot.broker_symbol
+        ==
+        "XAUUSDb"
+    )
+
+    assert (
+        snapshot.canonical_instrument
+        ==
+        "XAUUSD"
+    )
+
+
+def test_22_broker_symbol_name_is_not_frozen_to_two_aliases() -> None:
+
+    module_file = (
+        _acq_mod.__file__
+    )
+
+    assert (
+        module_file
+        is not None
+    )
+
+    source = (
+        Path(
+            module_file
+        )
+        .read_text(
+            encoding="utf-8"
+        )
+    )
+
+    start = source.index(
+        "    def resolve_broker_symbol("
+    )
+
+    end = source.index(
+        "    def _tf_enum(",
+        start,
+    )
+
+    resolver_source = source[
+        start:end
+    ]
+
+    assert (
+        'symbol_info_m'
+        not in resolver_source
+    )
+
+    assert (
+        '"XAUUSDm"'
+        not in resolver_source
+    )
+
+    assert (
+        "normalize_supported_symbol("
+        not in resolver_source
+    )
+
+    assert (
+        "resolution.canonical_symbol"
+        in resolver_source
+    )
+

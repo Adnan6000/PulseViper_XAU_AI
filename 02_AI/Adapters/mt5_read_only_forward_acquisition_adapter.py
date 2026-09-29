@@ -1127,7 +1127,9 @@ class MT5ReadOnlyForwardAcquisitionAdapter:
     def resolve_broker_symbol(
         self,
     ) -> str:
+
         try:
+
             resolver = CanonicalGoldResolver(
                 self._facade
             )
@@ -1136,54 +1138,58 @@ class MT5ReadOnlyForwardAcquisitionAdapter:
                 resolver.resolve()
             )
 
-            raw_symbol = (
-                resolution.broker_symbol
-            )
+        except Exception as exc:
 
-        except Exception:
-            symbol_info = (
-                self._facade.symbol_info(
-                    self._canonical_symbol
+            raise SymbolResolutionError(
+                (
+                    "Could not prove canonical Gold/USD broker symbol "
+                    f"for {self._canonical_symbol}: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+            ) from exc
+
+        require_canonical = str(
+            resolution.canonical_symbol
+        )
+
+        if (
+            require_canonical
+            !=
+            CANONICAL_SYMBOL
+        ):
+
+            raise UnsupportedSymbolError(
+                (
+                    "Resolved broker symbol does not map to frozen "
+                    "canonical XAUUSD instrument: "
+                    f"{resolution.broker_symbol!r} -> "
+                    f"{require_canonical!r}"
                 )
             )
 
-            if symbol_info is not None:
-                raw_symbol = (
-                    self._canonical_symbol
-                )
+        raw_symbol = str(
+            resolution.broker_symbol
+        ).strip()
 
-            else:
-                symbol_info_m = (
-                    self._facade.symbol_info(
-                        "XAUUSDm"
-                    )
-                )
+        if not raw_symbol:
 
-                if symbol_info_m is not None:
-                    raw_symbol = (
-                        "XAUUSDm"
-                    )
+            raise SymbolResolutionError(
+                "Resolved broker symbol is empty"
+            )
 
-                else:
-                    raise SymbolResolutionError(
-                        "Could not resolve supported broker symbol "
-                        f"for {self._canonical_symbol}"
-                    )
-
-        normalized_symbol = str(
-            normalize_supported_symbol(
+        symbol_info = (
+            self._facade.symbol_info(
                 raw_symbol
             )
         )
 
-        if (
-            normalized_symbol
-            not in
-            SUPPORTED_SYMBOLS
-        ):
-            raise UnsupportedSymbolError(
-                f"Resolved symbol {normalized_symbol!r} "
-                "is outside frozen supported symbols."
+        if symbol_info is None:
+
+            raise SymbolResolutionError(
+                (
+                    "Resolved broker symbol info unavailable: "
+                    f"{raw_symbol!r}"
+                )
             )
 
         return raw_symbol

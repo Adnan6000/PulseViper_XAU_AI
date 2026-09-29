@@ -347,12 +347,6 @@ def gold_usd_semantics(
     xauusd_name_contract = bool(
         name_xauusd_family
         and
-        currency_base
-        in {
-            "",
-            "XAU",
-        }
-        and
         currency_profit
         in {
             "",
@@ -360,16 +354,20 @@ def gold_usd_semantics(
         }
         and
         not equity_like
+        and
+        (
+            currency_base
+            in {
+                "",
+                "XAU",
+            }
+            or
+            metal_like
+        )
     )
 
     gold_name_contract = bool(
         name_gold_family
-        and
-        currency_base
-        in {
-            "",
-            "XAU",
-        }
         and
         currency_profit
         in {

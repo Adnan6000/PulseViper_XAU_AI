@@ -71,7 +71,7 @@ GATE_ID: str = (
 SCHEMA_VERSION: str = "1.0.0"
 
 BASE_AUTHORITY_COMMIT: str = (
-    "03c7a5e74b57b3f670521e29d0b55086027ca4da"
+    "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
 )
 
 
@@ -94,9 +94,31 @@ FREEZE_RUNNER_REL_PATH: str = (
     "run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py"
 )
 
+BROKER_ADAPTER_REL_PATH: str = (
+    "02_AI/Adapters/xauusd_broker_adapter.py"
+)
+
+ACQUISITION_ADAPTER_REL_PATH: str = (
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py"
+)
+
+BROKER_ADAPTER_TEST_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "test_xauusd_broker_adapter.py"
+)
+
+ACQUISITION_ADAPTER_TEST_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "test_mt5_read_only_forward_acquisition_adapter.py"
+)
 EVIDENCE_REL_PATH: str = (
     "04_Testing/evidence/forward_shadow/"
     "xauusd_gate_15d_c_b2d_g1_genuine_runner_freeze_evidence.json"
+)
+
+BLOCKED_CAPTURE_EVIDENCE_REL_PATH: str = (
+    "04_Testing/evidence/forward_shadow/"
+    "xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture_blocked.json"
 )
 
 EVIDENCE_PATH: Path = (
@@ -141,7 +163,12 @@ ALLOWED_LOCAL_PATHS: frozenset[str] = frozenset(
         G1_RUNNER_REL_PATH,
         G1_TEST_REL_PATH,
         FREEZE_RUNNER_REL_PATH,
+        BROKER_ADAPTER_REL_PATH,
+        ACQUISITION_ADAPTER_REL_PATH,
+        BROKER_ADAPTER_TEST_REL_PATH,
+        ACQUISITION_ADAPTER_TEST_REL_PATH,
         EVIDENCE_REL_PATH,
+        BLOCKED_CAPTURE_EVIDENCE_REL_PATH,
     }
 )
 
@@ -531,6 +558,10 @@ def verify_repository_authority() -> dict[str, Any]:
         G1_RUNNER_REL_PATH,
         G1_TEST_REL_PATH,
         FREEZE_RUNNER_REL_PATH,
+        BROKER_ADAPTER_REL_PATH,
+        ACQUISITION_ADAPTER_REL_PATH,
+        BROKER_ADAPTER_TEST_REL_PATH,
+        ACQUISITION_ADAPTER_TEST_REL_PATH,
     }
 
     missing = (
@@ -592,8 +623,15 @@ def verify_runtime_authorities() -> dict[str, Any]:
     require(
         _g1.B2D_AUTHORITY_COMMIT
         ==
-        BASE_AUTHORITY_COMMIT,
+        "03c7a5e74b57b3f670521e29d0b55086027ca4da",
         "G1_BOUND_B2D_COMMIT_MISMATCH",
+    )
+
+    require(
+        _g1.G1_FREEZE_BASE_COMMIT
+        ==
+        BASE_AUTHORITY_COMMIT,
+        "G1_BOUND_FREEZE_BASE_COMMIT_MISMATCH",
     )
 
     require(
@@ -1116,6 +1154,10 @@ def candidate_artifact_hashes() -> dict[str, str]:
         G1_RUNNER_REL_PATH,
         G1_TEST_REL_PATH,
         FREEZE_RUNNER_REL_PATH,
+        BROKER_ADAPTER_REL_PATH,
+        ACQUISITION_ADAPTER_REL_PATH,
+        BROKER_ADAPTER_TEST_REL_PATH,
+        ACQUISITION_ADAPTER_TEST_REL_PATH,
     )
 
     hashes: dict[

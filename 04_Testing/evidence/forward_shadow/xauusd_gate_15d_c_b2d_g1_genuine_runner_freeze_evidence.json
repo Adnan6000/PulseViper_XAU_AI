@@ -1,11 +1,15 @@
 {
   "accuracy_evaluated": false,
   "anchor_ledger_unchanged": true,
-  "base_authority_commit": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+  "base_authority_commit": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6",
   "candidate_artifact_hashes": {
-    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py": "2d6f77e366f6f3ee263d02633d23c4bb790117026cb9324497054fed5ab37428",
-    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "5f8ad1ea362c6ae9c7e7b34d64dfee7c87aad2254726c0ab6b6591c932491138",
-    "04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "2537eee3958bc879e5f80973decacd55a431ac6e99e6d7064381ba086d03f325"
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "f68e3f00d34c444ea387172a64dc7489561a9d6b323e4dcba47fbe83fcd7a58d",
+    "02_AI/Adapters/xauusd_broker_adapter.py": "141cc66824059c5aa0a9a28563bd9fdb972a5cb149eff2c88ced3a775bb8127b",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py": "e762a9e13ce571223257415c92c1940e051a1dcfb52966f6366eb210b83c32c3",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "1d82749a7e1629ca6ba5aba052782671864b3a0791b4be33db00b19b6873c751",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "61d1131abc76e884bb04e5434752a8c6afe279bc3d760e35ce5a7c724586cb75",
+    "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py": "949da712c9aeac280f4664a9a3cf2b8cc4c8364e5c29abe719ccdc80ca10e815",
+    "04_Testing/production_portability/test_xauusd_broker_adapter.py": "92d4c25110c9a17f6101fbe0d69b7451e7dcd9448bfb927908caecb9245135ea"
   },
   "drawdown_evaluated": false,
   "execution_authorized": false,
@@ -45,16 +49,21 @@
   "pnl_evaluated": false,
   "repository_authority": {
     "allowed_local_paths_only": true,
-    "base_authority_commit": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "base_authority_commit": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6",
     "branch": "main",
-    "execution_head": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "execution_head": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6",
     "head_equals_origin_main": true,
     "local_candidate_paths": [
+      "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py",
+      "02_AI/Adapters/xauusd_broker_adapter.py",
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture_blocked.json",
       "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py",
       "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py",
-      "04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py"
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py",
+      "04_Testing/production_portability/test_mt5_read_only_forward_acquisition_adapter.py",
+      "04_Testing/production_portability/test_xauusd_broker_adapter.py"
     ],
-    "origin_main": "03c7a5e74b57b3f670521e29d0b55086027ca4da",
+    "origin_main": "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6",
     "status": "PASS"
   },
   "return_evaluated": false,
@@ -134,7 +143,7 @@
     "command": "C:\\Python314\\python.exe -m pytest 04_Testing/production_portability/test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py -q",
     "returncode": 0,
     "status": "PASS",
-    "stdout_tail": "..................                                                       [100%]\n18 passed in 2.69s\n"
+    "stdout_tail": "......................                                                   [100%]\n22 passed in 3.15s\n"
   },
   "win_rate_evaluated": false
 }

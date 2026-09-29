@@ -107,11 +107,47 @@ B2D_AUTHORITY_COMMIT: str = (
     "03c7a5e74b57b3f670521e29d0b55086027ca4da"
 )
 
+G1_FREEZE_BASE_COMMIT: str = (
+    "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+)
+
 B2D_EVIDENCE_REL_PATH: str = (
     "04_Testing/evidence/forward_shadow/"
     "xauusd_gate_15d_c_b2d_anchor_first_integration_evidence.json"
 )
 
+G1_FREEZE_EVIDENCE_REL_PATH: str = (
+    "04_Testing/evidence/forward_shadow/"
+    "xauusd_gate_15d_c_b2d_g1_genuine_runner_freeze_evidence.json"
+)
+
+G1_TEST_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "test_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py"
+)
+
+G1_FREEZE_RUNNER_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "run_xauusd_gate_15d_c_b2d_g1_freeze_evidence.py"
+)
+
+BROKER_ADAPTER_REL_PATH: str = (
+    "02_AI/Adapters/xauusd_broker_adapter.py"
+)
+
+ACQUISITION_ADAPTER_REL_PATH: str = (
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py"
+)
+
+BROKER_ADAPTER_TEST_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "test_xauusd_broker_adapter.py"
+)
+
+ACQUISITION_ADAPTER_TEST_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "test_mt5_read_only_forward_acquisition_adapter.py"
+)
 RUNNER_REL_PATH: str = (
     "04_Testing/production_portability/"
     "run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py"
@@ -131,6 +167,12 @@ B2D_EVIDENCE_PATH: Path = (
     REPO_ROOT
     /
     B2D_EVIDENCE_REL_PATH
+)
+
+G1_FREEZE_EVIDENCE_PATH: Path = (
+    REPO_ROOT
+    /
+    G1_FREEZE_EVIDENCE_REL_PATH
 )
 
 PASS_EVIDENCE_PATH: Path = (
@@ -483,6 +525,46 @@ def working_tree_clean() -> bool:
     )
 
 
+def git_status_paths() -> set[str]:
+
+    output = git_output(
+        "status",
+        "--porcelain",
+        "--untracked-files=all",
+    )
+
+    paths: set[str] = set()
+
+    for raw_line in output.splitlines():
+
+        if len(raw_line) < 4:
+            continue
+
+        value = raw_line[3:].strip()
+
+        if " -> " in value:
+            value = value.split(
+                " -> ",
+                1,
+            )[1]
+
+        if (
+            value.startswith('"')
+            and
+            value.endswith('"')
+        ):
+            value = value[1:-1]
+
+        paths.add(
+            value.replace(
+                "\\",
+                "/",
+            )
+        )
+
+    return paths
+
+
 def sha256_file(
     path: Path,
 ) -> str:
@@ -825,6 +907,210 @@ def verify_b2d_authority() -> dict[str, Any]:
 
 
 # =============================================================================
+# Published G1 Freeze Authority
+# =============================================================================
+
+def verify_g1_freeze_authority() -> dict[str, Any]:
+
+    require(
+        G1_FREEZE_EVIDENCE_PATH.is_file(),
+        "G1_FREEZE_EVIDENCE_MISSING",
+    )
+
+    document = json.loads(
+        G1_FREEZE_EVIDENCE_PATH.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    require(
+        isinstance(
+            document,
+            dict,
+        ),
+        "G1_FREEZE_EVIDENCE_ROOT_INVALID",
+    )
+
+    require(
+        document.get(
+            "status"
+        )
+        ==
+        "PASS",
+        "G1_FREEZE_EVIDENCE_NOT_PASS",
+    )
+
+    require(
+        document.get(
+            "gate_id"
+        )
+        ==
+        "GATE_15D_C_B2D_G1_GENUINE_RUNNER_FREEZE",
+        "G1_FREEZE_GATE_ID_MISMATCH",
+    )
+
+    require(
+        document.get(
+            "base_authority_commit"
+        )
+        ==
+        G1_FREEZE_BASE_COMMIT,
+        "G1_FREEZE_BASE_AUTHORITY_MISMATCH",
+    )
+
+    hashes = document.get(
+        "candidate_artifact_hashes"
+    )
+
+    require(
+        isinstance(
+            hashes,
+            dict,
+        ),
+        "G1_FREEZE_CANDIDATE_HASHES_MISSING",
+    )
+
+    expected_paths = {
+        RUNNER_REL_PATH,
+        G1_TEST_REL_PATH,
+        G1_FREEZE_RUNNER_REL_PATH,
+        BROKER_ADAPTER_REL_PATH,
+        ACQUISITION_ADAPTER_REL_PATH,
+        BROKER_ADAPTER_TEST_REL_PATH,
+        ACQUISITION_ADAPTER_TEST_REL_PATH,
+    }
+
+    require(
+        set(
+            hashes.keys()
+        )
+        ==
+        expected_paths,
+        (
+            "G1_FREEZE_CANDIDATE_PATH_SET_MISMATCH:"
+            f"{sorted(hashes.keys())}"
+        ),
+    )
+
+    verified_hashes: dict[
+        str,
+        str,
+    ] = {}
+
+    for relative in sorted(
+        expected_paths
+    ):
+
+        expected = hashes.get(
+            relative
+        )
+
+        require(
+            isinstance(
+                expected,
+                str,
+            )
+            and
+            len(
+                expected
+            )
+            ==
+            64,
+            (
+                "G1_FREEZE_HASH_INVALID:"
+                f"{relative}"
+            ),
+        )
+
+        path = (
+            REPO_ROOT
+            /
+            relative
+        )
+
+        require(
+            path.is_file(),
+            (
+                "G1_FREEZE_ARTIFACT_MISSING:"
+                f"{relative}"
+            ),
+        )
+
+        actual = sha256_file(
+            path
+        )
+
+        require(
+            actual
+            ==
+            expected,
+            (
+                "G1_FREEZE_HASH_MISMATCH:"
+                f"{relative}:"
+                f"{actual}!="
+                f"{expected}"
+            ),
+        )
+
+        verified_hashes[
+            relative
+        ] = actual
+
+    protocol = document.get(
+        "frozen_g1_protocol"
+    )
+
+    require(
+        isinstance(
+            protocol,
+            dict,
+        ),
+        "G1_FREEZE_PROTOCOL_MISSING",
+    )
+
+    for key in (
+        "read_only_mt5_only",
+        "raw_mt5_lifecycle_only",
+        "same_snapshot_required",
+        "prospective_eligibility_before_persistence",
+        "anchor_first_coordinator_required",
+        "atomic_anchor_ledger_required",
+        "atomic_observation_ledger_required",
+        "anchor_append_first",
+        "observation_append_second",
+        "orphan_anchor_preservation_policy",
+        "outcome_ledger_must_remain_unchanged",
+        "no_outcome_maturation",
+        "no_performance_evaluation",
+        "no_live_authorization",
+        "no_execution_authorization",
+    ):
+
+        require(
+            protocol.get(
+                key
+            )
+            is True,
+            (
+                "G1_FREEZE_PROTOCOL_FLAG_INVALID:"
+                f"{key}"
+            ),
+        )
+
+    return {
+        "status": "PASS",
+
+        "freeze_base_commit": (
+            G1_FREEZE_BASE_COMMIT
+        ),
+
+        "verified_artifact_hashes": (
+            verified_hashes
+        ),
+    }
+
+
+# =============================================================================
 # Repository Authority
 # =============================================================================
 
@@ -878,17 +1164,6 @@ def verify_repository_authority() -> dict[str, Any]:
         ),
     )
 
-    require(
-        head
-        ==
-        B2D_AUTHORITY_COMMIT,
-        (
-            "UNEXPECTED_G1_FREEZE_BASE:"
-            f"{head}!="
-            f"{B2D_AUTHORITY_COMMIT}"
-        ),
-    )
-
     ancestor = git_process(
         "merge-base",
         "--is-ancestor",
@@ -903,7 +1178,44 @@ def verify_repository_authority() -> dict[str, Any]:
         "B2D_AUTHORITY_NOT_ANCESTOR",
     )
 
+    freeze_ancestor = git_process(
+        "merge-base",
+        "--is-ancestor",
+        G1_FREEZE_BASE_COMMIT,
+        head,
+    )
+
+    require(
+        freeze_ancestor.returncode
+        ==
+        0,
+        "G1_FREEZE_BASE_NOT_ANCESTOR",
+    )
+
+    allowed_local_paths = {
+        PASS_EVIDENCE_REL_PATH,
+        BLOCKED_EVIDENCE_REL_PATH,
+    }
+
+    local_paths = git_status_paths()
+
+    unexpected_local = (
+        local_paths
+        -
+        allowed_local_paths
+    )
+
+    require(
+        not unexpected_local,
+        (
+            "UNEXPECTED_LOCAL_PATHS_BEFORE_GENUINE_CAPTURE:"
+            f"{sorted(unexpected_local)}"
+        ),
+    )
+
     b2d = verify_b2d_authority()
+
+    g1_freeze = verify_g1_freeze_authority()
 
     return {
         "status": "PASS",
@@ -916,7 +1228,19 @@ def verify_repository_authority() -> dict[str, Any]:
 
         "head_equals_origin_main": True,
 
+        "b2d_authority_commit_is_ancestor": True,
+
+        "g1_freeze_base_is_ancestor": True,
+
+        "allowed_runtime_evidence_paths_only": True,
+
+        "allowed_local_paths_present": sorted(
+            local_paths
+        ),
+
         "b2d_authority": b2d,
+
+        "g1_freeze_authority": g1_freeze,
     }
 
 

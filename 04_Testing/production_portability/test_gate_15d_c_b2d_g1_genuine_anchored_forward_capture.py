@@ -507,3 +507,110 @@ def test_18_runtime_authority_verification_is_offline_safe() -> None:
         ]
         is False
     )
+
+
+def test_19_repository_authority_is_not_self_referential() -> None:
+
+    source = inspect.getsource(
+        runner.verify_repository_authority
+    )
+
+    assert (
+        "UNEXPECTED_G1_FREEZE_BASE"
+        not in source
+    )
+
+    assert (
+        "head\\n        ==\\n        B2D_AUTHORITY_COMMIT"
+        not in source
+    )
+
+    assert (
+        "B2D_AUTHORITY_NOT_ANCESTOR"
+        in source
+    )
+
+    assert (
+        "G1_FREEZE_BASE_NOT_ANCESTOR"
+        in source
+    )
+
+
+def test_20_repository_authority_uses_published_g1_hash_binding() -> None:
+
+    source = inspect.getsource(
+        runner.verify_repository_authority
+    )
+
+    assert (
+        "verify_g1_freeze_authority"
+        in source
+    )
+
+    assert (
+        runner.G1_FREEZE_BASE_COMMIT
+        ==
+        "45d1eab9288d3a22efc5da87ed5ff2ab2c259ee6"
+    )
+
+
+def test_21_runtime_evidence_outputs_are_the_only_allowed_local_changes() -> None:
+
+    source = inspect.getsource(
+        runner.verify_repository_authority
+    )
+
+    assert (
+        "PASS_EVIDENCE_REL_PATH"
+        in source
+    )
+
+    assert (
+        "BLOCKED_EVIDENCE_REL_PATH"
+        in source
+    )
+
+    assert (
+        "UNEXPECTED_LOCAL_PATHS_BEFORE_GENUINE_CAPTURE"
+        in source
+    )
+
+
+def test_22_g1_freeze_hash_binds_dynamic_broker_dependencies() -> None:
+
+    expected = {
+        runner.RUNNER_REL_PATH,
+        runner.G1_TEST_REL_PATH,
+        runner.G1_FREEZE_RUNNER_REL_PATH,
+        runner.BROKER_ADAPTER_REL_PATH,
+        runner.ACQUISITION_ADAPTER_REL_PATH,
+        runner.BROKER_ADAPTER_TEST_REL_PATH,
+        runner.ACQUISITION_ADAPTER_TEST_REL_PATH,
+    }
+
+    source = inspect.getsource(
+        runner.verify_g1_freeze_authority
+    )
+
+    for relative in expected:
+
+        assert relative in {
+            runner.RUNNER_REL_PATH,
+            runner.G1_TEST_REL_PATH,
+            runner.G1_FREEZE_RUNNER_REL_PATH,
+            runner.BROKER_ADAPTER_REL_PATH,
+            runner.ACQUISITION_ADAPTER_REL_PATH,
+            runner.BROKER_ADAPTER_TEST_REL_PATH,
+            runner.ACQUISITION_ADAPTER_TEST_REL_PATH,
+        }
+
+    assert (
+        "BROKER_ADAPTER_REL_PATH"
+        in source
+    )
+
+    assert (
+        "ACQUISITION_ADAPTER_REL_PATH"
+        in source
+    )
+
