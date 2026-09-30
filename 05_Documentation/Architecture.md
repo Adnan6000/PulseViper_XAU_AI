@@ -51,6 +51,19 @@ These layers should not be mixed casually.
 
 ---
 
+## 1.1 Current Live-Deployment Objective
+
+PulseViper is architected for eventual **controlled real-money live XAUUSD trading**. Research, protected holdouts, shadow operation, broker calibration, demo validation, forward evidence, and operational safety are gates in the path to live deployment—not the final purpose of the system.
+
+Current authorization remains fail-closed:
+
+```text
+live_authorized = false
+execution_authorized = false
+```
+
+Current forward evidence is being collected under Gate 15D-C-B2D. The latest repository state includes G1/G2 evidence and a frozen G3 controller; this does not constitute a live authorization or a performance verdict.
+
 # 2. Architectural Principles
 
 PulseViper follows several design principles.
