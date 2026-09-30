@@ -16,13 +16,13 @@
   "mode": "APPEND_OUTCOME",
   "observation_ledger_unchanged": true,
   "outcome_append_requested": true,
-  "outcome_appended": true,
+  "outcome_appended": false,
   "outcome_class": 1,
   "outcome_count_after": 1,
-  "outcome_count_before": 0,
-  "outcome_idempotent_duplicate": false,
+  "outcome_count_before": 1,
+  "outcome_idempotent_duplicate": true,
   "outcome_label": "LONG",
-  "outcome_ledger_changed": true,
+  "outcome_ledger_changed": false,
   "pnl_evaluated": false,
   "raw_mt5_calls": [
     "initialize",
@@ -31,8 +31,8 @@
   "repository_authority": {
     "base_authority_commit": "a1b692acd6b71b8fa32e59cb78f2da313388977f",
     "branch": "main",
-    "head": "e46f0eb742dddc36536df8b9668c0778337a6bc1",
-    "origin_main": "e46f0eb742dddc36536df8b9668c0778337a6bc1",
+    "head": "fa94eb9c42d8a9fe7f434ba5b8acf9fd04a1d265",
+    "origin_main": "fa94eb9c42d8a9fe7f434ba5b8acf9fd04a1d265",
     "status": "PASS"
   },
   "schema_version": "1.0.0",
