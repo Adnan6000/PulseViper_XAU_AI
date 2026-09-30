@@ -3,11 +3,11 @@
   "forward_performance_evaluated": false,
   "gate": "Gate 15D-C-B2D-G1 \u2014 Genuine Anchored Forward Capture",
   "gate_id": "GATE_15D_C_B2D_G1_GENUINE_ANCHORED_FORWARD_CAPTURE",
-  "generated_at_utc": "2026-09-29T15:10:43.517908Z",
+  "generated_at_utc": "2026-09-29T15:27:27.785699Z",
   "git": {
-    "execution_head": "1d8d3f8380d038d00628b64473b4257bbbfce361",
+    "execution_head": "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532",
     "head_equals_origin_main": true,
-    "origin_main": "1d8d3f8380d038d00628b64473b4257bbbfce361"
+    "origin_main": "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532"
   },
   "live_authorized": false,
   "outcome_maturation_authorized": false,
@@ -32,8 +32,8 @@
     "verified_forward_authority": false
   },
   "reason": {
-    "error_text": "UNSUPPORTED_BROKER_SYMBOL:XAUUSDb",
-    "error_type": "Gate15DCB2DG1BlockedError"
+    "error_text": "UNSUPPORTED_RESOLVED_BROKER_SYMBOL:XAUUSDb",
+    "error_type": "Gate15BBBlockedError"
   },
   "runtime_ledger_files": {
     "anchor": {

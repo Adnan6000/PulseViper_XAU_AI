@@ -108,7 +108,7 @@ B2D_AUTHORITY_COMMIT: str = (
 )
 
 G1_FREEZE_BASE_COMMIT: str = (
-    "1d8d3f8380d038d00628b64473b4257bbbfce361"
+    "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532"
 )
 
 B2D_EVIDENCE_REL_PATH: str = (
@@ -148,6 +148,12 @@ ACQUISITION_ADAPTER_TEST_REL_PATH: str = (
     "04_Testing/production_portability/"
     "test_mt5_read_only_forward_acquisition_adapter.py"
 )
+
+LEGACY_BID_ASK_HELPER_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "run_xauusd_gate_15b_b_genuine_forward_observation.py"
+)
+
 RUNNER_REL_PATH: str = (
     "04_Testing/production_portability/"
     "run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py"
@@ -978,6 +984,7 @@ def verify_g1_freeze_authority() -> dict[str, Any]:
         ACQUISITION_ADAPTER_REL_PATH,
         BROKER_ADAPTER_TEST_REL_PATH,
         ACQUISITION_ADAPTER_TEST_REL_PATH,
+        LEGACY_BID_ASK_HELPER_REL_PATH,
     }
 
     require(

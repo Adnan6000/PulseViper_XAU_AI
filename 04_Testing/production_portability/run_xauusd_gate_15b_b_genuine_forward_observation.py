@@ -1483,14 +1483,12 @@ def verify_bid_ask(
     """
 
     require(
-        broker_symbol
-        in set(
-            SUPPORTED_SYMBOLS
+        bool(
+            str(
+                broker_symbol
+            ).strip()
         ),
-        (
-            "UNSUPPORTED_RESOLVED_BROKER_SYMBOL:"
-            f"{broker_symbol}"
-        ),
+        "RESOLVED_BROKER_SYMBOL_EMPTY",
     )
 
     symbol_info = (

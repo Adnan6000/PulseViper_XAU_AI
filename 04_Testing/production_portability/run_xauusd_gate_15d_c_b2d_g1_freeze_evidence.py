@@ -71,7 +71,7 @@ GATE_ID: str = (
 SCHEMA_VERSION: str = "1.0.0"
 
 BASE_AUTHORITY_COMMIT: str = (
-    "1d8d3f8380d038d00628b64473b4257bbbfce361"
+    "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532"
 )
 
 
@@ -111,6 +111,12 @@ ACQUISITION_ADAPTER_TEST_REL_PATH: str = (
     "04_Testing/production_portability/"
     "test_mt5_read_only_forward_acquisition_adapter.py"
 )
+
+LEGACY_BID_ASK_HELPER_REL_PATH: str = (
+    "04_Testing/production_portability/"
+    "run_xauusd_gate_15b_b_genuine_forward_observation.py"
+)
+
 EVIDENCE_REL_PATH: str = (
     "04_Testing/evidence/forward_shadow/"
     "xauusd_gate_15d_c_b2d_g1_genuine_runner_freeze_evidence.json"
@@ -167,6 +173,7 @@ ALLOWED_LOCAL_PATHS: frozenset[str] = frozenset(
         ACQUISITION_ADAPTER_REL_PATH,
         BROKER_ADAPTER_TEST_REL_PATH,
         ACQUISITION_ADAPTER_TEST_REL_PATH,
+        LEGACY_BID_ASK_HELPER_REL_PATH,
         EVIDENCE_REL_PATH,
         BLOCKED_CAPTURE_EVIDENCE_REL_PATH,
     }
@@ -558,6 +565,7 @@ def verify_repository_authority() -> dict[str, Any]:
         G1_RUNNER_REL_PATH,
         G1_TEST_REL_PATH,
         FREEZE_RUNNER_REL_PATH,
+        LEGACY_BID_ASK_HELPER_REL_PATH,
     }
 
     missing_local = (
@@ -582,6 +590,7 @@ def verify_repository_authority() -> dict[str, Any]:
         ACQUISITION_ADAPTER_REL_PATH,
         BROKER_ADAPTER_TEST_REL_PATH,
         ACQUISITION_ADAPTER_TEST_REL_PATH,
+        LEGACY_BID_ASK_HELPER_REL_PATH,
     }
 
     missing_artifacts = {
@@ -1183,6 +1192,7 @@ def candidate_artifact_hashes() -> dict[str, str]:
         ACQUISITION_ADAPTER_REL_PATH,
         BROKER_ADAPTER_TEST_REL_PATH,
         ACQUISITION_ADAPTER_TEST_REL_PATH,
+        LEGACY_BID_ASK_HELPER_REL_PATH,
     )
 
     hashes: dict[

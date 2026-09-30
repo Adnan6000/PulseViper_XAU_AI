@@ -550,7 +550,7 @@ def test_20_repository_authority_uses_published_g1_hash_binding() -> None:
     assert (
         runner.G1_FREEZE_BASE_COMMIT
         ==
-        "1d8d3f8380d038d00628b64473b4257bbbfce361"
+        "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532"
     )
 
 
@@ -586,6 +586,7 @@ def test_22_g1_freeze_hash_binds_dynamic_broker_dependencies() -> None:
         runner.ACQUISITION_ADAPTER_REL_PATH,
         runner.BROKER_ADAPTER_TEST_REL_PATH,
         runner.ACQUISITION_ADAPTER_TEST_REL_PATH,
+        runner.LEGACY_BID_ASK_HELPER_REL_PATH,
     }
 
     source = inspect.getsource(
@@ -602,6 +603,7 @@ def test_22_g1_freeze_hash_binds_dynamic_broker_dependencies() -> None:
             runner.ACQUISITION_ADAPTER_REL_PATH,
             runner.BROKER_ADAPTER_TEST_REL_PATH,
             runner.ACQUISITION_ADAPTER_TEST_REL_PATH,
+            runner.LEGACY_BID_ASK_HELPER_REL_PATH,
         }
 
     assert (
@@ -686,5 +688,58 @@ def test_24_freeze_distinguishes_local_candidates_from_hash_bound_dependencies()
     assert (
         "EXPECTED_G1_CANDIDATE_PATHS_MISSING"
         not in source
+    )
+
+
+def test_25_legacy_bid_ask_helper_accepts_resolver_proven_dynamic_symbol() -> None:
+
+    source = inspect.getsource(
+        runner._legacy.verify_bid_ask
+    )
+
+    assert (
+        "UNSUPPORTED_RESOLVED_BROKER_SYMBOL"
+        not in source
+    )
+
+    assert (
+        "SUPPORTED_SYMBOLS"
+        not in source
+    )
+
+    assert (
+        "RESOLVED_BROKER_SYMBOL_EMPTY"
+        in source
+    )
+
+    assert (
+        ".symbol_info("
+        in source
+    )
+
+    assert (
+        ".symbol_info_tick("
+        in source
+    )
+
+
+def test_26_g1_freeze_binds_legacy_bid_ask_dependency() -> None:
+
+    source = inspect.getsource(
+        runner.verify_g1_freeze_authority
+    )
+
+    assert (
+        "LEGACY_BID_ASK_HELPER_REL_PATH"
+        in source
+    )
+
+    assert (
+        runner.LEGACY_BID_ASK_HELPER_REL_PATH
+        ==
+        (
+            "04_Testing/production_portability/"
+            "run_xauusd_gate_15b_b_genuine_forward_observation.py"
+        )
     )
 
