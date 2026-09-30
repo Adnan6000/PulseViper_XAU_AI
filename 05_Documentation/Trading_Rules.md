@@ -22,9 +22,32 @@ The central rule is:
 
 ---
 
-# 2. Current Operational State
+## Documentation Authority Note
 
-Current frozen research and validation state (Baseline Commit `cbdeb30934213dc36863c334eb1e50879ba0dde1`):
+This document describes the safety and authorization boundary. Exact runtime numerical settings remain authoritative in source code/configuration and verified broker telemetry. Status statements should be updated whenever a gate is completed.
+
+# 2. Live Trading Objective
+
+PulseViper is being developed for **real-money live XAUUSD trading** under explicit risk, account-protection, broker-execution, recovery, and monitoring controls.
+
+Research and validation are the engineering methodology used to determine what is safe to promote into production. The current authorization state is temporary:
+
+```text
+live_authorized = false
+execution_authorized = false
+```
+
+This means live execution is not currently permitted; it does **not** mean the project is research-only or that live trading is outside the intended scope.
+
+The intended lifecycle is:
+
+```text
+Research → Implement → Offline/Test → Shadow → Demo → Forward Validation → Broker Calibration → Risk & Execution Validation → Controlled Production Promotion → Live Trading → Continuous Monitoring
+```
+
+# 3. Current Operational State
+
+Current frozen research and validation state (published baseline authority: `cbdeb30934213dc36863c334eb1e50879ba0dde1`; later repository commits may update documentation/infrastructure without changing that scientific baseline):
 
 ```text
 TRAIN:
