@@ -1,23 +1,25 @@
 {
   "anchor_ledger_unchanged": true,
-  "base_authority_commit": "a1b692acd6b71b8fa32e59cb78f2da313388977f",
+  "base_authority_commit": "8d3fdf4667513a62289e35b1e87e850800b860d6",
   "execution_authorized": false,
   "forward_performance_evaluated": false,
   "gate_id": "GATE_15D_C_B2D_G2_FREEZE",
   "genuine_runner_executed": false,
   "hash_bound_dependencies": {
-    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "f68e3f00d34c444ea387172a64dc7489561a9d6b323e4dcba47fbe83fcd7a58d",
-    "02_AI/Adapters/xauusd_broker_adapter.py": "141cc66824059c5aa0a9a28563bd9fdb972a5cb149eff2c88ced3a775bb8127b",
-    "02_AI/Models/frozen_c04_forward_outcome_anchor.py": "03687f2921962846801c7e3414b51c040626a647474218802619938f814187ea",
-    "02_AI/Models/frozen_c04_forward_outcome_contract.py": "c07de67d9dee591195dc9e4cf5bb3e4d20791f691f8eadfcc6046351d494730a",
-    "02_AI/Models/frozen_c04_forward_outcome_eligibility.py": "d56fd43cc31577cf5aa454f6eec35ba64387d248c410bfabe5ced6a30582b82e",
-    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "6781e04d79377784de257177191007ec707a486ead4ca88ee70a7a714f89d8ec",
-    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "f2100d092874ca8acbcc0a43131540be0cebe1975f2fcd875f81ac44be50901f",
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "178ddda6fb3a7ea61889a07f32c04dbb461976c74df4679b6e96bfa6da5fe78d",
+    "02_AI/Adapters/xauusd_broker_adapter.py": "57d0c9e1a3737cbb8658b3d4bfb0b04a2b7c33c3d3fed5754d1256b64740cba8",
+    "02_AI/Models/frozen_c04_forward_outcome_anchor.py": "39a3886046397d0df118bb8f836a9c8b319db43c4d0636cd0fd59a9d4140414a",
+    "02_AI/Models/frozen_c04_forward_outcome_contract.py": "35f74487514df5d7b3cf285be711779365913cbd0219f0585cb39ba070bc14a0",
+    "02_AI/Models/frozen_c04_forward_outcome_eligibility.py": "1435fe7307ec3365cb03f67d5d75475744d156e2cc7b3460f30ed409b2120c9d",
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "bb47f7c3646961214497e3da56fd345fc99e990f165cc11ccfb390151809688d",
     "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
-    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_freeze.py": "4bd5e73c838f6416d96f7dcf595254d0efc28b78c3cd830b1d44e6b0428dfa75",
-    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_genuine_outcome_maturation.py": "e90dd147c1e3d5dd17b95b401bc7c5b72851a0e6fe2b1f90ae0a7c6baddaea87",
-    "04_Testing/production_portability/test_gate_15d_c_b2d_g2_genuine_outcome_maturation.py": "ea2819fc88030f1aa6563ca21984b25c324b61c13725134521f90a412e5d2ee1"
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_freeze.py": "fbdf6b39fba16da522b3279bf030a7ec3a59fc7a9344253d3b5f916a34aafeac",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_genuine_outcome_maturation.py": "189f992a28901da88cc32cfca839d5c31d9755bf9ef27f454af58e354ef58afe",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g2_genuine_outcome_maturation.py": "263c951933ef6dd9a157c53f3b7fd824bb87ea0baa3247216841b99e1866b56e"
   },
+  "hashing_correction_reason": "WINDOWS_WORKTREE_CRLF_VS_GIT_CANONICAL_LF",
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
   "live_authorized": false,
   "market_data_acquired": false,
   "mt5_initialized": false,
@@ -27,13 +29,11 @@
   "pnl_evaluated": false,
   "repository_authority": {
     "allowed_local_paths": [
-      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_freeze.py",
-      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_genuine_outcome_maturation.py",
-      "04_Testing/production_portability/test_gate_15d_c_b2d_g2_genuine_outcome_maturation.py"
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_freeze.py"
     ],
     "branch": "main",
-    "head": "a1b692acd6b71b8fa32e59cb78f2da313388977f",
-    "origin_main": "a1b692acd6b71b8fa32e59cb78f2da313388977f",
+    "head": "8d3fdf4667513a62289e35b1e87e850800b860d6",
+    "origin_main": "8d3fdf4667513a62289e35b1e87e850800b860d6",
     "status": "PASS"
   },
   "schema_version": "1.0.0",
@@ -51,10 +51,11 @@
     "status": "PASS"
   },
   "status": "PASS",
+  "supersedes_hashing_semantics": "RAW_WORKTREE_BYTES_SHA256",
   "validation": {
     "py_compile": true,
     "pyright_stdout": "0 errors, 0 warnings, 0 informations",
-    "pytest_stdout": "............                                                             [100%]\n12 passed in 1.24s",
+    "pytest_stdout": "............                                                             [100%]\n12 passed in 1.22s",
     "status": "PASS"
   }
 }

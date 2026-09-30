@@ -13,7 +13,7 @@ GATE_ID = "GATE_15D_C_B2D_G2_FREEZE"
 SCHEMA_VERSION = "1.0.0"
 
 BASE_AUTHORITY_COMMIT = (
-    "a1b692acd6b71b8fa32e59cb78f2da313388977f"
+    "8d3fdf4667513a62289e35b1e87e850800b860d6"
 )
 
 RUNNER_REL = (
@@ -173,21 +173,20 @@ def sha256_file(
     path: Path,
 ) -> str:
 
-    digest = hashlib.sha256()
+    data = path.read_bytes()
 
-    with path.open("rb") as handle:
+    # Git text files are stored canonically with LF line endings.
+    # Normalize worktree CRLF/CR to LF before hashing so Windows
+    # core.autocrlf does not create false published-hash mismatches.
+    normalized = (
+        data
+        .replace(b"\r\n", b"\n")
+        .replace(b"\r", b"\n")
+    )
 
-        while True:
-            chunk = handle.read(
-                1024 * 1024
-            )
-
-            if not chunk:
-                break
-
-            digest.update(chunk)
-
-    return digest.hexdigest()
+    return hashlib.sha256(
+        normalized
+    ).hexdigest()
 
 
 def optional_sha256(
@@ -568,6 +567,15 @@ def run_gate() -> dict[str, Any]:
         "validation": validation,
         "hash_bound_dependencies": (
             hashes
+        ),
+        "hashing_semantics": (
+            "GIT_TEXT_CANONICAL_LF_SHA256"
+        ),
+        "hashing_correction_reason": (
+            "WINDOWS_WORKTREE_CRLF_VS_GIT_CANONICAL_LF"
+        ),
+        "supersedes_hashing_semantics": (
+            "RAW_WORKTREE_BYTES_SHA256"
         ),
         "genuine_runner_executed": False,
         "mt5_initialized": False,
