@@ -96,10 +96,10 @@ Anchor-required forward outcome ledger V2
         ✅ COMPLETE (Gate 15D-C-B2C: compatible with Maturer V2)
         ↓
 Genuine Prospective Observation + Same-Snapshot Anchor Integration
-        🟢 NEXT PLANNED GATE (Gate 15D-C-B2D)
+        🟡 IN PROGRESS (Gate 15D-C-B2D: G1/G2 evidence active, G3 controller frozen)
         ↓
 Matured forward shadow evaluation
-        ⬜ PENDING (Gate 15E)
+        ⬜ PENDING (Gate 15E; requires enough matured prospective observations)
         ↓
 Live promotion
         ⛔ NOT AUTHORIZED
