@@ -74,8 +74,11 @@ active (Gate 15B-A v2.1.0, strictly read-only facade)
 Prospective forward outcome protocol:
 complete (Gates 15C, 15D-A, 15D-C-B2A, 15D-C-B2B, 15D-C-B2C)
 
-Next engineering gate:
-Gate 15D-C-B2D (Genuine Observation + Same-Snapshot Anchor Integration)
+Current engineering gate:
+Gate 15D-C-B2D (G1 genuine anchored capture + G2 outcome maturation + G3 forward-sample controller)
+
+Current forward evidence status:
+G1 genuine anchored captures are active; G2 has genuine maturation evidence; G3 controller is frozen and safety-tested. Formal performance/PnL evaluation remains disabled.
 
 Forward performance scoring:
 NOT STARTED (forward_performance_evaluated = false)
