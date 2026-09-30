@@ -90,6 +90,21 @@ live_authorized = false
 
 ---
 
+# 4. Current Repository Status
+
+Repository HEAD at this documentation audit: `1b6ed19b37fff02015744612b23d30dede3134c4`.
+
+The historical C04 research baseline remains `cbdeb30934213dc36863c334eb1e50879ba0dde1`. Later commits extend forward-evidence infrastructure and documentation without silently replacing that scientific model lineage.
+
+Current forward-development state:
+
+- Gate 15D-C-B2D is **in progress**, not merely planned.
+- G1 genuine anchored forward capture evidence exists.
+- G2 genuine outcome maturation evidence exists and idempotency has been verified.
+- G3 forward-sample controller is frozen and safety-tested.
+- Formal performance/PnL evaluation remains disabled.
+- Live/execution authorization remains disabled.
+
 # 4. Early Core-System Development
 
 The earlier PulseViper architecture established modular market-analysis and trading infrastructure.
