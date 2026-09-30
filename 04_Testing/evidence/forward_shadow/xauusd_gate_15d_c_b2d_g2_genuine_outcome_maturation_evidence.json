@@ -1,0 +1,42 @@
+{
+  "anchor_ledger_unchanged": true,
+  "broker_symbol": "XAUUSDb",
+  "canonical_instrument": "XAUUSD",
+  "decision_time_utc": "2026-09-30T01:55:00Z",
+  "down_excursion_atr": 0.33448841874873053,
+  "execution_authorized": false,
+  "first_future_bar_time_utc": "2026-09-30T01:55:00Z",
+  "forward_performance_evaluated": false,
+  "gate_id": "GATE_15D_C_B2D_G2_GENUINE_OUTCOME_MATURATION",
+  "horizon_bars": 12,
+  "last_future_bar_time_utc": "2026-09-30T02:50:00Z",
+  "live_authorized": false,
+  "logical_observation_id": "f29a46f0eb4b90a17acd85ff39cd0cef5d7fbd91f05e227dff40612915105938",
+  "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V2",
+  "mode": "DRY_RUN",
+  "observation_ledger_unchanged": true,
+  "outcome_append_requested": false,
+  "outcome_appended": false,
+  "outcome_class": 1,
+  "outcome_count_after": null,
+  "outcome_count_before": null,
+  "outcome_idempotent_duplicate": false,
+  "outcome_label": "LONG",
+  "outcome_ledger_changed": false,
+  "pnl_evaluated": false,
+  "raw_mt5_calls": [
+    "initialize",
+    "shutdown"
+  ],
+  "repository_authority": {
+    "base_authority_commit": "a1b692acd6b71b8fa32e59cb78f2da313388977f",
+    "branch": "main",
+    "head": "104ecc1b7433f2b87bbe72f4d60f8ee96163a466",
+    "origin_main": "104ecc1b7433f2b87bbe72f4d60f8ee96163a466",
+    "status": "PASS"
+  },
+  "schema_version": "1.0.0",
+  "semantic_outcome_fingerprint": "7d4f2d224113690138e9ff31ea4b1fbb44291b702d9c5e761663b33ce198555c",
+  "status": "PASS",
+  "up_excursion_atr": 3.023162502279815
+}
