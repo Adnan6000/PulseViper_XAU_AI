@@ -96,9 +96,37 @@ Validation Result Freeze
       ↓
 FINAL TEST
       ⏳
+
+Forward evidence lane (parallel to protected historical TEST):
+
+```text
+Gate 15D-C-B2D G1
+      ↓
+G2 genuine maturation
+      ↓
+G3 sample controller
+      ↓
+Gate 15E matured forward evaluation
+```
 ```
 
 ---
+
+## Current Forward Evidence Status
+
+Repository HEAD: `1b6ed19b37fff02015744612b23d30dede3134c4`.
+
+The forward lane has advanced beyond the original B2D preparation state:
+
+- Gate 15D-C-B2D G1 genuine anchored capture: active evidence exists.
+- G2 genuine outcome maturation: evidence recorded; append idempotency verified.
+- G3 forward sample controller: frozen and safety-tested.
+- Formal performance evaluation: `false`.
+- Formal PnL evaluation: `false`.
+- Live authorization: `false`.
+- Execution authorization: `false`.
+
+The latest prospective observation must still satisfy the full future-M5 horizon before it can mature. This is forward evidence collection, not a performance verdict.
 
 # 4. Current Core Identity
 
