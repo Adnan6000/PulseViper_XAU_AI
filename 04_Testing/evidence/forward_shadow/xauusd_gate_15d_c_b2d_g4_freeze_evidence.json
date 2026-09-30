@@ -1,0 +1,69 @@
+{
+  "anchor_ledger_unchanged": true,
+  "base_authority_commit": "546859dd3dda214f6a77fb462be13974ab1a4070",
+  "collector_executed": false,
+  "evidence_commit_performed": false,
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G4_FREEZE",
+  "git_push_performed": false,
+  "hash_bound_dependencies": {
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "178ddda6fb3a7ea61889a07f32c04dbb461976c74df4679b6e96bfa6da5fe78d",
+    "02_AI/Adapters/xauusd_broker_adapter.py": "57d0c9e1a3737cbb8658b3d4bfb0b04a2b7c33c3d3fed5754d1256b64740cba8",
+    "02_AI/Models/frozen_c04_forward_outcome_anchor.py": "39a3886046397d0df118bb8f836a9c8b319db43c4d0636cd0fd59a9d4140414a",
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "bb47f7c3646961214497e3da56fd345fc99e990f165cc11ccfb390151809688d",
+    "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "5c86c61aa80275926b6aad0135c97fd7cde666e9105a2d3475e2d7cf77d26f8e",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_genuine_outcome_maturation.py": "189f992a28901da88cc32cfca839d5c31d9755bf9ef27f454af58e354ef58afe",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g3_forward_sample_controller.py": "a01dffefb9ac5246282cf3114d6093b1db281d3de161159f4c487b099a04deb7",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g4_autonomous_forward_collector.py": "8d280223a02a5d0019c95d396df5eaacd6faac4b7c1e9f990dea1aab5c79516f",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g4_freeze.py": "17b014ff580eac7687bbc183263326f1814e979fa7bf8f1931faf8029583b48b",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g4_autonomous_forward_collector.py": "acca27b0a379e39e9a32ca5189556d7a4b2092899580b77dbb8ff1b05b7bd7eb"
+  },
+  "hash_bound_file_count": 12,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "mt5_initialized": false,
+  "observation_ledger_unchanged": true,
+  "outcome_ledger_unchanged": true,
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g4_autonomous_forward_collector.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g4_freeze.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g4_autonomous_forward_collector.py"
+    ],
+    "branch": "main",
+    "head": "546859dd3dda214f6a77fb462be13974ab1a4070",
+    "origin_main": "546859dd3dda214f6a77fb462be13974ab1a4070",
+    "status": "PASS"
+  },
+  "schema_version": "1.0.0",
+  "static_safety": {
+    "destructive_git_recovery_present": false,
+    "direct_mt5_access": false,
+    "execution_authorized": false,
+    "force_push_present": false,
+    "g1_orchestrated": true,
+    "g2_append_orchestrated": true,
+    "g2_dry_run_orchestrated": true,
+    "g2_idempotency_orchestrated": true,
+    "g3_orchestrated": true,
+    "live_authorized": false,
+    "order_capabilities_present": false,
+    "performance_evaluation_authorized": false,
+    "pnl_evaluation_authorized": false,
+    "status": "PASS",
+    "target_matured_samples": 30
+  },
+  "status": "PASS",
+  "validation": {
+    "py_compile": true,
+    "pyright_stdout": "0 errors, 0 warnings, 0 informations",
+    "pytest_stdout": "...............                                                          [100%]\n15 passed in 0.20s",
+    "status": "PASS"
+  }
+}
