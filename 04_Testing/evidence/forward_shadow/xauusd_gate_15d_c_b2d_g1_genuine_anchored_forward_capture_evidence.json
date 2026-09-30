@@ -2,17 +2,17 @@
   "accuracy_evaluated": false,
   "acquisition_authority": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
   "acquisition_schema_version": "2.1.0",
-  "acquisition_time_utc": "2026-09-30T07:46:31.405998Z",
-  "anchor_semantic_fingerprint": "2bbac977476c7053feee08cc8ad4734a6bd8c52b8fb8a7de584c86c8c5d2ff06",
+  "acquisition_time_utc": "2026-09-30T09:20:59.041447Z",
+  "anchor_semantic_fingerprint": "d97c77d9290371f5a25a341ef9a6a08938fd2947ae6ba7f9f732050aed7ac1a7",
   "bid_ask_validation": {
-    "ask": 4192.49,
-    "bid": 4192.39,
+    "ask": 4188.28,
+    "bid": 4188.19,
     "raw_tick_time_not_used_for_freshness": true,
     "status": "PASS",
     "valid_bid_ask": true
   },
   "canonical_instrument": "XAUUSD",
-  "decision_time_utc": "2026-09-30T07:45:00Z",
+  "decision_time_utc": "2026-09-30T09:20:00Z",
   "drawdown_evaluated": false,
   "execution_authorized": false,
   "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
@@ -21,25 +21,25 @@
   "gate13_status": "PASS",
   "gate14_status": "PASS",
   "gate_id": "GATE_15D_C_B2D_G1_GENUINE_ANCHORED_FORWARD_CAPTURE",
-  "generated_at_utc": "2026-09-30T07:46:35.759877Z",
+  "generated_at_utc": "2026-09-30T09:21:07.201304Z",
   "genuine_anchor_persisted_or_idempotently_present": true,
   "genuine_forward_observation_matured": false,
   "genuine_mt5_acquisition": true,
   "genuine_observation_persisted_or_idempotently_present": true,
   "genuine_outcome_appended": false,
   "ledger_counts": {
-    "anchor_after": 3,
-    "anchor_before": 2,
+    "anchor_after": 4,
+    "anchor_before": 3,
     "anchor_delta": 1,
-    "observation_after": 5,
-    "observation_before": 4,
+    "observation_after": 6,
+    "observation_before": 5,
     "observation_delta": 1,
-    "true_forward_after": 5,
-    "true_forward_before": 4,
+    "true_forward_after": 6,
+    "true_forward_before": 5,
     "true_forward_delta": 1
   },
   "live_authorized": false,
-  "logical_observation_id": "f8de6559c439e7451fb05946a1b237a59f1148d6365dede1d3ba1331fbd5aaec",
+  "logical_observation_id": "c96d7fc4004de09407da8c5e350dcaab5a3291df0caa45025521c992925bf8d8",
   "market_freshness": {
     "authority": "GATE_15B_A_V2_1_NORMALIZED_TIME_BASIS_ATTESTATION",
     "decision_time_not_after_normalized_tick": true,
@@ -47,10 +47,10 @@
     "max_future_tick_skew_seconds": 5,
     "max_tick_age_seconds": 180,
     "reference_offset_seconds": 10800,
-    "reference_tick_raw": 1790765192,
-    "reference_tick_utc": "2026-09-30T07:46:32Z",
+    "reference_tick_raw": 1790770860,
+    "reference_tick_utc": "2026-09-30T09:21:00Z",
     "status": "PASS",
-    "tick_age_seconds": -0.5949985980987549,
+    "tick_age_seconds": -0.9605481624603271,
     "time_basis_policy": "NY_CLOSE_SERVER_WALL_CLOCK"
   },
   "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
@@ -94,7 +94,7 @@
     },
     "b2d_authority_commit_is_ancestor": true,
     "branch": "main",
-    "execution_head": "e503b18e2cdf529124f78c240d54e23e86a72f9f",
+    "execution_head": "249f9ffe1d9231631371a0d35aab3ed7ddf6eab5",
     "g1_freeze_authority": {
       "freeze_base_commit": "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532",
       "status": "PASS",
@@ -111,7 +111,7 @@
     },
     "g1_freeze_base_is_ancestor": true,
     "head_equals_origin_main": true,
-    "origin_main": "e503b18e2cdf529124f78c240d54e23e86a72f9f",
+    "origin_main": "249f9ffe1d9231631371a0d35aab3ed7ddf6eab5",
     "status": "PASS"
   },
   "resolved_broker_symbol": "XAUUSDb",
@@ -133,6 +133,23 @@
   "runtime_ledger_files_after": {
     "anchor": {
       "exists": true,
+      "sha256": "fcb031574f8a34d9e55f8212ce7bcfdb803b1a4d2414e4c6a0c5d0eb62e90499",
+      "size_bytes": 5746
+    },
+    "observation": {
+      "exists": true,
+      "sha256": "579f4b62423d35feb590dfa63afd1b2078545fe4ba035f410adb1f07fdd1bde7",
+      "size_bytes": 6988
+    },
+    "outcome": {
+      "exists": true,
+      "sha256": "67e1dd0b4cb3ae85055f5aa4d37a6ef7f275a55fba8fd41c84c41be475ac9b49",
+      "size_bytes": 4633
+    }
+  },
+  "runtime_ledger_files_before": {
+    "anchor": {
+      "exists": true,
       "sha256": "41a03d9bf9d0001e46feaf801f14a2c358418ff9182ddc6a56d5778fde24afc4",
       "size_bytes": 4309
     },
@@ -143,30 +160,13 @@
     },
     "outcome": {
       "exists": true,
-      "sha256": "1afcafbf17f9616ed963cd21d09149ee646def6924a56d969589508622d7b306",
-      "size_bytes": 3089
-    }
-  },
-  "runtime_ledger_files_before": {
-    "anchor": {
-      "exists": true,
-      "sha256": "22a0062c35c14bfba6fd9bbd0db91344089474fe3153aafe7d6ed78ac98f5cc6",
-      "size_bytes": 2873
-    },
-    "observation": {
-      "exists": true,
-      "sha256": "67f33536dbd648bc87e30ae2e2f1227585492c6dfe8d44155a2c3d3f0695e4f8",
-      "size_bytes": 4659
-    },
-    "outcome": {
-      "exists": true,
-      "sha256": "1afcafbf17f9616ed963cd21d09149ee646def6924a56d969589508622d7b306",
-      "size_bytes": 3089
+      "sha256": "67e1dd0b4cb3ae85055f5aa4d37a6ef7f275a55fba8fd41c84c41be475ac9b49",
+      "size_bytes": 4633
     }
   },
   "schema_version": "1.0.0",
-  "semantic_observation_fingerprint": "e263870bcc72554c137f59324fdf5b443c21d4ac10e3eb35d87be37d60c9bdc0",
-  "source_snapshot_id": "bb33b7ccb737a2b8d47963a3db04ad7b3cf2444db9a17192669e12fbdd018448",
+  "semantic_observation_fingerprint": "4a571b744b4c6487452879985794b6902b6617ea33d162c125421b5aa613ed5c",
+  "source_snapshot_id": "db92127f6d8e1dad3f53e5f05e95f2014144fc124f20cca1c9fb1e3bdca3c52e",
   "static_safety": {
     "broker_write_calls": 0,
     "outcome_ledger_append_calls": 0,
@@ -193,8 +193,8 @@
   "status": "PASS",
   "time_basis": {
     "policy": "NY_CLOSE_SERVER_WALL_CLOCK",
-    "reference_tick_age_seconds": -0.5949985980987549,
-    "reference_tick_utc": "2026-09-30T07:46:32Z"
+    "reference_tick_age_seconds": -0.9605481624603271,
+    "reference_tick_utc": "2026-09-30T09:21:00Z"
   },
   "timestamp_resolution_normalization": {
     "dtypes_after": {
@@ -215,5 +215,5 @@
     "status": "PASS"
   },
   "win_rate_evaluated": false,
-  "winning_probability": 0.3566243411408954
+  "winning_probability": 0.35134894372816794
 }
