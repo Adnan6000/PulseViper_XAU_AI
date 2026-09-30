@@ -42,9 +42,10 @@ The current live state remains **not authorized** until the defined historical, 
 - **Prospective outcome anchor authority V1:** COMPLETE (Gate 15D-C-B2A, `SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS`)
 - **Anchor-required forward outcome maturer V2:** COMPLETE (Gate 15D-C-B2B, supersedes V1.1, post-hoc reconstruction forbidden)
 - **Anchor-required forward outcome ledger V2:** COMPLETE (Gate 15D-C-B2C, supersedes V1.1)
-- **Current published baseline commit:** `cbdeb30934213dc36863c334eb1e50879ba0dde1`
-- **Current phase:** Prospective Forward Observation + Anchor Integration Preparation
-- **Next planned gate:** `Gate 15D-C-B2D` (Genuine Prospective Observation + Same-Snapshot Anchor Integration)
+- **Scientific baseline authority:** `cbdeb30934213dc36863c334eb1e50879ba0dde1` (the frozen C04 research baseline)
+- **Current repository HEAD:** `1b6ed19b37fff02015744612b23d30dede3134c4`
+- **Current phase:** Gate 15D-C-B2D genuine anchored forward observation + maturation
+- **Current gate:** `Gate 15D-C-B2D` (G1 capture + G2 maturation + G3 sample-controller lane)
 - **Forward performance scoring:** NOT STARTED (`forward_performance_evaluated = false`)
 - **Live trading / execution:** NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
 
@@ -67,9 +68,9 @@ The current live state remains **not authorized** until the defined historical, 
 
 ## Who Is This For?
 
-- Developers interested in ML pipelines and structured research
-- Students who want to study a real, safety-focused trading research codebase
-- Engineers exploring reproducible ML experiments with protected holdouts
+- Developers interested in ML pipelines, trading-system engineering, risk, execution, and structured research
+- Students who want to study a real, safety-gated XAUUSD trading codebase
+- Engineers exploring reproducible ML experiments, broker integration, and protected holdouts
 
 New contributors should start with:
 
@@ -252,7 +253,7 @@ The current portable ML experiment and forward validation framework have complet
 27. Prospective forward outcome anchor authority (Gate 15D-C-B2A: same-snapshot anchor protocol) ✅  
 28. Anchor-required forward outcome maturer V2 (Gate 15D-C-B2B: post-hoc reconstruction forbidden) ✅  
 29. Anchor-required forward outcome ledger V2 (Gate 15D-C-B2C: compatible with Maturer V2) ✅  
-30. Genuine Prospective Observation + Same-Snapshot Anchor Integration (`Gate 15D-C-B2D`) 🟢 NEXT PLANNED GATE  
+30. Gate 15D-C-B2D genuine anchored forward integration 🟡 IN PROGRESS (G1 captures and G2 maturation evidence active; G3 controller frozen)  
 31. Matured forward shadow evaluation (`Gate 15E`) ⬜ PENDING  
 32. Production safety review ⬜ PENDING  
 33. Live promotion ⛔ NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
