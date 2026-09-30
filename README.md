@@ -1,6 +1,6 @@
 # PulseViper XAU AI
 
-An AI-assisted research and automation system for analyzing XAU/USD (gold) market data and supporting structured Forex research workflows.
+An AI-assisted XAUUSD trading system being developed for controlled real-money live trading, using research-first validation, broker calibration, risk management, and documented evidence gates.
 
 > **Disclaimer:** This project is for educational, research, and automation purposes only. It does not provide financial advice and does not guarantee trading outcomes.
 
@@ -14,7 +14,19 @@ PulseViper is an engineering project that combines:
 - Risk management and safety checks
 - Shadow trading and MetaTrader 5 integration research
 
-The goal is a reproducible, safety-gated ML research framework, not a “profitable trading bot.”
+The ultimate goal is controlled real-money live trading. Research, testing, shadow validation, broker calibration, and evidence gates are the engineering methodology used to decide what may be promoted into live production.
+
+## Live Trading Objective
+
+PulseViper is being developed for **controlled real-money live XAUUSD trading** under explicit risk, account-protection, execution, and operational controls.
+
+The development lifecycle is:
+
+```text
+Research → Implement → Offline/Test → Shadow → Demo → Forward Validation → Broker Calibration → Risk & Execution Validation → Controlled Production Promotion → Live Trading → Continuous Monitoring
+```
+
+The current live state remains **not authorized** until the defined historical, forward, risk, execution, recovery, and operational gates are completed. This is a temporary authorization state, not the project's final objective.
 
 ## Key Highlights
 
@@ -90,7 +102,7 @@ Full-Stack Software Engineer | CEH
 PulseViper XAU AI
 =================
 
-A research-first, safety-gated Python framework for **XAUUSD / XAUUSDm machine-learning research, broker-portable feature generation, shadow trading, risk management, and MetaTrader 5 execution**.
+A research-first, safety-gated Python trading system for **XAUUSD / XAUUSDm machine-learning signals, broker-portable feature generation, shadow validation, risk management, and eventual MetaTrader 5 live execution**.
 
 > **Current status:** Controlled read-only forward validation (Gate 15D-C-B2BC baseline)  
 > **Published authority commit:** `cbdeb30934213dc36863c334eb1e50879ba0dde1`  
@@ -128,7 +140,7 @@ What Is PulseViper?
 
 PulseViper is an engineering and research project focused on developing a reproducible XAUUSD machine-learning trading system.
 
-The project is not only a model.
+The project is not only a model, and it is not intended to remain research-only.
 
 It includes multiple independent layers:
 
