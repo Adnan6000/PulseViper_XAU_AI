@@ -139,9 +139,9 @@ Approximate engineering maturity:
 | Final TEST                        |           Pending |
 | Production broker portability     |              100% |
 | Frozen-model production inference |              100% |
-| Shadow integration                |            30–40% |
-| Forward shadow validation         |             Early |
-| Safe live promotion readiness     |           ~50–60% |
+| Shadow integration                |            40–50% |
+| Forward shadow validation         |       Early / active |
+| Safe live promotion readiness     |           ~55–65% |
 
 These percentages are engineering estimates, not scientific metrics.
 
@@ -156,23 +156,23 @@ Approximate active engineering effort from the current state:
 | Final TEST infrastructure + execution |             2–4 hours |
 | Final research verdict/report         |             1–2 hours |
 | Documentation/evidence cleanup        |             3–5 hours |
-| Production broker portability         |           12–20 hours |
+| Production broker portability         |              0–4 hours |
 | Frozen inference + shadow integration |            8–14 hours |
 | Production safety / monitoring        |            8–12 hours |
 
 Approximate remaining active engineering:
 
 ```text
-35–55 focused hours
+25–45 focused hours
 ```
 
 A realistic focused development schedule is approximately:
 
 ```text
-5–8 working days
+4–7 focused working days
 ```
 
-However, full project completion requires genuine future unseen market data.
+However, full live-readiness requires genuine future unseen market data plus controlled demo execution and operational hardening.
 
 Therefore expected calendar duration is more realistically:
 
