@@ -1,0 +1,88 @@
+{
+  "base_authority_commit": "ad5ec6d9addc9353b655efdb3089896a35676098",
+  "calibration_performed": false,
+  "execution_authorized": false,
+  "feature_reselection_performed": false,
+  "forward_holdout_authority": {
+    "role": "EVALUATION_ONLY_IMMUTABLE_HOLDOUT",
+    "runtime_ledger_raw_sha256": {
+      "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+      "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+      "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+    },
+    "sample_count": 30,
+    "status": "PASS"
+  },
+  "forward_holdout_used_for_calibration": false,
+  "forward_holdout_used_for_feature_selection": false,
+  "forward_holdout_used_for_hyperparameter_selection": false,
+  "forward_holdout_used_for_model_selection": false,
+  "forward_holdout_used_for_refitting": false,
+  "forward_holdout_used_for_threshold_selection": false,
+  "forward_holdout_used_for_training": false,
+  "gate_id": "GATE_15D_C_B2D_G7_A_MODEL_REMEDIATION_PROTOCOL_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_model_remediation_protocol_contract.py": "1f9d72905d9a18e7938dc3e062c78c5e129f969ee7c6df3b5024876f2e0ee801",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze_evidence.json": "32ce2a933a127a687ec2a12186e10efb6c0b5193730c6a770d70daee4a6240dc",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation_evidence.json": "1be7925e3e95514b73b443afdfdebfe0c509a6d24183c7c4e08cd54cfc0c6cf1",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_c_forward_error_confidence_diagnostic_evidence.json": "7b1125cc7bbfb3d203ba245261ed01c311f30669996dce55d8dfe63d7a1d91a8",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_d_probability_geometry_diagnostic_evidence.json": "4f836b4174ab59fec0310993fce0c1c8079db4100c30a6fbede67da74e3ef44c",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_e_probability_discrimination_diagnostic_evidence.json": "882649b4a465129ef9ef1f5d0588f330e2e687469a1629d5ea2d0b229b7abf7f",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_a_model_remediation_protocol_freeze.py": "f4c81babe9038c07fe34d060deab4a057cb6db21e0b323e748b2c9a5f85b073d",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_a_model_remediation_protocol_freeze.py": "2269f09b35a9b1673c3332984a9b5651160031904941ecdc983ac1a6f77484bb"
+  },
+  "hash_bound_file_count": 8,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "hyperparameter_tuning_performed": false,
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "pnl_evaluated": false,
+  "production_promotion_authorized": false,
+  "refitting_performed": false,
+  "remediation_contract": {
+    "contract_fingerprint_sha256": "3af5ccd2d84950dd37c3dda5f9d5872af5a303e9b8fdf5515c52dc5b92ad6f6c",
+    "contract_id": "FROZEN_C04_MODEL_REMEDIATION_PROTOCOL_CONTRACT_V1",
+    "fixed_count_wait_required": false,
+    "forward_holdout_role": "EVALUATION_ONLY_IMMUTABLE_HOLDOUT",
+    "forward_holdout_sample_count": 30,
+    "minimum_new_weekly_sample_count": 0,
+    "prospective_evaluation_cadence": "WEEKLY",
+    "prospective_validation_required": true,
+    "remediation_research_may_reopen": true,
+    "status": "PASS"
+  },
+  "repository_authority": {
+    "allowed_local_paths": [
+      "02_AI/Models/frozen_c04_model_remediation_protocol_contract.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_a_model_remediation_protocol_freeze.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g7_a_model_remediation_protocol_freeze.py"
+    ],
+    "branch": "main",
+    "head": "ad5ec6d9addc9353b655efdb3089896a35676098",
+    "origin_main": "ad5ec6d9addc9353b655efdb3089896a35676098",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "threshold_tuning_performed": false,
+  "upstream_forward_evidence": {
+    "exact_class_accuracy": 0.3,
+    "false_long_count": 16,
+    "forward_sample_count": 30,
+    "g5_status": "PASS",
+    "g6b_status": "PASS",
+    "g6c_status": "PASS",
+    "g6d_status": "PASS",
+    "g6e_status": "PASS",
+    "macro_pairwise_auc": 0.48120370370370374,
+    "status": "PASS"
+  }
+}
