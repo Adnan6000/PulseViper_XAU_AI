@@ -105,14 +105,14 @@ PulseViper XAU AI
 
 A research-first, safety-gated Python trading system for **XAUUSD / XAUUSDm machine-learning signals, broker-portable feature generation, shadow validation, risk management, and eventual MetaTrader 5 live execution**.
 
-> **Current status:** Controlled read-only forward validation (Gate 15D-C-B2BC baseline)  
+> **Current status:** Controlled read-only forward validation (Gate 15D-C-B2D in progress)  
 > **Published authority commit:** `cbdeb30934213dc36863c334eb1e50879ba0dde1`  
 > **Frozen model:** C04 constrained ExtraTrees (`C04_FLAT_EXTRA_TREES_CONSTRAINED`), 331 portable features  
 > **Untouched VALIDATION:** Passed and permanently consumed  
 > **Final TEST:** Protected holdout (untouched)  
 > **Read-only forward acquisition:** Active (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`)  
 > **Forward outcome authority:** Maturer V2 & Outcome Ledger V2 (requires prospective anchor)  
-> **Current phase:** Prospective Forward Observation + Anchor Integration Preparation (`Gate 15D-C-B2D` next)  
+> **Current phase:** Genuine anchored forward observation + maturation (`Gate 15D-C-B2D` in progress)  
 > **Forward performance scoring:** NOT STARTED (`forward_performance_evaluated = false`)  
 > **Live trading / execution:** NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
 
