@@ -206,7 +206,7 @@ The complete architecture can be viewed as seven major layers.
 
 The current project has strong historical research coverage through Layer 4 and the frozen artifact portion of Layer 5.
 
-Gate 13 (production broker feature generation on canonical snapshots), Gate 14 (frozen offline inference adapter), Gate 15A (forward shadow observation infrastructure), Gate 15B-A (read-only forward acquisition authority v2.1.0), Gate 15C (frozen forward outcome contract V1), Gate 15D-A (prospective eligibility authority), Gate 15D-C-B2A (prospective outcome anchor authority V1), Gate 15D-C-B2B (anchor-required outcome maturer V2), and Gate 15D-C-B2C (outcome ledger V2) are complete. The next planned engineering milestone is Gate 15D-C-B2D (Genuine Prospective Observation + Same-Snapshot Anchor Integration). Read-only acquisition does NOT authorize live trading or execution (`live_authorized = false`, `execution_authorized = false`).
+Gate 13 (production broker feature generation on canonical snapshots), Gate 14 (frozen offline inference adapter), Gate 15A (forward shadow observation infrastructure), Gate 15B-A (read-only forward acquisition authority v2.1.0), Gate 15C (frozen forward outcome contract V1), Gate 15D-A (prospective eligibility authority), Gate 15D-C-B2A (prospective outcome anchor authority V1), Gate 15D-C-B2B (anchor-required outcome maturer V2), and Gate 15D-C-B2C (outcome ledger V2) are complete. Gate 15D-C-B2D (Genuine Prospective Observation + Same-Snapshot Anchor Integration) is currently in progress, with G1 capture and G2 maturation evidence active and G3 controller frozen. Read-only acquisition does NOT authorize live trading or execution (`live_authorized = false`, `execution_authorized = false`).
 
 ---
 
