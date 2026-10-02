@@ -1,0 +1,69 @@
+{
+  "base_authority_commit": "144d4359eae9835563f1bf8d01a4dee35ef8c4c2",
+  "calibration_performed": false,
+  "data_authority_contract": {
+    "contract_fingerprint_sha256": "5e1d643c9a65d5709593bf7e3163895cc087ffb18eb0330ae0e80886d4fae0f3",
+    "contract_id": "FROZEN_C04_REMEDIATION_DATA_AUTHORITY_CONTRACT_V1",
+    "forward_holdout_development_use": false,
+    "research_data_cutoff_utc": "2026-08-14T20:55:00Z",
+    "split_policy": "PURGED_CHRONOLOGICAL_TRAIN_VALIDATION_TEST",
+    "status": "PASS",
+    "test_fraction": 0.15,
+    "test_is_one_shot_confirmation": true,
+    "train_fraction": 0.7,
+    "validation_fraction": 0.15
+  },
+  "dataset_discovered": false,
+  "execution_authorized": false,
+  "feature_reselection_performed": false,
+  "forward_holdout_used_for_development": false,
+  "g7a_authority": {
+    "contract_fingerprint_sha256": "3af5ccd2d84950dd37c3dda5f9d5872af5a303e9b8fdf5515c52dc5b92ad6f6c",
+    "status": "PASS"
+  },
+  "gate_id": "GATE_15D_C_B2D_G7_B_REMEDIATION_DATA_AUTHORITY_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Dataset/training_matrix_builder.py": "8b29f0e6eefea875880e4f88b96c9d9a3676ecb8dca36dfab1dba31b61799999",
+    "02_AI/Models/frozen_c04_model_remediation_protocol_contract.py": "1f9d72905d9a18e7938dc3e062c78c5e129f969ee7c6df3b5024876f2e0ee801",
+    "02_AI/Models/frozen_c04_remediation_data_authority_contract.py": "94d20e04c59e76421bf7440b0152ee8ef7e78f6ec2725716ec530f136cad3527",
+    "02_AI/Models/xauusd_model_trainer.py": "7c83b7484af5413a840078b3782bc2fa0b4f6c37af5968bb115dfd851fe93297",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g7_a_model_remediation_protocol_freeze_evidence.json": "68a4062f7b4671ac60e8cd2871b5baf63743788de9e64e4a9b8ee67b76bd0684",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_b_remediation_data_authority_freeze.py": "add2bf683468ecb48ea2f7633b2561e80c3c5dba5bba065f587adf75bf23fa76",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_b_remediation_data_authority_freeze.py": "765d5ed36f4e2329f04d2678f776b7e22e07fb6949157edbda0ee036618a1320"
+  },
+  "hash_bound_file_count": 7,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "hyperparameter_tuning_performed": false,
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "pipeline_authority": {
+    "purged_chronological_split_verified": true,
+    "split_policy": "PURGED_CHRONOLOGICAL_TRAIN_VALIDATION_TEST",
+    "status": "PASS",
+    "test_fraction": 0.15,
+    "train_fraction": 0.7,
+    "trainer_train_validation_test_contract_verified": true,
+    "validation_fraction": 0.15
+  },
+  "pnl_evaluated": false,
+  "refitting_performed": false,
+  "repository_authority": {
+    "branch": "main",
+    "head": "144d4359eae9835563f1bf8d01a4dee35ef8c4c2",
+    "origin_main": "144d4359eae9835563f1bf8d01a4dee35ef8c4c2",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "test_evaluated": false,
+  "threshold_tuning_performed": false,
+  "training_rows_loaded": false
+}
