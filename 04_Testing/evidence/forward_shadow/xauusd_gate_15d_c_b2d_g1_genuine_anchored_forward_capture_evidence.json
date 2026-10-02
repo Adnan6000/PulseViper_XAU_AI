@@ -2,17 +2,17 @@
   "accuracy_evaluated": false,
   "acquisition_authority": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
   "acquisition_schema_version": "2.1.0",
-  "acquisition_time_utc": "2026-10-02T02:51:35.630198Z",
-  "anchor_semantic_fingerprint": "243d2184888a70d5daa3cfaf98f3afe7e5844035069ad11f8e44c9d8c05c2fff",
+  "acquisition_time_utc": "2026-10-02T03:50:45.710937Z",
+  "anchor_semantic_fingerprint": "cde6abc9f7939e72a9c95c0f898c389f8718467825f209bc4604b7541d5aeb49",
   "bid_ask_validation": {
-    "ask": 4160.56,
-    "bid": 4160.48,
+    "ask": 4173.05,
+    "bid": 4172.97,
     "raw_tick_time_not_used_for_freshness": true,
     "status": "PASS",
     "valid_bid_ask": true
   },
   "canonical_instrument": "XAUUSD",
-  "decision_time_utc": "2026-10-02T02:50:00Z",
+  "decision_time_utc": "2026-10-02T03:50:00Z",
   "drawdown_evaluated": false,
   "execution_authorized": false,
   "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
@@ -21,25 +21,25 @@
   "gate13_status": "PASS",
   "gate14_status": "PASS",
   "gate_id": "GATE_15D_C_B2D_G1_GENUINE_ANCHORED_FORWARD_CAPTURE",
-  "generated_at_utc": "2026-10-02T02:51:41.757633Z",
+  "generated_at_utc": "2026-10-02T03:50:51.431104Z",
   "genuine_anchor_persisted_or_idempotently_present": true,
   "genuine_forward_observation_matured": false,
   "genuine_mt5_acquisition": true,
   "genuine_observation_persisted_or_idempotently_present": true,
   "genuine_outcome_appended": false,
   "ledger_counts": {
-    "anchor_after": 27,
-    "anchor_before": 26,
+    "anchor_after": 28,
+    "anchor_before": 27,
     "anchor_delta": 1,
-    "observation_after": 29,
-    "observation_before": 28,
+    "observation_after": 30,
+    "observation_before": 29,
     "observation_delta": 1,
-    "true_forward_after": 29,
-    "true_forward_before": 28,
+    "true_forward_after": 30,
+    "true_forward_before": 29,
     "true_forward_delta": 1
   },
   "live_authorized": false,
-  "logical_observation_id": "21e2661e9f908061c09537934967a868905ff224b2382f20aa3203c52bc69bd9",
+  "logical_observation_id": "64bb689a90f37e3d917860586e16420a5d2239935896289ed6b982349eace2db",
   "market_freshness": {
     "authority": "GATE_15B_A_V2_1_NORMALIZED_TIME_BASIS_ATTESTATION",
     "decision_time_not_after_normalized_tick": true,
@@ -47,10 +47,10 @@
     "max_future_tick_skew_seconds": 5,
     "max_tick_age_seconds": 180,
     "reference_offset_seconds": 10800,
-    "reference_tick_raw": 1790920297,
-    "reference_tick_utc": "2026-10-02T02:51:37Z",
+    "reference_tick_raw": 1790923847,
+    "reference_tick_utc": "2026-10-02T03:50:47Z",
     "status": "PASS",
-    "tick_age_seconds": -1.3698017597198486,
+    "tick_age_seconds": -1.2901978492736816,
     "time_basis_policy": "NY_CLOSE_SERVER_WALL_CLOCK"
   },
   "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
@@ -68,8 +68,8 @@
     "orphan_anchor": false
   },
   "pnl_evaluated": false,
-  "predicted_class": 1,
-  "predicted_label": "LONG",
+  "predicted_class": -1,
+  "predicted_label": "SHORT",
   "prospective_eligibility": {
     "eligibility_reason": "POST_CONTRACT_PROSPECTIVE_OBSERVATION",
     "eligible_for_formal_maturation": true,
@@ -94,7 +94,7 @@
     },
     "b2d_authority_commit_is_ancestor": true,
     "branch": "main",
-    "execution_head": "5a85df3d5b469cc17bb2173ff380f1c9f3321077",
+    "execution_head": "fd49aeb50422d042ed79fc23a3f400aafa1a5c4a",
     "g1_freeze_authority": {
       "freeze_base_commit": "59e3fe06ae3a6711a10578f35e7bf7bb56d7f532",
       "status": "PASS",
@@ -111,7 +111,7 @@
     },
     "g1_freeze_base_is_ancestor": true,
     "head_equals_origin_main": true,
-    "origin_main": "5a85df3d5b469cc17bb2173ff380f1c9f3321077",
+    "origin_main": "fd49aeb50422d042ed79fc23a3f400aafa1a5c4a",
     "status": "PASS"
   },
   "resolved_broker_symbol": "XAUUSDb",
@@ -133,6 +133,23 @@
   "runtime_ledger_files_after": {
     "anchor": {
       "exists": true,
+      "sha256": "c30b9b5f58ed6adf8481442ca8ab6398e24fff9a6cfd86ab203aaaabc06b296a",
+      "size_bytes": 40212
+    },
+    "observation": {
+      "exists": true,
+      "sha256": "80dbd529767dc8fa974b01d3316475fcce8f6b3306030ee5ce984a3fcee54f20",
+      "size_bytes": 34939
+    },
+    "outcome": {
+      "exists": true,
+      "sha256": "c53ec43af74f58ecfd4496b8f6385967fad5abd77b24ccc1da260ba87dbb394d",
+      "size_bytes": 41760
+    }
+  },
+  "runtime_ledger_files_before": {
+    "anchor": {
+      "exists": true,
       "sha256": "37ca82067ba47717e4e3d7ac63a636f77c3507330108109b61db0b6bde78a3eb",
       "size_bytes": 38776
     },
@@ -143,30 +160,13 @@
     },
     "outcome": {
       "exists": true,
-      "sha256": "080fb8abb3fe680fa3440980b6582762620f3eb3424e0841e628f94fc1207c23",
-      "size_bytes": 40216
-    }
-  },
-  "runtime_ledger_files_before": {
-    "anchor": {
-      "exists": true,
-      "sha256": "8a75a02767e7cf18d1b9fc579f1385918e0e9d4a6d19753e7fdeea4a07cd139a",
-      "size_bytes": 37340
-    },
-    "observation": {
-      "exists": true,
-      "sha256": "97ca3e6716c525dbe06199645896d4c7b8aaf997ba95f0d8fd552a9e01ee3c26",
-      "size_bytes": 32607
-    },
-    "outcome": {
-      "exists": true,
-      "sha256": "080fb8abb3fe680fa3440980b6582762620f3eb3424e0841e628f94fc1207c23",
-      "size_bytes": 40216
+      "sha256": "c53ec43af74f58ecfd4496b8f6385967fad5abd77b24ccc1da260ba87dbb394d",
+      "size_bytes": 41760
     }
   },
   "schema_version": "1.0.0",
-  "semantic_observation_fingerprint": "e5789133b14db1cb90a1524f494fee8bf8c57964255e6ac535a70fe80444845e",
-  "source_snapshot_id": "e3b907b5f98d4a6905aed42752ab3a88514cef95c5023bb6de64185f240dd697",
+  "semantic_observation_fingerprint": "c6fa56a3232283bf7357492ec0f3d12d2fd6bb1cd761d9b449dc722a89a786af",
+  "source_snapshot_id": "4b1be7b6d01c4decb4f580001d3415abe3ffa332ceeb520961d238b54c795e52",
   "static_safety": {
     "broker_write_calls": 0,
     "outcome_ledger_append_calls": 0,
@@ -193,8 +193,8 @@
   "status": "PASS",
   "time_basis": {
     "policy": "NY_CLOSE_SERVER_WALL_CLOCK",
-    "reference_tick_age_seconds": -1.3698017597198486,
-    "reference_tick_utc": "2026-10-02T02:51:37Z"
+    "reference_tick_age_seconds": -1.2901978492736816,
+    "reference_tick_utc": "2026-10-02T03:50:47Z"
   },
   "timestamp_resolution_normalization": {
     "dtypes_after": {
@@ -215,5 +215,5 @@
     "status": "PASS"
   },
   "win_rate_evaluated": false,
-  "winning_probability": 0.36231954622415247
+  "winning_probability": 0.34723458486467823
 }
