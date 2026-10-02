@@ -1,0 +1,504 @@
+{
+  "authority_verification": {
+    "contract_fingerprint_sha256": "32d8af41e2e1d128df664c8fc81bcf52a6a2b341f491a05d65179f740460875c",
+    "g5_status": "PASS",
+    "g6a_status": "PASS",
+    "g6b_status": "PASS",
+    "g6c_status": "PASS",
+    "status": "PASS"
+  },
+  "base_authority_commit": "78d1b094700a7635c75851492d33340b64894351",
+  "baseline_authority": {
+    "exact_g5_baseline": true,
+    "runtime_ledger_raw_sha256": {
+      "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+      "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+      "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+    },
+    "status": "PASS"
+  },
+  "diagnostic": {
+    "by_predicted_class": {
+      "LONG": {
+        "mean_confidence_margin": 0.03777541756079714,
+        "mean_l1_uniform_distance": 0.07874291323495186,
+        "mean_normalized_entropy": 0.9960884878303957,
+        "mean_winner_probability": 0.36800267516355156,
+        "sample_count": 23
+      },
+      "NO_TRADE": {
+        "mean_confidence_margin": 0.01275204274657712,
+        "mean_l1_uniform_distance": 0.05567610619635893,
+        "mean_normalized_entropy": 0.9975074147964328,
+        "mean_winner_probability": 0.35361849884822816,
+        "sample_count": 5
+      },
+      "SHORT": {
+        "mean_confidence_margin": 0.01134818239031693,
+        "mean_l1_uniform_distance": 0.046335480935558476,
+        "mean_normalized_entropy": 0.9987366388321105,
+        "mean_winner_probability": 0.35059129476237905,
+        "sample_count": 2
+      }
+    },
+    "by_true_outcome": {
+      "LONG": {
+        "mean_confidence_margin": 0.03314566746232327,
+        "mean_normalized_entropy": 0.9956256098609412,
+        "mean_probabilities": {
+          "LONG": 0.3630948655551568,
+          "NO_TRADE": 0.32561658586962827,
+          "SHORT": 0.3112885485752096
+        },
+        "mean_winner_probability": 0.36716445207031234,
+        "sample_count": 10
+      },
+      "NO_TRADE": {
+        "mean_confidence_margin": 0.030835326224388466,
+        "mean_normalized_entropy": 0.9974119532102975,
+        "mean_probabilities": {
+          "LONG": 0.35689465378446644,
+          "NO_TRADE": 0.320409522197566,
+          "SHORT": 0.322695824017962
+        },
+        "mean_winner_probability": 0.3619373141192829,
+        "sample_count": 12
+      },
+      "SHORT": {
+        "mean_confidence_margin": 0.03172632413699494,
+        "mean_normalized_entropy": 0.9962307543265629,
+        "mean_probabilities": {
+          "LONG": 0.36416473027077634,
+          "NO_TRADE": 0.3217100253121007,
+          "SHORT": 0.314125244417119
+        },
+        "mean_winner_probability": 0.36480554029913315,
+        "sample_count": 8
+      }
+    },
+    "confidence_margin": {
+      "max": 0.11602903659796038,
+      "mean": 0.03184303941372846,
+      "median": 0.020757991522513813,
+      "min": 0.0004619770554601388
+    },
+    "correct_vs_incorrect": {
+      "correct_count": 9,
+      "incorrect_count": 21,
+      "mean_entropy_correct": 0.996273221172409,
+      "mean_entropy_incorrect": 0.9965993610092289,
+      "mean_uniform_distance_correct": 0.04703830795052548,
+      "mean_uniform_distance_incorrect": 0.045731192232758705
+    },
+    "largest_margin_rows": [
+      {
+        "confidence_margin": 0.11602903659796038,
+        "correct": true,
+        "decision_time_utc": "2026-10-02T01:50:00Z",
+        "entropy": 1.0852247991474069,
+        "l1_uniform_distance": 0.15683066038367038,
+        "l2_uniform_distance": 0.0960652248331894,
+        "logical_observation_id": "c7d2f1f004a1e337ee39e5221e82e34fc6f11fe62c3f2fa100ea5ddf72fdf5ed",
+        "normalized_entropy": 0.9878141818922005,
+        "outcome_class": 1,
+        "predicted_class": 1,
+        "probability_long": 0.41174866352516715,
+        "probability_no_trade": 0.2925317095476233,
+        "probability_short": 0.29571962692720677,
+        "rank_1_class": 1,
+        "rank_2_class": -1,
+        "rank_3_class": 0,
+        "runner_up_probability": 0.29571962692720677,
+        "winner_probability": 0.41174866352516715
+      },
+      {
+        "confidence_margin": 0.11377236515445577,
+        "correct": false,
+        "decision_time_utc": "2026-10-01T08:15:00Z",
+        "entropy": 1.085965466522441,
+        "l1_uniform_distance": 0.15241287580099305,
+        "l2_uniform_distance": 0.09333653695609746,
+        "logical_observation_id": "c6c9d0e1ad982d6d88cac32304244432e0abbf0b58fd8a0379b5523619072106",
+        "normalized_entropy": 0.9884883663908393,
+        "outcome_class": -1,
+        "predicted_class": 1,
+        "probability_long": 0.4095397712338272,
+        "probability_no_trade": 0.29469282268679603,
+        "probability_short": 0.2957674060793714,
+        "rank_1_class": 1,
+        "rank_2_class": -1,
+        "rank_3_class": 0,
+        "runner_up_probability": 0.2957674060793714,
+        "winner_probability": 0.4095397712338272
+      },
+      {
+        "confidence_margin": 0.07119719711832795,
+        "correct": false,
+        "decision_time_utc": "2026-09-30T17:20:00Z",
+        "entropy": 1.092508945398615,
+        "l1_uniform_distance": 0.10406632699563484,
+        "l2_uniform_distance": 0.06445998748905979,
+        "logical_observation_id": "b17bdeeac841b60a80940756d74901ade7d2f41b522dba21d3ba67238ecd5b3f",
+        "normalized_entropy": 0.9944444975425369,
+        "outcome_class": 0,
+        "predicted_class": 1,
+        "probability_long": 0.385366496831148,
+        "probability_no_trade": 0.31416929971282004,
+        "probability_short": 0.3004642034560264,
+        "rank_1_class": 1,
+        "rank_2_class": 0,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.31416929971282004,
+        "winner_probability": 0.385366496831148
+      },
+      {
+        "confidence_margin": 0.06852135528373243,
+        "correct": true,
+        "decision_time_utc": "2026-09-30T18:20:00Z",
+        "entropy": 1.0937105674746648,
+        "l1_uniform_distance": 0.09421379220125159,
+        "l2_uniform_distance": 0.05777317748835291,
+        "logical_observation_id": "fcda3a70abccebfe462bd61347145dda40032c703a9c49b460de01ed439c45ee",
+        "normalized_entropy": 0.9955382610917383,
+        "outcome_class": 1,
+        "predicted_class": 1,
+        "probability_long": 0.3804402294339578,
+        "probability_no_trade": 0.31191887415022534,
+        "probability_short": 0.30764089641581416,
+        "rank_1_class": 1,
+        "rank_2_class": 0,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.31191887415022534,
+        "winner_probability": 0.3804402294339578
+      },
+      {
+        "confidence_margin": 0.06655345956578534,
+        "correct": false,
+        "decision_time_utc": "2026-10-01T14:30:00Z",
+        "entropy": 1.0928854514520174,
+        "l1_uniform_distance": 0.09997531405815319,
+        "l2_uniform_distance": 0.06237156424726432,
+        "logical_observation_id": "fb98f03bd158bca330d01ec28d4121f930361090310338b17c63b847b1fa1e66",
+        "normalized_entropy": 0.9947872081214063,
+        "outcome_class": 0,
+        "predicted_class": 1,
+        "probability_long": 0.38332099036240685,
+        "probability_no_trade": 0.2999114788409655,
+        "probability_short": 0.3167675307966215,
+        "rank_1_class": 1,
+        "rank_2_class": -1,
+        "rank_3_class": 0,
+        "runner_up_probability": 0.3167675307966215,
+        "winner_probability": 0.38332099036240685
+      }
+    ],
+    "most_uniform_probability_rows": [
+      {
+        "confidence_margin": 0.005126480226854635,
+        "correct": false,
+        "decision_time_utc": "2026-10-01T20:25:00Z",
+        "entropy": 1.0982273853158853,
+        "l1_uniform_distance": 0.02540994708669314,
+        "l2_uniform_distance": 0.01597701251372948,
+        "logical_observation_id": "0b72e38505498d38899e9e3f6bfddbe6ed71049cf2630e9634711c15a93f3501",
+        "normalized_entropy": 0.9996496458703451,
+        "outcome_class": -1,
+        "predicted_class": 0,
+        "probability_long": 0.33712257999157935,
+        "probability_no_trade": 0.342249060218434,
+        "probability_short": 0.3206283597899869,
+        "rank_1_class": 0,
+        "rank_2_class": 1,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.33712257999157935,
+        "winner_probability": 0.342249060218434
+      },
+      {
+        "confidence_margin": 0.013631191098248008,
+        "correct": true,
+        "decision_time_utc": "2026-09-30T10:20:00Z",
+        "entropy": 1.098066828553629,
+        "l1_uniform_distance": 0.027064734046842287,
+        "l2_uniform_distance": 0.019068161935698217,
+        "logical_observation_id": "ae7ac777cdd0bc997031b52ce459ab09ac5931501c1c14d131d3fe0c0aecdc18",
+        "normalized_entropy": 0.9995035008072393,
+        "outcome_class": 0,
+        "predicted_class": 0,
+        "probability_long": 0.3332345092585043,
+        "probability_no_trade": 0.3468657003567523,
+        "probability_short": 0.31989979038473904,
+        "rank_1_class": 0,
+        "rank_2_class": 1,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.3332345092585043,
+        "winner_probability": 0.3468657003567523
+      },
+      {
+        "confidence_margin": 0.013706399482395049,
+        "correct": false,
+        "decision_time_utc": "2026-10-01T03:15:00Z",
+        "entropy": 1.0979227150329693,
+        "l1_uniform_distance": 0.03119724715741995,
+        "l2_uniform_distance": 0.02142214461044894,
+        "logical_observation_id": "2957b651fb95095e0cc3b7a355949744b3063705f42ad5bbbec7664d0c76aaba",
+        "normalized_entropy": 0.9993723230276476,
+        "outcome_class": 0,
+        "predicted_class": 1,
+        "probability_long": 0.347985844863884,
+        "probability_no_trade": 0.3177347097546197,
+        "probability_short": 0.33427944538148896,
+        "rank_1_class": 1,
+        "rank_2_class": -1,
+        "rank_3_class": 0,
+        "runner_up_probability": 0.33427944538148896,
+        "winner_probability": 0.347985844863884
+      },
+      {
+        "confidence_margin": 0.02589087549626451,
+        "correct": false,
+        "decision_time_utc": "2026-09-30T09:20:00Z",
+        "entropy": 1.0978843872274457,
+        "l1_uniform_distance": 0.03603122078967336,
+        "l2_uniform_distance": 0.022122581698025928,
+        "logical_observation_id": "c96d7fc4004de09407da8c5e350dcaab5a3291df0caa45025521c992925bf8d8",
+        "normalized_entropy": 0.9993374355555894,
+        "outcome_class": -1,
+        "predicted_class": 1,
+        "probability_long": 0.35134894372816794,
+        "probability_no_trade": 0.32545806823190343,
+        "probability_short": 0.32319298803992447,
+        "rank_1_class": 1,
+        "rank_2_class": 0,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.32545806823190343,
+        "winner_probability": 0.35134894372816794
+      },
+      {
+        "confidence_margin": 0.010158427261471759,
+        "correct": false,
+        "decision_time_utc": "2026-10-02T03:50:00Z",
+        "entropy": 1.0978299995127767,
+        "l1_uniform_distance": 0.035288151602447526,
+        "l2_uniform_distance": 0.02277206487195225,
+        "logical_observation_id": "64bb689a90f37e3d917860586e16420a5d2239935896289ed6b982349eace2db",
+        "normalized_entropy": 0.9992879297242511,
+        "outcome_class": 1,
+        "predicted_class": -1,
+        "probability_long": 0.33707615760320647,
+        "probability_no_trade": 0.31568925753210386,
+        "probability_short": 0.34723458486467823,
+        "rank_1_class": -1,
+        "rank_2_class": 1,
+        "rank_3_class": 0,
+        "runner_up_probability": 0.33707615760320647,
+        "winner_probability": 0.34723458486467823
+      }
+    ],
+    "normalized_entropy": {
+      "max": 0.9996496458703451,
+      "mean": 0.9965015190581828,
+      "median": 0.9973746753002735,
+      "min": 0.9878141818922005
+    },
+    "overall_probability_summary": {
+      "LONG": {
+        "max": 0.41174866352516715,
+        "mean": 0.3609000781043792,
+        "median": 0.35947194368252394,
+        "min": 0.3152598379056413
+      },
+      "NO_TRADE": {
+        "max": 0.3770318882334314,
+        "mean": 0.32249201091879603,
+        "median": 0.3167119836433618,
+        "min": 0.29148389084907544
+      },
+      "SHORT": {
+        "max": 0.3539480046600798,
+        "mean": 0.31660791097681973,
+        "median": 0.3202075304809391,
+        "min": 0.27158749191534204
+      }
+    },
+    "rank_frequency": {
+      "rank_1": {
+        "LONG": 23,
+        "NO_TRADE": 5,
+        "SHORT": 2
+      },
+      "rank_2": {
+        "LONG": 6,
+        "NO_TRADE": 11,
+        "SHORT": 13
+      },
+      "rank_3": {
+        "LONG": 1,
+        "NO_TRADE": 14,
+        "SHORT": 15
+      }
+    },
+    "sample_count": 30,
+    "smallest_margin_rows": [
+      {
+        "confidence_margin": 0.0004619770554601388,
+        "correct": true,
+        "decision_time_utc": "2026-10-02T04:50:00Z",
+        "entropy": 1.0976032288192874,
+        "l1_uniform_distance": 0.04211904484847734,
+        "l2_uniform_distance": 0.0257946106484565,
+        "logical_observation_id": "6b0cf1673cab058733481087aaa7b11dc14cb5255295282f9bcfd6acf1f73346",
+        "normalized_entropy": 0.9990815141435877,
+        "outcome_class": 1,
+        "predicted_class": 1,
+        "probability_long": 0.34409408307318123,
+        "probability_no_trade": 0.3436321060177211,
+        "probability_short": 0.3122738109090917,
+        "rank_1_class": 1,
+        "rank_2_class": 0,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.3436321060177211,
+        "winner_probability": 0.34409408307318123
+      },
+      {
+        "confidence_margin": 0.004077067900246423,
+        "correct": false,
+        "decision_time_utc": "2026-10-01T19:25:00Z",
+        "entropy": 1.0972056357861004,
+        "l1_uniform_distance": 0.04947047085542744,
+        "l2_uniform_distance": 0.03043121832638876,
+        "logical_observation_id": "9e20b235c76c0d934f881edbd5b4a4f75fceadf9855d6b117fca748767941d63",
+        "normalized_entropy": 0.9987196093685474,
+        "outcome_class": 0,
+        "predicted_class": 1,
+        "probability_long": 0.3477394849973115,
+        "probability_no_trade": 0.3085980979056158,
+        "probability_short": 0.3436624170970651,
+        "rank_1_class": 1,
+        "rank_2_class": -1,
+        "rank_3_class": 0,
+        "runner_up_probability": 0.3436624170970651,
+        "winner_probability": 0.3477394849973115
+      },
+      {
+        "confidence_margin": 0.004886169507876237,
+        "correct": false,
+        "decision_time_utc": "2026-09-30T05:20:00Z",
+        "entropy": 1.096080966000743,
+        "l1_uniform_distance": 0.06626717615689581,
+        "l2_uniform_distance": 0.04072700964542226,
+        "logical_observation_id": "8800b77e6724104cab30feadea2c82877a945d4f13af00aab58616710fda6c43",
+        "normalized_entropy": 0.997695890812913,
+        "outcome_class": 1,
+        "predicted_class": 0,
+        "probability_long": 0.3474570426186181,
+        "probability_no_trade": 0.35234321212649433,
+        "probability_short": 0.3001997452548833,
+        "rank_1_class": 0,
+        "rank_2_class": 1,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.3474570426186181,
+        "winner_probability": 0.35234321212649433
+      },
+      {
+        "confidence_margin": 0.005126480226854635,
+        "correct": false,
+        "decision_time_utc": "2026-10-01T20:25:00Z",
+        "entropy": 1.0982273853158853,
+        "l1_uniform_distance": 0.02540994708669314,
+        "l2_uniform_distance": 0.01597701251372948,
+        "logical_observation_id": "0b72e38505498d38899e9e3f6bfddbe6ed71049cf2630e9634711c15a93f3501",
+        "normalized_entropy": 0.9996496458703451,
+        "outcome_class": -1,
+        "predicted_class": 0,
+        "probability_long": 0.33712257999157935,
+        "probability_no_trade": 0.342249060218434,
+        "probability_short": 0.3206283597899869,
+        "rank_1_class": 0,
+        "rank_2_class": 1,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.33712257999157935,
+        "winner_probability": 0.342249060218434
+      },
+      {
+        "confidence_margin": 0.009343458586905717,
+        "correct": false,
+        "decision_time_utc": "2026-10-02T05:50:00Z",
+        "entropy": 1.0954402644241437,
+        "l1_uniform_distance": 0.0736228059570776,
+        "l2_uniform_distance": 0.04556609696973488,
+        "logical_observation_id": "201cb5e1f308c678c012217c6c4306be169a5dd9726cb8a11306b83bede69de5",
+        "normalized_entropy": 0.9971126991053307,
+        "outcome_class": 0,
+        "predicted_class": 1,
+        "probability_long": 0.3564107641160541,
+        "probability_no_trade": 0.3470673055291484,
+        "probability_short": 0.2965219303547916,
+        "rank_1_class": 1,
+        "rank_2_class": 0,
+        "rank_3_class": -1,
+        "runner_up_probability": 0.3470673055291484,
+        "winner_probability": 0.3564107641160541
+      }
+    ],
+    "uniform_distance": {
+      "mean_l1": 0.07273794990856015,
+      "mean_l2": 0.04612332694808874,
+      "median_l1": 0.06940013247588975,
+      "median_l2": 0.04386424491303771
+    },
+    "uniform_reference_probability": 0.3333333333333333,
+    "winner_probability": {
+      "max": 0.41174866352516715,
+      "mean": 0.3644445537509195,
+      "median": 0.3631502971940801,
+      "min": 0.342249060218434
+    }
+  },
+  "diagnostic_only": true,
+  "diagnostic_scope": "EXACT_G5_FROZEN_30_MATURED_FORWARD_OUTCOMES",
+  "execution_authorized": false,
+  "feature_reselection_performed": false,
+  "gate_id": "GATE_15D_C_B2D_G6_D_PROBABILITY_GEOMETRY_ARGMAX_BIAS_DIAGNOSTIC",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_performance_evaluation_contract.py": "51b6c4acfc7b875034921e22cc1d2adb6b567d0bbcf8320930532dc29f7fa90d",
+    "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze_evidence.json": "32ce2a933a127a687ec2a12186e10efb6c0b5193730c6a770d70daee4a6240dc",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze_evidence.json": "aecfd89335c1633042b47d16ecabec35a38b62503a40bd947e7b97a90b3f3b33",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation_evidence.json": "1be7925e3e95514b73b443afdfdebfe0c509a6d24183c7c4e08cd54cfc0c6cf1",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_c_forward_error_confidence_diagnostic_evidence.json": "7b1125cc7bbfb3d203ba245261ed01c311f30669996dce55d8dfe63d7a1d91a8",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_d_probability_geometry_diagnostic.py": "1368feddbe5ff1255e0d67521c1a64e3a4c25715c0bde32d59b7ff74eccc17cd",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g6_d_probability_geometry_diagnostic.py": "9cb230baf453bffe0c3872d13f79fa599df3b0a75ed3273df7fbdff49b873656"
+  },
+  "hash_bound_file_count": 9,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "pass_fail_threshold_defined": false,
+  "performance_interpreted_for_promotion": false,
+  "performance_recalculated": false,
+  "pnl_evaluated": false,
+  "probability_calibration_performed": false,
+  "refitting_performed": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_d_probability_geometry_diagnostic.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g6_d_probability_geometry_diagnostic.py"
+    ],
+    "branch": "main",
+    "head": "78d1b094700a7635c75851492d33340b64894351",
+    "origin_main": "78d1b094700a7635c75851492d33340b64894351",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "threshold_tuning_performed": false
+}
