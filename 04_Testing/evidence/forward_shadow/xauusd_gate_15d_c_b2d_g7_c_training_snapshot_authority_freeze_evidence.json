@@ -1,0 +1,92 @@
+{
+  "authorized_training_snapshot": {
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_path_emitted": false,
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "manifest_path_emitted": false,
+    "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc",
+    "maximum_decision_time_utc": "2026-08-14T20:00:00+00:00",
+    "minimum_decision_time_utc": "2025-03-17T08:45:00+00:00",
+    "research_data_cutoff_utc": "2026-08-14T20:55:00Z",
+    "row_count": 99945,
+    "split_counts": {
+      "TEST": 14996,
+      "TRAIN": 69966,
+      "VALIDATION": 14983
+    },
+    "status": "PASS",
+    "train_is_contiguous_prefix": true
+  },
+  "base_authority_commit": "5ab1fdbe822e0e1f723f2a6a5f75da3544233f09",
+  "calibration_performed": false,
+  "dataset_discovered": true,
+  "dataset_hash_verified": true,
+  "execution_authorized": false,
+  "feature_columns_hash_verified": true,
+  "feature_columns_hashing_semantics": "JSON_COMPACT_UTF8_SHA256_ORDER_PRESERVED",
+  "feature_reselection_performed": false,
+  "feature_values_loaded": false,
+  "g7b_authority": {
+    "contract_fingerprint_sha256": "5e1d643c9a65d5709593bf7e3163895cc087ffb18eb0330ae0e80886d4fae0f3",
+    "status": "PASS"
+  },
+  "gate_id": "GATE_15D_C_B2D_G7_C_TRAINING_SNAPSHOT_AUTHORITY_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_remediation_data_authority_contract.py": "94d20e04c59e76421bf7440b0152ee8ef7e78f6ec2725716ec530f136cad3527",
+    "02_AI/Models/frozen_c04_remediation_training_snapshot_authority.py": "c4de76c03068017ae6136759587cfa9283351220ec0caa0b729870de4e83eee0",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g7_b_remediation_data_authority_freeze_evidence.json": "e1d98c2aad51a72355522ee362e56006be4b146bbc0a2ae88b532ba7707ec075",
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_c04_full_train_model_fit.json": "9bc8727e03a8f430b1e5d7395c7fdeaaeea591fee8528d2154cc34d353542b7c",
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_input_readiness.json": "a276a4c0eb874e043cbca8f95bde1797e0db69311e6d15d2971f53bec5e28d85",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_c_training_snapshot_authority_freeze.py": "7f15ed8cab030151891782c64ab8e6c3e6e9c07919e4c8039cd522939565880c",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_c_training_snapshot_authority_freeze.py": "3c1f2596a54ce3e1becbc5970ea20759df4e6a73ecf3e9725cb62f439de45659"
+  },
+  "hash_bound_file_count": 7,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "hyperparameter_tuning_performed": false,
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "manifest_hash_verified": true,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "pnl_evaluated": false,
+  "refitting_performed": false,
+  "repository_authority": {
+    "branch": "main",
+    "head": "5ab1fdbe822e0e1f723f2a6a5f75da3544233f09",
+    "origin_main": "5ab1fdbe822e0e1f723f2a6a5f75da3544233f09",
+    "status": "PASS"
+  },
+  "research_lineage": {
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc",
+    "split_counts": {
+      "TEST": 14996,
+      "TRAIN": 69966,
+      "VALIDATION": 14983
+    },
+    "status": "PASS",
+    "total_rows": 99945
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.0",
+  "snapshot_contract": {
+    "contract_fingerprint_sha256": "11302c424f05aab2fbd640d644b30d3df0b013d3b9e1b559b29e325ee2f99b50",
+    "contract_id": "FROZEN_C04_REMEDIATION_TRAINING_SNAPSHOT_AUTHORITY_V1",
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "target_values_loaded": false,
+  "test_evaluated": false,
+  "threshold_tuning_performed": false,
+  "validation_evaluated": false
+}
