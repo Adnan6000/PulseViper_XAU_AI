@@ -245,15 +245,14 @@ Frozen ordered feature fingerprint:
 65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2
 ```
 
-Still required for production:
+Historical portability research is complete and Gate 13 production broker feature parity is complete. Remaining production work is integration/operational rather than redoing the portability research:
 
-* [ ] prove same semantic features on a different broker
-* [ ] canonicalize broker timestamps
-* [ ] reconstruct D1 consistently
-* [ ] test missing-bar behavior
-* [ ] test session transitions
-* [ ] compare historical vs production feature generation
-* [ ] enforce feature fingerprint at inference
+* [x] canonicalize broker timestamps under the Gate 15B-A authority
+* [x] reconstruct D1 consistently under the production feature pipeline
+* [x] test missing/duplicate-bar behavior and stale-bar handling
+* [x] compare historical vs production feature generation for Gate 13 parity
+* [x] enforce the feature fingerprint in the frozen inference path
+* [ ] complete end-to-end production runtime integration and operational validation
 
 ---
 
