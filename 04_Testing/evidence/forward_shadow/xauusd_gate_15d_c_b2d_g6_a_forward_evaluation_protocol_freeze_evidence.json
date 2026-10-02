@@ -1,0 +1,51 @@
+{
+  "base_authority_commit": "c82abaf6008e9239cecae5fef4fde24936ad6358",
+  "calibration_performed": false,
+  "evaluation_contract": {
+    "contract_fingerprint_sha256": "32d8af41e2e1d128df664c8fc81bcf52a6a2b341f491a05d65179f740460875c",
+    "contract_id": "FROZEN_C04_FORWARD_PERFORMANCE_EVALUATION_CONTRACT_V1",
+    "evaluation_cadence": "WEEKLY",
+    "fixed_count_wait_required": false,
+    "metric_count": 13,
+    "minimum_new_weekly_sample_count": 0,
+    "status": "PASS"
+  },
+  "execution_authorized": false,
+  "g5_baseline": {
+    "g5_evidence_sha256": "32ce2a933a127a687ec2a12186e10efb6c0b5193730c6a770d70daee4a6240dc",
+    "matured_count": 30,
+    "pending_count": 0,
+    "status": "PASS"
+  },
+  "gate_id": "GATE_15D_C_B2D_G6_A_FORWARD_EVALUATION_PROTOCOL_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_forward_performance_evaluation_contract.py": "51b6c4acfc7b875034921e22cc1d2adb6b567d0bbcf8320930532dc29f7fa90d",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze_evidence.json": "32ce2a933a127a687ec2a12186e10efb6c0b5193730c6a770d70daee4a6240dc",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze.py": "fa73b9dba3a761b15b1665fe83fc03daf2df6437ba9fbbc50d8e41bf7fdd6175",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze.py": "f4088f0fad6fb75409c5b2e5852bce1ab737e0f273733b3170459f9e0a2e861f",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze.py": "ac8b7a29b951dcdd8fd8989ecdf3a9defc60cadca22c6b70075aa86d3b5a3758"
+  },
+  "hash_bound_file_count": 5,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "performance_calculated": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "02_AI/Models/frozen_c04_forward_performance_evaluation_contract.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze.py"
+    ],
+    "branch": "main",
+    "head": "c82abaf6008e9239cecae5fef4fde24936ad6358",
+    "origin_main": "c82abaf6008e9239cecae5fef4fde24936ad6358",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "threshold_tuning_performed": false
+}
