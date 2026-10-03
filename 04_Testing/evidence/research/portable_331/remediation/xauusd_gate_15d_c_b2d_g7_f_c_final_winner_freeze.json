@@ -1,0 +1,59 @@
+{
+  "access_authority": {
+    "access_contract_fingerprint_sha256": "bfd0cfee283dcb29cff79feff6a5366772a596c9635e470e06d56e70ead74b3e",
+    "status": "PASS",
+    "test_values_still_blocked": true
+  },
+  "base_authority_commit": "74ba1f9bc074de6bb8e6081758b9f31efa32b066",
+  "contract_fingerprint_sha256": "1c0a7e91b318973f319de4a01b9f850e80f236c9211b4866f52cbb330a973f91",
+  "contract_id": "FROZEN_C04_REMEDIATION_FINAL_WINNER_CONTRACT_V1",
+  "execution_authorized": false,
+  "forward_30_used": false,
+  "g7fb_source_evidence": {
+    "g7fb_evidence_sha256": "34a90921c81fdc1f482330b6cc91e7b34a54339295f4d6e272838057078727b4",
+    "status": "PASS",
+    "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH",
+    "winner_metrics_bound": true
+  },
+  "gate_id": "GATE_15D_C_B2D_G7_F_C_FINAL_WINNER_FREEZE",
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_training_performed": false,
+  "pnl_evaluated": false,
+  "probability_calibration_performed": false,
+  "protected_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "xauusd_portable_331_one_time_validation_access_ledger.json": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2"
+  },
+  "registry_authority": {
+    "registry_fingerprint_sha256": "4556eb982086da0ea19ab910a30b5ab58788c7e5b7488ef8e3453e46289c0deb",
+    "status": "PASS",
+    "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+    "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+  },
+  "repository": {
+    "branch": "main",
+    "head": "74ba1f9bc074de6bb8e6081758b9f31efa32b066",
+    "origin_main": "74ba1f9bc074de6bb8e6081758b9f31efa32b066",
+    "status": "PASS"
+  },
+  "runtime_ledger_write_performed": false,
+  "safety": {
+    "execution_authorized": false,
+    "live_authorized": false,
+    "status": "PASS",
+    "test_evaluation_performed": false,
+    "test_values_loaded": false
+  },
+  "status": "PASS",
+  "test_evaluation_performed": false,
+  "test_values_loaded": false,
+  "threshold_tuning_performed": false,
+  "train_values_loaded": false,
+  "validation_reevaluation_performed": false,
+  "validation_values_loaded": false,
+  "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+  "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+}
