@@ -1,0 +1,123 @@
+{
+  "access_marker_created": true,
+  "authorities": {
+    "final_winner_contract_fingerprint_sha256": "1c0a7e91b318973f319de4a01b9f850e80f236c9211b4866f52cbb330a973f91",
+    "registry_fingerprint_sha256": "4556eb982086da0ea19ab910a30b5ab58788c7e5b7488ef8e3453e46289c0deb",
+    "status": "PASS",
+    "test_confirmation_contract_fingerprint_sha256": "bc1633761ad6dc68923351735abd6ec940ac84871a38c2620ef668666cffe305",
+    "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+    "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+  },
+  "base_authority_commit": "fcc2f282e9c617708ca75b599e337dbeb879283e",
+  "candidate_replacement_performed": false,
+  "data_identity": {
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "test_rows": 14996,
+    "train_rows": 69966,
+    "validation_rows_not_loaded": 14983
+  },
+  "execution_authorized": false,
+  "feature_selection_performed": false,
+  "forward_30_used": false,
+  "gate_id": "GATE_15D_C_B2D_G7_G_B_ONE_SHOT_SEALED_TEST",
+  "hyperparameter_change_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_training_performed": true,
+  "pnl_evaluated": false,
+  "probability_calibration_performed": false,
+  "protected_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "xauusd_portable_331_one_time_validation_access_ledger.json": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2"
+  },
+  "repository": {
+    "branch": "main",
+    "head": "fcc2f282e9c617708ca75b599e337dbeb879283e",
+    "origin_main": "fcc2f282e9c617708ca75b599e337dbeb879283e",
+    "status": "PASS"
+  },
+  "runtime_ledger_write_performed": false,
+  "same_test_rerun_authorized": false,
+  "sealed_test_access_marker_relative_path": "04_Testing/evidence/research/portable_331/remediation/xauusd_gate_15d_c_b2d_g7_g_b_sealed_test_one_shot_access_marker.json",
+  "sealed_test_access_marker_sha256": "d4555e29b4938ed12fe624d9e3b8853b5b59d2e8c35e494225fdd34f89f8ae72",
+  "status": "PASS",
+  "temporal_authority": {
+    "status": "PASS",
+    "test_first": "2026-06-01T04:25:00.000000000",
+    "test_last": "2026-08-14T20:00:00.000000000",
+    "test_time_strictly_monotonic": true,
+    "train_before_test": true
+  },
+  "test_access_count": 1,
+  "test_confirmation": {
+    "failures": [],
+    "passed": true,
+    "status": "SEALED_TEST_CONFIRMED",
+    "thresholds": {
+      "balanced_accuracy_minimum": 0.3399845741475606,
+      "macro_f1_minimum": 0.3241422107016895,
+      "minimum_per_class_recall_minimum": 0.2601206801974767,
+      "multiclass_brier_maximum": 0.7148217771177803,
+      "multiclass_log_loss_maximum": 1.1958580283040205
+    }
+  },
+  "test_evaluation_performed": true,
+  "test_metrics": {
+    "balanced_accuracy": 0.36362456717804426,
+    "exact_class_accuracy": 0.3560949586556415,
+    "long_f1": 0.32655853038889976,
+    "long_precision": 0.255075560983056,
+    "long_recall": 0.4537062177572631,
+    "macro_f1": 0.3490621418247086,
+    "mean_correct_confidence": 0.36506809877560775,
+    "mean_incorrect_confidence": 0.36183877213223226,
+    "mean_probability_by_class": {
+      "LONG": 0.3423898738070958,
+      "NO_TRADE": 0.3300497789051146,
+      "SHORT": 0.32756034728778294
+    },
+    "minimum_per_class_recall": 0.29837117472852914,
+    "multiclass_brier": 0.6647780979670608,
+    "multiclass_log_loss": 1.095870026564396,
+    "no_trade_f1": 0.42771450925845433,
+    "no_trade_precision": 0.57991513437058,
+    "no_trade_recall": 0.33879630904834046,
+    "outcome_counts": {
+      "LONG": 3683,
+      "NO_TRADE": 7261,
+      "SHORT": 4052
+    },
+    "outcome_shares": {
+      "LONG": 0.24559882635369432,
+      "NO_TRADE": 0.4841957855428114,
+      "SHORT": 0.27020538810349426
+    },
+    "prediction_counts": {
+      "LONG": 6551,
+      "NO_TRADE": 4242,
+      "SHORT": 4203
+    },
+    "prediction_shares": {
+      "LONG": 0.4368498266204321,
+      "NO_TRADE": 0.2828754334489197,
+      "SHORT": 0.28027473993064816
+    },
+    "short_f1": 0.2929133858267717,
+    "short_precision": 0.28765167737330477,
+    "short_recall": 0.29837117472852914
+  },
+  "test_values_loaded": true,
+  "threshold_tuning_performed": false,
+  "train_only_model_fit": true,
+  "train_plus_validation_refit_performed": false,
+  "train_values_loaded": true,
+  "validation_evaluation_performed": false,
+  "validation_values_loaded": false,
+  "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+  "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+}
