@@ -1,0 +1,82 @@
+{
+  "candidate_evaluation_performed": false,
+  "execution_authorized": false,
+  "g7d_authority": {
+    "contract_fingerprint_sha256": "c6270f03fed45ba749d40ea4c556b95e683ad934575c9dc958664bef83f86638",
+    "status": "PASS"
+  },
+  "gate_id": "GATE_15D_C_B2D_G7_E_REMEDIATION_CANDIDATE_REGISTRY_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_remediation_candidate_registry.py": "9a62e26ac72ba1934b326ddc0c5d2df69ed06e52e6823dc75362f325cc1e4b97",
+    "02_AI/Models/frozen_c04_remediation_research_protocol_contract.py": "51f11b5432b998ed6b7f1a4f582cebdc73c1217e775fdec38df57ffa3cfe9ea5",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g7_d_remediation_research_protocol_freeze_evidence.json": "8e08cf2d03a521e616f0d2698f158b8e1a16706315aa89320c6bd875227dcc58",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_e_remediation_candidate_registry_freeze.py": "69debad06264e1cac0169c460367d04f0abd2dabfd32b08ffdc9229222bffab4",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_e_remediation_candidate_registry_freeze.py": "96b905f07f28409b96eba2f26ee4832f405dd97cf3197034aeda3d27af0422b8",
+    "xauusd_portable_331_train_model_candidate_registry_design.json": "1e687bb9de4b3a3325e9904a69bb272bce0fcf65219433529e98e8814aa6b402"
+  },
+  "historical_c04_control": {
+    "control_exact_match": true,
+    "historical_c04_config_fingerprint_sha256": "f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3",
+    "status": "PASS"
+  },
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_training_performed": false,
+  "pnl_evaluated": false,
+  "probability_calibration_performed": false,
+  "remediation_candidate_registry": {
+    "candidate_count": 6,
+    "candidate_fingerprints": {
+      "R00_CONTROL_C04_EXACT": "20170902ca496c8f8e86ca03b72e0d02d6157c9a3e09ea1c8200a97c31ff5db4",
+      "R01_FLAT_LOGREG_STRONG_REG": "fe1365d54a9f675c06a5920286124703138f283ff45a9c69566f532c11d6a9df",
+      "R02_FLAT_HGB_BALANCED_MEDIUM": "a885bce2cf6dced944c7181c81abc7339aa3b7eaad2cfaee3009beb4067958a3",
+      "R03_FLAT_EXTRA_TREES_SMOOTH": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+      "R04_HIER_HGB_LOGREG_REBALANCED": "7f9084318229e6d5f0b74a83a54ce3c56cfa793073d41903d928daf97dd70fbe",
+      "R05_HIER_LOGREG_HGB_DIRECTION": "6cddf4d2e02076fa3fff9900e1debc30d48a93fe11d7757cd10d39c742879eef"
+    },
+    "candidate_ids": [
+      "R00_CONTROL_C04_EXACT",
+      "R01_FLAT_LOGREG_STRONG_REG",
+      "R02_FLAT_HGB_BALANCED_MEDIUM",
+      "R03_FLAT_EXTRA_TREES_SMOOTH",
+      "R04_HIER_HGB_LOGREG_REBALANCED",
+      "R05_HIER_LOGREG_HGB_DIRECTION"
+    ],
+    "registry_fingerprint_sha256": "4556eb982086da0ea19ab910a30b5ab58788c7e5b7488ef8e3453e46289c0deb",
+    "status": "PASS"
+  },
+  "repository_authority": {
+    "branch": "main",
+    "bridge_docs_only": true,
+    "bridge_paths": [
+      "05_Documentation/Architecture.md",
+      "05_Documentation/Development_Roadmap.md",
+      "README.md"
+    ],
+    "head": "63b2ea84a74c7a4a5e3ad355b6e0c2ec4e702893",
+    "origin_main": "63b2ea84a74c7a4a5e3ad355b6e0c2ec4e702893",
+    "scientific_parent_authority_commit": "86271e347939c18a45c03629efdfeab1035da75a",
+    "status": "PASS"
+  },
+  "repository_base_commit": "63b2ea84a74c7a4a5e3ad355b6e0c2ec4e702893",
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "runtime_ledger_write_performed": false,
+  "schema_version": "1.0.0",
+  "scientific_parent_authority_commit": "86271e347939c18a45c03629efdfeab1035da75a",
+  "scientific_policy": {
+    "forward_30_development_use": false,
+    "registry_frozen_before_fit": true,
+    "status": "PASS",
+    "test_sealed": true
+  },
+  "status": "PASS",
+  "test_values_loaded": false,
+  "threshold_tuning_performed": false,
+  "train_values_loaded": false,
+  "validation_values_loaded": false,
+  "winner_selected": false
+}
