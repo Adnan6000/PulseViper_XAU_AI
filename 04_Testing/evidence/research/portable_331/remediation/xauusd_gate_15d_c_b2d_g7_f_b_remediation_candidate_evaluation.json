@@ -1,0 +1,399 @@
+{
+  "authorities": {
+    "candidate_count": 6,
+    "g7e_registry_fingerprint_sha256": "4556eb982086da0ea19ab910a30b5ab58788c7e5b7488ef8e3453e46289c0deb",
+    "g7fa_access_fingerprint_sha256": "bfd0cfee283dcb29cff79feff6a5366772a596c9635e470e06d56e70ead74b3e",
+    "status": "PASS"
+  },
+  "base_authority_commit": "4870dcfd432ff0fa2dd242a5e2bd2d2845fbd806",
+  "candidate_evaluation_performed": true,
+  "data_identity": {
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc",
+    "test_rows": 14996,
+    "train_rows": 69966,
+    "validation_rows": 14983
+  },
+  "evaluation": {
+    "candidate_count": 6,
+    "candidate_reports": [
+      {
+        "architecture": "FLAT_3CLASS",
+        "candidate_id": "R00_CONTROL_C04_EXACT",
+        "eligibility_failures": [],
+        "eligible": true,
+        "family": "EXTRA_TREES",
+        "role": "HISTORICAL_CONTROL",
+        "validation_metrics": {
+          "balanced_accuracy": 0.37656763760203776,
+          "exact_class_accuracy": 0.35133150904358273,
+          "long_f1": 0.348675799086758,
+          "long_precision": 0.25997548685823235,
+          "long_recall": 0.529248683116163,
+          "macro_f1": 0.34890395261998247,
+          "mean_correct_confidence": 0.367471710213813,
+          "mean_incorrect_confidence": 0.3680823875902984,
+          "mean_probability_by_class": {
+            "LONG": 0.34790770429839263,
+            "NO_TRADE": 0.3279906390805968,
+            "SHORT": 0.3241016566210073
+          },
+          "minimum_per_class_recall": 0.2814042786615469,
+          "multiclass_brier": 0.6664287278633827,
+          "multiclass_log_loss": 1.0979186095143678,
+          "no_trade_f1": 0.3739067055393586,
+          "no_trade_precision": 0.5570032573289903,
+          "no_trade_recall": 0.2814042786615469,
+          "outcome_counts": {
+            "LONG": 3607,
+            "NO_TRADE": 7292,
+            "SHORT": 4084
+          },
+          "outcome_shares": {
+            "LONG": 0.240739504772075,
+            "NO_TRADE": 0.4866849095641727,
+            "SHORT": 0.27257558566375223
+          },
+          "prediction_counts": {
+            "LONG": 7343,
+            "NO_TRADE": 3684,
+            "SHORT": 3956
+          },
+          "prediction_shares": {
+            "LONG": 0.4900887672695722,
+            "NO_TRADE": 0.2458786624841487,
+            "SHORT": 0.26403257024627913
+          },
+          "short_f1": 0.32412935323383085,
+          "short_precision": 0.3293731041456016,
+          "short_recall": 0.3190499510284035
+        }
+      },
+      {
+        "architecture": "FLAT_3CLASS",
+        "candidate_id": "R01_FLAT_LOGREG_STRONG_REG",
+        "eligibility_failures": [],
+        "eligible": true,
+        "family": "LOGISTIC_REGRESSION",
+        "role": "REMEDIATION_CANDIDATE",
+        "validation_metrics": {
+          "balanced_accuracy": 0.3485188095690479,
+          "exact_class_accuracy": 0.3033437896282453,
+          "long_f1": 0.3783288621343977,
+          "long_precision": 0.2476019184652278,
+          "long_recall": 0.8014970889936235,
+          "macro_f1": 0.24780028126988576,
+          "mean_correct_confidence": 0.4931506573155943,
+          "mean_incorrect_confidence": 0.508251925558138,
+          "mean_probability_by_class": {
+            "LONG": 0.48650930677947785,
+            "NO_TRADE": 0.3241870598983333,
+            "SHORT": 0.18930363332218889
+          },
+          "minimum_per_class_recall": 0.039177277179236046,
+          "multiclass_brier": 0.7433674858402172,
+          "multiclass_log_loss": 1.2212244187921986,
+          "no_trade_f1": 0.29458740017746227,
+          "no_trade_precision": 0.5240266573132234,
+          "no_trade_recall": 0.20488206253428415,
+          "outcome_counts": {
+            "LONG": 3607,
+            "NO_TRADE": 7292,
+            "SHORT": 4084
+          },
+          "outcome_shares": {
+            "LONG": 0.240739504772075,
+            "NO_TRADE": 0.4866849095641727,
+            "SHORT": 0.27257558566375223
+          },
+          "prediction_counts": {
+            "LONG": 11676,
+            "NO_TRADE": 2851,
+            "SHORT": 456
+          },
+          "prediction_shares": {
+            "LONG": 0.7792831876126276,
+            "NO_TRADE": 0.19028231996262432,
+            "SHORT": 0.030434492424748046
+          },
+          "short_f1": 0.07048458149779736,
+          "short_precision": 0.3508771929824561,
+          "short_recall": 0.039177277179236046
+        }
+      },
+      {
+        "architecture": "FLAT_3CLASS",
+        "candidate_id": "R02_FLAT_HGB_BALANCED_MEDIUM",
+        "eligibility_failures": [],
+        "eligible": true,
+        "family": "HIST_GRADIENT_BOOSTING",
+        "role": "REMEDIATION_CANDIDATE",
+        "validation_metrics": {
+          "balanced_accuracy": 0.3597798828657377,
+          "exact_class_accuracy": 0.3240339050924381,
+          "long_f1": 0.33893700118865683,
+          "long_precision": 0.24427854607759147,
+          "long_recall": 0.5533684502356528,
+          "macro_f1": 0.3221040901939933,
+          "mean_correct_confidence": 0.41824414651881414,
+          "mean_incorrect_confidence": 0.4186039493259818,
+          "mean_probability_by_class": {
+            "LONG": 0.37281027577759107,
+            "NO_TRADE": 0.3147825150200678,
+            "SHORT": 0.3124072092023411
+          },
+          "minimum_per_class_recall": 0.22161272627537026,
+          "multiclass_brier": 0.6827112851203307,
+          "multiclass_log_loss": 1.120747083243275,
+          "no_trade_f1": 0.31996831996832,
+          "no_trade_precision": 0.5752936988252046,
+          "no_trade_recall": 0.22161272627537026,
+          "outcome_counts": {
+            "LONG": 3607,
+            "NO_TRADE": 7292,
+            "SHORT": 4084
+          },
+          "outcome_shares": {
+            "LONG": 0.240739504772075,
+            "NO_TRADE": 0.4866849095641727,
+            "SHORT": 0.27257558566375223
+          },
+          "prediction_counts": {
+            "LONG": 8171,
+            "NO_TRADE": 2809,
+            "SHORT": 4003
+          },
+          "prediction_shares": {
+            "LONG": 0.5453513982513515,
+            "NO_TRADE": 0.18747914302876592,
+            "SHORT": 0.2671694587198825
+          },
+          "short_f1": 0.3074069494250031,
+          "short_precision": 0.3105171121658756,
+          "short_recall": 0.30435847208619
+        }
+      },
+      {
+        "architecture": "FLAT_3CLASS",
+        "candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH",
+        "eligibility_failures": [],
+        "eligible": true,
+        "family": "EXTRA_TREES",
+        "role": "REMEDIATION_CANDIDATE",
+        "validation_metrics": {
+          "balanced_accuracy": 0.377760637941734,
+          "exact_class_accuracy": 0.3640125475538944,
+          "long_f1": 0.33363774733637747,
+          "long_precision": 0.26312419974391804,
+          "long_recall": 0.4557804269476019,
+          "macro_f1": 0.3601580118907661,
+          "mean_correct_confidence": 0.3636379733822602,
+          "mean_incorrect_confidence": 0.36203208063923636,
+          "mean_probability_by_class": {
+            "LONG": 0.3423781000363963,
+            "NO_TRADE": 0.32912350645119476,
+            "SHORT": 0.3284983935124031
+          },
+          "minimum_per_class_recall": 0.32515085024684587,
+          "multiclass_brier": 0.6648217771177802,
+          "multiclass_log_loss": 1.0958580283040205,
+          "no_trade_f1": 0.40967602591792657,
+          "no_trade_precision": 0.5535839364931123,
+          "no_trade_recall": 0.32515085024684587,
+          "outcome_counts": {
+            "LONG": 3607,
+            "NO_TRADE": 7292,
+            "SHORT": 4084
+          },
+          "outcome_shares": {
+            "LONG": 0.240739504772075,
+            "NO_TRADE": 0.4866849095641727,
+            "SHORT": 0.27257558566375223
+          },
+          "prediction_counts": {
+            "LONG": 6248,
+            "NO_TRADE": 4283,
+            "SHORT": 4452
+          },
+          "prediction_shares": {
+            "LONG": 0.4170059400654075,
+            "NO_TRADE": 0.285857304945605,
+            "SHORT": 0.2971367549889875
+          },
+          "short_f1": 0.33716026241799435,
+          "short_precision": 0.32322551662174304,
+          "short_recall": 0.35235063663075417
+        }
+      },
+      {
+        "architecture": "HIERARCHICAL_TRADEABILITY_DIRECTION",
+        "candidate_id": "R04_HIER_HGB_LOGREG_REBALANCED",
+        "eligibility_failures": [
+          "NOT_ALL_CLASSES_PREDICTED",
+          "SHORT_RECALL_NOT_POSITIVE",
+          "PREDICTED_CLASS_SHARE_BELOW_MIN:SHORT"
+        ],
+        "eligible": false,
+        "family": "HGB_STAGE_A_LOGREG_STAGE_B",
+        "role": "REMEDIATION_CANDIDATE",
+        "validation_metrics": {
+          "balanced_accuracy": 0.34250622621147203,
+          "exact_class_accuracy": 0.46959887872922645,
+          "long_f1": 0.17159309021113245,
+          "long_precision": 0.27885215221459764,
+          "long_recall": 0.12392570002772386,
+          "macro_f1": 0.2696912467886437,
+          "mean_correct_confidence": 0.499086905378625,
+          "mean_incorrect_confidence": 0.48937823044368395,
+          "mean_probability_by_class": {
+            "LONG": 0.35513205430959305,
+            "NO_TRADE": 0.4883231594348045,
+            "SHORT": 0.1565447862556025
+          },
+          "minimum_per_class_recall": 0.0,
+          "multiclass_brier": 0.6578251778550156,
+          "multiclass_log_loss": 1.1322417048436995,
+          "no_trade_f1": 0.6374806501547987,
+          "no_trade_precision": 0.4924514200298954,
+          "no_trade_recall": 0.9035929786066923,
+          "outcome_counts": {
+            "LONG": 3607,
+            "NO_TRADE": 7292,
+            "SHORT": 4084
+          },
+          "outcome_shares": {
+            "LONG": 0.240739504772075,
+            "NO_TRADE": 0.4866849095641727,
+            "SHORT": 0.27257558566375223
+          },
+          "prediction_counts": {
+            "LONG": 1603,
+            "NO_TRADE": 13380,
+            "SHORT": 0
+          },
+          "prediction_shares": {
+            "LONG": 0.10698791964226123,
+            "NO_TRADE": 0.8930120803577388,
+            "SHORT": 0.0
+          },
+          "short_f1": 0.0,
+          "short_precision": 0.0,
+          "short_recall": 0.0
+        }
+      },
+      {
+        "architecture": "HIERARCHICAL_TRADEABILITY_DIRECTION",
+        "candidate_id": "R05_HIER_LOGREG_HGB_DIRECTION",
+        "eligibility_failures": [
+          "PREDICTED_CLASS_SHARE_BELOW_MIN:SHORT",
+          "PREDICTED_CLASS_SHARE_ABOVE_MAX:NO_TRADE",
+          "PREDICTED_CLASS_SHARE_BELOW_MIN:LONG"
+        ],
+        "eligible": false,
+        "family": "LOGREG_STAGE_A_HGB_STAGE_B",
+        "role": "REMEDIATION_CANDIDATE",
+        "validation_metrics": {
+          "balanced_accuracy": 0.3345125787438148,
+          "exact_class_accuracy": 0.4851498364813455,
+          "long_f1": 0.019801980198019802,
+          "long_precision": 0.2846153846153846,
+          "long_recall": 0.010257831993346272,
+          "macro_f1": 0.22644063444586252,
+          "mean_correct_confidence": 0.5333596110892806,
+          "mean_incorrect_confidence": 0.5247671307635612,
+          "mean_probability_by_class": {
+            "LONG": 0.23720802597794094,
+            "NO_TRADE": 0.5284627532673686,
+            "SHORT": 0.2343292207546905
+          },
+          "minimum_per_class_recall": 0.0034280117531831538,
+          "multiclass_brier": 0.6348895256008278,
+          "multiclass_log_loss": 1.0535617234167538,
+          "no_trade_f1": 0.652710584618167,
+          "no_trade_precision": 0.48688026981450255,
+          "no_trade_recall": 0.989851892484915,
+          "outcome_counts": {
+            "LONG": 3607,
+            "NO_TRADE": 7292,
+            "SHORT": 4084
+          },
+          "outcome_shares": {
+            "LONG": 0.240739504772075,
+            "NO_TRADE": 0.4866849095641727,
+            "SHORT": 0.27257558566375223
+          },
+          "prediction_counts": {
+            "LONG": 130,
+            "NO_TRADE": 14825,
+            "SHORT": 28
+          },
+          "prediction_shares": {
+            "LONG": 0.008676500033371153,
+            "NO_TRADE": 0.9894547153440566,
+            "SHORT": 0.0018687846225722486
+          },
+          "short_f1": 0.006809338521400778,
+          "short_precision": 0.5,
+          "short_recall": 0.0034280117531831538
+        }
+      }
+    ],
+    "forward_30_used": false,
+    "pnl_evaluated": false,
+    "research_scope": "FROZEN_REMEDIATION_TRAIN_FIT_VALIDATION_SELECTION_ONLY",
+    "selection": {
+      "reason": "FROZEN_G7E_LEXICOGRAPHIC_SELECTION_POLICY",
+      "selection_key": [
+        0.3601580118907661,
+        0.377760637941734,
+        0.32515085024684587,
+        -0.6648217771177802,
+        -1.0958580283040205,
+        0.3640125475538944
+      ],
+      "status": "VALIDATION_WINNER_SELECTED",
+      "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+    },
+    "test_values_loaded": false
+  },
+  "execution_authorized": false,
+  "forward_30_used": false,
+  "gate_id": "GATE_15D_C_B2D_G7_F_B_REMEDIATION_CANDIDATE_EVALUATION",
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_training_performed": true,
+  "pnl_evaluated": false,
+  "probability_calibration_performed": false,
+  "protected_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "xauusd_portable_331_one_time_validation_access_ledger.json": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2"
+  },
+  "repository": {
+    "branch": "main",
+    "head": "4870dcfd432ff0fa2dd242a5e2bd2d2845fbd806",
+    "origin_main": "4870dcfd432ff0fa2dd242a5e2bd2d2845fbd806",
+    "status": "PASS"
+  },
+  "runtime_ledger_write_performed": false,
+  "status": "PASS",
+  "temporal_authority": {
+    "status": "PASS",
+    "train_before_validation": true,
+    "train_first": "2025-03-17T08:45:00.000000000",
+    "train_last": "2026-03-13T15:45:00.000000000",
+    "validation_first": "2026-03-13T16:50:00.000000000",
+    "validation_last": "2026-06-01T03:20:00.000000000"
+  },
+  "test_evaluation_performed": false,
+  "test_values_loaded": false,
+  "threshold_tuning_performed": false,
+  "train_values_loaded": true,
+  "validation_values_loaded": true,
+  "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH",
+  "winner_selection_performed": true
+}
