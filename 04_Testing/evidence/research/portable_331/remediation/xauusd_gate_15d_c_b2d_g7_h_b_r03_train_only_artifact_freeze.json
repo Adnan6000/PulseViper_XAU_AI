@@ -1,0 +1,54 @@
+{
+  "artifact": {
+    "argmax_prediction_parity": true,
+    "artifact_overwritten": false,
+    "artifact_recovery_mode": true,
+    "artifact_sha256": "b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03",
+    "feature_count": 331,
+    "loaded_probe_probability_sha256": "3e64c7851695c6c52b8091e7a31d2232a75d52f0b6362c7a9faca2ac118790f9",
+    "manifest_sha256": "a1507666518e3289b0678525c0808fc91b45d54105ef1fb59f3c22fe5d52baf6",
+    "max_absolute_probability_difference": 2.220446049250313e-16,
+    "mean_absolute_probability_difference": 2.938187887435717e-17,
+    "numeric_probability_parity": true,
+    "reference_probe_probability_sha256": "afc3529293f27dc1b0841ac67bb9795a962ababc3af810bce7a6b76374ad8e01",
+    "status": "PASS",
+    "train_rows": 69966
+  },
+  "artifact_overwritten": false,
+  "artifact_relative_path": "02_AI/Models/artifacts/xauusd_r03_train_only_frozen.joblib",
+  "authorities": {
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "prospective_contract_fingerprint_sha256": "e70d8e26c8f4734c456022689d47de406fe3f8daf1827d01b7f0f0d7fe752b9e",
+    "status": "PASS",
+    "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f"
+  },
+  "base_authority_commit": "439f8409efbc15a571180100533808042291b4ed",
+  "execution_authorized": false,
+  "existing_artifact_recovered": true,
+  "gate_id": "GATE_15D_C_B2D_G7_H_B_R03_TRAIN_ONLY_ARTIFACT_FREEZE",
+  "live_authorized": false,
+  "manifest_relative_path": "02_AI/Models/artifacts/xauusd_r03_train_only_frozen_manifest.json",
+  "model_serialization_performed": false,
+  "model_training_performed": true,
+  "old_forward_30_used": false,
+  "pnl_evaluated": false,
+  "prospective_ledgers_written": false,
+  "prospective_market_data_loaded": false,
+  "protected_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "xauusd_portable_331_one_time_validation_access_ledger.json": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2"
+  },
+  "repository": {
+    "branch": "main",
+    "head": "439f8409efbc15a571180100533808042291b4ed",
+    "origin_main": "439f8409efbc15a571180100533808042291b4ed",
+    "preexisting_orphan_artifact": true,
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "test_values_loaded": false,
+  "train_values_loaded": true,
+  "validation_values_loaded": false
+}
