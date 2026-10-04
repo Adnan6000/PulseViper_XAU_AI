@@ -1,0 +1,18 @@
+{
+  "actual_genuine_capture_executed": false,
+  "base_authority_commit": "8d29e05cc20a26730366e8d684bdd3af3fd4578f",
+  "candidate_artifact_hashes": {
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_b_first_genuine_r03_capture.py": "267243d5b4cb56be96ed15bdcc4364c0b8dab9fb17231a91c078d716d0fcf8cf",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_b_first_genuine_r03_capture_freeze.py": "77e1cf846011351e9736d2c43971092c3d812f946e9e09e55e2b1c475eca72ad",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_h_e_b_first_genuine_r03_capture_freeze.py": "bca5e5acf5f6e8572fc9caff6dc0cd1e2b1bbb3cd3d7cee7014f2253f3f8d5d0"
+  },
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_E_B_FIRST_GENUINE_R03_CAPTURE_RUNNER_FREEZE",
+  "live_authorized": false,
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "r03_ledgers_created": false,
+  "r03_ledgers_written": false,
+  "real_market_data_loaded": false,
+  "status": "PASS"
+}
