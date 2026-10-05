@@ -650,79 +650,115 @@ live_authorized = false
 
 ---
 
-# 21. Phase 16 — Final Untouched TEST
+# 21. Phase 16 — G7 Remediation Cycle
 
-**Status: 🟢 IMMEDIATE NEXT ENGINEERING GATE**
+**Status: ✅ COMPLETE**
 
-The TEST split is still protected.
+The remediation cycle replaced the old “C04 TEST pending” state.
 
-Required implementation:
+Completed:
 
-* [ ] one-time TEST access contract
-* [ ] TEST-specific ledger
-* [ ] bounded TEST source
-* [ ] frozen model verification before TEST read
-* [ ] synthetic source tests
-* [ ] synthetic ledger tests
-* [ ] TEST dry preflight
-* [ ] freeze TEST preflight fingerprint
-* [ ] first and only real TEST read
-* [ ] compute exact same evaluation metrics
-* [ ] persist TEST result
-* [ ] freeze TEST result
-* [ ] prohibit rerun
+* [x] G7-A remediation rules freeze
+* [x] G7-B remediation data authority
+* [x] G7-C exact training snapshot
+* [x] G7-D research protocol freeze
+* [x] G7-E six-candidate registry freeze
+* [x] G7-F-A TRAIN + VALIDATION access
+* [x] G7-F-B six-candidate evaluation
+* [x] G7-F-C R03 final winner freeze
+* [x] G7-G-A sealed TEST criteria
+* [x] G7-G-B one-shot sealed TEST
 
-Important:
+Final remediation winner:
 
-> TEST does not select a new model.
+```text
+R03_FLAT_EXTRA_TREES_SMOOTH
+```
 
-It evaluates the already frozen model.
+G7-G-B result:
+
+```text
+status = SEALED_TEST_CONFIRMED
+balanced_accuracy = 0.3636245672
+macro_f1 = 0.3490621418
+minimum_per_class_recall = 0.2983711747
+multiclass_brier = 0.6647780980
+multiclass_log_loss = 1.0958700266
+test_access_count = 1
+same_test_rerun_authorized = false
+```
+
+The sealed TEST was an offline research confirmation. It did not authorize live trading.
 
 ---
 
-# 22. TEST Success Criteria Philosophy
+# 22. Phase 17 — R03 Prospective Forward Validation
 
-The final TEST should answer:
+**Status: 🟡 ACTIVE COLLECTION / BLOCKED AT FIRST CAPTURE**
 
-> Does C04 still show acceptable generalization on the final untouched holdout?
+G7-H completed the frozen prospective infrastructure for R03:
 
-It should not answer:
+* [x] G7-H-A prospective validation contract
+* [x] G7-H-B train-only frozen R03 artifact
+* [x] G7-H-C prospective runtime binding
+* [x] G7-H-D outcome maturation binding
+* [x] G7-H-E-A finite collection controller
+* [x] G7-H-E-B first genuine capture runner
+* [x] R1 first-capture recovery runner
+* [x] R2 first-capture recovery runner
 
-> Which parameters should we change next?
-
-If TEST is weak, the current model lineage should be closed and a new research iteration designed.
-
-Do not tune C04 against TEST.
-
----
-
-# 23. Phase 17 — Final Historical Research Verdict
-
-**Status: ⬜ PENDING TEST**
-
-After TEST:
-
-* [ ] compare TRAIN walk-forward
-* [ ] compare VALIDATION
-* [ ] compare TEST
-* [ ] directional degradation analysis
-* [ ] class-recall stability
-* [ ] trade-coverage stability
-* [ ] probability-quality review
-* [ ] document limitations
-* [ ] freeze final historical research verdict
-
-Possible state:
+Frozen R03 prospective requirements:
 
 ```text
-RESEARCH_ACCEPTED_FOR_SHADOW
+minimum_matured_outcomes = 60
+minimum_distinct_observation_utc_dates = 5
+horizon = next 12 completed M5 rows
+profit_atr = 1.25
+max_adverse_atr = 0.75
 ```
 
-This is different from:
+R03 artifact authority:
 
 ```text
-LIVE_READY
+candidate = R03_FLAT_EXTRA_TREES_SMOOTH
+artifact_sha256 = b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03
+feature_count = 331
+train_rows = 69966
 ```
+
+Current collection state:
+
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+```
+
+The first genuine capture and both recovery attempts were blocked by:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+This is a **fail-closed evidence block**. The timestamp-basis validation must be proven, not weakened.
+
+The latest R2 recovery runner is frozen and preserves the original blocked evidence.
+
+### Next authorized engineering action
+
+Resolve the timestamp-basis proof / obtain a valid fresh capture context, then run the already-frozen capture lane.
+
+Do not:
+
+* weaken timestamp validation;
+* fabricate or backfill a prospective anchor;
+* rewrite protected runtime ledgers;
+* rerun the sealed TEST;
+* tune R03 from prospective observations;
+* use the old Forward30 for remediation.
 
 ---
 
