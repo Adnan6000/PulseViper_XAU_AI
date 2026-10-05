@@ -422,12 +422,9 @@ A tweak after validation creates a new research experiment.
 
 ## TEST
 
-TEST is the final untouched holdout.
+TEST was the final historical holdout for the remediation lineage and has now been consumed exactly once for R03.
 
 Current state:
-
-```text
-The G7-G-B R03 sealed TEST has been consumed exactly once and confirmed.
 
 ```text
 SEALED_TEST_CONFIRMED
@@ -442,9 +439,10 @@ TEST must not be used for:
 * calibration;
 * feature selection;
 * model architecture changes;
-* hyperparameter changes.
+* hyperparameter changes;
+* reopening the same sealed test after observing the result.
 
----
+The current active evidence lane is R03 prospective forward validation, which is separate from TEST.
 
 # 10. What Is Data Leakage?
 
