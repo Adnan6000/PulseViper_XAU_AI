@@ -493,10 +493,12 @@ Historical or future roadmap descriptions may mention live readiness, but curren
 
 # 22. Search for TEST Claims
 
-Current portable C04 TEST:
+Current R03 sealed TEST:
 
 ```text
-untouched
+SEALED_TEST_CONFIRMED
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
 Search:
@@ -1111,7 +1113,7 @@ Before publishing the refreshed docs:
 Then verify:
 
 ```text
-[ ] C04 is current winner
+[ ] R03 is current remediation winner
 
 [ ] 331 is current feature count
 
@@ -1119,7 +1121,7 @@ Then verify:
 
 [ ] VALIDATION rerun is blocked
 
-[ ] TEST is untouched
+[ ] R03 sealed TEST is confirmed and rerun is blocked
 
 [ ] shadow is not authorized
 
