@@ -391,17 +391,15 @@ Gate 15D-C-B2A: Prospective Outcome Anchor Authority V1 (COMPLETE)
 ↓  
 Gate 15D-C-B2B/C: Maturer V2 & Outcome Ledger V2 (COMPLETE)  
 ↓  
-Gate 15D-C-B2D: Prospective Observation + Same-Snapshot Anchor Integration (🟢 NEXT)  
-↓  
-Gate 15E: Matured Forward Shadow Evaluation (PENDING)  
-↓  
-Possible Live Promotion Decision (⛔ NOT AUTHORIZED)
+R03 prospective validation lane: **ACTIVE / BLOCKED AT FIRST CAPTURE**
 
-The current project position is:
+```text
+R03 observations = 0
+R03 anchors = 0
+R03 matured outcomes = 0
+```
 
-GATE 15D-C-B2BC PUBLISHED BASELINE (`cbdeb30934213dc36863c334eb1e50879ba0dde1`)  
-↓  
-GATE 15D-C-B2D PREPARATION (Prospective Observation + Same-Snapshot Anchor Integration)  
+The first genuine R03 capture and recovery attempts are blocked by `TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN` (`raw_tick=1790985539`, `candidate_count=0`). Gate 15E-style matured evaluation has not started for R03.
 
 Repository Structure
 ====================
@@ -491,65 +489,22 @@ Manifest SHA256:
 
 1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc
 
-Current Frozen Model
-====================
+Historical C04 Control Model
+============================
 
-TRAIN-internal winner:
+The original C04 model remains frozen as the historical control lineage.
 
+```text
 C04_FLAT_EXTRA_TREES_CONSTRAINED
+```
 
-Model family:
+The active remediation model is R03:
 
-sklearn.ensemble.ExtraTreesClassifier
+```text
+R03_FLAT_EXTRA_TREES_SMOOTH
+```
 
-Frozen configuration:
-
-ExtraTreesClassifier(
-    n_estimators=500,
-    max_depth=10,
-    max_features=0.35,
-    min_samples_leaf=25,
-    bootstrap=False,
-    class_weight="balanced",
-    random_state=271828,
-    n_jobs=-1,
-)
-
-Frozen candidate configuration fingerprint:
-
-f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3
-
-Model artifact:
-
-xauusd_portable_331_c04_full_train_model.joblib
-
-Artifact SHA256:
-
-48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769
-
-Prediction class order:
-
-[-1, 0, 1]
-
-Prediction rule:
-
-probabilities = model.predict_proba(X)
-prediction = model.classes_[probabilities.argmax(axis=1)]
-
-Supported symbols:
-
-- `XAUUSD` (primary)
-- `XAUUSDm` (micro / fallback)
-
-Historical research freeze boundary:
-
-`2026-08-14T20:55:00Z`
-
-Gate 15A activation:
-
-`2026-09-06T13:20:00Z`
-
-No post-validation threshold tuning or probability calibration is allowed for this frozen experiment.
+R03 uses the same frozen 331-feature contract and was selected through the finite G7 remediation registry. The C04 artifact details below are historical control provenance and must not be interpreted as the current remediation artifact.
 
 Validation Result
 =================
