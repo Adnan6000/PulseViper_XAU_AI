@@ -1670,43 +1670,40 @@ This exercise teaches how PulseViper research provenance works.
 Current immediate priority:
 
 ```text
-ONE-SHOT FINAL TEST INFRASTRUCTURE
+R03 PROSPECTIVE FORWARD CAPTURE / EVIDENCE
 ```
 
-Expected new components will conceptually include:
+Relevant frozen components include:
 
 ```text
-TEST access ledger
-TEST-only bounded source
-TEST dry preflight
-TEST one-shot runner
-TEST result freeze
-final research verdict
+frozen_r03_prospective_forward_validation_contract.py
+r03_train_only_frozen_artifact_builder.py
+frozen_r03_prospective_runtime.py
+frozen_r03_prospective_outcome_maturer.py
+r03_prospective_collection_controller.py
 ```
 
-These should reuse current scientific patterns where appropriate without reopening consumed VALIDATION.
+Current blocker:
 
----
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
 
 # 50. Future Module Priority
 
-After final TEST:
+After genuine R03 forward evidence is established:
 
 ```text
-production broker feature adapter
-broker-time canonicalizer
-D1 reconstruction
-portable 331 production projector
-verified model inference adapter
-shadow inference logger
-forward-validation reporting
-feature-drift monitoring
-prediction-drift monitoring
+prospective evaluation
+production/runtime integration review
+broker-context integration
+risk/execution verification
+operational monitoring
+recovery / kill-switch verification
+controlled live-promotion review
 ```
-
-These areas will bridge historical research and production-like operation.
-
----
 
 # 51. Golden Rule for Module Development
 
