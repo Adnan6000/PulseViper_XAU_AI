@@ -588,7 +588,11 @@ The production feature generation path is implemented and verified under Gate 13
 ```text
 BROKER DATA (M5, M15, M30, H1, H4, optional D1)
     ↓
-Symbol Verification (XAUUSD / XAUUSDm)
+Dynamic Broker Symbol Resolution
+    ↓
+Validated Broker Instrument Context
+    ↓
+Canonical XAUUSD Identity
     ↓
 Time Canonicalization & Monotonicity Verification
     ↓
