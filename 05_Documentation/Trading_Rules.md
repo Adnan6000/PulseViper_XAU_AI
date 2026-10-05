@@ -47,69 +47,30 @@ Research → Implement → Offline/Test → Shadow → Demo → Forward Validati
 
 # 3. Current Operational State
 
-Current frozen research and validation state:
+Current research/runtime state:
 
 ```text
-Historical C04 control:
-frozen
-
-G7 remediation:
-complete through sealed TEST
-
-Current remediation winner:
-R03_FLAT_EXTRA_TREES_SMOOTH
-
-G7-G-B sealed TEST:
-SEALED_TEST_CONFIRMED
-
-G7-H R03 prospective validation:
-infrastructure frozen; first genuine capture currently blocked
-
-R03 observations:
-0
-
-R03 anchors:
-0
-
-R03 matured outcomes:
-0
-
-R03 minimum matured outcomes:
-60
-
-R03 minimum distinct UTC dates:
-5
-
-Current block:
-TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
-
-Forward performance scoring:
-NOT STARTED
-
-PnL evaluation:
-NOT STARTED
-
-Live ML trading:
-NOT AUTHORIZED
-
-Execution:
-NOT AUTHORIZED
-```
-
-Therefore:
-
-```text
+Historical C04 control = frozen
+G7 remediation = complete through sealed TEST
+Current remediation winner = R03_FLAT_EXTRA_TREES_SMOOTH
+G7-G-B sealed TEST = SEALED_TEST_CONFIRMED
+R03 prospective infrastructure = frozen
+R03 observations = 0
+R03 anchors = 0
+R03 matured outcomes = 0
+R03 minimum matured outcomes = 60
+R03 minimum distinct UTC dates = 5
+R03 forward evaluation = NOT STARTED
+PnL evaluation = NOT STARTED
+Current capture block = TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
 live_authorized = false
 execution_authorized = false
-forward_performance_evaluated = false
 ```
 
+The current R03 lane is read-only and evidence-first. The timestamp-basis block must be resolved by proving the basis or obtaining a valid fresh capture context. It must not be weakened.
+
 ### Critical Safety Distinction: Read-Only Acquisition vs Execution Authority
-Connected MetaTrader 5 access is strictly limited to read-only market data acquisition (`symbols_get`, `symbol_info`, `symbol_info_tick`, `copy_rates_from_pos`). All order routing, trade execution, position management, account modification, and risk sizing components remain completely isolated and unauthorized.
-
-Nothing in historical ML research or read-only forward acquisition overrides this state.
-
----
+Connected MT5 access in the current forward lane is limited to approved read-only acquisition. Order routing, account modification, position management, risk sizing, and live execution remain unauthorized.
 
 # 3. Trading Architecture
 
@@ -139,7 +100,13 @@ Every stage can reject the trade.
 
 # 4. Model Prediction Is Not an Order
 
-Current C04 model predicts one of:
+The historical control model was C04. The current remediation lineage is:
+
+```text
+R03_FLAT_EXTRA_TREES_SMOOTH
+```
+
+The model still predicts:
 
 ```text
 -1 = SHORT
@@ -147,33 +114,19 @@ Current C04 model predicts one of:
  1 = LONG
 ```
 
-Example probability output:
+Even a valid R03 prediction means only:
 
 ```text
-SHORT     0.21
-NO_TRADE  0.29
-LONG      0.50
+model prefers a class
 ```
 
-Frozen model decision:
+not:
 
 ```text
-LONG
+send an order immediately
 ```
 
-This means:
-
-```text
-model prefers LONG
-```
-
-It does not mean:
-
-```text
-send BUY order immediately
-```
-
----
+Any eventual production signal must pass independent permission, risk, broker, execution, and operational safety gates.
 
 # 5. Why This Separation Exists
 
@@ -292,25 +245,9 @@ Doing that would change the frozen model decision rule.
 
 # 10. Frozen Prediction Rule
 
-Current C04 uses:
+The active R03 prospective lane uses the frozen artifact and its declared prediction semantics. There is no post-hoc class-bias adjustment, probability calibration, decision-threshold tuning, or trade-threshold tuning in the frozen candidate registry.
 
-```python
-probabilities = model.predict_proba(X)
-
-prediction = model.classes_[
-    probabilities.argmax(axis=1)
-]
-```
-
-Expected class order:
-
-```text
-[-1, 0, 1]
-```
-
-No post-validation probability threshold tuning is part of the frozen experiment.
-
----
+Historical C04 prediction semantics remain preserved as control-lineage evidence and must not be silently mixed with R03 authority.
 
 # 11. Do Not Add Hidden Thresholds
 
@@ -957,25 +894,35 @@ Shadow is another evidence gate.
 
 # 40. Forward Validation
 
-After shadow integration, collect genuinely unseen market periods.
+Current forward validation is the R03 prospective lane.
 
-Evaluate:
+Frozen requirements:
 
 ```text
-directional stability
-coverage
-SHORT/LONG balance
-feature drift
-prediction drift
-transaction costs
-drawdown
-expectancy
-regime stability
+minimum matured outcomes = 60
+minimum distinct observation UTC dates = 5
+horizon = 12 completed M5 rows
+profit_atr = 1.25
+max_adverse_atr = 0.75
 ```
 
-This is stronger evidence than repeatedly reusing historical holdouts.
+Current collection state:
 
----
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+```
+
+First capture/recovery is currently blocked by:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+Do not manufacture anchors, backfill prospective observations, weaken timestamp checks, or tune R03 from prospective evidence.
 
 # 41. Market-Regime Review
 
@@ -1475,19 +1422,23 @@ Required conceptually:
 
 # 63. Current Authorization Matrix
 
-| Capability                | Current State      |
-| ------------------------- | ------------------ |
-| Model TRAIN research      | Complete           |
-| Full TRAIN fit            | Complete           |
-| Untouched VALIDATION      | Passed             |
-| VALIDATION rerun          | Not authorized     |
-| Final TEST infrastructure | Next               |
-| Final TEST execution      | Not yet authorized |
-| Production feature parity | Pending            |
-| Shadow ML inference       | Not authorized     |
-| Live ML execution         | Not authorized     |
+| Capability | Current State |
+|---|---|
+| Historical research | Frozen evidence |
+| G7 remediation | Complete |
+| R03 sealed TEST | Confirmed / consumed |
+| R03 prospective capture | Blocked at timestamp proof |
+| R03 forward performance evaluation | Not started |
+| PnL evaluation | Not started |
+| MT5 read-only acquisition | Allowed only within frozen forward lane |
+| Order routing | Not authorized |
+| Account-risk integration | Not authorized |
+| Live trading | Not authorized |
 
----
+```text
+live_authorized = false
+execution_authorized = false
+```
 
 # 64. Trading Rule Hierarchy
 
