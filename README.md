@@ -30,23 +30,14 @@ The current live state remains **not authorized** until the defined historical, 
 
 ## Key Highlights
 
-- **331 portable features** with frozen order and SHA256 fingerprints (`65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`)
-- **Frozen C04 ExtraTrees model** (`C04_FLAT_EXTRA_TREES_CONSTRAINED`, SHA `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`)
-- **One-time VALIDATION** completed and permanently consumed
-- **Final TEST** holdout still protected and untouched
-- **Production broker feature parity:** COMPLETE (Gate 13)
-- **Frozen offline inference adapter:** COMPLETE (Gate 14)
-- **Read-only MT5 acquisition adapter:** COMPLETE (Gate 15B-A v2.1.0, NY close server epoch, per-row DST normalization)
-- **Frozen forward outcome contract V1:** COMPLETE (Gate 15C, `CLEAN_DIRECTIONAL_EXCURSION_V2`, 1.25/0.75 ATR, 12 M5 rows, SHA `01fe52a...`)
-- **Prospective forward eligibility:** COMPLETE (Gate 15D-A, activation cutoff `2026-09-28T11:16:59Z`)
-- **Prospective outcome anchor authority V1:** COMPLETE (Gate 15D-C-B2A, `SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS`)
-- **Anchor-required forward outcome maturer V2:** COMPLETE (Gate 15D-C-B2B, supersedes V1.1, post-hoc reconstruction forbidden)
-- **Anchor-required forward outcome ledger V2:** COMPLETE (Gate 15D-C-B2C, supersedes V1.1)
-- **Scientific baseline authority:** `cbdeb30934213dc36863c334eb1e50879ba0dde1` (the frozen C04 research baseline)
-- **Current repository HEAD:** `1b6ed19b37fff02015744612b23d30dede3134c4`
-- **Current phase:** Gate 15D-C-B2D genuine anchored forward observation + maturation
-- **Current gate:** `Gate 15D-C-B2D` (G1 capture + G2 maturation + G3 sample-controller lane)
-- **Forward performance scoring:** NOT STARTED (`forward_performance_evaluated = false`)
+- **331 portable features** with frozen order and SHA256 fingerprint (`65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`)
+- **Historical C04 control lineage:** `C04_FLAT_EXTRA_TREES_CONSTRAINED` remains frozen as the original baseline.
+- **G7 remediation registry:** exactly 6 candidates frozen under G7-E; no post-result candidate replacement is allowed in that experiment.
+- **G7-F-B:** six remediation candidates evaluated using the authorized TRAIN + VALIDATION remediation boundary.
+- **G7-F-C:** remediation winner frozen as `R03_FLAT_EXTRA_TREES_SMOOTH`.
+- **G7-G-B:** one-shot sealed TEST for R03 completed and confirmed; TEST rerun is permanently blocked.
+- **G7-H:** R03 prospective forward-validation contract, train-only artifact, runtime binding, outcome maturation, collection controller, and first-capture recovery lanes are frozen.
+- **Current R03 forward collection:** no genuine R03 observation has yet been persisted; first capture is currently blocked by an unresolved unique timestamp-basis condition.
 - **Live trading / execution:** NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
 
 ## Tech Stack
