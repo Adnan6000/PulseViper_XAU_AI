@@ -1324,20 +1324,23 @@ Only after this stage should live promotion even be considered.
 
 # 41. Current Authorization Matrix
 
-Current architectural authorization:
+| Capability | State |
+|---|---|
+| TRAIN research | Complete |
+| Original C04 VALIDATION | Passed and consumed |
+| G7 remediation | Complete |
+| R03 sealed TEST | Confirmed and consumed |
+| R03 prospective capture | Blocked at timestamp proof |
+| R03 forward performance | Not started |
+| Shadow inference | Not authorized |
+| Live trading | Not authorized |
 
-| Capability                 | State               |
-| -------------------------- | ------------------- |
-| TRAIN research             | Complete            |
-| TRAIN model fit            | Complete            |
-| VALIDATION                 | Passed and consumed |
-| VALIDATION rerun           | Not authorized      |
-| Final TEST                 | Not yet consumed    |
-| TEST runner implementation | Authorized next     |
-| Shadow inference           | Not authorized yet  |
-| Live trading               | Not authorized      |
-
----
+```text
+live_authorized = false
+execution_authorized = false
+performance_evaluated = false
+pnl_evaluated = false
+```
 
 # 42. Architectural Change Classification
 
@@ -1966,8 +1969,10 @@ broker-derived market snapshot
    - Gate 15D-C-B2A = prospective forward outcome anchor authority V1.
    - Gate 15D-C-B2B = anchor-required forward outcome maturer V2.
    - Gate 15D-C-B2C = anchor-required forward outcome ledger V2.
-   - Gate 15D-C-B2D = genuine prospective observation + same-snapshot anchor integration (🟢 NEXT PLANNED GATE).
-   - Gate 15E = matured forward shadow evaluation across real calendar time (⬜ PENDING).
+PLACEHOLDER
+
+
+   - Gate 15E-style matured R03 evaluation = pending until the frozen minimum forward sample/date requirements are met.
 
 ---
 
