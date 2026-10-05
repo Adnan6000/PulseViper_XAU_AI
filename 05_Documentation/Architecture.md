@@ -75,6 +75,46 @@ performance_evaluated = false
 pnl_evaluated = false
 ```
 
+## 1.2 Broker-Agnostic Multi-Broker Architecture
+
+No permanent broker has been selected for PulseViper.
+
+The canonical research identity is:
+
+```text
+XAUUSD
+```
+
+A broker may expose gold under a broker-specific symbol such as:
+
+```text
+XAUUSD
+XAUUSDm
+XAUUSDb
+```
+
+These are **broker calibration/adapter contexts**, not separate model identities and not permanent broker selection.
+
+The architecture therefore separates:
+
+```text
+Broker discovery
+      ↓
+Dynamic symbol resolution
+      ↓
+Broker instrument context
+      ↓
+Canonical XAUUSD market representation
+      ↓
+Portable feature contract
+      ↓
+Model / research logic
+```
+
+Broker-specific metadata such as digits, point size, tick value, contract size, spread, session/time semantics, filling rules, and other constraints must be discovered and validated at the broker boundary. Core research and model contracts must not hard-code a single broker symbol.
+
+The project is intended to become compatible with many brokers/accounts; individual brokers used during calibration are evidence sources, not a final broker choice.
+
 # 2. Architectural Principles
 
 PulseViper follows several design principles.
