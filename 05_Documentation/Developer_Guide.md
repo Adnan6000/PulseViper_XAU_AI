@@ -2083,10 +2083,11 @@ except PortableFeatureGenerationError as err:
 ```
 
 ### Safety and Portability Rules:
-1. **Symbol Allowlisting**: Only `XAUUSD` and `XAUUSDm` are supported. Any alias requires explicit proof.
-2. **D1 Boundary**: Daily candles are anchored to `00:00:00 UTC`.
-3. **No-Future-Leakage**: All higher-timeframe features are aligned causally at their close time (`available_time = time + period`) via backward `merge_asof`.
-4. **Fail-Closed**: Non-finite values, missing history, non-monotonic timestamps, or duplicate bars raise `PortableFeatureGenerationError` with no usable matrix returned.
+1. **Canonical instrument identity**: Research/model logic is based on canonical `XAUUSD`; broker-specific Gold symbols must be dynamically resolved and bound through broker instrument context.
+2. **Multi-broker architecture**: Symbols such as `XAUUSD`, `XAUUSDm`, and `XAUUSDb` are broker-specific contexts, not permanent broker selections.
+3. **D1 Boundary**: Daily candles are anchored to `00:00:00 UTC`.
+4. **No-Future-Leakage**: All higher-timeframe features are aligned causally at their close time (`available_time = time + period`) via backward `merge_asof`.
+5. **Fail-Closed**: Non-finite values, missing history, non-monotonic timestamps, duplicate bars, or unproven broker timestamp semantics must block the feature/runtime path.
 <!-- GATE-13-DEVELOPER-GUIDE:END -->
 
 <!-- GATE-14-DEVELOPER-GUIDE:START -->
