@@ -507,7 +507,7 @@ Search:
 Get-ChildItem -Recurse -Filter *.md | Select-String -Pattern "TEST"
 ```
 
-Ensure no document claims current final TEST has completed before the corresponding evidence exists.
+Ensure documents distinguish the completed R03 sealed TEST from the still-pending R03 prospective forward evaluation.
 
 ---
 
@@ -722,14 +722,20 @@ Important documents should contain a concise current-state section.
 Example:
 
 ```text
-Current model:
-C04
+Current remediation winner:
+R03
+
+Historical C04 control:
+preserved
 
 VALIDATION:
 passed and consumed
 
-TEST:
-untouched
+R03 sealed TEST:
+confirmed and consumed
+
+R03 prospective forward evidence:
+not yet evaluated
 
 Shadow:
 not authorized
@@ -1130,9 +1136,9 @@ Then verify:
 
 ---
 
-# 49. Future TEST Documentation Update
+# 49. Future Prospective-Evidence Documentation Update
 
-After final TEST completes, at minimum update:
+After the R03 prospective evidence gate completes, at minimum update:
 
 ```text
 README.md
