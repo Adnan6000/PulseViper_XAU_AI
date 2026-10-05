@@ -491,33 +491,30 @@ before observing protected holdout results.
 
 Serialized machine-learning models must be verified.
 
-Current frozen model:
+The original C04 artifact remains historical control evidence. The active remediation artifact is:
 
 ```text
-xauusd_portable_331_c04_full_train_model.joblib
+02_AI/Models/artifacts/xauusd_r03_train_only_frozen.joblib
 ```
 
 SHA256:
 
 ```text
-48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769
+b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03
 ```
 
 Verification should cover:
 
 ```text
-file SHA
-model class
-classes_
-feature count
-hyperparameters
-tree count
-research provenance
+artifact SHA
+manifest SHA
+331-feature contract
+winner candidate fingerprint
+prospective contract fingerprint
+prediction parity
+probability parity
+TRAIN-only provenance
 ```
-
-A `.joblib` file existing on disk does not prove it is the correct model.
-
----
 
 # 19. Tamper Tests
 
@@ -598,22 +595,20 @@ This evidence was frozen before real holdout access.
 
 Protected holdouts are fundamentally different from ordinary tests.
 
-Current protected datasets:
+The original C04 VALIDATION was consumed once and remains protected from rerun.
+The remediation lineage then used a separate one-shot sealed TEST on the frozen R03 winner.
 
 ```text
-VALIDATION
-TEST
+R03 sealed TEST = SEALED_TEST_CONFIRMED
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
-VALIDATION is already consumed.
-
-TEST is still untouched.
-
----
+R03 prospective forward evidence is not a replacement for the historical TEST. It is a separate future-unseen validation lane.
 
 # 24. VALIDATION Current State
 
-Current state:
+The original C04 VALIDATION state is:
 
 ```text
 validation_accepted = true
@@ -621,35 +616,31 @@ validation_consumed = true
 validation_rerun_authorized = false
 ```
 
-Therefore:
+Do not rerun the consumed C04 VALIDATION for performance-driven development.
 
-```text
-DO NOT RUN VALIDATION AGAIN
-```
-
-for performance-driven development.
-
----
+The G7 remediation cycle used TRAIN + VALIDATION under a separately frozen remediation access contract. This did not reopen the original validation ledger for ad-hoc tuning.
 
 # 25. TEST Current State
 
-Current state:
+The original C04 TEST lineage is superseded by the G7 remediation TEST confirmation.
+
+Current R03 sealed TEST state:
 
 ```text
-TEST not yet consumed
+SEALED_TEST_CONFIRMED
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
 Therefore:
 
 ```text
-DO NOT inspect TEST features or targets
-DO NOT run predictions on TEST
-DO NOT calculate TEST metrics
+DO NOT rerun the sealed R03 TEST
+DO NOT tune R03 against the R03 TEST
+DO NOT use TEST to select a new candidate
 ```
 
-until the one-shot TEST infrastructure is implemented, synthetic-tested, dry-preflighted, and explicitly authorized.
-
----
+If future research requires a change after this TEST, it must establish a new research authority rather than reopening the same TEST.
 
 # 26. Why TEST Is Special
 
