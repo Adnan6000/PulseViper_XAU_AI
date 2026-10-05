@@ -867,73 +867,38 @@ This is one of the most important scientific chains in the repository.
 
 # 29. Current TEST Evidence State
 
-Current TEST status:
+The original C04 TEST lineage has been superseded by the G7 remediation TEST confirmation.
+
+Current R03 sealed TEST evidence:
 
 ```text
-untouched
+status = SEALED_TEST_CONFIRMED
+candidate = R03_FLAT_EXTRA_TREES_SMOOTH
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
-No final TEST result should exist yet for the current frozen portable C04 lineage.
+The sealed TEST is an offline historical confirmation only. It does not authorize live trading.
 
-The next expected evidence sequence is:
+# 30. Historical / Prospective Research Verdict Boundary
+
+The G7-G-B sealed TEST confirmed that the frozen R03 remediation candidate met its predeclared offline confirmation thresholds.
+
+However, this is not a live-trading verdict. The current active evidence question is prospective forward performance under genuinely unseen market conditions.
+
+The next prospective verdict requires:
 
 ```text
-TEST protocol
-      ↓
-TEST source attestation
-      ↓
-TEST dry preflight
-      ↓
-TEST access ledger
-      ↓
-TEST result
-      ↓
-TEST result freeze
-      ↓
-final research verdict
+genuine R03 forward observations
+        ↓
+matured outcomes
+        ↓
+minimum 60 matured outcomes
+        ↓
+minimum 5 distinct UTC observation dates
+        ↓
+frozen prospective evaluation
 ```
-
-Do not create a TEST result manually.
-
-It must come from the one-shot protected TEST runner.
-
----
-
-# 30. Final Research Verdict Evidence
-
-After TEST, the project should create a final historical research report connecting:
-
-```text
-TRAIN walk-forward
-+
-VALIDATION
-+
-TEST
-```
-
-The report should evaluate:
-
-```text
-directional robustness
-balanced accuracy stability
-macro-F1 stability
-SHORT recall
-LONG recall
-coverage stability
-probability quality
-generalization gaps
-limitations
-```
-
-The verdict may authorize:
-
-```text
-shadow research
-```
-
-but must not automatically authorize live trading.
-
----
 
 # 31. Auxiliary Research Reports
 
@@ -1144,43 +1109,30 @@ Neither should silently contradict the other.
 
 # 40. Student Evidence Exercise
 
-A new student should be able to trace:
+A new student should now be able to answer two separate questions:
 
 ```text
-Why is C04 the current model?
+Why was C04 the historical control?
+Why is R03 the current remediation winner?
 ```
 
-using:
+C04 is traced through the historical TRAIN research chain.
+
+R03 is traced through:
 
 ```text
-Candidate Registry
+G7-E registry
       ↓
-Walk-Forward Evaluation
+G7-F-A access
       ↓
-Winner Freeze
+G7-F-B evaluation
       ↓
-Full TRAIN Fit
+G7-F-C winner freeze
       ↓
-Artifact Verification
+G7-G-B sealed TEST
+      ↓
+G7-H prospective lane
 ```
-
-Then answer:
-
-```text
-Did VALIDATION choose C04?
-```
-
-Correct answer:
-
-```text
-No.
-```
-
-C04 was frozen using TRAIN-only research.
-
-VALIDATION only evaluated the already-frozen C04.
-
----
 
 # 41. Student Evidence Exercise — Why Can't VALIDATION Be Rerun?
 
@@ -1279,19 +1231,19 @@ no unrelated binary files
 
 # 45. Binary Model Artifact Policy
 
-The current frozen model is:
+The active R03 train-only artifact is:
 
 ```text
-xauusd_portable_331_c04_full_train_model.joblib
+02_AI/Models/artifacts/xauusd_r03_train_only_frozen.joblib
 ```
 
-Whether binary artifacts are committed to Git should follow repository storage policy.
+SHA256:
 
-Even if the binary is not stored remotely, its SHA256 and provenance must remain recorded in research evidence.
+```text
+b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03
+```
 
-Do not add large binaries automatically without checking repository policy.
-
----
+The historical C04 artifact remains preserved separately as control-lineage evidence.
 
 # 46. Current Research Evidence Status
 
