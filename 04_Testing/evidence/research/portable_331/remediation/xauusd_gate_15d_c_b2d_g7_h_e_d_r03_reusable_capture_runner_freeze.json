@@ -1,0 +1,39 @@
+{
+  "base_authority_commit": "80c05a1270081cafd136cac40309f27302796d15",
+  "candidate_artifact_hashes": {
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_d_r03_reusable_capture.py": "c70bb3b43a56ff2871afc02d26a4b016c882d58c1c6a06766c4ed76e42098cff",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_d_r03_reusable_capture_freeze.py": "f94e70c40f7f1cd640d1977f9c120d88b067eabb19abc1b5aae8afcb390fbcf7",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_h_e_d_r03_reusable_capture_freeze.py": "4ed89dbb0465615e93442fdd9c852d3f48a9ffc9a6a67ecb22cc511610b95e14"
+  },
+  "capture_executed": false,
+  "collection_state_at_freeze": {
+    "anchor_count": 1,
+    "collection_target_reached": false,
+    "distinct_matured_observation_utc_dates": 1,
+    "execution_authorized": false,
+    "live_authorized": false,
+    "matured_outcome_count": 1,
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "next_action": "CAPTURE_NEW_OBSERVATION",
+    "observation_count": 1,
+    "orphan_anchor_count": 0,
+    "pending_count": 0,
+    "pending_logical_observation_id": null,
+    "performance_evaluated": false,
+    "pnl_evaluated": false
+  },
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_E_D_R03_REUSABLE_CAPTURE_RUNNER_FREEZE",
+  "live_authorized": false,
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "real_market_data_loaded": false,
+  "runtime_ledger_hashes_at_freeze": {
+    "anchor": "fae4a1188f157d03a8f08f5788662016c1df7fca47547c6a12796e3977e56078",
+    "observation": "c875f0ed7d7c4698d626eac1dd477be4bb6528b7ed4cc2065ae9177aa00a9b35",
+    "outcome": "9cb5b5ebefd3aa1a03fcfc284601f5a7bbec204741138f44689888e5c6fff4de"
+  },
+  "runtime_ledgers_written": false,
+  "status": "PASS"
+}
