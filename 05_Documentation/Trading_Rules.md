@@ -687,23 +687,33 @@ fail closed
 
 # 28. Broker Symbol Normalization
 
-Model research focuses on:
+Model research uses a **canonical XAUUSD identity**. Broker-specific symbols are resolved at the broker boundary.
+
+Examples:
 
 ```text
-XAUUSD / XAUUSDm
+XAUUSD
+XAUUSDm
+XAUUSDb
 ```
 
-Different brokers may use different symbols.
+may all represent broker-specific Gold Spot symbols.
 
-Future production architecture should map:
+The system must map:
 
 ```text
-broker symbol
+broker discovery
+      ↓
+dynamic symbol resolution
+      ↓
+broker instrument context
       ↓
 canonical XAUUSD identity
 ```
 
-before feature generation and trading.
+before feature generation and any eventual trading.
+
+No single broker is permanently selected. Exness, HFM, or any other broker used for calibration is a broker-specific evidence context, not a permanent architecture choice.
 
 ---
 
