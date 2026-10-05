@@ -1116,29 +1116,23 @@ Freeze fingerprint:
 
 ---
 
-# 33. Final TEST Architecture
+# 33. R03 Sealed TEST and Prospective Evidence Architecture
 
-The next research stage is:
+The remediation lineage has already completed the one-shot sealed TEST on R03.
 
 ```text
-Frozen VALIDATION Result
+G7-F-C R03 winner freeze
         ↓
-One-Shot TEST Runner
+G7-G-A TEST confirmation criteria
         ↓
-Dry Preflight
+G7-G-B one-shot TEST
         ↓
-TEST Ledger
+SEALED_TEST_CONFIRMED
         ↓
-First and Only TEST Read
-        ↓
-Final Metrics
-        ↓
-Research Verdict
+G7-H R03 prospective forward validation
 ```
 
-TEST must not feed back into model development.
-
----
+Current R03 prospective evidence must remain separate from the consumed TEST. The prospective lane uses genuinely unseen future observations and its own frozen contract.
 
 # 34. Layer 6 — Decision and Risk Architecture
 
