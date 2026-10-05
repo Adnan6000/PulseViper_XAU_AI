@@ -1,0 +1,24 @@
+{
+  "base_authority_commit": "d138717f1cb1d80584479289f71e95b0c5b9fe6f",
+  "candidate_artifact_hashes": {
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_b_r2_first_genuine_r03_capture_recovery.py": "ee90b7fc2af01a6aa7ff53ccb978669f1c7a3ce2782707c747a729fb322ca1ba",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_b_r2_first_genuine_r03_capture_recovery_freeze.py": "3e43d66957e3a6f047d88ca8de16d94501828bf0af57358ce06ec14635fe4208",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_h_e_b_r2_first_genuine_r03_capture_recovery_freeze.py": "f3a8b47991d8b24703e51d98d6e8342de49705b7f5c32b9dd880a4162b644706"
+  },
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_E_B_R2_FIRST_GENUINE_R03_CAPTURE_RECOVERY_RUNNER_FREEZE",
+  "live_authorized": false,
+  "original_block_reason": {
+    "error": "TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN:raw_tick=1790985539:candidate_count=0",
+    "error_type": "TimestampBasisResolutionError"
+  },
+  "original_blocked_evidence_path": "04_Testing/evidence/research/portable_331/remediation/xauusd_gate_15d_c_b2d_g7_h_e_b_first_genuine_r03_capture_blocked.json",
+  "original_blocked_evidence_sha256": "6ec3d22879022289044219496aa4b01fd4cfbdb777432dcb126fc53bf7cff6b8",
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "r03_ledgers_created": false,
+  "r03_ledgers_written": false,
+  "real_market_data_loaded": false,
+  "recovery_capture_executed": false,
+  "status": "PASS"
+}
