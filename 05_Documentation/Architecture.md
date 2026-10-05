@@ -590,39 +590,23 @@ not just array shape.
 
 ---
 
-# 14. Production Portability Architecture
-
-The production feature generation path is implemented and verified under Gate 13:
+Gate 13 production feature generation is broker-agnostic at the instrument boundary:
 
 ```text
-BROKER DATA (M5, M15, M30, H1, H4, optional D1)
+broker discovery
     ↓
-Dynamic Broker Symbol Resolution
+dynamic symbol resolution
     ↓
-Validated Broker Instrument Context
+validated broker instrument context
     ↓
-Canonical XAUUSD Identity
+canonical XAUUSD identity
     ↓
-Time Canonicalization & Monotonicity Verification
-    ↓
-Canonical D1 Reconstruction (00:00:00 UTC Session Boundary)
-    ↓
-Causal Feature Generation (No-Future-Leakage)
-    ↓
-Portable Projection & Ordering
-    ↓
-Exact 331 Ordered Features
-    ↓
-Fingerprint & Type Validation (Fail-Closed)
+331-feature portable contract
 ```
 
-Gate 13 establishes:
-- `02_AI/Features/portable_feature_contract.py`: Authoritative 331-feature schema with fingerprint `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`.
-- `02_AI/Features/portable_feature_pipeline.py`: Production engine generating exactly 331 features from OHLC bars.
-- Fail-closed error handling via typed `PortableFeatureGenerationError` (no partial/corrupt matrices emitted).
-- Parity verified for the production feature pipeline using canonical broker-derived historical execution snapshots against non-holdout frozen TRAIN rows with 0 mismatches across all 331 features (live MT5 feed ingestion and runtime execution parity are outside this gate and have not yet been proven).
+Broker-specific symbols such as `XAUUSD`, `XAUUSDm`, and `XAUUSDb` are calibration/adapter contexts, not permanent broker choices. The core model and research contracts must not hard-code a single broker symbol.
 
----
+Gate 13 parity proved historical canonical broker-derived snapshots against the frozen feature contract. Live broker feed parity remains a downstream operational integration concern.
 
 # 15. Dataset Layer
 
@@ -1571,40 +1555,47 @@ If these questions cannot be answered, more architecture review is required befo
 
 # 48. Current Architectural Milestone
 
-The current research architecture has reached:
+The architecture is currently centered on the frozen R03 remediation lineage, while historical C04 remains preserved as the control lineage.
 
 ```text
-TRAIN
-  ✅
-Walk-Forward
-  ✅
-Winner
-  ✅
-Full TRAIN Fit
-  ✅
-Artifact Verification
-  ✅
-Untouched VALIDATION
-  ✅ PASS
-Validation Freeze
-  ✅
-Final TEST
-  ⏳ NEXT
+Historical C04 forward baseline
+        ↓
+G7 remediation protocol + six-candidate registry
+        ↓
+G7-F-B evaluation
+        ↓
+R03 winner freeze
+        ↓
+R03 sealed TEST confirmation
+        ↓
+R03 train-only artifact + prospective runtime
+        ↓
+CURRENT: R03 first genuine forward capture blocked
 ```
 
-Production architecture still needs:
+Current R03 authority:
 
 ```text
-broker portability
-D1 canonicalization
-production feature generation
-verified inference adapter
-shadow integration
-forward validation
-production safety review
+candidate = R03_FLAT_EXTRA_TREES_SMOOTH
+artifact_sha256 = b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03
+feature_count = 331
+train_rows = 69966
+minimum_matured_outcomes = 60
+minimum_distinct_utc_dates = 5
 ```
 
----
+The first genuine capture and recovery attempts are blocked by `TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN` for `raw_tick=1790985539` with `candidate_count=0`. This is a fail-closed evidence condition.
+
+Production/live architecture remains unauthorized:
+
+```text
+live_authorized = false
+execution_authorized = false
+performance_evaluated = false
+pnl_evaluated = false
+```
+
+Gate 13/14 production feature parity and frozen C04 inference work remain valid historical/compatibility infrastructure. The active forward lane is R03 and must not be confused with the historical C04 model.
 
 # 49. Golden Architecture Rule
 
