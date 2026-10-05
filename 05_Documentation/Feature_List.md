@@ -998,7 +998,7 @@ Not all models require feature scaling.
 
 The frozen candidate registry contained some candidates with fold-local scalers.
 
-The current winning model is ExtraTrees, which does not use a standard scaler in the frozen C04 configuration.
+The historical C04 control and the current R03 remediation winner both use the same frozen 331-feature contract. R03 uses no standard scaler in its frozen ExtraTrees configuration.
 
 Important rule:
 
@@ -1010,7 +1010,7 @@ The production transformation chain must match training.
 
 # 36. Feature Selection
 
-The current frozen model-selection protocol did not perform results-driven feature selection.
+The frozen G7 remediation registry did not permit results-driven feature selection or feature-subset search. The 331-feature contract remains unchanged for R03.
 
 Current feature count remained:
 
