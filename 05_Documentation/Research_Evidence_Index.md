@@ -107,7 +107,7 @@ G7-H R03 prospective validation lane
 
 ## Current Forward Evidence Status
 
-Repository HEAD: `c5ec7069a4dff846d663bee05c862f38f9e8b891`.
+Latest engineering/protocol HEAD before this documentation synchronization: `c5ec7069a4dff846d663bee05c862f38f9e8b891`.
 
 The historical C04 forward baseline is complete as a failed/weak discrimination signal and is excluded from remediation tuning.
 
