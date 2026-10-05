@@ -1472,7 +1472,7 @@ Final migration state: 78 READY EXECUTED, 77 REVIEW_EXECUTED, 0 REVIEW_REQUIRED,
 <!-- GATE-12-TEST-PROTECTION:START -->
 ## Protected TEST Holdout Preservation (Gate 12)
 
-The final TEST holdout remains protected and unconsumed. The one-time VALIDATION evaluation was completed, passed, and permanently frozen (`ONE_TIME_VALIDATION_ACCEPTED`).
+The original C04 TEST holdout was protected under Gate 12. The later G7 remediation lineage established and consumed a separate one-shot R03 sealed TEST, confirmed under G7-G-B. The one-time C04 VALIDATION evaluation remains permanently frozen (`ONE_TIME_VALIDATION_ACCEPTED`).
 <!-- GATE-12-TEST-PROTECTION:END -->
 
 <!-- GATE-13-FEATURE-PARITY:START -->
@@ -1484,7 +1484,7 @@ Established 331-feature production parity on canonical broker historical snapsho
 <!-- GATE-13-FEATURE-PARITY:END -->
 
 <!-- GATE-14-INFERENCE-ADAPTER:START -->
-## Frozen C04 Production Inference Adapter (Gate 14)
+## Frozen C04 Production Inference Adapter — Historical Control (Gate 14)
 
 Created `02_AI/Models/frozen_c04_inference_adapter.py` wrapping the frozen C04 ExtraTrees model (`48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`):
 - Implements deterministic raw argmax decision rule across classes `[-1, 0, 1]`.
