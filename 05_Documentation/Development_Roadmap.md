@@ -33,94 +33,92 @@ This roadmap should be updated whenever a major engineering or research gate is 
 
 # 3. Current Project Position
 
-Current high-level state:
+The project has moved beyond the original C04 forward-evaluation lane into a completed historical remediation cycle.
 
 ```text
-Portable ML Research
+Original C04 research baseline
         ↓
-TRAIN research
-        ✅
+30 matured prospective samples
         ↓
-Frozen C04 winner
-        ✅
+Weak forward discrimination
         ↓
-Full TRAIN fit
-        ✅
+G7-A remediation rules freeze
         ↓
-Untouched VALIDATION
-        ✅ PASSED
+G7-B remediation data authority freeze
         ↓
-VALIDATION freeze
-        ✅
+G7-C exact training snapshot freeze
         ↓
-FINAL TEST (Protected Holdout)
-        ⏳
+G7-D remediation research protocol freeze
         ↓
-Production portability
-        ✅ COMPLETE (Gate 13: historical snapshot parity)
+G7-E six-candidate registry freeze
         ↓
-Offline inference adapter
-        ✅ COMPLETE (Gate 14: frozen offline inference)
+G7-F-A TRAIN + VALIDATION remediation access
         ↓
-Forward shadow observation infrastructure
-        ✅ COMPLETE (Gate 15A: safe read-only harness)
+G7-F-B six-candidate evaluation
         ↓
-Read-only MT5 forward acquisition
-        ✅ COMPLETE (Gate 15B-A v2.1.0: NY close server epoch, per-row DST)
+G7-F-C R03 remediation winner freeze
         ↓
-First genuine forward observation proof
-        ✅ COMPLETE (Gate 15B-B: Obs 1, audit-only pre-contract)
+G7-G-A sealed TEST confirmation criteria
         ↓
-Frozen forward outcome contract V1
-        ✅ COMPLETE (Gate 15C: CLEAN_DIRECTIONAL_EXCURSION_V2, 1.25/0.75 ATR, 12 M5 rows)
+G7-G-B one-shot sealed TEST
         ↓
-Prospective forward eligibility authority
-        ✅ COMPLETE (Gate 15D-A: activation cutoff 2026-09-28T11:16:59Z)
+R03 TEST CONFIRMED
         ↓
-Prospective post-contract observation proof
-        ✅ COMPLETE (Gate 15D-B: Obs 2, genuine acquisition proof, excluded from scoring)
+G7-H-A R03 prospective forward contract
         ↓
-Decision-bar timing semantic correction
-        ✅ COMPLETE (Gate 15D-C-A v1.1: decision_bar_open = decision_time - 5m) [Superseded]
+G7-H-B R03 train-only artifact
         ↓
-Outcome ledger semantic alignment
-        ✅ COMPLETE (Gate 15D-C-B1 v1.1: schema alignment) [Superseded]
+G7-H-C prospective runtime binding
         ↓
-Prospective forward outcome anchor authority
-        ✅ COMPLETE (Gate 15D-C-B2A: same-snapshot anchor protocol)
+G7-H-D outcome maturation binding
         ↓
-Anchor-required forward outcome maturer V2
-        ✅ COMPLETE (Gate 15D-C-B2B: post-hoc reconstruction forbidden)
+G7-H-E-A collection controller
         ↓
-Anchor-required forward outcome ledger V2
-        ✅ COMPLETE (Gate 15D-C-B2C: compatible with Maturer V2)
+G7-H-E-B first genuine capture
         ↓
-Genuine Prospective Observation + Same-Snapshot Anchor Integration
-        🟡 IN PROGRESS (Gate 15D-C-B2D: G1/G2 evidence active, G3 controller frozen)
+R1/R2 recovery lanes
         ↓
-Matured forward shadow evaluation
-        ⬜ PENDING (Gate 15E; requires enough matured prospective observations)
-        ↓
-Live promotion
-        ⛔ NOT AUTHORIZED
+CURRENT: first genuine R03 capture still blocked
 ```
 
-Current frozen model:
+### Current authority
+
+- Historical C04 remains preserved as the original control lineage.
+- G7-E froze exactly six remediation candidates.
+- G7-F-C froze `R03_FLAT_EXTRA_TREES_SMOOTH` as the remediation winner.
+- G7-G-B performed the one-shot sealed TEST on R03 and recorded `SEALED_TEST_CONFIRMED`.
+- G7-H froze the prospective R03 forward contract and its train-only runtime path.
+- No old Forward30 sample was used for remediation training, candidate selection, TEST tuning, or PnL optimization.
+- No live execution or account-risk integration is authorized.
+
+### Current R03 prospective collection state
 
 ```text
-C04_FLAT_EXTRA_TREES_CONSTRAINED
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+minimum_matured_outcomes = 60
+minimum_distinct_utc_dates = 5
 ```
 
-Current feature contract:
+The latest first-capture recovery runner is frozen, but capture remains blocked by:
 
 ```text
-331 ordered portable features
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
 ```
 
-Current live status:
+The correct response is to prove the timestamp basis or obtain a valid fresh observation. The timestamp check must not be weakened.
+
+Current authorization:
 
 ```text
 live_authorized = false
+execution_authorized = false
+performance_evaluated = false
+pnl_evaluated = false
 ```
 
 ---
