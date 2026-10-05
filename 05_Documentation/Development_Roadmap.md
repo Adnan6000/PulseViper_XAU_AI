@@ -123,64 +123,39 @@ pnl_evaluated = false
 
 ---
 
-# 4. Overall Completion Estimate
+# 4. Current Completion / Remaining Work
 
-Approximate engineering maturity:
+The earlier percentage estimates were tied to the pre-remediation C04/forward infrastructure state and are no longer authoritative.
 
-| Area                              | Approximate State |
-| --------------------------------- | ----------------: |
-| Core runtime / risk foundation    |            90–95% |
-| Portable feature research         |            90–95% |
-| Historical ML research pipeline   |              95%+ |
-| TRAIN model research              |              100% |
-| Untouched VALIDATION              |              100% |
-| Final TEST                        |           Pending |
-| Production broker portability     |              100% |
-| Frozen-model production inference |              100% |
-| Shadow integration                |            40–50% |
-| Forward shadow validation         |       Early / active |
-| Safe live promotion readiness     |           ~55–65% |
+Current milestone state:
 
-These percentages are engineering estimates, not scientific metrics.
+| Area | Current state |
+|---|---|
+| Original C04 research lineage | Frozen historical control |
+| G7 remediation protocol | Complete |
+| G7 six-candidate registry | Frozen |
+| G7-F-B candidate evaluation | Complete |
+| R03 remediation winner | Frozen |
+| G7-G-B sealed TEST | Passed and consumed |
+| R03 prospective contract | Frozen |
+| R03 train-only artifact | Frozen and verified |
+| R03 runtime/maturation/controller | Frozen and safety-tested |
+| First genuine R03 forward capture | **Blocked** |
+| Matured R03 forward evaluation | Not started |
+| Production/live execution | Not authorized |
 
----
+The current bottleneck is **prospective evidence acquisition**, not candidate-model research.
 
-# 5. Remaining Engineering Time Estimate
+# 5. Immediate Remaining Work
 
-Approximate active engineering effort from the current state:
+1. Resolve the R03 timestamp-basis proof without weakening the fail-closed check.
+2. Execute the frozen first-genuine-capture runner when a valid unique timestamp basis is available.
+3. Preserve anchor-first → observation persistence ordering.
+4. Accumulate at least 60 matured R03 outcomes spanning at least 5 distinct UTC observation dates.
+5. Perform the separately authorized prospective R03 evaluation.
+6. Only after sufficient forward evidence, perform the next production-safety and live-promotion review.
 
-| Remaining Area                        | Estimated Active Work |
-| ------------------------------------- | --------------------: |
-| Final TEST infrastructure + execution |             2–4 hours |
-| Final research verdict/report         |             1–2 hours |
-| Documentation/evidence cleanup        |             3–5 hours |
-| Production broker portability         |              0–4 hours |
-| Frozen inference + shadow integration |            8–14 hours |
-| Production safety / monitoring        |            8–12 hours |
-
-Approximate remaining active engineering:
-
-```text
-25–45 focused hours
-```
-
-A realistic focused development schedule is approximately:
-
-```text
-4–7 focused working days
-```
-
-However, full live-readiness requires genuine future unseen market data plus controlled demo execution and operational hardening.
-
-Therefore expected calendar duration is more realistically:
-
-```text
-3–6 weeks
-```
-
-The longer calendar estimate is mainly due to forward-shadow observation, not coding speed.
-
----
+No TEST rerun, candidate replacement, threshold tuning, calibration, or old Forward30 tuning is authorized by this lane.
 
 # 6. Phase 1 — Core Runtime Foundation
 
