@@ -94,17 +94,16 @@ Full-Stack Software Engineer | CEH
 PulseViper XAU AI
 =================
 
-A research-first, safety-gated Python trading system for **XAUUSD / XAUUSDm machine-learning signals, broker-portable feature generation, shadow validation, risk management, and eventual MetaTrader 5 live execution**.
+A research-first, safety-gated Python trading system for **canonical XAUUSD research and broker-agnostic multi-broker deployment**, with controlled real-money live trading as the eventual production objective.
 
-> **Current status:** Controlled read-only forward validation (Gate 15D-C-B2D in progress)  
-> **Published authority commit:** `cbdeb30934213dc36863c334eb1e50879ba0dde1`  
-> **Frozen model:** C04 constrained ExtraTrees (`C04_FLAT_EXTRA_TREES_CONSTRAINED`), 331 portable features  
-> **Untouched VALIDATION:** Passed and permanently consumed  
-> **Final TEST:** Protected holdout (untouched)  
-> **Read-only forward acquisition:** Active (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`)  
-> **Forward outcome authority:** Maturer V2 & Outcome Ledger V2 (requires prospective anchor)  
-> **Current phase:** Genuine anchored forward observation + maturation (`Gate 15D-C-B2D` in progress)  
-> **Forward performance scoring:** NOT STARTED (`forward_performance_evaluated = false`)  
+> **Current status:** R03 remediation winner frozen; sealed TEST confirmed; prospective R03 forward-validation lane is active but the first genuine capture is currently blocked by an unresolved timestamp-basis proof condition.
+> **Current repository HEAD:** `c5ec7069a4dff846d663bee05c862f38f9e8b891`
+> **Historical C04 baseline:** `C04_FLAT_EXTRA_TREES_CONSTRAINED` remains preserved as the original frozen control lineage.
+> **Current remediation winner:** `R03_FLAT_EXTRA_TREES_SMOOTH`
+> **Feature contract:** 331 ordered portable features
+> **Sealed TEST:** G7-G-B one-shot confirmation PASSED; rerun prohibited
+> **R03 forward contract:** minimum 60 matured outcomes across at least 5 distinct UTC observation dates
+> **Current R03 capture state:** 0 observations, 0 anchors, 0 matured outcomes; first capture blocked by `TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN`
 > **Live trading / execution:** NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
 
 Table of Contents
