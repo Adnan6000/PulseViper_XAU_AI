@@ -130,10 +130,18 @@ The latest prospective observation must still satisfy the full future-M5 horizon
 
 # 4. Current Core Identity
 
-## Symbol / research scope
+## Historical control
 
 ```text
-XAUUSD / XAUUSDm
+C04_FLAT_EXTRA_TREES_CONSTRAINED
+```
+
+C04 remains the historical control lineage that motivated remediation.
+
+## Current remediation winner
+
+```text
+R03_FLAT_EXTRA_TREES_SMOOTH
 ```
 
 ## Feature count
@@ -148,15 +156,17 @@ XAUUSD / XAUUSDm
 [-1, 0, 1]
 ```
 
-Meaning:
+## Current R03 prospective authority
 
 ```text
--1 = SHORT
- 0 = NO_TRADE
- 1 = LONG
+minimum matured outcomes = 60
+minimum distinct UTC observation dates = 5
+horizon = 12 completed M5 rows
+profit_atr = 1.25
+max_adverse_atr = 0.75
 ```
 
----
+Current R03 runtime collection remains read-only and non-trading.
 
 # 5. Dataset Identity
 
