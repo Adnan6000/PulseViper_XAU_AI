@@ -341,9 +341,10 @@ Do not modify a frozen feature while continuing to claim the old fingerprint.
 Defines the authoritative 331-feature schema required by frozen models (C04 winner):
 - `FROZEN_FEATURE_COLUMNS`: 331 exactly ordered feature column names.
 - `EXPECTED_FEATURE_COLUMNS_SHA256`: `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`.
-- `SUPPORTED_SYMBOLS`: `("XAUUSD", "XAUUSDm")`.
+- Canonical research identity: `XAUUSD`.
+- Broker-specific Gold symbols are resolved dynamically at the broker/instrument-context boundary (examples include `XAUUSD`, `XAUUSDm`, `XAUUSDb`).
 - `D1_SESSION_BOUNDARY_UTC`: `"00:00:00"`.
-- `PortableFeatureContract`: Typed validation functions enforcing exact count, order, finite values, and symbol allowlisting.
+- `PortableFeatureContract`: Typed validation functions enforcing exact count, order, finite values, and validated instrument context.
 
 ---
 
