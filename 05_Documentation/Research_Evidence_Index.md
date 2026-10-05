@@ -94,39 +94,44 @@ Validation Ledger
       ↓
 Validation Result Freeze
       ↓
-FINAL TEST
-      ⏳
-
-Forward evidence lane (parallel to protected historical TEST):
-
-```text
-Gate 15D-C-B2D G1
+Historical C04 forward baseline
       ↓
-G2 genuine maturation
+G7 remediation cycle
       ↓
-G3 sample controller
+G7-G-B sealed TEST confirmation
       ↓
-Gate 15E matured forward evaluation
-```
-```
+G7-H R03 prospective validation lane
+      ⏳ CURRENT
 
 ---
 
 ## Current Forward Evidence Status
 
-Repository HEAD: `1b6ed19b37fff02015744612b23d30dede3134c4`.
+Repository HEAD: `c5ec7069a4dff846d663bee05c862f38f9e8b891`.
 
-The forward lane has advanced beyond the original B2D preparation state:
+The historical C04 forward baseline is complete as a failed/weak discrimination signal and is excluded from remediation tuning.
 
-- Gate 15D-C-B2D G1 genuine anchored capture: active evidence exists.
-- G2 genuine outcome maturation: evidence recorded; append idempotency verified.
-- G3 forward sample controller: frozen and safety-tested.
-- Formal performance evaluation: `false`.
-- Formal PnL evaluation: `false`.
-- Live authorization: `false`.
-- Execution authorization: `false`.
+The current R03 lane has frozen:
+- prospective validation contract;
+- train-only model artifact;
+- runtime binding;
+- outcome maturation;
+- finite collection controller;
+- first-capture runner and R1/R2 recovery runners.
 
-The latest prospective observation must still satisfy the full future-M5 horizon before it can mature. This is forward evidence collection, not a performance verdict.
+Current R03 evidence state:
+
+- observations: **0**
+- anchors: **0**
+- matured outcomes: **0**
+- minimum matured outcomes: **60**
+- minimum distinct UTC observation dates: **5**
+- formal performance evaluation: `false`
+- formal PnL evaluation: `false`
+- live authorization: `false`
+- execution authorization: `false`
+
+The first genuine R03 capture is currently blocked by `TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN` for `raw_tick=1790985539` with `candidate_count=0`. The block is preserved as evidence and the timestamp proof must not be weakened.
 
 # 4. Current Core Identity
 
