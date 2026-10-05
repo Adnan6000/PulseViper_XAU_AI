@@ -41,7 +41,7 @@ CURRENT FROZEN EXPERIMENT
 
 Older V3/V4 results remain useful as research history.
 
-They do not replace the current portable 331-feature C04 lineage.
+They do not replace the current portable 331-feature remediation lineage. C04 remains the historical control; R03 is the current remediation winner.
 
 ---
 
