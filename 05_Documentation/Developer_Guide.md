@@ -223,31 +223,17 @@ A future maintainer should not need to reverse-engineer the entire repository ju
 
 # 5. Current ML Experiment
 
-The current active/frozen model research lineage uses:
+The original C04 lineage is now historical control evidence. The active remediation lineage is R03.
 
 ```text
-331 broker-portable features
+R03_FLAT_EXTRA_TREES_SMOOTH
 ```
 
-with three target classes:
+R03 was selected from exactly six frozen candidates using the predeclared G7-E selection policy on TRAIN + VALIDATION. The old Forward30 observations were not used for remediation training or selection.
 
-```text
--1 = SHORT
- 0 = NO_TRADE
- 1 = LONG
-```
+The R03 sealed TEST was subsequently consumed exactly once and confirmed.
 
-The selected candidate is:
-
-```text
-C04_FLAT_EXTRA_TREES_CONSTRAINED
-```
-
-It has passed the one-time untouched VALIDATION gate.
-
-The final TEST split remains protected.
-
----
+Current R03 prospective collection is separate from the historical holdouts and is currently blocked at timestamp-basis proof.
 
 # 6. Feature Contract
 
@@ -564,34 +550,24 @@ That process eventually overfits the research procedure itself.
 
 # 13. Current Winner
 
-Frozen winner:
+Current remediation winner:
 
 ```text
-C04_FLAT_EXTRA_TREES_CONSTRAINED
+R03_FLAT_EXTRA_TREES_SMOOTH
 ```
 
-Configuration:
-
-```python
-ExtraTreesClassifier(
-    bootstrap=False,
-    class_weight="balanced",
-    max_depth=10,
-    max_features=0.35,
-    min_samples_leaf=25,
-    n_estimators=500,
-    n_jobs=-1,
-    random_state=271828,
-)
-```
-
-Configuration fingerprint:
+R03 validation-selection metrics:
 
 ```text
-f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3
+macro_f1 = 0.3601580119
+balanced_accuracy = 0.3777606379
+minimum_per_class_recall = 0.3251508502
+multiclass_brier = 0.6648217771
+multiclass_log_loss = 1.0958580283
+exact_class_accuracy = 0.3640125476
 ```
 
----
+Historical C04 remains preserved as the control lineage.
 
 # 14. Selection Philosophy
 
@@ -877,70 +853,57 @@ Investigate the ledger and scientific policy.
 
 ---
 
-# 23. Current Validation Freeze
+# 23. Current Validation / TEST Freeze
 
-Validation result fingerprint:
+The original C04 VALIDATION was consumed once and remains immutable historical evidence.
 
-```text
-ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1
-```
-
-Frozen validation-result fingerprint:
+The remediation lineage then performed a separate G7-G-B one-shot sealed TEST on the frozen R03 winner.
 
 ```text
-521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c
+R03 TEST status = SEALED_TEST_CONFIRMED
+balanced_accuracy = 0.3636245672
+macro_f1 = 0.3490621418
+minimum_per_class_recall = 0.2983711747
+multiclass_brier = 0.6647780980
+multiclass_log_loss = 1.0958700266
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
-Current state:
-
-```text
-validation_result_frozen = true
-validation_accepted = true
-validation_consumed = true
-validation_rerun_authorized = false
-
-test_runner_implementation_authorized_next = true
-test_execution_authorized = false
-
-shadow_authorized = false
-live_authorized = false
-```
-
----
+Do not rerun the sealed TEST for tuning. Current R03 prospective validation is a new unseen-market evidence lane and has not yet produced a genuine observation.
 
 # 24. Current Exact Development Position
 
 ```text
-Portable feature research              DONE
-Portable feature contract              DONE
-Portable dataset                       DONE
-TRAIN input loader                     DONE
-TRAIN target loader                    DONE
-Supervised batch                       DONE
-Model research protocol                DONE
-Candidate registry                     DONE
-Candidate evaluator                    DONE
-Real TRAIN walk-forward                DONE
-Winner freeze                          DONE
-Full TRAIN fit                         DONE
-Model provenance verification          DONE
-VALIDATION acceptance protocol         DONE
-One-time validation core               DONE
-Authorized validation source           DONE
-Validation dry preflight               DONE
-Real untouched VALIDATION              PASSED
-Validation freeze                      DONE
-
-One-shot TEST runner                    NEXT
-Final TEST                             PENDING
-Final model research verdict           PENDING
-Production broker portability          PENDING
-Shadow inference                       PENDING
-Forward shadow validation              PENDING
-Live promotion                         NOT AUTHORIZED
+Historical C04 forward failure
+        ↓
+G7 remediation cycle
+        ↓
+R03 winner + sealed TEST confirmed
+        ↓
+R03 prospective infrastructure frozen
+        ↓
+CURRENT: first genuine capture blocked
 ```
 
----
+Current collection state:
+
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+```
+
+Current block:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+Next action is to resolve the timestamp-basis proof or obtain a valid fresh capture context. Do not weaken the check or manufacture evidence.
 
 # 25. Finite-Gate Development Method
 
