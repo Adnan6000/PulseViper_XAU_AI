@@ -97,7 +97,7 @@ PulseViper XAU AI
 A research-first, safety-gated Python trading system for **canonical XAUUSD research and broker-agnostic multi-broker deployment**, with controlled real-money live trading as the eventual production objective.
 
 > **Current status:** R03 remediation winner frozen; sealed TEST confirmed; prospective R03 forward-validation lane is active but the first genuine capture is currently blocked by an unresolved timestamp-basis proof condition.
-> **Current repository HEAD:** `c5ec7069a4dff846d663bee05c862f38f9e8b891`
+> **Latest engineering/protocol HEAD before this documentation synchronization:** `c5ec7069a4dff846d663bee05c862f38f9e8b891`
 > **Historical C04 baseline:** `C04_FLAT_EXTRA_TREES_CONSTRAINED` remains preserved as the original frozen control lineage.
 > **Current remediation winner:** `R03_FLAT_EXTRA_TREES_SMOOTH`
 > **Feature contract:** 331 ordered portable features
