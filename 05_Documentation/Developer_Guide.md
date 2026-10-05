@@ -404,11 +404,7 @@ TRAIN may be used for:
 
 VALIDATION is a holdout used after model-selection rules are frozen.
 
-For the current C04 experiment:
-
-```text
-VALIDATION has already been consumed.
-```
+For the original C04 lineage, VALIDATION has already been consumed. The G7 remediation cycle used TRAIN + VALIDATION through a separately frozen remediation access contract; this did not authorize ad-hoc holdout reuse.
 
 Current state:
 
@@ -431,7 +427,12 @@ TEST is the final untouched holdout.
 Current state:
 
 ```text
-TEST not yet consumed.
+The G7-G-B R03 sealed TEST has been consumed exactly once and confirmed.
+
+```text
+SEALED_TEST_CONFIRMED
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
 TEST must not be used for:
@@ -1043,7 +1044,7 @@ Suppose you want to test:
 max_depth=12
 ```
 
-The current C04 experiment uses:
+The historical C04 experiment used:
 
 ```python
 max_depth=10
