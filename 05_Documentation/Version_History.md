@@ -47,63 +47,64 @@ They do not replace the current portable 331-feature C04 lineage.
 
 # 3. Current Research Lineage
 
-Current active/frozen historical ML lineage:
+The current lineage is no longer the original C04-only forward lane.
 
 ```text
 Portable 331 Feature Contract
         ↓
-Portable Dataset
+Historical C04 control
         ↓
-TRAIN-only Research
+30 matured Forward30 outcomes
         ↓
-Six Frozen Candidates
+Weak forward discrimination
         ↓
-Purged Walk-Forward
+G7-A → G7-B → G7-C → G7-D → G7-E
         ↓
-C04 Winner
+G7-F-A → G7-F-B → G7-F-C
         ↓
-Full TRAIN Fit
+G7-G-A → G7-G-B
         ↓
-Artifact Verification
+G7-H R03 prospective lane
         ↓
-Untouched VALIDATION
-        ↓
-VALIDATION PASS
-        ↓
-Validation Result Freeze
-        ↓
-Final TEST
-        ⏳ NEXT
+CURRENT: first genuine R03 capture blocked
 ```
 
-Current frozen model:
+Current remediation winner:
 
 ```text
-C04_FLAT_EXTRA_TREES_CONSTRAINED
+R03_FLAT_EXTRA_TREES_SMOOTH
 ```
 
-Current live state:
-
-```text
-live_authorized = false
-```
-
----
+Historical C04 remains preserved as the control lineage. R03 is the active remediation lineage.
 
 # 4. Current Repository Status
 
-Repository HEAD at this documentation audit: `1b6ed19b37fff02015744612b23d30dede3134c4`.
+The current `main` branch contains the G7 remediation implementation, R03 prospective infrastructure, and subsequent documentation synchronization commits.
 
-The historical C04 research baseline remains `cbdeb30934213dc36863c334eb1e50879ba0dde1`. Later commits extend forward-evidence infrastructure and documentation without silently replacing that scientific model lineage.
+The latest scientific/protocol authority remains the frozen R03 recovery lane; documentation-only commits do not replace scientific evidence authority.
 
-Current forward-development state:
+Current R03 state:
 
-- Gate 15D-C-B2D is **in progress**, not merely planned.
-- G1 genuine anchored forward capture evidence exists.
-- G2 genuine outcome maturation evidence exists and idempotency has been verified.
-- G3 forward-sample controller is frozen and safety-tested.
-- Formal performance/PnL evaluation remains disabled.
-- Live/execution authorization remains disabled.
+```text
+R03 winner = R03_FLAT_EXTRA_TREES_SMOOTH
+R03 sealed TEST = SEALED_TEST_CONFIRMED
+R03 observations = 0
+R03 anchors = 0
+R03 matured outcomes = 0
+R03 prospective evaluation = NOT STARTED
+live_authorized = false
+execution_authorized = false
+```
+
+First genuine capture and recovery attempts were blocked by:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+This block is intentionally preserved. The timestamp basis must be proven or a valid fresh capture context obtained; the check must not be weakened.
 
 # 4. G7 Remediation and R03 Prospective Validation
 
