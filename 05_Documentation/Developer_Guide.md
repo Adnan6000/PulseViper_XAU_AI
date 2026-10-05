@@ -1561,67 +1561,25 @@ Additionally:
 ## Immediate
 
 ```text
-One-shot TEST runner
+Resolve R03 timestamp-basis proof / obtain valid fresh capture context
+↓
+Execute frozen R03 capture lane
+↓
+Accumulate and mature >=60 outcomes across >=5 UTC dates
+↓
+Prospective R03 evaluation
 ```
 
-Then:
+## After forward evidence
 
 ```text
-Final TEST
-Final research verdict
+shadow/runtime integration review
+production safety + monitoring
+recovery / kill-switch verification
+controlled live-promotion review
 ```
 
----
-
-## Production portability
-
-Major tasks:
-
-```text
-broker symbol normalization
-broker-time canonicalization
-D1 reconstruction
-331-feature live generation
-feature parity testing
-missing-data handling
-```
-
----
-
-## Shadow
-
-Tasks:
-
-```text
-verified model loader
-feature-contract enforcement
-inference adapter
-prediction logs
-probability logs
-shadow signal routing
-hypothetical execution tracking
-```
-
----
-
-## Forward validation
-
-Measure on genuinely unseen future data:
-
-```text
-directional stability
-class balance
-trade coverage
-market regimes
-spread behavior
-cost sensitivity
-drawdown
-expectancy
-feature drift
-prediction drift
-```
-
----
+The G7-G-B sealed TEST is already complete and must not be rerun for tuning.
 
 # 46. What Does “Live Ready” Mean?
 
@@ -1758,35 +1716,26 @@ Before committing:
 
 # 50. Current Project State Summary
 
-Current frozen research state:
+Current frozen research/validation state:
 
 ```text
-Model:
-C04_FLAT_EXTRA_TREES_CONSTRAINED
+Historical C04:
+control lineage
 
-Features:
-331 portable ordered features
+R03:
+current remediation winner
 
-TRAIN:
-complete
+R03 sealed TEST:
+SEALED_TEST_CONFIRMED
 
-TRAIN walk-forward:
-complete
+R03 prospective observations:
+0
 
-Full TRAIN fit:
-complete
+R03 matured outcomes:
+0
 
-Model artifact verification:
-complete
-
-Untouched VALIDATION:
-PASSED
-
-VALIDATION:
-consumed and frozen
-
-Final TEST:
-not yet consumed
+Current capture:
+blocked at timestamp proof
 
 Shadow:
 not authorized
@@ -1798,9 +1747,9 @@ not authorized
 Immediate next engineering objective:
 
 ```text
-Implement and synthetically validate the
-one-shot TEST evaluation infrastructure
-before the first and only real TEST read.
+Resolve the timestamp-basis proof or obtain a valid
+fresh capture context, then execute the already-frozen
+R03 prospective capture lane.
 ```
 
 ---
