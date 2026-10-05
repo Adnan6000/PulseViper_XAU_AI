@@ -882,28 +882,24 @@ This closed the VALIDATION research gate.
 
 # 29. Current Development Position
 
-Current historical research status:
+Current research and forward-validation position:
 
 ```text
 Feature portability research         ✅
 Portable 331 contract                ✅
-TRAIN dataset                        ✅
-TRAIN model research                 ✅
-C04 winner                           ✅
-Full TRAIN model                     ✅
-Model verification                   ✅
-Untouched VALIDATION                 ✅ PASS
-Validation freeze                    ✅
-
-Final TEST                           ⏳ NEXT
-Final research verdict               ⬜
-Production broker parity             ⬜
-Shadow inference                     ⬜
-Forward shadow validation            ⬜
-Live promotion                       ⛔
+Historical C04 TRAIN research       ✅
+Original VALIDATION                  ✅ PASS / CONSUMED
+G7 remediation protocol             ✅
+G7 six-candidate registry           ✅ FROZEN
+G7-F-B candidate evaluation         ✅
+R03 winner freeze                   ✅
+R03 sealed TEST                     ✅ CONFIRMED / CONSUMED
+R03 prospective infrastructure     ✅ FROZEN
+R03 genuine forward capture         🔴 BLOCKED
+R03 matured forward evaluation     ⬜ PENDING
+Production safety review            ⬜ PENDING
+Live promotion                      ⛔ NOT AUTHORIZED
 ```
-
----
 
 # 30. Known Local Git Milestones
 
