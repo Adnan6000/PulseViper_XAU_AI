@@ -1159,10 +1159,11 @@ acceptance result
 ```text
 TEST runner implementation = authorized next
 
-TEST execution = not yet authorized
+R03 sealed TEST = SEALED_TEST_CONFIRMED
+TEST rerun = not authorized
 
+R03 prospective capture = blocked at timestamp proof
 shadow = false
-
 live = false
 ```
 
