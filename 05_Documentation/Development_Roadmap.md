@@ -861,130 +861,104 @@ SHORT / NO_TRADE / LONG
 
 # 27. Phase 21 — Shadow Integration
 
-**Status: ⬜ PENDING**
+**Status: ⬜ PENDING / downstream of R03 forward evidence**
 
-Required:
+Shadow integration is not the current next action. The immediate active bottleneck is genuine R03 prospective evidence acquisition.
 
-* [ ] connect inference to shadow decision path
-* [ ] preserve RiskEngine
-* [ ] preserve sizing logic
-* [ ] preserve trade readiness checks
-* [ ] no live orders
-* [ ] log probabilities
-* [ ] log predicted class
-* [ ] log feature identity
-* [ ] log hypothetical trade
-* [ ] log hypothetical SL/TP
-* [ ] log spread/cost context
+Before shadow/live promotion, the eventual integration must:
 
-Estimated active effort:
+* [ ] connect the current frozen R03 inference artifact to the shadow decision path;
+* [ ] preserve RiskEngine and `trade_ready` boundaries;
+* [ ] preserve broker-aware sizing and account protection;
+* [ ] log model probabilities, predicted class, feature identity, broker context, spread/cost context, and hypothetical trade state;
+* [ ] keep all order routing and live execution disabled until explicitly authorized.
+
+# 28. Phase 22 — R03 Forward Shadow Validation & Prospective Outcome Protocol
+
+**Status: 🟡 ACTIVE COLLECTION / BLOCKED AT FIRST CAPTURE**
+
+The G7-H R03 prospective lane is frozen and ready for genuine forward collection.
+
+Frozen requirements:
 
 ```text
-8–14 hours
+candidate = R03_FLAT_EXTRA_TREES_SMOOTH
+artifact_sha256 = b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03
+minimum_matured_outcomes = 60
+minimum_distinct_observation_utc_dates = 5
+horizon = 12 completed M5 rows
+profit_atr = 1.25
+max_adverse_atr = 0.75
 ```
 
----
+Current collection state:
 
-# 28. Phase 22 — Forward Shadow Validation & Prospective Outcome Protocol
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+```
 
-**Status: Prospective Forward Observation + Anchor Integration Preparation (Published Baseline Commit `cbdeb30934213dc36863c334eb1e50879ba0dde1`)**
+The first genuine capture and R1 recovery were blocked by:
 
-### Gate Sub-Phase Breakdown:
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
 
-- **Gate 13 ✅ COMPLETE**: Production feature parity on canonical broker-derived historical snapshots (`331` features, fingerprint `65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`).
-- **Gate 14 ✅ COMPLETE**: Frozen offline inference parity wrapping C04 ExtraTrees (`C04_FLAT_EXTRA_TREES_CONSTRAINED`, SHA `48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769`, raw argmax, class order `[-1, 0, 1]`).
-- **Gate 15A ✅ COMPLETE**: Forward shadow observation infrastructure (`02_AI/Models/frozen_c04_shadow_observer.py`), locked durable append ledger (`01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl`), machine-readable freeze boundary (`2026-08-14T20:55:00Z`), and activation authority (`2026-09-06T13:20:00Z`).
-- **Gate 15B-A ✅ COMPLETE**: Reopened and hardened read-only MetaTrader 5 market data acquisition adapter v2.1.0 (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`). Uses `MT5ReadOnlyCapabilityFacade`, NY close server epoch, per-row DST normalization, completed candles only (`start_pos >= 1`), canonical content-addressed snapshot hashing, fail-closed initialization, and strict isolation from trading/execution/risk modules.
-- **Gate 15B-B ✅ COMPLETE**: First genuine read-only forward observation proof (Obs 1: Decision time `2026-09-28T10:15:00Z`). Pre-contract observation, retained permanently for pipeline audit, strictly excluded from formal forward performance.
-- **Gate 15C ✅ COMPLETE**: Frozen forward outcome contract V1 (`02_AI/Models/frozen_c04_forward_outcome_contract.py`). Fingerprint `01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87`, target `CLEAN_DIRECTIONAL_EXCURSION_V2`, 1.25 ATR profit threshold, 0.75 ATR maximum adverse excursion, classes `[-1, 0, 1]`, base timeframe `M5`, horizon `12 completed M5 rows`.
-- **Gate 15D-A ✅ COMPLETE**: Prospective forward outcome eligibility authority (`02_AI/Models/frozen_c04_forward_outcome_eligibility.py`). Activation cutoff `2026-09-28T11:16:59Z`.
-- **Gate 15D-B ✅ COMPLETE**: First prospective post-contract genuine forward observation proof (Obs 2: Decision time `2026-09-28T11:45:00Z`). Genuine acquisition proof, but **EXCLUDED FROM FORMAL SCORING** because it lacked a prospective outcome anchor at acquisition time (`POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR`).
-- **Gate 15D-C-A v1.1 [HISTORICAL / SUPERSEDED]**: Forward outcome maturation semantic correction establishing `decision_bar_open = decision_time - 5 minutes`. Superseded for formal maturation because it retrospectively reconstructed decision close and ATR14 from later completed data.
-- **Gate 15D-C-B1 v1.1 [HISTORICAL / SUPERSEDED]**: Outcome ledger semantic alignment. Superseded by V2.
-- **Gate 15D-C-B2A ✅ COMPLETE**: Prospective forward outcome anchor authority V1 (`02_AI/Models/frozen_c04_forward_outcome_anchor.py`). Capture policy `SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS`. Enforces `FORMAL_MATURATION_REQUIRES_ANCHOR = true`. Anchor ledger: `01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl` (locked, append-only, fail-closed). Zero genuine anchors appended during offline freeze.
-- **Gate 15D-C-B2B ✅ COMPLETE**: Anchor-required forward outcome maturer V2 (`02_AI/Models/frozen_c04_forward_outcome_maturer.py`). Supersedes V1.1. Post-hoc reconstruction of decision entry close and ATR14 is strictly forbidden (`POST_HOC_ENTRY_AND_ATR_RECONSTRUCTION_FORBIDDEN`). Requires validated prospective anchor.
-- **Gate 15D-C-B2C ✅ COMPLETE**: Forward outcome ledger V2 (`02_AI/Models/frozen_c04_forward_outcome_ledger.py`). Supersedes V1.1. Persists source anchor linkage and requires Maturer V2 compatibility. Runtime ledger: `01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl` (locked, append-only, zero genuine outcomes matured).
-- **Gate 15D-C-B2D 🟢 NEXT PLANNED GATE**: Genuine Prospective Observation + Same-Snapshot Anchor Integration. Orders operations: real read-only acquisition -> same snapshot -> Gate 13 features -> Gate 14 inference -> prospective eligibility check -> capture prospective anchor -> durably append anchor FIRST -> verify anchor integrity -> append observation SECOND -> verify observation integrity. Older Gate 15D-B runner must NOT be reused.
-- **Gate 15E ⬜ PENDING**: Matured forward shadow evaluation across real calendar time using Maturer V2 and Outcome Ledger V2 once genuine anchored observations accumulate and mature.
+R2 recovery is also frozen; the block remains fail-closed. No prospective observation, anchor, or outcome is to be fabricated, reconstructed, or backfilled.
 
-### Strict Formal Scoring Requirements:
+### Next authorized engineering action
 
-An observation is formally scoreable only if all 11 conditions are met:
-1. Genuine approved read-only forward acquisition (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`);
-2. `TRUE_FORWARD_OBSERVATION` provenance;
-3. Frozen Gate 13 feature authority (`331` columns, hash `65637cc2...`);
-4. Frozen Gate 14 model authority (`C04_FLAT_EXTRA_TREES_CONSTRAINED`, hash `48a1d7...`);
-5. Post-contract prospective eligibility (`decision_time > 2026-09-28T11:16:59Z`);
-6. Valid same-snapshot prospective anchor captured at acquisition time;
-7. Anchor captured and persisted BEFORE future outcome exposure;
-8. Correct decision-bar timing semantics (`decision_bar_open = decision_time - 5 minutes`);
-9. Exact 12 completed future M5 rows after the decision bar;
-10. Execution via `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2`;
-11. Persistence into `FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2`.
+Resolve the timestamp-basis proof or obtain a valid fresh capture context, then run the existing frozen capture lane.
 
-The existing 11:45 UTC observation is NOT formally scoreable because condition #6 was not met prospectively. No anchor will ever be retroactively manufactured for it.
+Do not:
 
-### Safety Invariants:
-- `live_authorized = false`
-- `execution_authorized = false`
-- `forward_performance_evaluated = false`
-- Zero aggregate performance metrics (win rate, PnL, return, drawdown) authorized or reported.
-- Zero trading runtime dependencies (RiskEngine, trade_ready, order routing, positions/orders/history APIs).
-
----
+* weaken timestamp validation;
+* rerun sealed TEST;
+* tune R03 using prospective observations;
+* use the old Forward30 for remediation development;
+* rewrite protected runtime ledgers;
+* enable live execution.
 
 # 29. Phase 23 — Production Safety and Monitoring
 
 **Status: ⬜ PENDING**
 
-Before live promotion:
+This phase begins only after the required forward evidence and review gates. It includes:
 
-* [ ] model SHA startup enforcement
-* [ ] feature SHA startup enforcement
-* [ ] symbol validation
-* [ ] timezone validation
-* [ ] stale-data kill condition
-* [ ] missing-bar protection
-* [ ] non-finite feature protection
-* [ ] inference exception handling
-* [ ] feature drift monitoring
-* [ ] prediction drift monitoring
-* [ ] spread protection
-* [ ] operational audit log
-* [ ] shadow/live mode separation
-* [ ] emergency kill switch
-* [ ] rollback procedure
-
-Estimated active effort:
-
-```text
-8–12 hours
-```
-
----
+* [ ] model and feature SHA startup enforcement;
+* [ ] symbol/timezone/stale-data validation;
+* [ ] missing-bar and non-finite feature protection;
+* [ ] inference exception handling;
+* [ ] feature/prediction drift monitoring;
+* [ ] spread/cost protection;
+* [ ] operational audit logging;
+* [ ] shadow/live separation;
+* [ ] emergency kill switch;
+* [ ] rollback/recovery procedure.
 
 # 30. Phase 24 — Live Promotion Decision
 
 **Status: ⛔ NOT AUTHORIZED**
 
-Required before live:
+Required evidence includes:
 
 ```text
-[ ] Final TEST acceptable
-[ ] Final research verdict frozen
-[ ] New-broker feature parity proven
-[ ] Production inference verified
-[ ] Shadow integration stable
-[ ] Forward unseen-market evidence acceptable
-[ ] Costs reviewed
-[ ] Drawdown reviewed
-[ ] RiskEngine verified
-[ ] Failure behavior tested
-[ ] Kill switch tested
-[ ] Explicit live promotion decision
+[ ] R03 prospective forward evaluation acceptable
+[ ] forward evidence frozen
+[ ] production feature/runtime parity proven for the deployment broker context
+[ ] shadow integration stable
+[ ] costs and drawdown reviewed
+[ ] RiskEngine/account protection verified
+[ ] failure/recovery behavior tested
+[ ] kill switch tested
+[ ] explicit live promotion decision
 ```
 
-Only after all required gates:
+Only after all required gates may:
 
 ```text
 live_authorized = true
@@ -994,9 +968,8 @@ Current:
 
 ```text
 live_authorized = false
+execution_authorized = false
 ```
-
----
 
 # 31. Documentation Roadmap
 
@@ -1052,27 +1025,20 @@ After all documentation is updated:
 
 # 32. Recommended Development Order From Here
 
-The preferred sequence is:
+The current order is evidence-driven:
 
 ```text
-1. Finish documentation baseline
-2. Final TEST infrastructure
-3. Final TEST
-4. Final historical research verdict
-5. Production broker portability
-6. Production feature parity
-7. Frozen inference adapter
-8. Shadow integration
-9. Forward shadow validation
-10. Production safety review
-11. Live promotion decision
+1. Resolve R03 timestamp-basis proof / obtain valid fresh capture context
+2. Execute frozen R03 genuine capture lane
+3. Accumulate and mature ≥60 outcomes across ≥5 UTC observation dates
+4. Perform prospective R03 evaluation
+5. Freeze the forward result
+6. Complete shadow/runtime integration review
+7. Complete production safety, monitoring, recovery and kill-switch review
+8. Perform controlled live-promotion review
 ```
 
-The ordering is important.
-
-For example, there is little value integrating a model into shadow production before its final untouched TEST result is known.
-
----
+Historical C04 TEST work and the G7 remediation TEST are already complete; do not reopen them for tuning.
 
 # 33. New Student Roadmap
 
