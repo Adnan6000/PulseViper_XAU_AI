@@ -28,6 +28,72 @@ Research → Implement → Offline/Test → Shadow → Demo → Forward Validati
 
 The current live state remains **not authorized** until the defined historical, forward, risk, execution, recovery, and operational gates are completed. This is a temporary authorization state, not the project's final objective.
 
+## Authoritative Current State (2026-10-05)
+
+The repository has progressed beyond the original C04-only forward-validation phase.
+
+```text
+Historical C04 forward baseline
+        ↓
+30 matured forward outcomes
+        ↓
+Weak forward discrimination
+        ↓
+G7-A → G7-B → G7-C → G7-D → G7-E
+        ↓
+G7-F-A TRAIN + VALIDATION access
+        ↓
+G7-F-B six-candidate evaluation
+        ↓
+G7-F-C R03 winner freeze
+        ↓
+G7-G-A sealed TEST criteria
+        ↓
+G7-G-B one-shot sealed TEST
+        ↓
+G7-H R03 prospective forward lane
+        ↓
+CURRENT: first genuine R03 capture blocked
+```
+
+Current remediation winner:
+
+```text
+R03_FLAT_EXTRA_TREES_SMOOTH
+```
+
+Historical C04 remains preserved as the control lineage.
+
+Current R03 prospective collection state:
+
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+minimum_matured_outcomes = 60
+minimum_distinct_utc_dates = 5
+```
+
+The latest first-capture/recovery attempts remain fail-closed because the broker timestamp basis could not be uniquely proven:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+No prospective observation or anchor has been fabricated or backfilled.
+
+```text
+live_authorized = false
+execution_authorized = false
+performance_evaluated = false
+pnl_evaluated = false
+```
+
+The next engineering action is to establish a valid timestamp basis or obtain a valid fresh capture context, then execute the already-frozen R03 capture lane.
+
 ## Key Highlights
 
 - **331 portable features** with frozen order and SHA256 fingerprint (`65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2`)
@@ -212,41 +278,44 @@ When artifact identity, feature order, dataset identity, protected-data state, o
 Current Research Status
 =======================
 
-The current portable ML experiment and forward validation framework have completed the following stages:
+The original C04 research/forward lineage is historical and preserved. The active remediation lineage is R03.
 
-1. Portable feature research ✅  
-2. 331-feature contract ✅  
-3. Portable TRAIN dataset ✅  
-4. TRAIN input loader ✅  
-5. Target loader ✅  
-6. Supervised TRAIN batch ✅  
-7. TRAIN-only research protocol ✅  
-8. Frozen six-model candidate registry ✅  
-9. 4-fold purged walk-forward evaluation ✅  
-10. TRAIN-internal winner selection (`C04_FLAT_EXTRA_TREES_CONSTRAINED`) ✅  
-11. Full TRAIN model fit (`xauusd_portable_331_c04_full_train_model.joblib`) ✅  
-12. Model artifact verification ✅  
-13. VALIDATION protocol freeze ✅  
-14. One-time VALIDATION infrastructure ✅  
-15. Untouched VALIDATION (ONE_TIME_VALIDATION_ACCEPTED) ✅  
-16. PASSED VALIDATION result freeze ✅  
-17. Final TEST holdout (protected, untouched) ⏳  
-18. Production broker feature parity (Gate 13: 331 features, SHA verified) ✅  
-19. Frozen-model production inference adapter (Gate 14: raw argmax, `[-1, 0, 1]`) ✅  
-20. Forward shadow observation infrastructure (Gate 15A: locked append ledger) ✅  
-21. Read-only MT5 forward acquisition (Gate 15B-A v2.1.0: NY close server epoch, per-row DST) ✅  
-22. First genuine read-only forward observation proof (Gate 15B-B: Obs 1, audit only) ✅  
-23. Frozen forward outcome contract V1 (Gate 15C: `CLEAN_DIRECTIONAL_EXCURSION_V2`, 1.25/0.75 ATR, 12 M5 rows) ✅  
-24. Prospective forward outcome eligibility (Gate 15D-A: activation cutoff `2026-09-28T11:16:59Z`) ✅  
-25. Prospective post-contract forward observation (Gate 15D-B: Obs 2, genuine acquisition proof) ✅  
-26. Decision-bar timing semantic correction (Gate 15D-C-A v1.1: `decision_bar_open = decision_time - 5m`) ✅  
-27. Prospective forward outcome anchor authority (Gate 15D-C-B2A: same-snapshot anchor protocol) ✅  
-28. Anchor-required forward outcome maturer V2 (Gate 15D-C-B2B: post-hoc reconstruction forbidden) ✅  
-29. Anchor-required forward outcome ledger V2 (Gate 15D-C-B2C: compatible with Maturer V2) ✅  
-30. Gate 15D-C-B2D genuine anchored forward integration 🟡 IN PROGRESS (G1 captures and G2 maturation evidence active; G3 controller frozen)  
-31. Matured forward shadow evaluation (`Gate 15E`) ⬜ PENDING  
-32. Production safety review ⬜ PENDING  
-33. Live promotion ⛔ NOT AUTHORIZED (`live_authorized = false`, `execution_authorized = false`)
+Completed remediation milestones:
+
+1. G7-A remediation rules freeze
+2. G7-B remediation data authority freeze
+3. G7-C exact training snapshot freeze
+4. G7-D remediation research protocol freeze
+5. G7-E six-candidate registry freeze
+6. G7-F-A TRAIN + VALIDATION access freeze
+7. G7-F-B six-candidate evaluation
+8. G7-F-C R03 final winner freeze
+9. G7-G-A sealed TEST confirmation criteria
+10. G7-G-B one-shot sealed TEST confirmation
+11. G7-H-A R03 prospective forward contract
+12. G7-H-B R03 train-only artifact
+13. G7-H-C prospective runtime binding
+14. G7-H-D outcome maturation binding
+15. G7-H-E-A collection controller
+16. G7-H-E-B first-capture runner and recovery lanes
+
+Current status:
+
+```text
+R03 winner = R03_FLAT_EXTRA_TREES_SMOOTH
+R03 sealed TEST = SEALED_TEST_CONFIRMED
+R03 forward observations = 0
+R03 forward anchors = 0
+R03 matured outcomes = 0
+R03 formal forward evaluation = false
+R03 formal PnL evaluation = false
+live_authorized = false
+execution_authorized = false
+```
+
+The first genuine R03 capture remains blocked by `TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN`. This is a preserved scientific/safety block; the timestamp check must not be weakened.
+
+Historical C04 remains useful as the control/baseline lineage and must not be silently relabeled as the current production model.
 
 Runtime Observation Ledger Status
 ---------------------------------
@@ -731,41 +800,34 @@ Major engineering and research milestones.
 Remaining Roadmap
 =================
 
-Immediate next engineering milestone:
+Immediate active phase:
 
-Gate 15D-C-B2D: Genuine Prospective Observation + Same-Snapshot Anchor Integration  
-↓  
-Verify same-snapshot anchor persistence before observation append  
-↓  
-Accumulate genuine forward shadow observations across real calendar time  
-↓  
-Gate 15E: Matured forward shadow evaluation (Maturer V2 + Outcome Ledger V2)  
-↓  
-Production safety and monitoring review  
-↓  
-Possible live promotion review (requires explicit external authorization)
+```text
+R03 prospective forward collection
+        ↓
+resolve timestamp-basis proof
+        ↓
+genuine anchor-first observation capture
+        ↓
+mature at least 60 outcomes across at least 5 UTC observation dates
+        ↓
+prospective R03 performance evaluation
+        ↓
+production safety / monitoring review
+        ↓
+controlled live-promotion review
+```
 
-Completed milestones preceding this phase:
+The following remain prohibited in the current R03 lane:
 
-- Research & 331 Portable Feature Pipeline ✅
-- Frozen C04 ExtraTrees Winner Selection & Fit ✅
-- One-Time VALIDATION (Passed & Permanently Consumed) ✅
-- Final TEST Holdout (Protected & Untouched) ⏳
-- Gate 13: Production Broker Feature Parity ✅
-- Gate 14: Frozen Offline Inference Adapter ✅
-- Gate 15A: Forward Shadow Observation Infrastructure ✅
-- Gate 15B-A: MT5 Read-Only Acquisition Adapter v2.1.0 ✅
-- Gate 15B-B: First Genuine Forward Observation Proof (Obs 1: 10:15 UTC, audit-only) ✅
-- Gate 15C: Frozen C04 Forward Outcome Contract V1 (`01fe52a...`) ✅
-- Gate 15D-A: Prospective Forward Outcome Eligibility Authority ✅
-- Gate 15D-B: Prospective Post-Contract Genuine Observation Proof (Obs 2: 11:45 UTC, excluded from scoring) ✅
-- Gate 15D-C-A v1.1: Decision-Bar Timing Semantic Correction (Historical / Superseded) ✅
-- Gate 15D-C-B1 v1.1: Outcome Ledger Semantic Alignment (Historical / Superseded) ✅
-- Gate 15D-C-B2A: Prospective Forward Outcome Anchor Authority V1 ✅
-- Gate 15D-C-B2B: Anchor-Required Forward Outcome Maturer V2 ✅
-- Gate 15D-C-B2C: Forward Outcome Ledger V2 ✅
+- rerunning sealed TEST;
+- tuning R03 from prospective observations;
+- using the old 30 Forward30 outcomes for remediation development;
+- fabricating or backfilling prospective anchors;
+- weakening timestamp validation;
+- enabling live execution.
 
-The current project must not be described as live-ready or execution-authorized.
+The project is **not live-ready** and **not execution-authorized**.
 
 Security and Secrets
 ====================
