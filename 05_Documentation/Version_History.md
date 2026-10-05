@@ -105,6 +105,68 @@ Current forward-development state:
 - Formal performance/PnL evaluation remains disabled.
 - Live/execution authorization remains disabled.
 
+# 4. G7 Remediation and R03 Prospective Validation
+
+The first matured C04 forward sample set demonstrated weak forward discrimination. The project did **not** tune against those forward observations. Instead, a separate finite remediation lineage was frozen.
+
+### G7 remediation sequence
+
+- **G7-A:** remediation rules frozen.
+- **G7-B:** data authority and protected-data boundaries frozen.
+- **G7-C:** exact training snapshot frozen.
+- **G7-D:** remediation research protocol frozen.
+- **G7-E:** exactly six remediation candidates frozen before evaluation.
+- **G7-F-A:** TRAIN + VALIDATION access authorized while TEST remained sealed.
+- **G7-F-B:** all six candidates evaluated.
+- **G7-F-C:** `R03_FLAT_EXTRA_TREES_SMOOTH` frozen as the final remediation winner.
+- **G7-G-A:** sealed TEST confirmation criteria frozen.
+- **G7-G-B:** one-shot sealed TEST consumed exactly once and confirmed.
+
+G7-G-B confirmation:
+
+```text
+balanced_accuracy = 0.3636245672
+macro_f1 = 0.3490621418
+minimum_per_class_recall = 0.2983711747
+multiclass_brier = 0.6647780980
+multiclass_log_loss = 1.0958700266
+status = SEALED_TEST_CONFIRMED
+```
+
+### G7-H R03 prospective lane
+
+The R03 prospective validation contract is frozen with:
+
+```text
+minimum_matured_outcomes = 60
+minimum_distinct_observation_utc_dates = 5
+horizon = 12 completed M5 rows
+profit_atr = 1.25
+max_adverse_atr = 0.75
+```
+
+The train-only artifact, runtime binding, outcome maturer, collection controller, and first-capture/recovery runners are frozen.
+
+The current collection state is:
+
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+```
+
+The first genuine capture and R1/R2 recovery attempts were blocked by:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+This is intentionally preserved as a fail-closed evidence block. The timestamp proof must be established; the safety check must not be weakened.
+
+Live and execution authorization remain disabled.
+
 # 4. Early Core-System Development
 
 The earlier PulseViper architecture established modular market-analysis and trading infrastructure.
