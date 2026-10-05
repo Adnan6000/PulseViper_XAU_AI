@@ -281,14 +281,23 @@ symbol information
 broker metadata
 ```
 
-The system is primarily focused on:
+The system uses a canonical research identity:
+
+```text
+XAUUSD
+```
+
+and is designed for broker-agnostic multi-broker deployment. Broker-specific Gold symbols are resolved dynamically at the broker/instrument-context boundary.
+
+Examples:
 
 ```text
 XAUUSD
 XAUUSDm
+XAUUSDb
 ```
 
-and potentially broker-specific symbol variants.
+are broker-specific symbol contexts, not permanent broker selections.
 
 ---
 
