@@ -47,47 +47,53 @@ Research → Implement → Offline/Test → Shadow → Demo → Forward Validati
 
 # 3. Current Operational State
 
-Current frozen research and validation state (published baseline authority: `cbdeb30934213dc36863c334eb1e50879ba0dde1`; later repository commits may update documentation/infrastructure without changing that scientific baseline):
+Current frozen research and validation state:
 
 ```text
-TRAIN:
-complete (C04 winner selected and fit)
+Historical C04 control:
+frozen
 
-VALIDATION:
-passed and consumed (ONE_TIME_VALIDATION_ACCEPTED)
+G7 remediation:
+complete through sealed TEST
 
-TEST:
-protected holdout (untouched)
+Current remediation winner:
+R03_FLAT_EXTRA_TREES_SMOOTH
 
-Production broker feature parity:
-complete (Gate 13)
+G7-G-B sealed TEST:
+SEALED_TEST_CONFIRMED
 
-Frozen offline inference adapter:
-complete (Gate 14)
+G7-H R03 prospective validation:
+infrastructure frozen; first genuine capture currently blocked
 
-Forward shadow observation infrastructure:
-complete (Gate 15A)
+R03 observations:
+0
 
-Read-only MT5 forward acquisition:
-active (Gate 15B-A v2.1.0, strictly read-only facade)
+R03 anchors:
+0
 
-Prospective forward outcome protocol:
-complete (Gates 15C, 15D-A, 15D-C-B2A, 15D-C-B2B, 15D-C-B2C)
+R03 matured outcomes:
+0
 
-Current engineering gate:
-Gate 15D-C-B2D (G1 genuine anchored capture + G2 outcome maturation + G3 forward-sample controller)
+R03 minimum matured outcomes:
+60
 
-Current forward evidence status:
-G1 genuine anchored captures are active; G2 has genuine maturation evidence; G3 controller is frozen and safety-tested. Formal performance/PnL evaluation remains disabled.
+R03 minimum distinct UTC dates:
+5
+
+Current block:
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
 
 Forward performance scoring:
-NOT STARTED (forward_performance_evaluated = false)
+NOT STARTED
+
+PnL evaluation:
+NOT STARTED
 
 Live ML trading:
-NOT AUTHORIZED (live_authorized = false)
+NOT AUTHORIZED
 
 Execution:
-NOT AUTHORIZED (execution_authorized = false)
+NOT AUTHORIZED
 ```
 
 Therefore:
