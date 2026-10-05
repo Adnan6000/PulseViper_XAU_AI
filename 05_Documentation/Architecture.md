@@ -62,7 +62,18 @@ live_authorized = false
 execution_authorized = false
 ```
 
-Current forward evidence is being collected under Gate 15D-C-B2D. The latest repository state includes G1/G2 evidence and a frozen G3 controller; this does not constitute a live authorization or a performance verdict.
+The current remediation lineage is now the **R03 remediation winner**. The historical C04 model remains preserved as a control/baseline lineage and is not silently replaced. G7-F-C froze `R03_FLAT_EXTRA_TREES_SMOOTH`, G7-G-B completed its one-shot sealed TEST, and G7-H froze the new R03 prospective validation contract and runtime collection infrastructure.
+
+The current R03 prospective lane has **not yet produced a genuine persisted observation**. The first capture and two recovery attempts were blocked because the broker timestamp basis could not be uniquely proven. The latest recovery runner is frozen; this is an evidence-preserving block, not permission to weaken timestamp checks.
+
+Current authorization remains fail-closed and no performance/PnL verdict is active:
+
+```text
+live_authorized = false
+execution_authorized = false
+performance_evaluated = false
+pnl_evaluated = false
+```
 
 # 2. Architectural Principles
 
