@@ -861,7 +861,7 @@ If a developer thinks:
 
 Do not.
 
-The current C04 validation result is already scientifically consumed.
+The original C04 validation result is already scientifically consumed; the G7 remediation cycle separately used TRAIN + VALIDATION under its frozen access authority.
 
 Use:
 
