@@ -59,79 +59,66 @@ produced the metric.
 
 # 3. Evidence Chain Overview
 
-Current frozen research lineage:
+Current authority chain:
 
 ```text
-Portable Dataset
-      ↓
-Portable Feature Contract
-      ↓
-TRAIN Input / Target Contract
-      ↓
-TRAIN Research Protocol
-      ↓
-Frozen Candidate Registry
-      ↓
-Real Walk-Forward Evaluation
-      ↓
-Frozen C04 Winner
-      ↓
-Full TRAIN Fit
-      ↓
-Model Artifact Verification
-      ↓
-Frozen VALIDATION Protocol
-      ↓
-Validation Core
-      ↓
-Bounded Validation Source
-      ↓
-Dry Preflight
-      ↓
-Real One-Time VALIDATION
-      ↓
-Validation Ledger
-      ↓
-Validation Result Freeze
-      ↓
-Historical C04 forward baseline
-      ↓
-G7 remediation cycle
-      ↓
-G7-G-B sealed TEST confirmation
-      ↓
+Historical C04 control / Forward30 baseline
+        ↓
+G7-A → G7-B → G7-C → G7-D → G7-E
+        ↓
+G7-F-A TRAIN + VALIDATION access
+        ↓
+G7-F-B candidate evaluation
+        ↓
+G7-F-C R03 winner freeze
+        ↓
+G7-G-B one-shot sealed TEST
+        ↓
 G7-H R03 prospective validation lane
-      ⏳ CURRENT
-
----
+        ↓
+CURRENT: first genuine R03 capture blocked
+```
 
 ## Current Forward Evidence Status
 
-Latest engineering/protocol HEAD before this documentation synchronization: `c5ec7069a4dff846d663bee05c862f38f9e8b891`.
-
-The historical C04 forward baseline is complete as a failed/weak discrimination signal and is excluded from remediation tuning.
+The historical C04 forward baseline is complete and is immutable remediation baseline evidence. It is not training or tuning data.
 
 The current R03 lane has frozen:
+
 - prospective validation contract;
-- train-only model artifact;
-- runtime binding;
-- outcome maturation;
+- train-only R03 artifact;
+- prospective runtime binding;
+- outcome maturation binding;
 - finite collection controller;
-- first-capture runner and R1/R2 recovery runners.
+- first-capture runner and recovery lanes.
 
-Current R03 evidence state:
+Current R03 collection state:
 
-- observations: **0**
-- anchors: **0**
-- matured outcomes: **0**
-- minimum matured outcomes: **60**
-- minimum distinct UTC observation dates: **5**
-- formal performance evaluation: `false`
-- formal PnL evaluation: `false`
-- live authorization: `false`
-- execution authorization: `false`
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+minimum_matured_outcomes = 60
+minimum_distinct_utc_dates = 5
+```
 
-The first genuine R03 capture is currently blocked by `TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN` for `raw_tick=1790985539` with `candidate_count=0`. The block is preserved as evidence and the timestamp proof must not be weakened.
+Current block:
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+The block is evidence-preserving and fail-closed. No prospective observation or anchor has been fabricated or backfilled.
+
+```text
+formal performance evaluation = false
+formal PnL evaluation = false
+live authorization = false
+execution authorization = false
+```
 
 # 4. Current Core Identity
 
@@ -141,13 +128,15 @@ The first genuine R03 capture is currently blocked by `TIMESTAMP_BASIS_NOT_UNIQU
 C04_FLAT_EXTRA_TREES_CONSTRAINED
 ```
 
-C04 remains the historical control lineage that motivated remediation.
+C04 is preserved as the historical control lineage that produced the original Forward30 failure evidence.
 
 ## Current remediation winner
 
 ```text
 R03_FLAT_EXTRA_TREES_SMOOTH
 ```
+
+R03 was selected by the frozen G7-E lexicographic policy after all six frozen candidates were evaluated under G7-F-B.
 
 ## Feature count
 
@@ -170,8 +159,6 @@ horizon = 12 completed M5 rows
 profit_atr = 1.25
 max_adverse_atr = 0.75
 ```
-
-Current R03 runtime collection remains read-only and non-trading.
 
 # 5. Dataset Identity
 
@@ -379,32 +366,26 @@ No portable VALIDATION or TEST was used for winner selection.
 
 # 12. Current Winner
 
-Winner:
+The current remediation winner is:
 
 ```text
-C04_FLAT_EXTRA_TREES_CONSTRAINED
+R03_FLAT_EXTRA_TREES_SMOOTH
 ```
 
-C04 TRAIN walk-forward summary:
+Validation selection metrics:
 
 ```text
-mean balanced accuracy:
-0.35438789335022963
-
-mean directional macro-F1:
-0.3105791161393638
-
-worst-fold directional macro-F1:
-0.25365034089349603
-
-mean macro-F1:
-0.2846765787595467
-
-mean predicted trade coverage:
-0.8691757979990471
+macro_f1 = 0.3601580119
+balanced_accuracy = 0.3777606379
+minimum_per_class_recall = 0.3251508502
+multiclass_brier = 0.6648217771
+multiclass_log_loss = 1.0958580283
+exact_class_accuracy = 0.3640125476
 ```
 
----
+The selection was made using the frozen G7-E lexicographic policy. R04 and R05 were ineligible under the predeclared eligibility rules; no post-result candidate was added.
+
+R03 is the active remediation lineage. C04 remains the historical control.
 
 # 13. C04 Selection Key
 
@@ -1314,35 +1295,23 @@ Do not add large binaries automatically without checking repository policy.
 
 # 46. Current Research Evidence Status
 
-```text
-Portable dataset identity              ✅
-Feature identity                       ✅
-TRAIN supervised identity              ✅
-Research protocol                      ✅
-Candidate registry                     ✅
-Real walk-forward evaluation           ✅
-Winner freeze                          ✅
-Full TRAIN fit                         ✅
-Model artifact verification            ✅
-VALIDATION protocol                    ✅
-Validation core                        ✅
-Bounded validation source              ✅
-Validation dry preflight               ✅
-Real VALIDATION result                 ✅ PASS
-Validation access ledger               ✅
-Validation result freeze               ✅
+Current scientific/protocol state:
 
-Final TEST protocol                     ⬜
-Final TEST preflight                    ⬜
-Final TEST result                       ⬜
-Final TEST freeze                       ⬜
-Final historical research verdict       ⬜
-Shadow evidence                         ⬜
-Forward validation evidence             ⬜
-Live promotion evidence                 ⛔
+```text
+G7-E candidate registry = FROZEN
+G7-F-A access authority = PASS
+G7-F-B evaluation = PASS
+G7-F-C winner freeze = PASS
+G7-G-B sealed TEST = SEALED_TEST_CONFIRMED
+G7-H R03 prospective infrastructure = FROZEN
+R03 genuine observations = 0
+R03 matured outcomes = 0
+R03 prospective evaluation = NOT STARTED
+live_authorized = false
+execution_authorized = false
 ```
 
----
+The current engineering head contains documentation synchronization commits after the latest scientific/protocol authority. Documentation commits do not replace or rewrite scientific evidence authority.
 
 # 47. Current Critical Fingerprint Summary
 
