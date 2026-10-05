@@ -2133,52 +2133,83 @@ Under Gate 15D-C-B2C, matured prospective outcome storage is governed by:
 
 ---
 
-# 50. Forward Validation Scoring Rules, Runtime Ledgers & Next Engineering Gate
+# 50. R03 Prospective Forward Validation Architecture
 
-### Runtime Ledgers Status:
-1. **Observation Ledger** (`01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl`):
-   - Current count: **2**
-   - Obs 1 (`2026-09-28T10:15:00Z`): Pre-contract audit only; permanently excluded from formal scoring.
-   - Obs 2 (`2026-09-28T11:45:00Z`): Genuine post-contract acquisition proof; **EXCLUDED FROM FORMAL SCORING** due to missing prospective anchor at acquisition time (`POST_CONTRACT_ACQUISITION_PROOF_EXCLUDED_FROM_FORMAL_SCORING_MISSING_PROSPECTIVE_ANCHOR`).
-2. **Anchor Ledger** (`01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl`):
-   - Zero genuine runtime anchors appended during offline freeze.
-3. **Outcome Ledger** (`01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl`):
-   - Zero genuine outcomes matured or appended.
+The active prospective architecture is the frozen R03 lane. The older C04 forward ledgers remain historical evidence and are not the active R03 collection target.
 
-### The 11 Strict Formal Scoring Conditions:
-An observation is formally scoreable only if all 11 conditions are met:
-1. Genuine approved read-only forward acquisition (`MT5ReadOnlyForwardAcquisitionAdapter:2.1.0`);
-2. `TRUE_FORWARD_OBSERVATION` provenance;
-3. Frozen Gate 13 feature authority (`331` columns, hash `65637cc2...`);
-4. Frozen Gate 14 model authority (`C04_FLAT_EXTRA_TREES_CONSTRAINED`, hash `48a1d7...`);
-5. Post-contract prospective eligibility (`decision_time > 2026-09-28T11:16:59Z`);
-6. Valid same-snapshot prospective anchor captured at acquisition time;
-7. Anchor captured and persisted BEFORE future outcome exposure;
-8. Correct decision-bar timing semantics (`decision_bar_open = decision_time - 5 minutes`);
-9. Exact 12 completed future M5 rows after the decision bar;
-10. Execution via `FROZEN_C04_FORWARD_OUTCOME_MATURER_V2`;
-11. Persistence into `FROZEN_C04_FORWARD_OUTCOME_LEDGER_V2`.
+### R03 Runtime Ledgers
 
-Because Observation 2 lacked a prospective anchor at acquisition time, condition #6 is not satisfied. It is permanently excluded from formal forward scoring, and no anchor may ever be retroactively manufactured for it.
+```text
+01_Data/Shadow/xauusd_r03_prospective_observations.jsonl
+01_Data/Shadow/xauusd_r03_prospective_forward_outcome_anchors.jsonl
+01_Data/Shadow/xauusd_r03_prospective_forward_outcomes.jsonl
+```
 
-### Next Planned Gate: Gate 15D-C-B2D
-- **Title**: Genuine Prospective Observation + Same-Snapshot Anchor Integration
-- **Execution Sequence**:
-  ```text
-  REAL Read-Only MT5 Acquisition
-    → Same Immutable Acquisition Snapshot
-    → Gate 13 Portable Features (331)
-    → Gate 14 Frozen C04 Inference
-    → Candidate TRUE_FORWARD Observation
-    → Prospective Eligibility Check (PASS)
-    → Capture Prospective Anchor from SAME Snapshot
-    → Durably Append Anchor FIRST (Flush + Fsync)
-    → Verify Anchor Ledger Integrity
-    → Append Observation SECOND (Flush + Fsync)
-    → Verify Observation Ledger Integrity
-    → (No maturation or performance evaluation during capture step)
-  ```
-- **Operational Rules**:
-  - The older Gate 15D-B runner must **NOT** be reused because it lacks the mandatory prospective-anchor ordering.
-  - If anchor append succeeds but observation append fails, the anchor is retained as an orphan anchor (never delete, rewrite, or truncate). It cannot become formally scoreable until the exact linked observation exists.
+These runtime ledgers are local, gitignored, append-only evidence. They must never be deleted, truncated, rewritten, or retroactively populated.
 
+### R03 Collection Contract
+
+```text
+candidate = R03_FLAT_EXTRA_TREES_SMOOTH
+minimum_matured_outcomes = 60
+minimum_distinct_observation_utc_dates = 5
+horizon = 12 completed M5 rows
+profit_atr = 1.25
+max_adverse_atr = 0.75
+```
+
+### Current R03 State
+
+```text
+observations = 0
+anchors = 0
+matured_outcomes = 0
+distinct_matured_utc_dates = 0
+```
+
+### Current Capture Block
+
+```text
+TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
+raw_tick=1790985539
+candidate_count=0
+```
+
+This is a fail-closed timestamp-proof condition. The correct architectural response is to prove the timestamp basis or obtain a valid fresh capture context. Weakening the check, fabricating an anchor, or backfilling an observation is prohibited.
+
+### R03 Capture Ordering
+
+```text
+Read-only MT5 acquisition
+        ↓
+same immutable acquisition snapshot
+        ↓
+331-feature generation
+        ↓
+R03 frozen inference
+        ↓
+prospective eligibility
+        ↓
+capture anchor from same snapshot
+        ↓
+append anchor FIRST
+        ↓
+verify anchor integrity
+        ↓
+append observation SECOND
+        ↓
+verify observation integrity
+        ↓
+future outcome maturation
+```
+
+Formal forward evaluation does not begin until the frozen minimum matured-outcome and distinct-date requirements are satisfied.
+
+Production/live authorization remains:
+
+```text
+live_authorized = false
+execution_authorized = false
+performance_evaluated = false
+pnl_evaluated = false
+```
