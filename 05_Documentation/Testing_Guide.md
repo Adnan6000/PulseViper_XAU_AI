@@ -1152,40 +1152,37 @@ The validation result freeze gate passed:
 
 ---
 
-# 49. Final TEST Testing Plan
+# 49. R03 Sealed TEST and Prospective Testing Plan
 
-Before first TEST access:
-
-```text
-[ ] TEST protocol frozen
-[ ] TEST source implemented
-[ ] source synthetic tests passed
-[ ] TEST ledger tests passed
-[ ] model SHA verified
-[ ] feature fingerprint verified
-[ ] TEST dry preflight passed
-[ ] dry preflight fingerprint frozen
-[ ] real TEST read count = 0
-```
-
-Only then:
+The R03 sealed TEST has already been executed exactly once and confirmed.
 
 ```text
-first and only TEST execution
+SEALED_TEST_CONFIRMED
+test_access_count = 1
+same_test_rerun_authorized = false
 ```
 
----
+The active testing work is now prospective R03 capture and maturation:
+
+```text
+[ ] prove valid broker timestamp basis / obtain fresh capture context
+[ ] execute frozen R03 capture runner
+[ ] verify anchor-first persistence
+[ ] mature outcomes over 12 completed M5 rows
+[ ] accumulate >=60 matured outcomes across >=5 UTC dates
+[ ] run the separately authorized prospective R03 evaluation
+```
 
 # 50. Shadow Testing Plan
 
-After historical TEST:
+After the R03 prospective evidence gate is satisfied:
 
 ```text
 [ ] production feature adapter tests
 [ ] broker-time tests
 [ ] D1 reconstruction tests
 [ ] feature parity tests
-[ ] inference adapter tests
+[ ] R03 inference adapter tests
 [ ] model SHA startup test
 [ ] non-finite feature rejection
 [ ] stale-data rejection
@@ -1193,8 +1190,6 @@ After historical TEST:
 [ ] risk integration test
 [ ] no-real-order assertion
 ```
-
----
 
 # 51. Live Safety Testing
 
