@@ -63,10 +63,10 @@ def terminal(logical_id: str) -> dict[str, Any]:
             for minute in range(30, 60, 5)
         ],
         "expected_first_utc": (
-            "2026-10-10T12:00:00+00:00"
+            "2026-10-10T12:05:00+00:00"
         ),
         "expected_last_utc": (
-            "2026-10-10T12:55:00+00:00"
+            "2026-10-10T13:00:00+00:00"
         ),
         "counts_as_matured_outcome": False,
         "terminal_resolution_authorized": False,
@@ -279,7 +279,7 @@ def test_contiguous_horizon_is_not_gap():
     frame = pd.DataFrame({
         "time": pd.date_range(
             start="2026-10-10T12:00:00Z",
-            periods=12,
+            periods=13,
             freq="5min",
         )
     })

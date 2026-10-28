@@ -33,7 +33,7 @@ def full_times() -> list[str]:
             pd.Timestamp("2026-10-05T20:35:00Z")
             + pd.Timedelta(minutes=5 * index)
         ).isoformat()
-        for index in range(12)
+        for index in range(13)
     ]
 
 
@@ -65,7 +65,7 @@ def test_realistic_session_gap():
 
     assert len(
         result["missing_m5_timestamps_utc"]
-    ) == 7
+    ) == 8
 
 
 def test_incomplete_horizon_waits():

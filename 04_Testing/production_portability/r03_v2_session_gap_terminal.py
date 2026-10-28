@@ -79,7 +79,7 @@ def expected_horizon(
             pd.Timestamp,
             decision_time
             + pd.Timedelta(
-                minutes=BAR_MINUTES * index
+                minutes=BAR_MINUTES * (index + 1)
             ),
         )
         horizon.append(timestamp)
@@ -144,7 +144,7 @@ def assess_gap(
 
     # A recent MT5 snapshot can drop old bars.
     # Truncated history is not session-gap evidence.
-    if earliest > first_expected:
+    if earliest > utc(decision_time_utc):
         return {
             "status": "INSUFFICIENT_HISTORICAL_COVERAGE",
             "missing_m5_timestamps_utc": [],
