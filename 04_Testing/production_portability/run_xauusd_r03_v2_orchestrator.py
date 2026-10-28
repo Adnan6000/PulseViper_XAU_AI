@@ -7,7 +7,8 @@ import json
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-VERSION = "R03_V2_MT5_ORCHESTRATOR_V2"
+
+VERSION = "R03_V2_MT5_ORCHESTRATOR_V3"
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -47,24 +48,60 @@ STRICT_GAP_ERRORS = frozenset({
     "FUTURE_M5_HORIZON_HAS_GAP",
 })
 
+SUCCESSFUL_EVIDENCE_ACTIONS = frozenset({
+    "TERMINAL_EVIDENCE_RECORDED",
+    "TERMINAL_EVIDENCE_ALREADY_PRESENT",
+})
+
+UNCONFIRMED_EVIDENCE_ACTIONS = frozenset({
+    "WAIT_HORIZON_NOT_ELAPSED",
+    "STRICT_M5_HORIZON_COMPLETE",
+    "INSUFFICIENT_HISTORICAL_COVERAGE",
+})
+
+EXPECTED_COLLECTION_ACTIONS = frozenset({
+    "CAPTURED_RESEARCH_ONLY",
+    "MATURED_RESEARCH_ONLY",
+    "WAIT",
+    "SESSION_GAP_EVIDENCE_RECORDED",
+    "SESSION_GAP_EVIDENCE_ALREADY_PRESENT",
+})
+
 
 class OrchestratorError(RuntimeError):
     pass
 
 
-def require(condition: bool, reason: str) -> None:
+def require(
+    condition: bool,
+    reason: str,
+) -> None:
     if not condition:
         raise OrchestratorError(reason)
 
 
+def blocked_result(
+    action: str,
+    state: Any,
+) -> dict[str, Any]:
+    return {
+        "action": action,
+        "state": state.to_dict(),
+        "live_authorized": False,
+        "execution_authorized": False,
+    }
+
+
 def acquire_genuine_snapshot() -> Any:
     """
-    Genuine XAUUSD read-only acquisition.
+    Read genuine XAUUSD broker data only.
 
-    No broker order APIs.
-    No observation or outcome writes.
+    Does not call broker order-placement APIs.
+    MT5 connection is closed before returning.
     """
-    mt5: Any = importlib.import_module("MetaTrader5")
+    mt5: Any = importlib.import_module(
+        "MetaTrader5"
+    )
 
     initialized = False
 
@@ -76,8 +113,10 @@ def acquire_genuine_snapshot() -> Any:
             "MT5_INITIALIZATION_FAILED",
         )
 
-        facade = ACQUISITION.MT5ReadOnlyCapabilityFacade(
-            mt5
+        facade = (
+            ACQUISITION.MT5ReadOnlyCapabilityFacade(
+                mt5
+            )
         )
 
         adapter = (
@@ -150,9 +189,11 @@ def build_features(snapshot: Any) -> Any:
         "NORMALIZATION_CHANGED_SNAPSHOT_ID",
     )
 
-    result = PIPELINE.PortableFeaturePipeline().generate(
-        normalized,
-        symbol=snapshot.canonical_instrument,
+    result = (
+        PIPELINE.PortableFeaturePipeline().generate(
+            normalized,
+            symbol=snapshot.canonical_instrument,
+        )
     )
 
     require(
@@ -174,7 +215,9 @@ def build_features(snapshot: Any) -> Any:
     return result
 
 
-def verify_snapshot_authority(snapshot: Any) -> None:
+def verify_snapshot_authority(
+    snapshot: Any,
+) -> None:
     binder = RUNTIME.R03ProspectiveRuntimeBinder(
         inference_adapter=(
             RUNTIME.R03FrozenArtifactInferenceAdapter(
@@ -183,17 +226,19 @@ def verify_snapshot_authority(snapshot: Any) -> None:
         )
     )
 
-    binder.verify_genuine_snapshot_authority(snapshot)
+    binder.verify_genuine_snapshot_authority(
+        snapshot
+    )
 
 
-def is_strict_gap_error(exc: BaseException) -> bool:
+def is_strict_gap_error(
+    exc: BaseException,
+) -> bool:
     """
-    Exact match only.
-
-    Do not turn arbitrary data-integrity errors,
-    insufficient bars, or unexpected failures
-    into terminal exclusions.
+    Only exact frozen continuity errors
+    may reach the terminal evidence recorder.
     """
+
     if not isinstance(
         exc,
         MATURER.R03OutcomeMaturationError,
@@ -208,11 +253,14 @@ def process_maturity(
     snapshot: Any,
 ) -> dict[str, Any]:
     """
-    Try genuine strict maturation first.
+    Try the frozen maturer first.
 
-    Only recognized frozen continuity failures
-    are eligible for a separate gap-evidence audit.
+    If it detects a strict M5 discontinuity,
+    obtain separate broker-history corroboration.
+
+    Truncated history is NOT gap evidence.
     """
+
     try:
         result = LANE.mature_from_snapshot(
             snapshot=snapshot
@@ -236,25 +284,39 @@ def process_maturity(
         )
 
         require(
-            evidence_action in {
-                "TERMINAL_EVIDENCE_RECORDED",
-                "TERMINAL_EVIDENCE_ALREADY_PRESENT",
-                "STRICT_M5_HORIZON_COMPLETE",
-                "WAIT_HORIZON_NOT_ELAPSED",
-            },
+            evidence_action in (
+                SUCCESSFUL_EVIDENCE_ACTIONS
+                | UNCONFIRMED_EVIDENCE_ACTIONS
+            ),
             f"UNEXPECTED_GAP_ACTION:{evidence_action}",
         )
 
-        # Fail closed if the separate gap assessor
-        # cannot corroborate the frozen maturer.
-        if evidence_action in {
-            "STRICT_M5_HORIZON_COMPLETE",
-            "WAIT_HORIZON_NOT_ELAPSED",
-        }:
+        # A snapshot without enough historical coverage
+        # cannot prove the allegedly missing bars.
+        #
+        # Crucially, this is NOT converted to a
+        # terminal disposition or a matured outcome.
+        if evidence_action == "STRICT_M5_HORIZON_COMPLETE":
             raise OrchestratorError(
                 "FROZEN_MATURER_GAP_NOT_CORROBORATED:"
                 + evidence_action
             ) from exc
+
+        if evidence_action in (
+            UNCONFIRMED_EVIDENCE_ACTIONS
+        ):
+            return {
+                "action": (
+                    "BLOCKED_UNCONFIRMED_M5_GAP"
+                ),
+                "reason": evidence_action,
+                "frozen_maturer_reason": str(exc),
+                "evidence_appended": False,
+                "capture_slot_released": False,
+                "outcome_matured": False,
+                "live_authorized": False,
+                "execution_authorized": False,
+            }
 
         require(
             evidence_result.get(
@@ -263,12 +325,21 @@ def process_maturity(
             "UNAUTHORIZED_SLOT_RELEASE",
         )
 
+        require(
+            evidence_result.get(
+                "evidence_appended"
+            ) in (True, False, None),
+            "INVALID_EVIDENCE_APPEND_FLAG",
+        )
+
         return {
             "action": (
                 "SESSION_GAP_EVIDENCE_RECORDED"
                 if evidence_action
                 == "TERMINAL_EVIDENCE_RECORDED"
-                else "SESSION_GAP_EVIDENCE_ALREADY_PRESENT"
+                else (
+                    "SESSION_GAP_EVIDENCE_ALREADY_PRESENT"
+                )
             ),
             "frozen_maturer_reason": str(exc),
             "gap_evidence": dict(evidence_result),
@@ -296,38 +367,49 @@ def process_maturity(
 
 def run_cycle(
     *,
-    acquire: Callable[[], Any] = acquire_genuine_snapshot,
-    features: Callable[[Any], Any] = build_features,
+    acquire: Callable[
+        [], Any
+    ] = acquire_genuine_snapshot,
+    features: Callable[
+        [Any], Any
+    ] = build_features,
     verify_snapshot: Callable[
         [Any], None
     ] = verify_snapshot_authority,
 ) -> dict[str, Any]:
     """
-    One research-only collection cycle.
+    One research-only orchestrator cycle.
 
-    All V2 ledger writes happen inside the V2 lane
-    with its own process lock and authority gates.
+    Read-only state inspection happens before MT5
+    acquisition. All V2 ledger writes remain
+    authority-gated within the existing lane.
     """
 
     before = LANE.inspect()
 
     if before.next_action == LANE.BLOCKED:
-        return {
-            "action": "BLOCKED_PROTOCOL_AUTHORITY",
-            "state": before.to_dict(),
-        }
+        return blocked_result(
+            "BLOCKED_PROTOCOL_AUTHORITY",
+            before,
+        )
 
     if before.next_action == LANE.ORPHAN:
-        return {
-            "action": "BLOCKED_ORPHAN_ANCHOR",
-            "state": before.to_dict(),
-        }
+        return blocked_result(
+            "BLOCKED_ORPHAN_ANCHOR",
+            before,
+        )
+
+    if before.next_action == LANE.TERMINAL_BLOCKED:
+        return blocked_result(
+            "BLOCKED_TERMINAL_POLICY_AUTHORITY",
+            before,
+        )
 
     if before.next_action == LANE.TARGET:
-        return {
-            "action": "COLLECTION_TARGET_REACHED",
-            "state": before.to_dict(),
-        }
+        return blocked_result(
+            "COLLECTION_TARGET_REACHED",
+            before,
+        )
 
     require(
         before.protocol_authorized is True,
@@ -342,6 +424,7 @@ def run_cycle(
         f"UNSUPPORTED_ACTION:{before.next_action}",
     )
 
+    # Revalidate immediately before external acquisition.
     require(
         LANE.authority_valid(),
         "AUTHORITY_REVOKED",
@@ -370,13 +453,11 @@ def run_cycle(
     )
 
     require(
-        result.get("action") in {
-            "CAPTURED_RESEARCH_ONLY",
-            "MATURED_RESEARCH_ONLY",
-            "WAIT",
-            "SESSION_GAP_EVIDENCE_RECORDED",
-            "SESSION_GAP_EVIDENCE_ALREADY_PRESENT",
-        },
+        result.get("action")
+        in (
+            EXPECTED_COLLECTION_ACTIONS
+            | {"BLOCKED_UNCONFIRMED_M5_GAP"}
+        ),
         "UNEXPECTED_COLLECTION_RESULT",
     )
 
@@ -385,8 +466,12 @@ def run_cycle(
 
 def execute(
     *,
-    acquire: Callable[[], Any] = acquire_genuine_snapshot,
-    features: Callable[[Any], Any] = build_features,
+    acquire: Callable[
+        [], Any
+    ] = acquire_genuine_snapshot,
+    features: Callable[
+        [Any], Any
+    ] = build_features,
     verify_snapshot: Callable[
         [Any], None
     ] = verify_snapshot_authority,
@@ -437,8 +522,12 @@ def main() -> int:
             }
 
     except Exception as exc:
-        print("R03_V2_ORCHESTRATOR_STATUS=BLOCKED")
-        print(f"ERROR_TYPE={type(exc).__name__}")
+        print(
+            "R03_V2_ORCHESTRATOR_STATUS=BLOCKED"
+        )
+        print(
+            f"ERROR_TYPE={type(exc).__name__}"
+        )
         print(f"ERROR={exc}")
         print("LIVE_AUTHORIZED=false")
         print("EXECUTION_AUTHORIZED=false")
