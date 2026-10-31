@@ -1574,3 +1574,31 @@ Published baseline commit `cbdeb30934213dc36863c334eb1e50879ba0dde1`:
 - Prepares for Gate 15D-C-B2D (Genuine Prospective Observation + Same-Snapshot Anchor Integration).
 <!-- GATE-15D-C-B2BC-MATURER-LEDGER-V2:END -->
 
+
+
+# Quantum Brain V3–V10.2 Development Lineage — 2026-10-31
+
+This section records the subsequent Quantum Brain development reported in the supplied development handover and represented by the `feature/quantum-brain-v2` source branch. It supplements rather than rewrites the C04/R03 history above.
+
+## V3–V9: model and decision research
+
+- **V3 Candidate Learning:** champion/challenger comparison; reported exploratory challenger accuracy approximately 44.89% versus champion 43.18%.
+- **V4 Walk-Forward:** three folds; reported challenger aggregate accuracy 46.74% versus majority baseline 35.87%.
+- **V5 Session Validation:** spread-aware, non-overlapping evaluation; reported 52.08% accuracy across 48 observations. Sample remains small.
+- **V6 Confidence & WAIT:** tested model performed poorly versus always-BUY; promotion was rejected.
+- **V7 Decision Intelligence:** cost-sensitive multi-output Random Forest regression; output was 100% WAIT under the tested uncertainty penalty.
+- **V8 Diagnostics:** analysis attributed most WAIT decisions to negative predicted expected payoffs, based on one short Asia session.
+- **V9 Reversal Audit:** original decisions were unavailable for apparent screenshot opportunities; no retrospective performance claim was made.
+
+## V10–V10.2: forward shadow engineering
+
+- **V10:** first forward shadow logger was blocked from generating valid forward predictions by stale features.
+- **V10.1:** Fast Live Feature Bridge reused the original Pattern Intelligence feature generator. Handover-reported one-shot result: Pyright 0 errors/0 warnings; status PASS; 4,000 input observations; 10 parity checks; zero numerical mismatches; maximum error zero; 30.58-second processing duration. Continuous real-time stability was not established.
+- **V10.2:** forward shadow logger implementation drafted with separate prediction and feature timestamps, observed post-prediction entry quote, 60-second outcome settlement, JSONL prediction/entry/outcome records and pending-record recovery. At this snapshot, Pyright and end-to-end runtime verification were explicitly pending.
+
+All V3–V10.2 metrics above are reported by the handover and are not independently recomputed from local runtime artifacts in GitHub. Treat them as qualified development evidence, not proof of profitability or live readiness.
+
+## Current milestone and next gate
+
+The immediate milestone is to verify V10.2 with syntax compilation, Pyright, focused tests, continuous feature freshness/latency measurement, broker timestamp proof, causal prediction-to-entry ordering, 60-second settlement and restart recovery. Keep live execution disabled and preserve the frozen champion.
+

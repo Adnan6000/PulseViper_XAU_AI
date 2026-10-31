@@ -18,6 +18,41 @@ This roadmap should be updated whenever a major engineering or research gate is 
 
 ---
 
+# Current Development Update — 2026-10-31 (Supersedes Older Snapshot)
+
+The older R03-only position below records a distinct historical/protocol lane. The active feature branch now also contains Quantum Brain V3–V10.2 work. For the complete status and evidence qualifications, see [Current_Development_Status.md](Current_Development_Status.md).
+
+**Current milestone: V10.2 Forward Shadow Logger — implementation drafted; static analysis and end-to-end runtime verification pending.**
+
+Reported progression from the supplied development handover:
+
+- V3 candidate learning: exploratory challenger accuracy approximately 44.89% vs champion 43.18%.
+- V4 three-fold walk-forward: challenger aggregate accuracy 46.74% vs majority baseline 35.87%.
+- V5 spread-aware non-overlapping evaluation: 52.08% across 48 observations.
+- V6 confidence/WAIT: underperformed always-BUY on tested observations; promotion rejected.
+- V7 cost-sensitive decision intelligence: 100% WAIT under its uncertainty penalty.
+- V8 diagnostics: negative predicted expected payoff was the main WAIT driver in a single short Asia session.
+- V9 reversal audit: original decisions unavailable for apparent screenshot opportunities; no retrospective claim.
+- V10 logger: stale features prevented forward predictions.
+- V10.1 bridge: one-shot parity PASS, 4,000 inputs, 10 checked, zero mismatches, max error zero, 30.58 seconds; Pyright clean. Continuous operation remains unproven.
+- V10.2: prediction/entry/outcome logger drafted, but Pyright and end-to-end runtime verification not yet performed.
+
+These are handover-reported figures, not independently recomputed from the untracked local run artifacts. They must not be represented as profitability evidence.
+
+## Current priority order
+
+1. Verify V10.2 syntax, Pyright and focused tests.
+2. Prove continuous Fast Live Bridge freshness, latency and file-publication stability.
+3. Prove broker server timestamp basis and causal ordering of prediction before entry quote.
+4. Test 60-second outcome settlement, duplicate prevention, process locking and restart recovery.
+5. Complete a sustained forward shadow session with complete linked lifecycle records.
+6. Audit V3–V9 evidence against run manifests, sample windows, costs, baselines and code fingerprints.
+7. Only after sufficient independent evidence, plan demo and broker calibration, then separate risk/execution validation.
+
+No live order placement, automatic champion promotion or execution authorization is granted by these steps. Preserve the frozen champion and all protected C04/R03 evidence.
+
+---
+
 # 2. Status Legend
 
 ```text

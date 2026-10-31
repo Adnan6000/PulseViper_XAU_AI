@@ -28,71 +28,29 @@ Research → Implement → Offline/Test → Shadow → Demo → Forward Validati
 
 The current live state remains **not authorized** until the defined historical, forward, risk, execution, recovery, and operational gates are completed. This is a temporary authorization state, not the project's final objective.
 
-## Authoritative Current State (2026-10-05)
+## Authoritative Current State (2026-10-31)
 
-The repository has progressed beyond the original C04-only forward-validation phase.
+The latest development branch includes the Quantum Brain V3–V10.2 research and shadow-logging modules. The current development focus has moved beyond the earlier R03-only snapshot.
 
-```text
-Historical C04 forward baseline
-        ↓
-30 matured forward outcomes
-        ↓
-Weak forward discrimination
-        ↓
-G7-A → G7-B → G7-C → G7-D → G7-E
-        ↓
-G7-F-A TRAIN + VALIDATION access
-        ↓
-G7-F-B six-candidate evaluation
-        ↓
-G7-F-C R03 winner freeze
-        ↓
-G7-G-A sealed TEST criteria
-        ↓
-G7-G-B one-shot sealed TEST
-        ↓
-G7-H R03 prospective forward lane
-        ↓
-CURRENT: first genuine R03 capture blocked
-```
+**Current stage: V10.2 Forward Shadow Logger — implementation drafted, verification pending.**
 
-Current remediation winner:
+The supplied development handover reports that V10.1's fast feature bridge passed a one-shot parity check (4,000 input observations; 10 parity checks; zero numerical mismatches; maximum error 0; 30.58 seconds; Pyright 0 errors/0 warnings). This does not establish continuous real-time stability.
 
-```text
-R03_FLAT_EXTRA_TREES_SMOOTH
-```
+V10.2 has been drafted with BUY/SELL/WAIT shadow predictions, separate feature and prediction timestamps, post-prediction observed entry quotes, 60-second outcome settlement, JSONL lifecycle records and pending-record recovery. **It has not yet been verified with Pyright or end-to-end runtime output.**
 
-Historical C04 remains preserved as the control lineage.
+The V3–V9 reported experiments include candidate learning, walk-forward validation, spread-aware session validation, confidence/WAIT analysis, cost-sensitive decisions, diagnostics and historical reversal audit. Their reported metrics are limited exploratory evidence and are not proof of profitability. See [Current Development Status](05_Documentation/Current_Development_Status.md), [Research Evidence Index](05_Documentation/Research_Evidence_Index.md), and [Development Roadmap](05_Documentation/Development_Roadmap.md).
 
-Current R03 prospective collection state:
+The earlier C04/R03 portable 331-feature research and prospective-validation lineage remains preserved as a separate historical/protocol lane. Its frozen contracts and evidence must not be overwritten or conflated with the V10.2 shadow logger.
 
-```text
-observations = 0
-anchors = 0
-matured_outcomes = 0
-distinct_matured_utc_dates = 0
-minimum_matured_outcomes = 60
-minimum_distinct_utc_dates = 5
-```
-
-The latest first-capture/recovery attempts remain fail-closed because the broker timestamp basis could not be uniquely proven:
-
-```text
-TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN
-raw_tick=1790985539
-candidate_count=0
-```
-
-No prospective observation or anchor has been fabricated or backfilled.
+Current authorization remains:
 
 ```text
 live_authorized = false
 execution_authorized = false
-performance_evaluated = false
-pnl_evaluated = false
+automatic_champion_promotion = false
 ```
 
-The next engineering action is to establish a valid timestamp basis or obtain a valid fresh capture context, then execute the already-frozen R03 capture lane.
+The next engineering gate is V10.2 static analysis, focused tests, continuous bridge freshness/latency checks, broker-clock proof, causal prediction-to-entry ordering, 60-second settlement and restart recovery. Do not treat any shadow result as valid until those checks pass.
 
 ## Key Highlights
 

@@ -1940,3 +1940,42 @@ test-file population is now 80 including the integration directory.
 
 The logger and settings files are diagnostics, not pytest test modules.
 <!-- V2-REVIEW-DIAGNOSTICS-BATCH-01:END -->
+
+
+# 2026-10-31 — Quantum Brain V3–V10.2 Module Map
+
+The following modules are present in `02_AI/MarketIntelligence/` on `feature/quantum-brain-v2`. This is a repository source inventory, not a statement that every module has passed runtime validation.
+
+| Module | Responsibility | Safety / status |
+|---|---|---|
+| `pulseviper_candidate_learning_v3.py` | Champion/challenger candidate comparison | Research; verify run manifests |
+| `pulseviper_walk_forward_v4.py` | Chronological multi-fold walk-forward evaluation | Research; preserve fold boundaries |
+| `pulseviper_session_validation_v5.py` | Spread-aware non-overlapping session validation | Research; small reported sample |
+| `pulseviper_confidence_wait_v6.py` | Confidence calibration and WAIT policy analysis | Research; promotion rejected in reported test |
+| `pulseviper_decision_intelligence_v7.py` | Cost-sensitive decision outputs | Research; 100% WAIT in reported run |
+| `pulseviper_decision_diagnostics_v8.py` | WAIT and cost-sensitivity diagnostics | Diagnostic; one short session reported |
+| `pulseviper_reversal_audit_v9.py` | Historical reversal opportunity audit | Diagnostic; no retrospective claim |
+| `pulseviper_shadow_logger_v10.py` | Initial forward shadow logging | Stale feature issue reported |
+| `pulseviper_fast_live_bridge_v10_1.py` | Fast live feature generation bridge | One-shot parity passed; continuous stability unverified |
+| `pulseviper_shadow_logger_v10_2.py` | Forward prediction, entry and outcome lifecycle | Drafted; static/runtime verification pending |
+| `pulseviper_pattern_intelligence.py` | Pattern feature generation | Contract-sensitive; protect feature semantics |
+| `pulseviper_reaction_learning.py` | Reaction/outcome dataset generation | Data-intensive; avoid repeated full rebuilds |
+| `pulseviper_temporal_memory.py` | Temporal sequence/state memory | Research; audit chronological alignment |
+| `pulseviper_stable_memory_v2.py` | Stable memory and checkpoint workflow | Checkpoint-sensitive; do not overwrite champion |
+| `pulseviper_adaptive_event_discovery.py` | Adaptive event discovery | Research-only until validated |
+| `pulseviper_adaptive_events.py` | Adaptive event processing | Research-only until validated |
+| `pulseviper_drift_monitor.py` | Drift monitoring | Diagnostic; define alert thresholds empirically |
+| `pulseviper_auto_pipeline.py` | Coordinates feature/reaction pipeline | Review expensive rebuild and file-publication behavior |
+| `pulseviper_training_audit.py` | Training audit support | Evidence tooling |
+| `pulseviper_quantum_audit.py` | Quantum Brain audit support | Evidence tooling |
+| `pulseviper_live_alignment_v2.py` | Live feature alignment support | Contract-sensitive; stale-data checks required |
+| `r03_*.py` | Separate R03 discovery, event, MTF, overlay and signal-planning lane | Keep isolated from Quantum Brain V10.2 lifecycle |
+
+## Modification rules
+
+- Do not automatically promote a challenger or replace the frozen champion.
+- Do not rewrite protected ledgers or sealed validation/test evidence.
+- Do not use forming candles or future information.
+- Do not treat estimated tick-volume buy/sell pressure as exchange-confirmed aggressive order flow.
+- Keep shadow prediction separate from risk permission and broker execution.
+- Add or change feature semantics only with an explicit feature-contract/version decision and parity tests.

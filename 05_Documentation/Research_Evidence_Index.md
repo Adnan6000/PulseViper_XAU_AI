@@ -1834,3 +1834,41 @@ The final historical research verdict remains unchanged: historical
 out-of-sample acceptance does not itself authorize live trading or automatic
 shadow deployment.
 <!-- REPOSITORY-ARCHITECTURE-MANAGED:END -->
+
+
+# 2026-10-31 — Quantum Brain V3–V10.2 Evidence Index
+
+The active `feature/quantum-brain-v2` branch contains the following research modules under `02_AI/MarketIntelligence/`:
+
+| Stage | Source module | Reported evidence / qualification |
+|---|---|---|
+| V3 | `pulseviper_candidate_learning_v3.py` | Exploratory challenger accuracy ~44.89% vs champion 43.18% |
+| V4 | `pulseviper_walk_forward_v4.py` | Three-fold aggregate challenger accuracy 46.74% vs majority baseline 35.87% |
+| V5 | `pulseviper_session_validation_v5.py` | 52.08% on 48 non-overlapping observations; small sample |
+| V6 | `pulseviper_confidence_wait_v6.py` | Underperformed always-BUY; promotion rejected |
+| V7 | `pulseviper_decision_intelligence_v7.py` | 100% WAIT under tested uncertainty penalty |
+| V8 | `pulseviper_decision_diagnostics_v8.py` | One short Asia session; negative expected payoff was the main WAIT cause |
+| V9 | `pulseviper_reversal_audit_v9.py` | No retrospective claim; original decision records unavailable for screenshot examples |
+| V10 | `pulseviper_shadow_logger_v10.py` | Stale features prevented forward predictions |
+| V10.1 | `pulseviper_fast_live_bridge_v10_1.py` | One-shot parity PASS: 4,000 inputs, 10 checks, zero mismatches, max error zero, 30.58 sec; Pyright clean |
+| V10.2 | `pulseviper_shadow_logger_v10_2.py` | Drafted; Pyright and end-to-end runtime verification pending |
+
+Supporting modules include `pulseviper_pattern_intelligence.py`, `pulseviper_reaction_learning.py`, `pulseviper_temporal_memory.py`, `pulseviper_stable_memory_v2.py`, `pulseviper_adaptive_event_discovery.py`, `pulseviper_adaptive_events.py`, `pulseviper_drift_monitor.py`, `pulseviper_auto_pipeline.py`, and `pulseviper_training_audit.py`.
+
+## Evidence provenance warning
+
+The numerical results in this section are transcribed from the development handover supplied on 2026-10-31. The corresponding local runtime outputs were reported under `01_Data/VolumeMemory/`, but the user's audit shows that directory is untracked and absent from this GitHub branch. Consequently, this index does not claim to have independently inspected or verified those CSV/JSON contents. When those artifacts are reviewed, add their run IDs, timestamps, fingerprints, exact sample windows, cost assumptions and report paths here.
+
+## V10.2 acceptance evidence still required
+
+- Pyright and syntax results for the exact committed source.
+- Focused automated test results.
+- Continuous feature freshness and latency measurements.
+- Broker server timestamp / timezone proof.
+- Causal proof that prediction persistence precedes the later entry quote.
+- Complete linked prediction → entry → outcome records.
+- Correct 60-second settlement, idempotency and restart recovery.
+- Evidence that trading APIs/order placement remain unreachable.
+
+Do not combine these records with the separate R03 append-only forward ledgers or treat one lane's progress as evidence for the other.
+
