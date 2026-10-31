@@ -1,0 +1,14 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_RUNNER_V1",
+  "error": "attempted relative import with no known parent package",
+  "error_type": "ImportError",
+  "ledger_state": null,
+  "reason": "ONE_TIME_REAL_TEST_EXECUTION_FAILED",
+  "scientific_policy": {
+    "live_authorized": false,
+    "shadow_authorized": false,
+    "test_rerun_authorized": false,
+    "validation_reread_authorized": false
+  },
+  "valid": false
+}

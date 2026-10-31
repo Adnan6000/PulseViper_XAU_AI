@@ -1,0 +1,4 @@
+2026-08-05 15:57:43 | DEBUG    | [logger.py:89] -> EXECUTION LATENCY: 'sample_task' completed in 0.001 ms
+2026-08-05 15:57:43 | INFO     | [test_logger.py:39] -> Unit test verification write.
+2026-08-05 15:58:08 | DEBUG    | [logger.py:93] -> EXECUTION LATENCY: 'sample_task' completed in 0.001 ms
+2026-08-05 15:58:08 | INFO     | [test_logger.py:39] -> Unit test verification write.

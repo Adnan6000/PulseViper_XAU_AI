@@ -1,0 +1,106 @@
+{
+  "accuracy_evaluated": false,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "75874f01e5db76e171b204f058367327e3530a03628cc751aac342abb5afad69",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_a_v1_1_maturation_semantic_correction_evidence.py": "a6097e78488e13b6dee02b0e380a85f7a9b67caf10e79d19152bc2a39d11732f",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py": "5b2ca743446e14a242d5bb7d6aefcd5200425469216c201c19a7415c6d8a4dc6"
+  },
+  "decision_bar_semantics_corrected": true,
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-C-A v1.1 \u2014 Forward Outcome Maturation Semantic Correction",
+  "gate_id": "GATE_15D_C_A_V1_1_MATURATION_SEMANTIC_CORRECTION",
+  "genuine_forward_observation_matured": false,
+  "live_authorized": false,
+  "maturation_semantics_frozen": true,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "observation_ledger": {
+    "sha256_after": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "sha256_before": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "unchanged": true
+  },
+  "outcome_ledger": {
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "outcome_record_appended": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "branch": "main",
+    "expected_base_authority_commit": "1e7d555ca031662b22cb30b5f6dbb13466dd4475",
+    "head": "1e7d555ca031662b22cb30b5f6dbb13466dd4475",
+    "head_equals_origin_main": true,
+    "local_correction_paths": [
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_a_v1_1_maturation_semantic_correction_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py"
+    ],
+    "origin_main": "1e7d555ca031662b22cb30b5f6dbb13466dd4475",
+    "status": "PASS",
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "runtime_authority": {
+    "atr_reference": "DECISION_M5_COMPLETED_BAR_ATR14",
+    "base_timeframe": "M5",
+    "base_timeframe_minutes": 5,
+    "decision_bar_semantics": "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES",
+    "entry_reference": "DECISION_M5_COMPLETED_BAR_CLOSE",
+    "horizon_bars": 12,
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR",
+    "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1",
+    "max_adverse_atr": 0.75,
+    "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "profit_atr": 1.25,
+    "status": "PASS",
+    "supersedes_maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1"
+  },
+  "schema_version": "1.1.0",
+  "source_semantics": {
+    "atr_algorithm": "TRUE_RANGE_ROLLING_14_SIMPLE_MEAN",
+    "atr_reference": "DECISION_M5_COMPLETED_BAR_ATR14",
+    "decision_bar_lookup": "DECISION_TIME_MINUS_5_MINUTES",
+    "decision_time_semantics": "BAR_OPEN_PLUS_5_MINUTES",
+    "entry_reference": "DECISION_M5_COMPLETED_BAR_CLOSE",
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR",
+    "max_adverse_atr": 0.75,
+    "profit_atr": 1.25,
+    "raw_m5_timestamp_semantics": "BAR_OPEN_TIME",
+    "source_hashes": {
+      "02_AI/Dataset/training_matrix_builder.py": "5c26b7b2c06935e69f68455415115218d8ec3be2f73366197476bb701a45b744",
+      "02_AI/Dataset/training_target_relabeler.py": "073caf20348819fc1c42e700e9ff7681448d97abccabad18999225451a0aab4e",
+      "02_AI/Features/feature_generator.py": "21339b1d970f01cdbc3b93cbaa9cac98218572e4e82dbebebe4822aebeb23b13",
+      "02_AI/Features/portable_feature_pipeline.py": "ffeb92d8b249dba6c9254545bc0e2802fe529b1a073c6d01111db68a20e3c015",
+      "02_AI/Features/volatility_features.py": "3ed09eb499e7f9304f4af864b75f840250c4fe1794352cea6ac355b8d4a84cef"
+    },
+    "status": "PASS"
+  },
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_a_v1_1_maturation_semantic_correction_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "supersession": {
+    "historical_git_evidence_rewritten": false,
+    "reason": "V1 interpreted observation decision_time as raw M5 bar-open timestamp. Frozen Gate 13 and historical training semantics establish decision_time as completed M5 availability time = raw bar open + 5 minutes.",
+    "supersedes_gate": "GATE_15D_C_A_FROZEN_FORWARD_OUTCOME_MATURATION",
+    "supersedes_maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1"
+  },
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "................................................                         [100%]\n48 passed in 1.70s\n"
+  },
+  "test_partition_accessed": false,
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}

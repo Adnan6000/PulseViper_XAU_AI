@@ -1,0 +1,88 @@
+{
+  "accuracy_evaluated": false,
+  "authority": {
+    "activation_authority_commit": "59f5b6815f0c8d0a51725aa5123812595566b530",
+    "activation_utc": "2026-09-28T11:16:59Z",
+    "eligibility_version": "FROZEN_C04_FORWARD_OUTCOME_ELIGIBILITY_V1",
+    "gate_15c_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "pre_contract_policy": "RETAIN_FOR_PIPELINE_AUDIT_EXCLUDE_FROM_FORMAL_FORWARD_PERFORMANCE",
+    "status": "PASS"
+  },
+  "broker_initialized": false,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_eligibility.py": "d56fd43cc31577cf5aa454f6eec35ba64387d248c410bfabe5ced6a30582b82e",
+    "04_Testing/production_portability/run_xauusd_gate_15d_a_forward_outcome_eligibility_evidence.py": "857fce549cfd265a5edde5055253b2f18111c2bcf65ea5aa68e581929f9b14ae",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_eligibility.py": "2bb27794e15911bbdb0bff014949214bdc058c23ebadc4753b9586c9b6a096f4"
+  },
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "existing_forward_observation": {
+    "first_true_forward": {
+      "decision_time_utc": "2026-09-28T10:15:00Z",
+      "eligibility_reason": "PRE_CONTRACT_OBSERVATION",
+      "eligible_for_formal_maturation": false,
+      "logical_observation_id": "42a457bffe6c6c14edfb4e7b4c6cf656ed27e10579e84f14e771853f5732ba4f"
+    },
+    "formal_maturation_eligible_count": 0,
+    "ledger_sha256_after": "27bb62d2b2d2818c72046ce176362135e386ee333ca73325a8622a041a11be33",
+    "ledger_sha256_before": "27bb62d2b2d2818c72046ce176362135e386ee333ca73325a8622a041a11be33",
+    "ledger_unchanged": true,
+    "pre_contract_excluded_count": 1,
+    "status": "PASS",
+    "total_records": 1,
+    "true_forward_records": 1
+  },
+  "features_changed": false,
+  "forward_outcomes_evaluated": false,
+  "forward_outcomes_matured": false,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-A \u2014 Prospective Forward Outcome Eligibility Authority",
+  "gate_id": "GATE_15D_A_PROSPECTIVE_FORWARD_OUTCOME_ELIGIBILITY",
+  "live_authorized": false,
+  "model_changed": false,
+  "new_forward_observation_acquired": false,
+  "observation_ledger_mutated": false,
+  "outcome_maturation_authorized": false,
+  "pnl_evaluated": false,
+  "pre_contract_observations_permanently_excluded_from_formal_performance": true,
+  "prospective_activation_defined": true,
+  "repository_authority": {
+    "branch": "main",
+    "committed_since_gate_15c": [
+      "02_AI/Models/frozen_c04_forward_outcome_eligibility.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_a_forward_outcome_eligibility_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_eligibility.py"
+    ],
+    "gate_15c_authority_commit": "59f5b6815f0c8d0a51725aa5123812595566b530",
+    "gate_15c_authority_is_ancestor": true,
+    "head": "4fc83325d01a7aee00b3ed75e749170f8bc110fc",
+    "head_equals_origin_main": true,
+    "local_gate_15d_a_paths": [
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15d_a_forward_outcome_eligibility_evidence.json"
+    ],
+    "origin_main": "4fc83325d01a7aee00b3ed75e749170f8bc110fc",
+    "status": "PASS",
+    "unexpected_committed_paths": [],
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "schema_version": "1.0.0",
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_eligibility.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_a_forward_outcome_eligibility_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "............................                                             [100%]\n28 passed in 1.00s\n"
+  },
+  "test_partition_accessed": false,
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}

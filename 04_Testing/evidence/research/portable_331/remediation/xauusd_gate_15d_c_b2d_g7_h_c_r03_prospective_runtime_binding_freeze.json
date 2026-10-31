@@ -1,0 +1,51 @@
+{
+  "acquisition_authority_role": "GENUINE_READ_ONLY_MT5_PROVENANCE_ONLY",
+  "anchor_schema_version": "R03_PROSPECTIVE_ANCHOR_V1",
+  "authorities": {
+    "artifact_sha256": "b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03",
+    "manifest_sha256": "a1507666518e3289b0678525c0808fc91b45d54105ef1fb59f3c22fe5d52baf6",
+    "prospective_contract_fingerprint_sha256": "e70d8e26c8f4734c456022689d47de406fe3f8daf1827d01b7f0f0d7fe752b9e",
+    "status": "PASS"
+  },
+  "base_authority_commit": "22f1ca6d0da30131ec5c9f0ce44ac46d03b82da4",
+  "boundaries": {
+    "execution_authorized": false,
+    "live_authorized": false,
+    "market_data_loaded": false,
+    "performance_evaluated": false,
+    "pnl_evaluated": false,
+    "prospective_ledgers_created": false,
+    "prospective_ledgers_written": false,
+    "status": "PASS"
+  },
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_C_R03_PROSPECTIVE_RUNTIME_BINDING_FREEZE",
+  "inference_binding": {
+    "feature_count": 331,
+    "predicted_class": 0,
+    "probability_sum": 0.9999999999999982,
+    "status": "PASS"
+  },
+  "live_authorized": false,
+  "market_data_loaded": false,
+  "observation_schema_version": "R03_PROSPECTIVE_OBSERVATION_V1",
+  "old_c04_runtime_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3"
+  },
+  "performance_evaluated": false,
+  "persistence_order": "ANCHOR_FIRST_THEN_OBSERVATION",
+  "pnl_evaluated": false,
+  "prospective_ledgers_created": false,
+  "prospective_ledgers_written": false,
+  "r03_model_authority_role": "EXACT_FROZEN_ARTIFACT_SHA256",
+  "r03_runtime_version": "FROZEN_R03_PROSPECTIVE_RUNTIME_V1",
+  "repository": {
+    "branch": "main",
+    "head": "22f1ca6d0da30131ec5c9f0ce44ac46d03b82da4",
+    "origin_main": "22f1ca6d0da30131ec5c9f0ce44ac46d03b82da4",
+    "status": "PASS"
+  },
+  "status": "PASS"
+}

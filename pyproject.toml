@@ -1,0 +1,23 @@
+[tool.pytest.ini_options]
+testpaths = [
+    "04_Testing",
+]
+
+python_files = [
+    "test_*.py",
+]
+
+addopts = [
+    "-ra",
+]
+
+markers = [
+    "offline: deterministic tests requiring no broker or network",
+    "integration: integration tests that may touch filesystem or external systems",
+    "mt5: tests requiring a running MetaTrader 5 terminal/broker connection",
+    "research: expensive historical research and validation tests",
+]
+
+filterwarnings = [
+    "error::pytest.PytestUnhandledThreadExceptionWarning",
+]

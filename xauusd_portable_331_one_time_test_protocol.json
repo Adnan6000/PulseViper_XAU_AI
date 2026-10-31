@@ -1,0 +1,137 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_PROTOCOL_DESIGN_V1",
+  "contract": {
+    "asset": "XAUUSD",
+    "dataset_binding": {
+      "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+      "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+      "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+      "feature_count": 331,
+      "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc"
+    },
+    "loader_binding": {
+      "original_public_test_accessors_must_remain_fail_closed": true,
+      "source_path": "02_AI/Dataset/portable_331_training_input_loader.py",
+      "source_sha256": "49c86c269f2742fec7c6991eaf7a8a9c0466066a3db230a80375ba2e2c33680c"
+    },
+    "model_binding": {
+      "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+      "model_artifact_path": "xauusd_portable_331_c04_full_train_model.joblib",
+      "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+      "prediction_rule": "ARGMAX_OVER_MODEL_CLASSES_NO_THRESHOLD_TUNING",
+      "probability_class_order": [
+        -1,
+        0,
+        1
+      ]
+    },
+    "one_time_test_semantics": {
+      "dedicated_persistent_test_ledger_required_before_first_test_value_read": true,
+      "post_read_technical_failure_consumes_test": true,
+      "pre_read_technical_failure_retriable_only_if_zero_test_values_were_read": true,
+      "read_initiation_is_consumption_boundary": true,
+      "second_performance_driven_test_read_authorized": false,
+      "test_source_must_be_bounded_to_test_rows_only": true,
+      "validation_value_reread_authorized": false
+    },
+    "parent_validation_binding": {
+      "validation_consumed": true,
+      "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+      "validation_protocol_fingerprint": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+      "validation_reread_authorized": false,
+      "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1"
+    },
+    "required_next_implementation": {
+      "bounded_test_source": true,
+      "dry_preflight_before_real_test_read": true,
+      "one_shot_test_runner": true,
+      "preflight_fingerprint_must_be_frozen_before_real_test_read": true,
+      "synthetic_tests_before_real_test_read": true,
+      "test_core_and_ledger": true
+    },
+    "research_lane": "PORTABLE_331_FINAL_HISTORICAL_TEST",
+    "scientific_policy": {
+      "candidate_change_allowed": false,
+      "feature_change_allowed": false,
+      "live_authorized": false,
+      "model_refit_allowed": false,
+      "probability_calibration_allowed": false,
+      "shadow_authorized": false,
+      "target_change_allowed": false,
+      "test_peeking_before_one_shot_execution_allowed": false,
+      "test_result_may_tune_current_frozen_lineage": false,
+      "threshold_search_allowed": false,
+      "validation_peeking_allowed": false
+    },
+    "test_acceptance_policy": {
+      "all_required_metrics_must_be_finite": true,
+      "balanced_accuracy_3class_min": 0.34040386328178984,
+      "directional_macro_f1_short_long_min": 0.25365034089349603,
+      "long_recall_must_be_positive": true,
+      "macro_f1_3class_min": 0.24533114425757888,
+      "no_acceptance_relaxation_after_test_read": true,
+      "predicted_trade_coverage_max": 0.95,
+      "predicted_trade_coverage_min": 0.05,
+      "report_only_metrics": [
+        "log_loss_3class",
+        "multiclass_brier"
+      ],
+      "required_metrics": [
+        "balanced_accuracy_3class",
+        "macro_f1_3class",
+        "directional_macro_f1_short_long",
+        "short_precision",
+        "short_recall",
+        "short_f1",
+        "no_trade_precision",
+        "no_trade_recall",
+        "no_trade_f1",
+        "long_precision",
+        "long_recall",
+        "long_f1",
+        "log_loss_3class",
+        "multiclass_brier",
+        "predicted_trade_coverage"
+      ],
+      "required_target_classes_exact": [
+        -1,
+        0,
+        1
+      ],
+      "short_recall_must_be_positive": true,
+      "threshold_origin": "TRAIN_ONLY_FROZEN_PRE_VALIDATION",
+      "validation_metrics_used_to_set_or_raise_test_thresholds": false
+    }
+  },
+  "decision": {
+    "candidate_change_authorized": false,
+    "live_authorized": false,
+    "model_refit_authorized": false,
+    "next_action": "IMPLEMENT_AND_SYNTHETICALLY_TEST_ONE_SHOT_PORTABLE_TEST_CORE_LEDGER_SOURCE_AND_RUNNER_BEFORE_FIRST_AND_ONLY_TEST_READ",
+    "probability_calibration_authorized": false,
+    "shadow_authorized": false,
+    "test_execution_authorized": false,
+    "test_protocol_frozen": true,
+    "test_runner_implementation_authorized_next": true,
+    "test_values_accessed": false,
+    "threshold_change_authorized": false,
+    "validation_consumed": true,
+    "validation_rerun_authorized": false
+  },
+  "parent_evidence": {
+    "loader_source_path": "02_AI/Dataset/portable_331_training_input_loader.py",
+    "loader_source_sha256": "49c86c269f2742fec7c6991eaf7a8a9c0466066a3db230a80375ba2e2c33680c",
+    "model_artifact_path": "xauusd_portable_331_c04_full_train_model.joblib",
+    "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "parent_evidence_verified": true,
+    "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+    "validation_freeze_path": "xauusd_portable_331_one_time_validation_result_freeze.json",
+    "validation_protocol_fingerprint": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+    "validation_protocol_path": "xauusd_portable_331_one_time_validation_protocol.json",
+    "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1",
+    "validation_result_path": "xauusd_portable_331_one_time_validation_result.json"
+  },
+  "protocol_fingerprint": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+  "status": "ONE_TIME_TEST_PROTOCOL_FROZEN",
+  "valid": true
+}

@@ -1,0 +1,154 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_PROTOCOL_DESIGN_V1",
+  "contract": {
+    "acceptance_gate": {
+      "all_required_metrics_must_be_finite": true,
+      "balanced_accuracy_floor_source": "C04_WORST_FROZEN_TRAIN_WALK_FORWARD_FOLD",
+      "directional_floor_source": "C04_WORST_FROZEN_TRAIN_WALK_FORWARD_FOLD",
+      "gate_semantics": "ALL_HARD_REQUIREMENTS_MUST_PASS",
+      "log_loss_3class_is_hard_gate": false,
+      "long_recall_must_be_positive": true,
+      "macro_f1_floor_source": "C04_WORST_FROZEN_TRAIN_WALK_FORWARD_FOLD",
+      "maximum_predicted_trade_coverage": 0.95,
+      "minimum_balanced_accuracy_3class": 0.34040386328178984,
+      "minimum_directional_macro_f1_short_long": 0.25365034089349603,
+      "minimum_macro_f1_3class": 0.24533114425757888,
+      "minimum_predicted_trade_coverage": 0.05,
+      "multiclass_brier_is_hard_gate": false,
+      "probability_metrics_role": "REPORT_ONLY_NO_POST_HOC_CALIBRATION",
+      "required_target_classes_present": [
+        -1,
+        0,
+        1
+      ],
+      "short_recall_must_be_positive": true
+    },
+    "contract_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_PROTOCOL_V1",
+    "decision_protocol": {
+      "all_hard_acceptance_requirements_pass": "VALIDATION_ACCEPTED_AUTHORIZE_ONE_SHOT_TEST_NEXT",
+      "any_hard_acceptance_requirement_fails": "VALIDATION_REJECTED_STOP_NO_TEST",
+      "manual_override_allowed": false,
+      "results_driven_gate_change_allowed": false,
+      "soft_pass_allowed": false,
+      "validation_pass_does_not_authorize_live": true,
+      "validation_pass_does_not_authorize_shadow": true
+    },
+    "frozen_model": {
+      "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+      "feature_count": 331,
+      "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+      "model_record_fingerprint_sha256": "bd6d76f92d3c6274bed756683f4263b9cce9a3f0e5ffbb8bd4ba3fcbe6f6ff74",
+      "model_verification_record_fingerprint_sha256": "a2759a429b90998a7d24c8b217e570813e36dcf43df5de6cf98daf875b8678ef",
+      "probability_class_order": [
+        -1,
+        0,
+        1
+      ],
+      "winner_config_fingerprint_sha256": "f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3"
+    },
+    "holdout_boundary": {
+      "live_authorized": false,
+      "portable_test_feature_access_authorized": false,
+      "portable_test_metrics_authorized": false,
+      "portable_test_remains_untouched_final_holdout": true,
+      "portable_test_target_access_authorized": false,
+      "portable_validation_is_current_holdout": true,
+      "shadow_authorized": false
+    },
+    "one_time_access_protocol": {
+      "access_ledger_must_be_created_before_first_validation_value_read": true,
+      "performance_driven_validation_rerun_allowed": false,
+      "technical_failure_after_any_validation_value_read": "MARK_VALIDATION_CONSUMED_AND_FAIL_CLOSED",
+      "technical_failure_before_any_validation_value_read": "SAFE_TO_FIX_INFRASTRUCTURE_BEFORE_CONSUMPTION",
+      "test_access_during_validation_run_allowed": false,
+      "validation_access_attempt_limit": 1,
+      "validation_feature_access_authorized": true,
+      "validation_metrics_may_be_computed_once": true,
+      "validation_target_access_authorized": true
+    },
+    "parent_fingerprints": {
+      "candidate_registry_fingerprint_sha256": "b8088bb34ce8940f7de5946fbb9b0fd20f40d7cc93a76b76fd7975591f00066c",
+      "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+      "model_verification_record_fingerprint_sha256": "a2759a429b90998a7d24c8b217e570813e36dcf43df5de6cf98daf875b8678ef",
+      "research_protocol_fingerprint_sha256": "69e51e1b249b9da68cbf6f6778a8ae10f9f33f7082a07e5073a1ba731fa1640d",
+      "walk_forward_evaluation_fingerprint_sha256": "15516174ba6f3d8932425b20dcde33db25c040e0901c86af39796f97847ac7ed"
+    },
+    "prediction_policy": {
+      "candidate_change_allowed": false,
+      "class_order": [
+        -1,
+        0,
+        1
+      ],
+      "feature_selection_allowed": false,
+      "hyperparameter_change_allowed": false,
+      "model_refit_allowed": false,
+      "post_hoc_class_bias_allowed": false,
+      "prediction_rule": "ARGMAX_FROZEN_MODEL_PROBABILITIES",
+      "probability_calibration_allowed": false,
+      "threshold_change_allowed": false,
+      "threshold_search_allowed": false
+    },
+    "required_validation_metrics": [
+      "balanced_accuracy_3class",
+      "macro_f1_3class",
+      "directional_macro_f1_short_long",
+      "short_precision",
+      "short_recall",
+      "short_f1",
+      "no_trade_precision",
+      "no_trade_recall",
+      "no_trade_f1",
+      "long_precision",
+      "long_recall",
+      "long_f1",
+      "log_loss_3class",
+      "multiclass_brier",
+      "predicted_trade_coverage"
+    ],
+    "research_scope": "PREDECLARE_ONE_TIME_UNTOUCHED_VALIDATION_ACCEPT_REJECT_RULES_BEFORE_ANY_VALIDATION_VALUE_ACCESS"
+  },
+  "contract_fingerprint": {
+    "canonicalization": "JSON_SORT_KEYS_COMPACT_UTF8_SHA256",
+    "sha256": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+    "version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_PROTOCOL_FINGERPRINT_V1"
+  },
+  "decision": {
+    "live_authorized": false,
+    "next_action": "IMPLEMENT_AND_SYNTHETICALLY_TEST_ONE_TIME_VALIDATION_ACCESS_LEDGER_AND_FROZEN_MODEL_EVALUATION_RUNNER_BEFORE_FIRST_REAL_VALIDATION_READ",
+    "shadow_authorized": false,
+    "status": "ONE_TIME_VALIDATION_PROTOCOL_FROZEN",
+    "test_access_authorized": false,
+    "validation_execution_authorized": false,
+    "validation_execution_implementation_authorized_next": true,
+    "validation_metrics_computed": false,
+    "validation_protocol_frozen": true,
+    "validation_values_loaded": false,
+    "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+  },
+  "research_scope": "DESIGN_ONLY_ONE_TIME_UNTOUCHED_VALIDATION_PROTOCOL_WITHOUT_VALIDATION_OR_TEST_VALUE_ACCESS",
+  "scientific_policy": {
+    "candidate_registry_changed": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "live_authorized": false,
+    "model_artifact_modified": false,
+    "model_fit_performed": false,
+    "model_refit_performed": false,
+    "orders_sent": false,
+    "portable_test_feature_values_loaded": false,
+    "portable_test_metrics_computed": false,
+    "portable_test_target_values_loaded": false,
+    "portable_validation_feature_values_loaded": false,
+    "portable_validation_metrics_computed": false,
+    "portable_validation_target_values_loaded": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "shadow_authorized": false,
+    "threshold_search_performed": false,
+    "train_feature_values_loaded": false,
+    "train_target_values_loaded": false,
+    "winner_changed": false
+  },
+  "valid": true
+}

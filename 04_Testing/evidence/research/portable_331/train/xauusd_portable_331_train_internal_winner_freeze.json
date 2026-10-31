@@ -1,0 +1,113 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_TRAIN_INTERNAL_WINNER_FREEZE_V1",
+  "artifact_identity": {
+    "candidate_registry_fingerprint_sha256": "b8088bb34ce8940f7de5946fbb9b0fd20f40d7cc93a76b76fd7975591f00066c",
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "dataset_sha256": "cff75b0686383a3ab6f8352bfcdcd55308b99b7a4c6edbf7d2e7215f6f33dd07",
+    "manifest_sha256": "1b8e3599b227c9cbbc6b12f8ab0e275ca4deb4a65839fb626ca90720d59512dc",
+    "research_protocol_fingerprint_sha256": "69e51e1b249b9da68cbf6f6778a8ae10f9f33f7082a07e5073a1ba731fa1640d",
+    "train_input_fingerprint_sha256": "9ffb72759499cfc202e88cfdbd61b42cee5b5c7cbb7db5870470453caa5ed2c5",
+    "train_target_fingerprint_sha256": "bc063a790e70cdbc931b2170ccfef883634b40ee7336a529a32bda0eaf0babe3",
+    "walk_forward_evaluation_fingerprint_sha256": "15516174ba6f3d8932425b20dcde33db25c040e0901c86af39796f97847ac7ed"
+  },
+  "decision": {
+    "full_train_fit_authorized_next": true,
+    "full_train_fit_performed": false,
+    "live_authorized": false,
+    "next_action": "FIT_EXACT_FROZEN_C04_ON_FULL_69966_ROW_TRAIN_ONLY_AND_FREEZE_MODEL_ARTIFACT_BEFORE_ONE_TIME_UNTOUCHED_VALIDATION",
+    "shadow_authorized": false,
+    "status": "TRAIN_INTERNAL_WINNER_FROZEN",
+    "test_access_authorized": false,
+    "validation_access_authorized": false,
+    "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+    "winner_frozen_for_full_train_fit": true
+  },
+  "research_scope": "FREEZE_PREDECLARED_TRAIN_INTERNAL_WINNER_AFTER_FIXED_SIX_PURGED_WALK_FORWARD_WITHOUT_NEW_MODEL_FIT",
+  "review": {
+    "candidate_count": 6,
+    "eligible_candidate_count": 4,
+    "failed_closed_candidate_count": 0,
+    "post_hoc_selection_threshold_added": false,
+    "results_driven_candidate_change_performed": false,
+    "results_driven_hyperparameter_change_performed": false,
+    "train_internal_winner_is_not_live_proof": true,
+    "train_internal_winner_is_not_test_proof": true,
+    "train_internal_winner_is_not_validation_proof": true,
+    "winner_selected_by_predeclared_policy": true
+  },
+  "scientific_policy": {
+    "candidate_added_after_results": false,
+    "candidate_registry_changed": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "hyperparameters_changed_after_results": false,
+    "live_authorized": false,
+    "model_artifacts_written_in_this_gate": false,
+    "model_fit_performed_in_this_gate": false,
+    "orders_sent": false,
+    "portable_test_feature_values_loaded": false,
+    "portable_test_target_values_loaded": false,
+    "portable_validation_feature_values_loaded": false,
+    "portable_validation_target_values_loaded": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "scaler_fit_performed_in_this_gate": false,
+    "threshold_search_performed": false
+  },
+  "valid": true,
+  "winner": {
+    "candidate_config": {
+      "architecture": "FLAT_3CLASS",
+      "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+      "estimator": {
+        "bootstrap": false,
+        "class_weight": "balanced",
+        "implementation": "sklearn.ensemble.ExtraTreesClassifier",
+        "max_depth": 10,
+        "max_features": 0.35,
+        "min_samples_leaf": 25,
+        "n_estimators": 500,
+        "n_jobs": -1,
+        "random_state": 271828
+      },
+      "family": "EXTRA_TREES",
+      "preprocessing": {
+        "standard_scaler": false
+      },
+      "probability_class_order": [
+        -1,
+        0,
+        1
+      ]
+    },
+    "candidate_config_fingerprint": {
+      "canonicalization": "JSON_SORT_KEYS_COMPACT_UTF8_SHA256",
+      "sha256": "f1b11c6f91561f2eba1bd56195e2239e9598b1906c88f11ada67eac6cdeb09e3"
+    },
+    "candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+    "eligible": true,
+    "selection_key": [
+      0.25365034089349603,
+      0.3105791161393638,
+      0.34040386328178984,
+      0.2846765787595467,
+      -0.034141428338313996,
+      -1.1183066797532708
+    ],
+    "selection_reason": "FROZEN_LEXICOGRAPHIC_SELECTION_POLICY",
+    "selection_status": "WINNER_SELECTED_TRAIN_INTERNAL_ONLY",
+    "summary": {
+      "mean_balanced_accuracy_3class": 0.35438789335022963,
+      "mean_directional_macro_f1_short_long": 0.3105791161393638,
+      "mean_log_loss_3class": 1.1183066797532708,
+      "mean_macro_f1_3class": 0.2846765787595467,
+      "mean_multiclass_brier": 0.681873467851832,
+      "mean_predicted_trade_coverage": 0.8691757979990471,
+      "std_directional_macro_f1_short_long": 0.034141428338313996,
+      "worst_fold_balanced_accuracy_3class": 0.34040386328178984,
+      "worst_fold_directional_macro_f1_short_long": 0.25365034089349603,
+      "worst_fold_long_recall": 0.08895478131949593,
+      "worst_fold_short_recall": 0.4026717557251908
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "bid_ask_check": {
+    "ask": 4155.48,
+    "bid": 4155.4,
+    "raw_tick_time_not_used_for_freshness": true,
+    "status": "PASS",
+    "valid_bid_ask": true
+  },
+  "broker_symbol": "XAUUSDb",
+  "canonical_instrument": "XAUUSD",
+  "decision_time_utc": "2026-10-05T01:30:00Z",
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_E_B_R2_FIRST_GENUINE_R03_CAPTURE_RECOVERY",
+  "generated_at_utc": "2026-10-05T01:31:47.105874Z",
+  "genuine_mt5_acquisition": true,
+  "live_authorized": false,
+  "logical_observation_id": "ee6839d560946617ae6d376dbdfb2242557d789354582b24f92875cd62bdfe18",
+  "original_blocked_attempt": {
+    "error": "TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN:raw_tick=1790985539:candidate_count=0",
+    "error_type": "TimestampBasisResolutionError",
+    "sha256": "6ec3d22879022289044219496aa4b01fd4cfbdb777432dcb126fc53bf7cff6b8"
+  },
+  "original_blocked_attempt_preserved": true,
+  "outcome_matured": false,
+  "performance_evaluated": false,
+  "persistence": {
+    "anchor_appended": true,
+    "observation_appended": true,
+    "order": "ANCHOR_FIRST_THEN_OBSERVATION"
+  },
+  "pnl_evaluated": false,
+  "prediction": {
+    "class": 1,
+    "label": "LONG",
+    "probability_long": 0.3407438207183981,
+    "probability_no_trade": 0.3248243625789909,
+    "probability_short": 0.3344318167026037
+  },
+  "repository": {
+    "branch": "main",
+    "execution_head": "c5ec7069a4dff846d663bee05c862f38f9e8b891",
+    "origin_main": "c5ec7069a4dff846d663bee05c862f38f9e8b891",
+    "recovery_freeze_authority": {
+      "base_authority_commit": "d138717f1cb1d80584479289f71e95b0c5b9fe6f",
+      "candidate_artifact_hashes": {
+        "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_b_r2_first_genuine_r03_capture_recovery.py": "ee90b7fc2af01a6aa7ff53ccb978669f1c7a3ce2782707c747a729fb322ca1ba",
+        "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_h_e_b_r2_first_genuine_r03_capture_recovery_freeze.py": "3e43d66957e3a6f047d88ca8de16d94501828bf0af57358ce06ec14635fe4208",
+        "04_Testing/production_portability/test_gate_15d_c_b2d_g7_h_e_b_r2_first_genuine_r03_capture_recovery_freeze.py": "f3a8b47991d8b24703e51d98d6e8342de49705b7f5c32b9dd880a4162b644706"
+      },
+      "execution_authorized": false,
+      "gate_id": "GATE_15D_C_B2D_G7_H_E_B_R2_FIRST_GENUINE_R03_CAPTURE_RECOVERY_RUNNER_FREEZE",
+      "live_authorized": false,
+      "original_block_reason": {
+        "error": "TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN:raw_tick=1790985539:candidate_count=0",
+        "error_type": "TimestampBasisResolutionError"
+      },
+      "original_blocked_evidence_path": "04_Testing/evidence/research/portable_331/remediation/xauusd_gate_15d_c_b2d_g7_h_e_b_first_genuine_r03_capture_blocked.json",
+      "original_blocked_evidence_sha256": "6ec3d22879022289044219496aa4b01fd4cfbdb777432dcb126fc53bf7cff6b8",
+      "performance_evaluated": false,
+      "pnl_evaluated": false,
+      "r03_ledgers_created": false,
+      "r03_ledgers_written": false,
+      "real_market_data_loaded": false,
+      "recovery_capture_executed": false,
+      "status": "PASS"
+    }
+  },
+  "source_snapshot_id": "922240d7acc24e7e4125f243fa202130b21968800e94a9e7cdd5c5946e003c3a",
+  "state_after": {
+    "anchor_count": 1,
+    "collection_target_reached": false,
+    "distinct_matured_observation_utc_dates": 0,
+    "execution_authorized": false,
+    "live_authorized": false,
+    "matured_outcome_count": 0,
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "next_action": "CHECK_PENDING_MATURITY",
+    "observation_count": 1,
+    "orphan_anchor_count": 0,
+    "pending_count": 1,
+    "pending_logical_observation_id": "ee6839d560946617ae6d376dbdfb2242557d789354582b24f92875cd62bdfe18",
+    "performance_evaluated": false,
+    "pnl_evaluated": false
+  },
+  "state_before": {
+    "anchor_count": 0,
+    "collection_target_reached": false,
+    "distinct_matured_observation_utc_dates": 0,
+    "execution_authorized": false,
+    "live_authorized": false,
+    "matured_outcome_count": 0,
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "next_action": "CAPTURE_NEW_OBSERVATION",
+    "observation_count": 0,
+    "orphan_anchor_count": 0,
+    "pending_count": 0,
+    "pending_logical_observation_id": null,
+    "performance_evaluated": false,
+    "pnl_evaluated": false
+  },
+  "status": "PASS",
+  "timestamp_dtypes_after": {
+    "H1": "datetime64[ns, UTC]",
+    "H4": "datetime64[ns, UTC]",
+    "M15": "datetime64[ns, UTC]",
+    "M30": "datetime64[ns, UTC]",
+    "M5": "datetime64[ns, UTC]"
+  },
+  "timestamp_dtypes_before": {
+    "H1": "datetime64[us, UTC]",
+    "H4": "datetime64[us, UTC]",
+    "M15": "datetime64[us, UTC]",
+    "M30": "datetime64[us, UTC]",
+    "M5": "datetime64[us, UTC]"
+  }
+}

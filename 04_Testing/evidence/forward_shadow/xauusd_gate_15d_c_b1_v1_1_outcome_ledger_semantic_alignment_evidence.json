@@ -1,0 +1,107 @@
+{
+  "accuracy_evaluated": false,
+  "append_only_outcome_ledger_authority_frozen": true,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "8ebe38b573520bd32b3bc284961b537088a866e6320996ef687e21c0f8982812",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "75874f01e5db76e171b204f058367327e3530a03628cc751aac342abb5afad69",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_a_v1_1_maturation_semantic_correction_evidence.py": "a6097e78488e13b6dee02b0e380a85f7a9b67caf10e79d19152bc2a39d11732f",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b1_v1_1_outcome_ledger_semantic_alignment_evidence.py": "e3aec7a37a25410c00ac439b2e20a8c890843eb136c38ec5452fcb52d99e00a2",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py": "f8c4f02813c8a6514998c54d08549411ca959d27c6fd03b7d9d66cae59e09213",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py": "5b2ca743446e14a242d5bb7d6aefcd5200425469216c201c19a7415c6d8a4dc6"
+  },
+  "conflicting_outcome_fails_closed": true,
+  "corrected_decision_bar_semantics_enforced": true,
+  "corrupted_outcome_ledger_fails_closed": true,
+  "decision_bar_open_time_persisted_in_outcome": true,
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "flush_and_fsync_required": true,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-C-B1 v1.1 \u2014 Outcome Ledger Semantic Alignment",
+  "gate_id": "GATE_15D_C_B1_V1_1_OUTCOME_LEDGER_SEMANTIC_ALIGNMENT",
+  "genuine_forward_observation_matured": false,
+  "idempotent_duplicate_supported": true,
+  "live_authorized": false,
+  "locked_append_required": true,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "outcome_record_appended": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "base_repository_authority_commit": "1e7d555ca031662b22cb30b5f6dbb13466dd4475",
+    "branch": "main",
+    "head": "1e7d555ca031662b22cb30b5f6dbb13466dd4475",
+    "head_equals_origin_main": true,
+    "local_gate_paths": [
+      "02_AI/Models/frozen_c04_forward_outcome_ledger.py",
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_a_v1_1_maturation_semantic_correction_evidence.json",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_a_v1_1_maturation_semantic_correction_evidence.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b1_v1_1_outcome_ledger_semantic_alignment_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_maturer.py"
+    ],
+    "origin_main": "1e7d555ca031662b22cb30b5f6dbb13466dd4475",
+    "status": "PASS",
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "runtime_authority": {
+    "atr_reference": "DECISION_M5_COMPLETED_BAR_ATR14",
+    "decision_bar_semantics": "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES",
+    "entry_reference": "DECISION_M5_COMPLETED_BAR_CLOSE",
+    "execution_authorized": false,
+    "horizon_bars": 12,
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_BAR",
+    "live_authorized": false,
+    "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1_1",
+    "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1_1",
+    "performance_evaluation_authorized": false,
+    "pnl_evaluation_authorized": false,
+    "status": "PASS",
+    "supersedes_maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1",
+    "supersedes_outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1"
+  },
+  "runtime_outcome_ledger": {
+    "existed_before": false,
+    "exists_after": false,
+    "path": "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl",
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "schema_version": "1.1.0",
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_maturer.py",
+      "02_AI/Models/frozen_c04_forward_outcome_ledger.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b1_v1_1_outcome_ledger_semantic_alignment_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "supersession": {
+    "historical_git_evidence_rewritten": false,
+    "reason": "Outcome ledger schema aligned to corrected decision-bar semantics established by Gate 15D-C-A v1.1.",
+    "supersedes_gate": "GATE_15D_C_B1_FROZEN_FORWARD_OUTCOME_LEDGER",
+    "supersedes_maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1",
+    "supersedes_outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1"
+  },
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "......................................................................   [100%]\n70 passed in 2.93s\n"
+  },
+  "test_partition_accessed": false,
+  "true_forward_observation_ledger": {
+    "sha256_after": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "sha256_before": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "unchanged": true
+  },
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}

@@ -1,0 +1,105 @@
+{
+  "gate_identifier": "GATE_13_PRODUCTION_BROKER_FEATURE_GENERATION_AND_PORTABILITY",
+  "verdict": "PASS",
+  "timestamp_utc": "2026-09-06T12:12:27.276856+00:00",
+  "git_commit_base": "cec31c6a28bb11481a680512e5c31300ba4e4ebf",
+  "live_authorized": false,
+  "shadow_authorized": false,
+  "frozen_research_authority": {
+    "winner_model_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+    "frozen_model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "actual_model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "model_sha_verified": true,
+    "expected_feature_count": 331,
+    "actual_feature_count": 331,
+    "expected_feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "actual_feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "frozen_classes": [
+      -1,
+      0,
+      1
+    ],
+    "provenance_map_sha256": "bee22e57982aeddc4c2a673ee54c1720ea264b844329976138d4ebf94f05e7b4"
+  },
+  "production_contracts": {
+    "supported_symbols": [
+      "XAUUSD",
+      "XAUUSDm"
+    ],
+    "canonical_symbol": "XAUUSD",
+    "base_timeframe": "M5",
+    "context_timeframes": [
+      "M15",
+      "M30",
+      "H1",
+      "H4",
+      "D1"
+    ],
+    "d1_session_boundary_utc": "00:00:00",
+    "d1_source_resolved": "NATIVE_BROKER_D1",
+    "timezone_handling": "STRICT_UTC_NORMALIZED",
+    "timeframe_availability_rule": "HTF_CLOSE_LEQ_DECISION_TIME",
+    "lookahead_leakage_prevented": true,
+    "dropped_features": [
+      "m5_spread_points",
+      "m5_tick_volume_log1p"
+    ],
+    "retained_volume_feature": "m5_tick_volume_ratio20"
+  },
+  "train_parity_results": {
+    "train_source_classification": "TRAIN_PARTITION_ONLY_VIA_LOADER",
+    "validation_executed": false,
+    "test_executed": false,
+    "compared_decision_rows": 481,
+    "total_features_per_row": 331,
+    "total_feature_evaluations": 159211,
+    "mismatch_count": 0,
+    "mismatches_sample": [],
+    "max_absolute_differences_by_policy": {
+      "FLOAT32_NUMERIC": 5.000001692678779e-07,
+      "EXACT_DISCRETE": 0.0,
+      "INTEGER_COUNT": 0.0,
+      "FLOAT32_TRIGONOMETRIC": 4.7900350352847454e-11
+    },
+    "tolerance_policies": {
+      "EXACT_DISCRETE": {
+        "policy_id": "EXACT_DISCRETE",
+        "description": "Discrete integer codes, categorical classifications, boolean states, and structural flags require exact equality.",
+        "atol": 0.0,
+        "rtol": 0.0,
+        "exact_match_required": true
+      },
+      "INTEGER_COUNT": {
+        "policy_id": "INTEGER_COUNT",
+        "description": "Integer bar counts, age in minutes, and distance metrics.",
+        "atol": 0.0,
+        "rtol": 0.0,
+        "exact_match_required": true
+      },
+      "FLOAT32_NUMERIC": {
+        "policy_id": "FLOAT32_NUMERIC",
+        "description": "Continuous technical indicator values, moving averages, momentum oscillators, volatility bands.",
+        "atol": 0.0001,
+        "rtol": 0.0001,
+        "exact_match_required": false
+      },
+      "FLOAT32_TRIGONOMETRIC": {
+        "policy_id": "FLOAT32_TRIGONOMETRIC",
+        "description": "Cyclical trigonometric time encodings (sin/cos of UTC hour and day).",
+        "atol": 1e-05,
+        "rtol": 1e-05,
+        "exact_match_required": false
+      }
+    }
+  },
+  "fail_closed_validation": {
+    "unsupported_symbol_rejected": true,
+    "missing_timeframe_rejected": true,
+    "missing_column_rejected": true,
+    "non_monotonic_time_rejected": true,
+    "duplicate_timestamp_rejected": true,
+    "invalid_ohlc_rejected": true,
+    "insufficient_history_rejected": true,
+    "future_leakage_rejected": true
+  }
+}

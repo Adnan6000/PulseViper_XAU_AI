@@ -1,0 +1,24 @@
+{
+  "access_event_number": 1,
+  "authorities": {
+    "final_winner_contract_fingerprint_sha256": "1c0a7e91b318973f319de4a01b9f850e80f236c9211b4866f52cbb330a973f91",
+    "registry_fingerprint_sha256": "4556eb982086da0ea19ab910a30b5ab58788c7e5b7488ef8e3453e46289c0deb",
+    "status": "PASS",
+    "test_confirmation_contract_fingerprint_sha256": "bc1633761ad6dc68923351735abd6ec940ac84871a38c2620ef668666cffe305",
+    "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+    "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+  },
+  "base_authority_commit": "fcc2f282e9c617708ca75b599e337dbeb879283e",
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_G_B_ONE_SHOT_SEALED_TEST",
+  "live_authorized": false,
+  "marker_created_before_test_value_read": true,
+  "marker_may_not_be_deleted_reset_or_overwritten": true,
+  "maximum_authorized_access_count": 1,
+  "same_test_rerun_authorized": false,
+  "status": "SEALED_TEST_ACCESS_CONSUMED",
+  "test_confirmation_contract_fingerprint_sha256": "bc1633761ad6dc68923351735abd6ec940ac84871a38c2620ef668666cffe305",
+  "test_rows": 14996,
+  "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+  "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH"
+}

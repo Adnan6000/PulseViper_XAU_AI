@@ -1,0 +1,20 @@
+{
+  "created_utc": "2026-09-01T08:08:27.691806+00:00",
+  "holdout_consumed_for_rerun_policy": true,
+  "ledger_version": "XAUUSD_PORTABLE_331_ONE_TIME_VALIDATION_ACCESS_LEDGER_V1",
+  "metrics_computed_utc": "2026-09-01T08:08:37.701001+00:00",
+  "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+  "protocol_fingerprint_sha256": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+  "read_initiated_utc": "2026-09-01T08:08:27.707427+00:00",
+  "status": "VALIDATION_COMPLETE_ACCEPTED",
+  "test_access_authorized_next": true,
+  "test_values_accessed": false,
+  "updated_utc": "2026-09-01T08:08:37.701001+00:00",
+  "validation_accepted": true,
+  "validation_feature_count": 331,
+  "validation_metrics_computed": true,
+  "validation_read_attempt_count": 1,
+  "validation_row_count": 14983,
+  "validation_values_loaded": true,
+  "values_loaded_utc": "2026-09-01T08:08:36.929646+00:00"
+}

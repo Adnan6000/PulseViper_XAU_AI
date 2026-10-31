@@ -1,0 +1,106 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_AUTHORIZED_VALIDATION_SOURCE_IMPLEMENTATION_V1",
+  "core_contract": {
+    "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "one_time_ledger_present": true,
+    "post_read_rerun_blocked": true,
+    "protocol_fingerprint_sha256": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea"
+  },
+  "decision": {
+    "live_authorized": false,
+    "next_action": "SYNTHETICALLY_TEST_BOUNDED_VALIDATION_SOURCE_THEN_BUILD_FINAL_ONE_SHOT_REAL_VALIDATION_RUNNER",
+    "real_validation_execution_authorized": false,
+    "real_validation_metrics_computed": false,
+    "real_validation_source_executed": false,
+    "real_validation_values_loaded": false,
+    "shadow_authorized": false,
+    "status": "AUTHORIZED_VALIDATION_SOURCE_IMPLEMENTED_NOT_REAL_EXECUTED",
+    "test_access_authorized": false,
+    "validation_source_implementation_confirmed": true,
+    "validation_source_synthetic_testing_authorized": true
+  },
+  "loader_contract": {
+    "blocked_accessors": {
+      "load_test_features": {
+        "confirmed": true,
+        "expected_token": "TEST_FEATURE_ACCESS_NOT_AUTHORIZED"
+      },
+      "load_test_targets": {
+        "confirmed": true,
+        "expected_token": "TEST_TARGET_ACCESS_NOT_AUTHORIZED"
+      },
+      "load_validation_features": {
+        "confirmed": true,
+        "expected_token": "VALIDATION_FEATURE_ACCESS_NOT_AUTHORIZED"
+      },
+      "load_validation_targets": {
+        "confirmed": true,
+        "expected_token": "VALIDATION_TARGET_ACCESS_NOT_AUTHORIZED"
+      }
+    },
+    "loader_class": "Portable331TrainingInputLoader",
+    "loader_path": "02_AI\\Dataset\\portable_331_training_input_loader.py",
+    "loader_source_sha256": "49c86c269f2742fec7c6991eaf7a8a9c0466066a3db230a80375ba2e2c33680c",
+    "public_holdout_accessors_remain_modified": false,
+    "required_internal_methods": [
+      "_discover_exact_artifact",
+      "_validate_manifest",
+      "_validate_split_series",
+      "_validate_split_structure",
+      "_feature_columns_sha256",
+      "_numeric_matrix",
+      "_normalize_target_class_array",
+      "_normalize_target_tradeable_array"
+    ]
+  },
+  "research_scope": "IMPLEMENT_AUTHORIZED_REAL_VALIDATION_SOURCE_ADAPTER_WITHOUT_EXECUTING_ANY_REAL_VALIDATION_OR_TEST_VALUE_READ",
+  "scientific_policy": {
+    "candidate_registry_changed": false,
+    "dataset_structural_read_performed_in_this_attestation": false,
+    "execution_integration_modified": false,
+    "feature_selection_performed": false,
+    "live_authorized": false,
+    "loader_source_modified": false,
+    "model_artifact_modified": false,
+    "model_fit_performed": false,
+    "model_refit_performed": false,
+    "orders_sent": false,
+    "portable_test_feature_values_loaded": false,
+    "portable_test_metrics_computed": false,
+    "portable_test_target_values_loaded": false,
+    "portable_validation_feature_values_loaded": false,
+    "portable_validation_metrics_computed": false,
+    "portable_validation_target_values_loaded": false,
+    "probability_calibration_performed": false,
+    "risk_engine_modified": false,
+    "shadow_authorized": false,
+    "threshold_search_performed": false,
+    "train_feature_values_loaded": false,
+    "train_target_values_loaded": false
+  },
+  "source_contract": {
+    "existing_loader_numeric_matrix_reused": true,
+    "existing_loader_target_normalizers_reused": true,
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "feature_count": 331,
+    "feature_order_from_frozen_manifest": true,
+    "public_loader_holdout_accessors_modified": false,
+    "split_order_required": [
+      "TRAIN",
+      "VALIDATION",
+      "TEST"
+    ],
+    "structural_read_columns": [
+      "dataset_split"
+    ],
+    "structural_read_only_before_value_block": true,
+    "test_must_follow_validation": true,
+    "test_value_access_path_present": false,
+    "validation_block_must_be_contiguous": true,
+    "validation_must_follow_train": true,
+    "value_parser_stops_at_validation_end": true,
+    "value_read_uses_nrows": true,
+    "value_read_uses_skiprows": true
+  },
+  "valid": true
+}

@@ -1,0 +1,25 @@
+project:
+  name: PulseViper XAU AI
+  version: "3.0.0"
+  author: Muhammad Adnan
+
+trading:
+  symbol: XAUUSD
+  timeframe: M1
+
+risk:
+  max_spread_points: 300
+  max_stoploss_points: 600
+  minimum_rr: 2.0
+  max_open_trades: 1
+
+training:
+  random_seed: 42
+  test_size: 0.20
+
+database:
+  filename: pulseviper.db
+
+logging:
+  level: INFO
+  save_to_file: true

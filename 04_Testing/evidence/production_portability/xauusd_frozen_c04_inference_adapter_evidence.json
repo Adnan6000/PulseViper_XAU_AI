@@ -1,0 +1,66 @@
+{
+  "gate_id": "GATE_14_FROZEN_C04_INFERENCE_ADAPTER",
+  "verdict": "PASS",
+  "input_source_classification": "NON_HOLDOUT_TRAIN_OR_GATE13_ENGINEERING_INPUT",
+  "model_authority": {
+    "resolved_model_path": "D:\\PulseViper_XAU_AI\\xauusd_portable_331_c04_full_train_model.joblib",
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "expected_model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "model_sha_match": true,
+    "model_class": "ExtraTreesClassifier",
+    "expected_model_class": "ExtraTreesClassifier",
+    "n_features_in": 331,
+    "classes": [
+      -1,
+      0,
+      1
+    ],
+    "expected_classes": [
+      -1,
+      0,
+      1
+    ]
+  },
+  "feature_contract": {
+    "expected_feature_count": 331,
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2"
+  },
+  "parity_evaluation": {
+    "evaluated_rows": 500,
+    "direct_model_max_probability_diff": 3.3306690738754696e-16,
+    "probability_mismatch_count": 0,
+    "class_prediction_mismatch_count": 0,
+    "probability_matrix_shape": [
+      500,
+      3
+    ],
+    "probabilities_finite": true,
+    "probabilities_in_unit_interval": true,
+    "probabilities_sum_to_one": true
+  },
+  "argmax_contract": {
+    "short_decision_correct": true,
+    "no_trade_decision_correct": true,
+    "long_decision_correct": true,
+    "tie_first_index_deterministic": true
+  },
+  "determinism": {
+    "deterministic_probabilities": true,
+    "deterministic_class_predictions": true,
+    "max_repeat_probability_diff": 2.220446049250313e-16
+  },
+  "fail_closed_checks": {
+    "wrong_feature_dimension_rejected": true,
+    "nan_matrix_rejected": true,
+    "inf_matrix_rejected": true,
+    "empty_input_rejected": true
+  },
+  "operational_safety": {
+    "live_authorized": false,
+    "shadow_authorized": false,
+    "model_retrained": false,
+    "model_refit": false,
+    "model_mutated": false,
+    "holdouts_accessed": false
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "base_authority_commit": "03dfb354bdb99a8a334aa6408b9edfd4d21bc096",
+  "calibration_performed": false,
+  "execution_authorized": false,
+  "feature_reselection_performed": false,
+  "g7c_authority": {
+    "dataset_id": "portable_cff75b0686383a3ab6f8352b",
+    "g7c_contract_fingerprint_sha256": "11302c424f05aab2fbd640d644b30d3df0b013d3b9e1b559b29e325ee2f99b50",
+    "status": "PASS"
+  },
+  "gate_id": "GATE_15D_C_B2D_G7_D_REMEDIATION_RESEARCH_PROTOCOL_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_remediation_research_protocol_contract.py": "51f11b5432b998ed6b7f1a4f582cebdc73c1217e775fdec38df57ffa3cfe9ea5",
+    "02_AI/Models/frozen_c04_remediation_training_snapshot_authority.py": "c4de76c03068017ae6136759587cfa9283351220ec0caa0b729870de4e83eee0",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g7_c_training_snapshot_authority_freeze_evidence.json": "01f6d0918efee95d77f15017f23ce5b92193b8157358855f938b0100bcffad6e",
+    "04_Testing/evidence/research/portable_331/train/xauusd_portable_331_train_model_research_protocol_design.json": "26b0b28580f2a89a0aa7b7e21c66bbd6a1ae2cd656f366aec57d0b9e3af83eff",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g7_d_remediation_research_protocol_freeze.py": "e07fe211595d7535c5c599c0796ebccf89a3192ce0b06d0555577c1406e69389",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g7_d_remediation_research_protocol_freeze.py": "8c68fe2d453653fbcfdcfb0ecd9dca6d140ec8e042162a09677a5332afd48c12",
+    "xauusd_portable_331_train_model_candidate_registry_design.json": "1e687bb9de4b3a3325e9904a69bb272bce0fcf65219433529e98e8814aa6b402"
+  },
+  "historical_registry_lineage": {
+    "candidate_count": 6,
+    "candidate_ids": [
+      "C01_FLAT_LOGREG_BALANCED_C005",
+      "C02_FLAT_LOGREG_BALANCED_C020",
+      "C03_FLAT_HGB_SHALLOW",
+      "C04_FLAT_EXTRA_TREES_CONSTRAINED",
+      "C05_HIER_LOGREG_REGULARIZED",
+      "C06_HIER_HGB_LOGREG_CONSTRAINED"
+    ],
+    "registry_fingerprint_sha256": "b8088bb34ce8940f7de5946fbb9b0fd20f40d7cc93a76b76fd7975591f00066c",
+    "registry_version": "XAUUSD_PORTABLE_331_TRAIN_MODEL_CANDIDATE_REGISTRY_V1",
+    "status": "PASS"
+  },
+  "historical_registry_reused_as_new_registry": false,
+  "historical_research_protocol_lineage": {
+    "research_protocol_fingerprint_sha256": "69e51e1b249b9da68cbf6f6778a8ae10f9f33f7082a07e5073a1ba731fa1640d",
+    "status": "PASS"
+  },
+  "hyperparameter_tuning_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "new_registry_gate": "G7-E",
+  "new_registry_required_next": true,
+  "pnl_evaluated": false,
+  "remediation_research_contract": {
+    "contract_fingerprint_sha256": "c6270f03fed45ba749d40ea4c556b95e683ad934575c9dc958664bef83f86638",
+    "contract_id": "FROZEN_C04_REMEDIATION_RESEARCH_PROTOCOL_CONTRACT_V1",
+    "next_gate": "G7-E",
+    "status": "PASS"
+  },
+  "repository_authority": {
+    "branch": "main",
+    "head": "03dfb354bdb99a8a334aa6408b9edfd4d21bc096",
+    "origin_main": "03dfb354bdb99a8a334aa6408b9edfd4d21bc096",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "runtime_ledger_write_performed": false,
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "test_feature_values_loaded": false,
+  "test_target_values_loaded": false,
+  "threshold_tuning_performed": false,
+  "train_feature_values_loaded": false,
+  "train_target_values_loaded": false,
+  "validation_feature_values_loaded": false,
+  "validation_target_values_loaded": false
+}

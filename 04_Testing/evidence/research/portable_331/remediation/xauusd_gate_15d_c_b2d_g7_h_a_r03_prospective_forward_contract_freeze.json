@@ -1,0 +1,57 @@
+{
+  "base_authority_commit": "a520c646aa6fb8bff139219f7101eb0d4aa07b43",
+  "decision_function_test": {
+    "below_threshold_failure_verified": true,
+    "boundary_pass_verified": true,
+    "immature_sample_blocked": true,
+    "status": "PASS"
+  },
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_A_R03_PROSPECTIVE_FORWARD_CONTRACT_FREEZE",
+  "live_authorized": false,
+  "market_data_loaded": false,
+  "model_serialization_performed": false,
+  "model_training_performed": false,
+  "old_forward_outcomes_loaded": false,
+  "pnl_evaluated": false,
+  "prospective_contract": {
+    "contract_fingerprint_sha256": "e70d8e26c8f4734c456022689d47de406fe3f8daf1827d01b7f0f0d7fe752b9e",
+    "contract_id": "FROZEN_R03_PROSPECTIVE_FORWARD_VALIDATION_CONTRACT_V1",
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "status": "PASS",
+    "thresholds": {
+      "balanced_accuracy_minimum": 0.3090808821013376,
+      "macro_f1_minimum": 0.29670282055100233,
+      "minimum_per_class_recall_minimum": 0.20885982230997038,
+      "multiclass_brier_maximum": 0.7147780979670608,
+      "multiclass_log_loss_maximum": 1.195870026564396
+    }
+  },
+  "prospective_evaluation_performed": false,
+  "prospective_ledger_write_performed": false,
+  "prospective_ledgers_created": false,
+  "protected_old_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "xauusd_portable_331_one_time_validation_access_ledger.json": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2"
+  },
+  "repository": {
+    "branch": "main",
+    "head": "a520c646aa6fb8bff139219f7101eb0d4aa07b43",
+    "origin_main": "a520c646aa6fb8bff139219f7101eb0d4aa07b43",
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "test_values_loaded": false,
+  "upstream_authorities": {
+    "final_winner_contract_fingerprint_sha256": "1c0a7e91b318973f319de4a01b9f850e80f236c9211b4866f52cbb330a973f91",
+    "forward_outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "sealed_test_access_marker_sha256": "d4555e29b4938ed12fe624d9e3b8853b5b59d2e8c35e494225fdd34f89f8ae72",
+    "sealed_test_evidence_sha256": "df6de696e413ade5a1a6cf52bd6ec4c290a46895d97c1fff2c30e9e7e6e09e0b",
+    "status": "PASS",
+    "test_confirmation_contract_fingerprint_sha256": "bc1633761ad6dc68923351735abd6ec940ac84871a38c2620ef668666cffe305",
+    "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "artifact_sha256": "b5da550921ef227b847207cfbfe5774e86f083f1d3354069a9624a5029ea2a03",
+  "atr_reference": "PROSPECTIVE_ANCHOR_DECISION_M5_ATR14",
+  "base_authority_commit": "c45008d4f2e18a28b758d9563d8b1298077c1ca7",
+  "entry_reference": "PROSPECTIVE_ANCHOR_DECISION_M5_CLOSE",
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_D_R03_OUTCOME_MATURATION_BINDING_FREEZE",
+  "horizon_bars": 12,
+  "horizon_minutes": 60,
+  "live_authorized": false,
+  "maturation_version": "FROZEN_R03_PROSPECTIVE_OUTCOME_MATURER_V1",
+  "max_adverse_atr": 0.75,
+  "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+  "outcome_ledger": "01_Data/Shadow/xauusd_r03_prospective_forward_outcomes.jsonl",
+  "outcome_schema_version": "R03_PROSPECTIVE_OUTCOME_V1",
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "profit_atr": 1.25,
+  "prospective_contract_fingerprint_sha256": "e70d8e26c8f4734c456022689d47de406fe3f8daf1827d01b7f0f0d7fe752b9e",
+  "real_market_data_loaded": false,
+  "runtime_ledgers_written": false,
+  "status": "PASS"
+}

@@ -1,0 +1,72 @@
+{
+  "anchor_ledger_unchanged": true,
+  "base_authority_commit": "679cab31cdaef786e7059f545133a0bf660fed7f",
+  "collector_executed": false,
+  "execution_authorized": false,
+  "forward_collection_completion": {
+    "anchor_count": 30,
+    "execution_authorized": false,
+    "g3_controller_executed": false,
+    "g3_runtime_authorities_verified": true,
+    "g3_runtime_state_loader_reused": true,
+    "live_authorized": false,
+    "market_data_acquired": false,
+    "matured_count": 30,
+    "mt5_initialized": false,
+    "next_action": "RUN_G1_CAPTURE",
+    "observation_count": 32,
+    "outcome_count": 30,
+    "pending_count": 0,
+    "performance_evaluated": false,
+    "pnl_evaluated": false,
+    "status": "PASS",
+    "unanchored_observation_count": 2
+  },
+  "g3_controller_executed": false,
+  "gate_id": "GATE_15D_C_B2D_G5_30_SAMPLE_FORWARD_COLLECTION_COMPLETION_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "178ddda6fb3a7ea61889a07f32c04dbb461976c74df4679b6e96bfa6da5fe78d",
+    "02_AI/Adapters/xauusd_broker_adapter.py": "57d0c9e1a3737cbb8658b3d4bfb0b04a2b7c33c3d3fed5754d1256b64740cba8",
+    "02_AI/Models/frozen_c04_forward_outcome_anchor.py": "39a3886046397d0df118bb8f836a9c8b319db43c4d0636cd0fd59a9d4140414a",
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "bb47f7c3646961214497e3da56fd345fc99e990f165cc11ccfb390151809688d",
+    "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g1_genuine_anchored_forward_capture.py": "5c86c61aa80275926b6aad0135c97fd7cde666e9105a2d3475e2d7cf77d26f8e",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g2_genuine_outcome_maturation.py": "189f992a28901da88cc32cfca839d5c31d9755bf9ef27f454af58e354ef58afe",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g3_forward_sample_controller.py": "a01dffefb9ac5246282cf3114d6093b1db281d3de161159f4c487b099a04deb7",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g4_1_resilient_autonomous_forward_collector.py": "35323ac4cd7ab8ea66ae889fb6b141d8119851fcfaca67734fefed2ea4071a57",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze.py": "fa73b9dba3a761b15b1665fe83fc03daf2df6437ba9fbbc50d8e41bf7fdd6175",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g5_30_sample_completion_freeze.py": "b72787bc7c2036fc6edfdc3644313721a47caca52acdc6d4e7c7a045e354352d"
+  },
+  "hash_bound_file_count": 12,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "mt5_initialized": false,
+  "observation_ledger_unchanged": true,
+  "outcome_ledger_unchanged": true,
+  "performance_evaluated": false,
+  "performance_evaluation_authorized": false,
+  "pnl_evaluated": false,
+  "pnl_evaluation_authorized": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g5_30_sample_completion_freeze.py"
+    ],
+    "branch": "main",
+    "head": "679cab31cdaef786e7059f545133a0bf660fed7f",
+    "origin_main": "679cab31cdaef786e7059f545133a0bf660fed7f",
+    "status": "PASS"
+  },
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.2",
+  "status": "PASS",
+  "target_matured_samples": 30,
+  "target_reached": true
+}

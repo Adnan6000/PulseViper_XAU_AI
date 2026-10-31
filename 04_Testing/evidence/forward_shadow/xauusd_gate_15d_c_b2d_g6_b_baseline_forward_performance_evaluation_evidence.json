@@ -1,0 +1,239 @@
+{
+  "base_authority_commit": "b6c19f6a9fa652efcd1af566996dc77a32e1c279",
+  "baseline_authority": {
+    "exact_g5_baseline": true,
+    "runtime_ledger_raw_sha256": {
+      "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+      "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+      "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+    },
+    "status": "PASS"
+  },
+  "calibration_performed": false,
+  "cumulative_metrics": {
+    "balanced_accuracy": 0.28888888888888886,
+    "confusion_matrix": {
+      "LONG": {
+        "LONG": 7,
+        "NO_TRADE": 2,
+        "SHORT": 1
+      },
+      "NO_TRADE": {
+        "LONG": 9,
+        "NO_TRADE": 2,
+        "SHORT": 1
+      },
+      "SHORT": {
+        "LONG": 7,
+        "NO_TRADE": 1,
+        "SHORT": 0
+      }
+    },
+    "coverage_period": {
+      "first_decision_time_utc": "2026-09-30T01:55:00Z",
+      "last_decision_time_utc": "2026-10-02T05:50:00Z"
+    },
+    "exact_class_accuracy": 0.3,
+    "macro_f1": 0.21984551396316102,
+    "multiclass_brier_score": 0.66997951002848,
+    "multiclass_log_loss": 1.103466570263805,
+    "outcome_distribution": {
+      "LONG": {
+        "count": 10,
+        "proportion": 0.3333333333333333
+      },
+      "NO_TRADE": {
+        "count": 12,
+        "proportion": 0.4
+      },
+      "SHORT": {
+        "count": 8,
+        "proportion": 0.26666666666666666
+      }
+    },
+    "per_class": {
+      "LONG": {
+        "class": 1,
+        "f1": 0.42424242424242425,
+        "fn": 3,
+        "fp": 16,
+        "precision": 0.30434782608695654,
+        "recall": 0.7,
+        "tp": 7
+      },
+      "NO_TRADE": {
+        "class": 0,
+        "f1": 0.23529411764705882,
+        "fn": 10,
+        "fp": 3,
+        "precision": 0.4,
+        "recall": 0.16666666666666666,
+        "tp": 2
+      },
+      "SHORT": {
+        "class": -1,
+        "f1": 0.0,
+        "fn": 8,
+        "fp": 2,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tp": 0
+      }
+    },
+    "prediction_distribution": {
+      "LONG": {
+        "count": 23,
+        "proportion": 0.7666666666666667
+      },
+      "NO_TRADE": {
+        "count": 5,
+        "proportion": 0.16666666666666666
+      },
+      "SHORT": {
+        "count": 2,
+        "proportion": 0.06666666666666667
+      }
+    },
+    "sample_count": 30
+  },
+  "evaluation_scope": "EXACT_G5_FROZEN_30_MATURED_FORWARD_OUTCOMES",
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G6_B_BASELINE_FORWARD_PERFORMANCE_EVALUATION",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_performance_evaluation_contract.py": "51b6c4acfc7b875034921e22cc1d2adb6b567d0bbcf8320930532dc29f7fa90d",
+    "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze_evidence.json": "32ce2a933a127a687ec2a12186e10efb6c0b5193730c6a770d70daee4a6240dc",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze_evidence.json": "aecfd89335c1633042b47d16ecabec35a38b62503a40bd947e7b97a90b3f3b33",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation.py": "d73b47967905be1b8884d0d46b4c60dfd994cda87911458bb5be4edcf20b44d2",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation.py": "915b590458e5ac0878ace5aa1fdc2110a3cff72c20ba199e4240bcc0a23093d0"
+  },
+  "hash_bound_file_count": 7,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "pass_fail_threshold_defined": false,
+  "performance_calculated": true,
+  "performance_interpreted_for_promotion": false,
+  "pnl_evaluated": false,
+  "production_promotion_decision_authorized": false,
+  "protocol_authority": {
+    "contract_fingerprint_sha256": "32d8af41e2e1d128df664c8fc81bcf52a6a2b341f491a05d65179f740460875c",
+    "contract_id": "FROZEN_C04_FORWARD_PERFORMANCE_EVALUATION_CONTRACT_V1",
+    "evaluation_cadence": "WEEKLY",
+    "status": "PASS"
+  },
+  "refitting_performed": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation.py"
+    ],
+    "branch": "main",
+    "head": "b6c19f6a9fa652efcd1af566996dc77a32e1c279",
+    "origin_main": "b6c19f6a9fa652efcd1af566996dc77a32e1c279",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "threshold_tuning_performed": false,
+  "weekly_cohorts": [
+    {
+      "metrics": {
+        "balanced_accuracy": 0.28888888888888886,
+        "confusion_matrix": {
+          "LONG": {
+            "LONG": 7,
+            "NO_TRADE": 2,
+            "SHORT": 1
+          },
+          "NO_TRADE": {
+            "LONG": 9,
+            "NO_TRADE": 2,
+            "SHORT": 1
+          },
+          "SHORT": {
+            "LONG": 7,
+            "NO_TRADE": 1,
+            "SHORT": 0
+          }
+        },
+        "coverage_period": {
+          "first_decision_time_utc": "2026-09-30T01:55:00Z",
+          "last_decision_time_utc": "2026-10-02T05:50:00Z"
+        },
+        "exact_class_accuracy": 0.3,
+        "macro_f1": 0.21984551396316102,
+        "multiclass_brier_score": 0.66997951002848,
+        "multiclass_log_loss": 1.103466570263805,
+        "outcome_distribution": {
+          "LONG": {
+            "count": 10,
+            "proportion": 0.3333333333333333
+          },
+          "NO_TRADE": {
+            "count": 12,
+            "proportion": 0.4
+          },
+          "SHORT": {
+            "count": 8,
+            "proportion": 0.26666666666666666
+          }
+        },
+        "per_class": {
+          "LONG": {
+            "class": 1,
+            "f1": 0.42424242424242425,
+            "fn": 3,
+            "fp": 16,
+            "precision": 0.30434782608695654,
+            "recall": 0.7,
+            "tp": 7
+          },
+          "NO_TRADE": {
+            "class": 0,
+            "f1": 0.23529411764705882,
+            "fn": 10,
+            "fp": 3,
+            "precision": 0.4,
+            "recall": 0.16666666666666666,
+            "tp": 2
+          },
+          "SHORT": {
+            "class": -1,
+            "f1": 0.0,
+            "fn": 8,
+            "fp": 2,
+            "precision": 0.0,
+            "recall": 0.0,
+            "tp": 0
+          }
+        },
+        "prediction_distribution": {
+          "LONG": {
+            "count": 23,
+            "proportion": 0.7666666666666667
+          },
+          "NO_TRADE": {
+            "count": 5,
+            "proportion": 0.16666666666666666
+          },
+          "SHORT": {
+            "count": 2,
+            "proportion": 0.06666666666666667
+          }
+        },
+        "sample_count": 30
+      },
+      "week_start_utc": "2026-09-28T00:00:00Z"
+    }
+  ]
+}

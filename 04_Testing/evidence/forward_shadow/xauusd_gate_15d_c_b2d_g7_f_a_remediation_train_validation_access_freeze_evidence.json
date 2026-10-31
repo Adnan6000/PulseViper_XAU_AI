@@ -1,0 +1,37 @@
+{
+  "authorities": {
+    "access_contract_fingerprint_sha256": "bfd0cfee283dcb29cff79feff6a5366772a596c9635e470e06d56e70ead74b3e",
+    "g7e_registry_fingerprint_sha256": "4556eb982086da0ea19ab910a30b5ab58788c7e5b7488ef8e3453e46289c0deb",
+    "status": "PASS"
+  },
+  "base_authority_commit": "b650eff40e191b154c3055caadd9159e0eb0812a",
+  "candidate_evaluation_performed": false,
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_F_A_REMEDIATION_TRAIN_VALIDATION_ACCESS_FREEZE",
+  "historical_validation_ledger_modified": false,
+  "live_authorized": false,
+  "loader": {
+    "loader_version": "1.0",
+    "status": "PASS",
+    "test_values_hard_blocked": true,
+    "validation_read_bounded": true
+  },
+  "model_training_performed": false,
+  "pnl_evaluated": false,
+  "protected_ledger_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "historical_validation_ledger": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "repository": {
+    "head": "b650eff40e191b154c3055caadd9159e0eb0812a",
+    "origin_main": "b650eff40e191b154c3055caadd9159e0eb0812a",
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "test_values_loaded": false,
+  "train_values_loaded": false,
+  "validation_values_loaded": false,
+  "winner_selected": false
+}

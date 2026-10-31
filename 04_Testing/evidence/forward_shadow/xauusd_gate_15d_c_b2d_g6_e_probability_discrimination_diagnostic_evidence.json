@@ -1,0 +1,119 @@
+{
+  "authority_verification": {
+    "contract_fingerprint_sha256": "32d8af41e2e1d128df664c8fc81bcf52a6a2b341f491a05d65179f740460875c",
+    "status": "PASS",
+    "upstream_gate_count": 5
+  },
+  "base_authority_commit": "e1639f68cb686aafd949b6e402d576e4a0885257",
+  "baseline_authority": {
+    "exact_g5_baseline": true,
+    "runtime_ledger_raw_sha256": {
+      "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+      "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+      "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+    },
+    "status": "PASS"
+  },
+  "diagnostic": {
+    "macro_mean_probability_separation": -0.0011880292529362808,
+    "macro_pairwise_auc": 0.48120370370370374,
+    "mean_true_class_probability": 0.3329621625753104,
+    "mean_true_class_rank": 2.066666666666667,
+    "per_class": {
+      "LONG": {
+        "class": 1,
+        "label": "LONG",
+        "mean_probability_separation": 0.0032921811761663644,
+        "mean_probability_when_not_true": 0.35980268437899043,
+        "mean_probability_when_true": 0.3630948655551568,
+        "mean_true_class_rank": 1.3,
+        "negative_count": 20,
+        "pairwise_auc": 0.52,
+        "positive_count": 10,
+        "true_class_rank_1_count": 7,
+        "true_class_rank_2_count": 3,
+        "true_class_rank_3_count": 0
+      },
+      "NO_TRADE": {
+        "class": 0,
+        "label": "NO_TRADE",
+        "mean_probability_separation": -0.003470814535383282,
+        "mean_probability_when_not_true": 0.3238803367329493,
+        "mean_probability_when_true": 0.320409522197566,
+        "mean_true_class_rank": 2.3333333333333335,
+        "negative_count": 18,
+        "pairwise_auc": 0.4861111111111111,
+        "positive_count": 12,
+        "true_class_rank_1_count": 2,
+        "true_class_rank_2_count": 4,
+        "true_class_rank_3_count": 6
+      },
+      "SHORT": {
+        "class": -1,
+        "label": "SHORT",
+        "mean_probability_separation": -0.003385454399591925,
+        "mean_probability_when_not_true": 0.3175106988167109,
+        "mean_probability_when_true": 0.314125244417119,
+        "mean_true_class_rank": 2.625,
+        "negative_count": 22,
+        "pairwise_auc": 0.4375,
+        "positive_count": 8,
+        "true_class_rank_1_count": 0,
+        "true_class_rank_2_count": 3,
+        "true_class_rank_3_count": 5
+      }
+    },
+    "sample_count": 30,
+    "true_class_rank_1_count": 9,
+    "true_class_rank_2_count": 10,
+    "true_class_rank_3_count": 11
+  },
+  "diagnostic_only": true,
+  "diagnostic_scope": "EXACT_G5_FROZEN_30_MATURED_FORWARD_OUTCOMES",
+  "execution_authorized": false,
+  "feature_reselection_performed": false,
+  "gate_id": "GATE_15D_C_B2D_G6_E_FORWARD_PROBABILITY_DISCRIMINATION_DIAGNOSTIC",
+  "hash_bound_dependencies": {
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_performance_evaluation_contract.py": "51b6c4acfc7b875034921e22cc1d2adb6b567d0bbcf8320930532dc29f7fa90d",
+    "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g5_30_sample_completion_freeze_evidence.json": "32ce2a933a127a687ec2a12186e10efb6c0b5193730c6a770d70daee4a6240dc",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_a_forward_evaluation_protocol_freeze_evidence.json": "aecfd89335c1633042b47d16ecabec35a38b62503a40bd947e7b97a90b3f3b33",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_b_baseline_forward_performance_evaluation_evidence.json": "1be7925e3e95514b73b443afdfdebfe0c509a6d24183c7c4e08cd54cfc0c6cf1",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_c_forward_error_confidence_diagnostic_evidence.json": "7b1125cc7bbfb3d203ba245261ed01c311f30669996dce55d8dfe63d7a1d91a8",
+    "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b2d_g6_d_probability_geometry_diagnostic_evidence.json": "4f836b4174ab59fec0310993fce0c1c8079db4100c30a6fbede67da74e3ef44c",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_e_probability_discrimination_diagnostic.py": "170b93966a27f742f8ab3718dffa62a5eddfc18d684124df12a855137f863f86",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g6_e_probability_discrimination_diagnostic.py": "be88f3af427ca29782bb9d1916b9461172f641975a05acb252a358b891c9b2b2"
+  },
+  "hash_bound_file_count": 10,
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_reselection_performed": false,
+  "pass_fail_threshold_defined": false,
+  "performance_interpreted_for_promotion": false,
+  "performance_recalculated": false,
+  "pnl_evaluated": false,
+  "probability_calibration_performed": false,
+  "refitting_performed": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g6_e_probability_discrimination_diagnostic.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g6_e_probability_discrimination_diagnostic.py"
+    ],
+    "branch": "main",
+    "head": "e1639f68cb686aafd949b6e402d576e4a0885257",
+    "origin_main": "e1639f68cb686aafd949b6e402d576e4a0885257",
+    "status": "PASS"
+  },
+  "retraining_performed": false,
+  "runtime_ledger_raw_sha256": {
+    "anchor": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "observation": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "outcome": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7"
+  },
+  "schema_version": "1.0.0",
+  "status": "PASS",
+  "threshold_tuning_performed": false
+}

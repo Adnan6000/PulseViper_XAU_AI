@@ -1,0 +1,28 @@
+{
+  "error": "TIMESTAMP_BASIS_NOT_UNIQUELY_PROVEN:raw_tick=1790985539:candidate_count=0",
+  "error_type": "TimestampBasisResolutionError",
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_E_B_FIRST_GENUINE_R03_CAPTURE",
+  "generated_at_utc": "2026-10-04T11:06:24.118179Z",
+  "live_authorized": false,
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "r03_collection_state": {
+    "anchor_count": 0,
+    "collection_target_reached": false,
+    "distinct_matured_observation_utc_dates": 0,
+    "execution_authorized": false,
+    "live_authorized": false,
+    "matured_outcome_count": 0,
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "next_action": "CAPTURE_NEW_OBSERVATION",
+    "observation_count": 0,
+    "orphan_anchor_count": 0,
+    "pending_count": 0,
+    "pending_logical_observation_id": null,
+    "performance_evaluated": false,
+    "pnl_evaluated": false
+  },
+  "status": "BLOCKED"
+}

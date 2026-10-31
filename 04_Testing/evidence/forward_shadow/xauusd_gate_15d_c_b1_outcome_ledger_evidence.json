@@ -1,0 +1,94 @@
+{
+  "accuracy_evaluated": false,
+  "append_only_outcome_ledger_authority_frozen": true,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "74f1d4faece1c268125966ccd8ba48a0db20ba47784a0e07a90e7d8d2659beec",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b1_outcome_ledger_evidence.py": "34d163339bf58ea35243ecc2530e047d6d45780b80bdf3d897c58e536113596a",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py": "d3a44733fa4c36955fe324d7549e144dc65bcf80af306a0076e25f2bebadb096"
+  },
+  "conflicting_outcome_fails_closed": true,
+  "corrupted_outcome_ledger_fails_closed": true,
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "flush_and_fsync_required": true,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15D-C-B1 \u2014 Frozen Forward Outcome Ledger Authority",
+  "gate_id": "GATE_15D_C_B1_FROZEN_FORWARD_OUTCOME_LEDGER",
+  "genuine_forward_observation_matured": false,
+  "idempotent_duplicate_supported": true,
+  "live_authorized": false,
+  "locked_append_required": true,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "outcome_record_appended": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "branch": "main",
+    "committed_since_gate_15d_c_a": [
+      "02_AI/Models/frozen_c04_forward_outcome_ledger.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b1_outcome_ledger_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_ledger.py"
+    ],
+    "gate_15d_c_a_authority_commit": "a024db1a6007528de547cbded31251e0083a7a1c",
+    "gate_15d_c_a_authority_is_ancestor": true,
+    "head": "8f843d520885da5c8d993acfe5af95be0ed519f7",
+    "head_equals_origin_main": true,
+    "local_gate_paths": [
+      "04_Testing/evidence/forward_shadow/xauusd_gate_15d_c_b1_outcome_ledger_evidence.json"
+    ],
+    "origin_main": "8f843d520885da5c8d993acfe5af95be0ed519f7",
+    "status": "PASS",
+    "unexpected_committed_paths": [],
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "runtime_authority": {
+    "duplicate_policy_available": [
+      "FAIL_CLOSED",
+      "IDEMPOTENT_IGNORE"
+    ],
+    "execution_authorized": false,
+    "horizon_bars": 12,
+    "horizon_semantics": "NEXT_12_COMPLETED_M5_ROWS_AFTER_DECISION_ROW",
+    "live_authorized": false,
+    "maturation_version": "FROZEN_C04_FORWARD_OUTCOME_MATURER_V1",
+    "outcome_contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "outcome_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_LEDGER_V1",
+    "performance_evaluation_authorized": false,
+    "pnl_evaluation_authorized": false,
+    "status": "PASS"
+  },
+  "runtime_outcome_ledger": {
+    "existed_before": false,
+    "exists_after": false,
+    "path": "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl",
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "schema_version": "1.0.0",
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_ledger.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b1_outcome_ledger_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "..........................................................               [100%]\n58 passed in 2.03s\n"
+  },
+  "test_partition_accessed": false,
+  "true_forward_observation_ledger": {
+    "sha256_after": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "sha256_before": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "unchanged": true
+  },
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}

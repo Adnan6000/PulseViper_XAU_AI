@@ -1,0 +1,46 @@
+{
+  "broker_write_calls": 0,
+  "execution_authorized": false,
+  "execution_dependencies": 0,
+  "forward_performance_evaluated": false,
+  "gate": "Gate 15B-B \u2014 First Genuine Read-Only Forward Observation",
+  "gate_id": "GATE_15B_B_FIRST_GENUINE_FORWARD_OBSERVATION",
+  "generated_at_utc": "2026-09-28T03:59:45.550779Z",
+  "git": {
+    "execution_head": "65ab7b977a586ad0b80b5989bda845b3357aaf60",
+    "gate_15b_a_baseline_commit": "58b12b8d6e5cdb69acb3e9c4cd5c19cd744d30c5",
+    "head_equals_origin_main": true,
+    "origin_main": "65ab7b977a586ad0b80b5989bda845b3357aaf60"
+  },
+  "ledger": {
+    "current_integrity_verified": true,
+    "new_true_forward_observations_added": 0,
+    "true_forward_count_after": 0,
+    "true_forward_count_before": 0
+  },
+  "live_authorized": false,
+  "outcome_horizon_contract_status": "BLOCKED_NOT_PREDEFINED",
+  "progress_before_block": {
+    "decision_time_utc": "2026-09-28T06:55:00Z",
+    "gate13_status": "NOT_RUN",
+    "gate14_status": "NOT_RUN",
+    "gate15a_status": "NOT_RUN",
+    "genuine_mt5_acquisition": true,
+    "ledger_append_performed": false,
+    "ledger_idempotent_duplicate": false,
+    "mt5_initialized": true,
+    "resolved_broker_symbol": "XAUUSD",
+    "source_snapshot_id": "51339c27a48aa02caa834b4ee38e2a39ff46dc3d6edde570f503a43e3fc43e9c",
+    "verified_forward_authority": true
+  },
+  "reason": {
+    "error_text": "ATTESTED_DECISION_TIME_IS_FUTURE",
+    "error_type": "Gate15BBBlockedError"
+  },
+  "risk_engine_dependencies": 0,
+  "schema_version": "1.2.0",
+  "status": "BLOCKED",
+  "test_partition_accessed": false,
+  "trade_ready_dependencies": 0,
+  "validation_partition_accessed": false
+}

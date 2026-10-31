@@ -1,0 +1,53 @@
+{
+  "base_authority_commit": "648939914f74ae993829105274e10146c137414e",
+  "confirmation_contract": {
+    "contract_fingerprint_sha256": "bc1633761ad6dc68923351735abd6ec940ac84871a38c2620ef668666cffe305",
+    "contract_id": "FROZEN_C04_REMEDIATION_TEST_CONFIRMATION_CONTRACT_V1",
+    "status": "PASS",
+    "test_access_count_maximum": 1,
+    "thresholds": {
+      "balanced_accuracy_minimum": 0.3399845741475606,
+      "macro_f1_minimum": 0.3241422107016895,
+      "minimum_per_class_recall_minimum": 0.2601206801974767,
+      "multiclass_brier_maximum": 0.7148217771177803,
+      "multiclass_log_loss_maximum": 1.1958580283040205
+    }
+  },
+  "confirmation_function_test": {
+    "below_threshold_failure_verified": true,
+    "boundary_pass_verified": true,
+    "status": "PASS"
+  },
+  "execution_authorized": false,
+  "forward_30_used": false,
+  "gate_id": "GATE_15D_C_B2D_G7_G_A_TEST_CONFIRMATION_CONTRACT_FREEZE",
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "model_training_performed": false,
+  "pnl_evaluated": false,
+  "protected_ledger_sha256": {
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl": "1828ba8f1b6a1cfabe20c0ba402bb26f3db1d6e2aabc454055566b2a7ef08bcc",
+    "01_Data/Shadow/xauusd_frozen_c04_forward_outcomes.jsonl": "24fe13c091ac91a134b55d1bcda83b8f9b05e7c13b5c276bfb8649ac4dce84f7",
+    "01_Data/Shadow/xauusd_frozen_c04_shadow_observations.jsonl": "3a3421d3f29cd31cf0b9a2cfec1619cc7df9a3d95df6b30645b3600e3e09c3d3",
+    "xauusd_portable_331_one_time_validation_access_ledger.json": "15476371bc4f17bc3917291ba12edb7e20a2975af1ad6f81be8c56c50d03d9b2"
+  },
+  "repository": {
+    "branch": "main",
+    "head": "648939914f74ae993829105274e10146c137414e",
+    "origin_main": "648939914f74ae993829105274e10146c137414e",
+    "status": "PASS"
+  },
+  "runtime_ledger_write_performed": false,
+  "status": "PASS",
+  "test_evaluation_performed": false,
+  "test_values_loaded": false,
+  "train_values_loaded": false,
+  "validation_evaluation_performed": false,
+  "validation_values_loaded": false,
+  "winner_authority": {
+    "status": "PASS",
+    "winner_candidate_fingerprint_sha256": "ae644c7272a015c26daeaaa7e655120bd7a3e4d267b2acd0d1f235e10bfa2e5f",
+    "winner_candidate_id": "R03_FLAT_EXTRA_TREES_SMOOTH",
+    "winner_contract_fingerprint_sha256": "1c0a7e91b318973f319de4a01b9f850e80f236c9211b4866f52cbb330a973f91"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "anchor_ledger": "01_Data/Shadow/xauusd_r03_prospective_forward_outcome_anchors.jsonl",
+  "authorities": {
+    "collection_policy": "SINGLE_PENDING_NON_OVERLAPPING_PROSPECTIVE_SAMPLE",
+    "max_pending_observations": 1,
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "status": "PASS"
+  },
+  "base_authority_commit": "d9ad9e5b1c5deb2e3b62f6110a1f5b4ffe934d08",
+  "controller_version": "R03_PROSPECTIVE_COLLECTION_CONTROLLER_V1",
+  "empty_state_smoke": {
+    "anchor_count": 0,
+    "collection_target_reached": false,
+    "distinct_matured_observation_utc_dates": 0,
+    "execution_authorized": false,
+    "live_authorized": false,
+    "matured_outcome_count": 0,
+    "minimum_distinct_observation_utc_dates": 5,
+    "minimum_matured_outcomes": 60,
+    "next_action": "CAPTURE_NEW_OBSERVATION",
+    "observation_count": 0,
+    "orphan_anchor_count": 0,
+    "pending_count": 0,
+    "pending_logical_observation_id": null,
+    "performance_evaluated": false,
+    "pnl_evaluated": false
+  },
+  "execution_authorized": false,
+  "first_genuine_capture_authorized_in_this_gate": false,
+  "gate_id": "GATE_15D_C_B2D_G7_H_E_A_R03_COLLECTOR_CONTROLLER_FREEZE",
+  "live_authorized": false,
+  "observation_ledger": "01_Data/Shadow/xauusd_r03_prospective_observations.jsonl",
+  "outcome_ledger": "01_Data/Shadow/xauusd_r03_prospective_forward_outcomes.jsonl",
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "real_market_data_loaded": false,
+  "runtime_ledgers_created": false,
+  "runtime_ledgers_written": false,
+  "status": "PASS"
+}

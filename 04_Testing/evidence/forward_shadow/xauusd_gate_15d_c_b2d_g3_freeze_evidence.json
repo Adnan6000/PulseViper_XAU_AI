@@ -1,0 +1,58 @@
+{
+  "anchor_ledger_unchanged": true,
+  "base_authority_commit": "6ba4d5725656a3173fe5fa19c2e555dcbd94325c",
+  "controller_executed": false,
+  "execution_authorized": false,
+  "gate_id": "GATE_15D_C_B2D_G3_FREEZE",
+  "hash_bound_dependencies": {
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "178ddda6fb3a7ea61889a07f32c04dbb461976c74df4679b6e96bfa6da5fe78d",
+    "02_AI/Adapters/xauusd_broker_adapter.py": "57d0c9e1a3737cbb8658b3d4bfb0b04a2b7c33c3d3fed5754d1256b64740cba8",
+    "02_AI/Models/frozen_c04_forward_outcome_anchor.py": "39a3886046397d0df118bb8f836a9c8b319db43c4d0636cd0fd59a9d4140414a",
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "2422d103e3a0c4fc2b6c83c94cc3fd7a5e8075fb435fe3fc93cf06b9602562a4",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "bb47f7c3646961214497e3da56fd345fc99e990f165cc11ccfb390151809688d",
+    "02_AI/Models/frozen_c04_shadow_observer.py": "fe38bdf5b19b6a552a8921bd2c32653bd0a308caa6b3e93d5c7f88297d83c98b",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g3_forward_sample_controller.py": "a01dffefb9ac5246282cf3114d6093b1db281d3de161159f4c487b099a04deb7",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g3_freeze.py": "3577f153fda2b1671fc0ab7ce553a1b06f4458724de75ced232a4fbc1f03feb6",
+    "04_Testing/production_portability/test_gate_15d_c_b2d_g3_forward_sample_controller.py": "0bb3502f2471994cdff1a5d1d795f8675846ac9afda888f9d51fa984793978ac"
+  },
+  "hashing_semantics": "GIT_TEXT_CANONICAL_LF_SHA256",
+  "ledger_write_performed": false,
+  "live_authorized": false,
+  "market_data_acquired": false,
+  "mt5_initialized": false,
+  "observation_ledger_unchanged": true,
+  "outcome_ledger_unchanged": true,
+  "performance_evaluated": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "allowed_local_paths": [
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g3_forward_sample_controller.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2d_g3_freeze.py",
+      "04_Testing/production_portability/test_gate_15d_c_b2d_g3_forward_sample_controller.py"
+    ],
+    "branch": "main",
+    "head": "6ba4d5725656a3173fe5fa19c2e555dcbd94325c",
+    "origin_main": "6ba4d5725656a3173fe5fa19c2e555dcbd94325c",
+    "status": "PASS"
+  },
+  "schema_version": "1.0.0",
+  "static_safety": {
+    "execution_authorized": false,
+    "ledger_write_authorized": false,
+    "live_authorized": false,
+    "performance_evaluation_authorized": false,
+    "pnl_evaluation_authorized": false,
+    "raw_mt5_calls": [
+      "initialize",
+      "shutdown"
+    ],
+    "status": "PASS"
+  },
+  "status": "PASS",
+  "validation": {
+    "py_compile": true,
+    "pyright_stdout": "0 errors, 0 warnings, 0 informations",
+    "pytest_stdout": "............                                                             [100%]\n12 passed in 1.17s",
+    "status": "PASS"
+  }
+}

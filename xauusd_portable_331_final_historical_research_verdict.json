@@ -1,0 +1,155 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_FINAL_HISTORICAL_RESEARCH_VERDICT_V1",
+  "valid": true,
+  "verdict_fingerprint": {
+    "canonicalization": "JSON_SORT_KEYS_COMPACT_UTF8_SHA256",
+    "sha256": "f112b2bc89d6ba73b54f30f65465ee7100aadd4808a262beb06cca30e2c2cd97"
+  },
+  "verdict_record": {
+    "analysis_version": "XAUUSD_PORTABLE_331_FINAL_HISTORICAL_RESEARCH_VERDICT_V1",
+    "decision": {
+      "current_frozen_lineage_may_be_tuned_from_holdouts": false,
+      "historical_research_accepted": true,
+      "live_authorized": false,
+      "next_action": "BEGIN_PRODUCTION_PORTABILITY_AND_SHADOW_INFRASTRUCTURE_WITHOUT_MODEL_RETRAINING",
+      "shadow_authorized": false,
+      "status": "FINAL_HISTORICAL_RESEARCH_ACCEPTED",
+      "test_consumed": true,
+      "test_rerun_authorized": false,
+      "validation_consumed": true,
+      "validation_rerun_authorized": false
+    },
+    "evidence_bindings": {
+      "test_result": {
+        "core_result_fingerprint_sha256": "3f029e5a1fb17cd5cf2344bef589f1dba85ca93bff322d469fa819a109c7727d",
+        "file": "xauusd_portable_331_one_time_test_recovery_result.json",
+        "original_pre_read_failure_sha256": "84557a8399d89f81cd1db15b7489fcc60805b1b61fd9bfbae2a850ceb4066110",
+        "protocol_fingerprint_sha256": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+        "recovery_preflight_fingerprint_sha256": "cc9316f5483fd3cd92344d6600b6848657e73cadde02905d92b30591c2386d6f",
+        "wrapper_result_fingerprint_sha256": "b616845398dba270ed9425da8809d8d91b6ae9def99ec269a71fcc059f389713"
+      },
+      "validation_freeze": {
+        "file": "xauusd_portable_331_one_time_validation_result_freeze.json",
+        "freeze_fingerprint_sha256": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c"
+      },
+      "validation_result": {
+        "file": "xauusd_portable_331_one_time_validation_result.json",
+        "protocol_fingerprint_sha256": "ce78180a5f2472c36c74cea2c447307641aa3d5fedfb7a01d9b65260b5a6fcea",
+        "result_fingerprint_sha256": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1"
+      }
+    },
+    "historical_research_verdict": {
+      "frozen_c04_passed_first_and_only_untouched_historical_test": true,
+      "frozen_c04_passed_one_time_untouched_validation": true,
+      "historical_out_of_sample_acceptance_under_predefined_train_only_thresholds": true,
+      "live_trading_authorized": false,
+      "next_major_engineering_phase": "PRODUCTION_PORTABILITY_AND_SHADOW_INFRASTRUCTURE",
+      "post_holdout_tuning_refit_calibration_candidate_feature_target_changes_performed": false,
+      "shadow_deployment_automatically_authorized": false,
+      "test_accessed_exactly_once": true,
+      "test_permanently_consumed": true,
+      "validation_reread_during_test": false
+    },
+    "lineage": {
+      "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+      "feature_count": 331,
+      "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+      "probability_class_order": [
+        -1,
+        0,
+        1
+      ],
+      "winner_candidate_id": "C04_FLAT_EXTRA_TREES_CONSTRAINED"
+    },
+    "research_scope": "FINAL_HISTORICAL_OUT_OF_SAMPLE_VERDICT_FOR_FROZEN_PORTABLE_XAUUSD_C04_LINEAGE",
+    "scientific_policy": {
+      "candidate_change_performed_after_holdout": false,
+      "execution_integration_modified": false,
+      "feature_change_performed_after_holdout": false,
+      "live_authorized": false,
+      "model_refit_performed_after_holdout": false,
+      "orders_sent": false,
+      "probability_calibration_performed_after_holdout": false,
+      "risk_engine_modified": false,
+      "shadow_authorized": false,
+      "target_change_performed_after_holdout": false,
+      "test_rerun_authorized": false,
+      "threshold_change_performed_after_holdout": false,
+      "validation_reread_during_test": false,
+      "validation_rerun_authorized": false
+    },
+    "test": {
+      "accepted": true,
+      "consumed": true,
+      "hard_checks": {
+        "all_required_metrics_finite": true,
+        "balanced_accuracy_3class_floor": true,
+        "directional_macro_f1_short_long_floor": true,
+        "long_recall_positive": true,
+        "macro_f1_3class_floor": true,
+        "predicted_trade_coverage_max": true,
+        "predicted_trade_coverage_min": true,
+        "short_recall_positive": true
+      },
+      "ledger_status": "TEST_COMPLETE_ACCEPTED",
+      "metrics": {
+        "balanced_accuracy_3class": 0.3631546042122576,
+        "directional_macro_f1_short_long": 0.3099743677556729,
+        "log_loss_3class": 1.0981851177692825,
+        "long_f1": 0.34774870973482824,
+        "long_precision": 0.2586366644606221,
+        "long_recall": 0.5305457507466739,
+        "macro_f1_3class": 0.33798200233279513,
+        "multiclass_brier": 0.6665659696520733,
+        "no_trade_f1": 0.39399727148703956,
+        "no_trade_precision": 0.580074986609534,
+        "no_trade_recall": 0.2983060184547583,
+        "predicted_trade_coverage": 0.7510002667377967,
+        "short_f1": 0.2722000257765176,
+        "short_precision": 0.28486646884273,
+        "short_recall": 0.26061204343534056
+      },
+      "read_attempt_count": 1,
+      "rerun_authorized": false,
+      "row_count": 14996,
+      "status": "ONE_TIME_TEST_ACCEPTED",
+      "validation_values_reread": false
+    },
+    "validation": {
+      "accepted": true,
+      "consumed": true,
+      "hard_checks": {
+        "all_required_metrics_finite": true,
+        "balanced_accuracy_floor_pass": true,
+        "directional_macro_f1_floor_pass": true,
+        "long_recall_positive": true,
+        "macro_f1_floor_pass": true,
+        "maximum_trade_coverage_pass": true,
+        "minimum_trade_coverage_pass": true,
+        "required_target_classes_present": true,
+        "short_recall_positive": true
+      },
+      "metrics": {
+        "balanced_accuracy_3class": 0.37656763760203776,
+        "directional_macro_f1_short_long": 0.33640257616029445,
+        "log_loss_3class": 1.0979186095143678,
+        "long_f1": 0.348675799086758,
+        "long_precision": 0.25997548685823235,
+        "long_recall": 0.529248683116163,
+        "macro_f1_3class": 0.34890395261998247,
+        "multiclass_brier": 0.6664287278633827,
+        "no_trade_f1": 0.3739067055393586,
+        "no_trade_precision": 0.5570032573289903,
+        "no_trade_recall": 0.2814042786615469,
+        "predicted_trade_coverage": 0.7541213375158513,
+        "short_f1": 0.32412935323383085,
+        "short_precision": 0.3293731041456016,
+        "short_recall": 0.3190499510284035
+      },
+      "read_attempt_count": 1,
+      "rerun_authorized": false,
+      "row_count": 14983,
+      "status": "ONE_TIME_VALIDATION_ACCEPTED"
+    }
+  }
+}

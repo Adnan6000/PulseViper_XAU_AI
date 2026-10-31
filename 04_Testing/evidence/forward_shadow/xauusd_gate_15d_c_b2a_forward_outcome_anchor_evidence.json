@@ -1,0 +1,116 @@
+{
+  "accuracy_evaluated": false,
+  "append_only_anchor_ledger_authority_frozen": true,
+  "candidate_artifact_hashes": {
+    "02_AI/Models/frozen_c04_forward_outcome_anchor.py": "03687f2921962846801c7e3414b51c040626a647474218802619938f814187ea",
+    "04_Testing/production_portability/run_xauusd_gate_15d_c_b2a_forward_outcome_anchor_evidence.py": "3c62291c74327f0caa163c8cd7cd1ae3f6fb45afa945cd9bf14b9fcd8af2e50b",
+    "04_Testing/production_portability/test_frozen_c04_forward_outcome_anchor.py": "23d9b133713d48d523b24ed7d6a13c90b2a00366228014aeb52bf2c08c1a5928"
+  },
+  "conflicting_anchor_fails_closed": true,
+  "corrupted_anchor_ledger_fails_closed": true,
+  "decision_m5_atr14_frozen_prospectively": true,
+  "decision_m5_close_frozen_prospectively": true,
+  "decision_snapshot_must_end_at_decision_bar": true,
+  "drawdown_evaluated": false,
+  "execution_authorized": false,
+  "features_changed": false,
+  "flush_and_fsync_required": true,
+  "formal_maturation_requires_anchor": true,
+  "forward_performance_evaluated": false,
+  "future_m5_rows_forbidden_at_anchor_capture": true,
+  "gate": "Gate 15D-C-B2A \u2014 Prospective Forward Outcome Anchor Authority",
+  "gate_id": "GATE_15D_C_B2A_PROSPECTIVE_FORWARD_OUTCOME_ANCHOR",
+  "genuine_anchor_appended": false,
+  "genuine_forward_observation_captured": false,
+  "genuine_forward_observation_matured": false,
+  "idempotent_duplicate_supported": true,
+  "live_authorized": false,
+  "locked_append_required": true,
+  "market_data_acquired": false,
+  "model_changed": false,
+  "mt5_initialized": false,
+  "outcome_record_appended": false,
+  "pnl_evaluated": false,
+  "repository_authority": {
+    "base_repository_authority_commit": "d6ea813c407d68b2ecd12e56cf9eeae8a6f95ffb",
+    "branch": "main",
+    "head": "d6ea813c407d68b2ecd12e56cf9eeae8a6f95ffb",
+    "head_equals_origin_main": true,
+    "local_gate_paths": [
+      "02_AI/Models/frozen_c04_forward_outcome_anchor.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2a_forward_outcome_anchor_evidence.py",
+      "04_Testing/production_portability/test_frozen_c04_forward_outcome_anchor.py"
+    ],
+    "origin_main": "d6ea813c407d68b2ecd12e56cf9eeae8a6f95ffb",
+    "status": "PASS",
+    "unexpected_local_paths": []
+  },
+  "return_evaluated": false,
+  "runtime_anchor_ledger": {
+    "existed_before": false,
+    "exists_after": false,
+    "path": "01_Data/Shadow/xauusd_frozen_c04_forward_outcome_anchors.jsonl",
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "runtime_authority": {
+    "acquisition_authority": "MT5ReadOnlyForwardAcquisitionAdapter:2.1.0",
+    "anchor_ledger_version": "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_LEDGER_V1",
+    "anchor_version": "FROZEN_C04_FORWARD_OUTCOME_ANCHOR_V1",
+    "atr_reference": "DECISION_M5_COMPLETED_BAR_ATR14",
+    "contract_fingerprint_sha256": "01fe52a2f068fcc8fb2fc5b89dd7e19dc974fc2d967cfb791e75c3415804ce87",
+    "decision_bar_semantics": "M5_BAR_OPEN_EQUALS_DECISION_TIME_MINUS_5_MINUTES",
+    "entry_reference": "DECISION_M5_COMPLETED_BAR_CLOSE",
+    "execution_authorized": false,
+    "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+    "formal_maturation_requires_anchor": true,
+    "live_authorized": false,
+    "model_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+    "performance_evaluation_authorized": false,
+    "pnl_evaluation_authorized": false,
+    "prospective_capture_policy": "SAME_ACQUISITION_SNAPSHOT_NO_FUTURE_M5_ROWS",
+    "status": "PASS"
+  },
+  "runtime_outcome_ledger": {
+    "existed_before": false,
+    "exists_after": false,
+    "sha256_after": null,
+    "sha256_before": null,
+    "unchanged": true
+  },
+  "same_snapshot_anchor_required": true,
+  "schema_version": "1.0.0",
+  "source_authority_hashes": {
+    "02_AI/Adapters/mt5_read_only_forward_acquisition_adapter.py": "68ac2f836a368f9d15b46f3f2bd6482803259941702e9e29f352e2e8dfb9d875",
+    "02_AI/Features/feature_generator.py": "21339b1d970f01cdbc3b93cbaa9cac98218572e4e82dbebebe4822aebeb23b13",
+    "02_AI/Models/frozen_c04_forward_outcome_contract.py": "c07de67d9dee591195dc9e4cf5bb3e4d20791f691f8eadfcc6046351d494730a",
+    "02_AI/Models/frozen_c04_forward_outcome_eligibility.py": "d56fd43cc31577cf5aa454f6eec35ba64387d248c410bfabe5ced6a30582b82e",
+    "02_AI/Models/frozen_c04_forward_outcome_ledger.py": "8ebe38b573520bd32b3bc284961b537088a866e6320996ef687e21c0f8982812",
+    "02_AI/Models/frozen_c04_forward_outcome_maturer.py": "75874f01e5db76e171b204f058367327e3530a03628cc751aac342abb5afad69"
+  },
+  "source_snapshot_hash_match_required": true,
+  "static_safety": {
+    "audited_files": [
+      "02_AI/Models/frozen_c04_forward_outcome_anchor.py",
+      "04_Testing/production_portability/run_xauusd_gate_15d_c_b2a_forward_outcome_anchor_evidence.py"
+    ],
+    "status": "PASS",
+    "violation_count": 0,
+    "violations": []
+  },
+  "status": "PASS",
+  "targeted_tests": {
+    "returncode": 0,
+    "status": "PASS",
+    "stdout_tail": "........................................................................ [ 81%]\n................                                                         [100%]\n88 passed in 3.13s\n"
+  },
+  "test_partition_accessed": false,
+  "true_forward_observation_ledger": {
+    "sha256_after": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "sha256_before": "20d04d107a4049dcdad298e68124e331b613fc76b2dd1cf3c8cebafe734895a0",
+    "unchanged": true
+  },
+  "validation_partition_accessed": false,
+  "win_rate_evaluated": false
+}

@@ -1,0 +1,34 @@
+{
+  "analysis_version": "XAUUSD_PORTABLE_331_ONE_TIME_TEST_CORE_IMPLEMENTATION_V1",
+  "attestation_fingerprint": "c201923bb92b27c2a71dee89ffefade2a04f01ac3cd3548c980a43091f8da816",
+  "decision": {
+    "bounded_test_source_implementation_authorized_next": true,
+    "live_authorized": false,
+    "next_action": "IMPLEMENT_AND_SYNTHETICALLY_TEST_DEDICATED_BOUNDED_REAL_TEST_SOURCE",
+    "shadow_authorized": false,
+    "test_core_and_ledger_implemented": true,
+    "test_execution_authorized": false,
+    "test_values_accessed": false,
+    "validation_rerun_authorized": false
+  },
+  "feature_columns_sha256": "65637cc25cf36b52cbfb3eaed9df51fdb66a0ad8c5bd618a25733454935f6cd2",
+  "model_artifact_sha256": "48a1d70de37b4dfa5f37d5788bbb070a73710a64260243db436f6ffd00893769",
+  "source_sha256": "46a2b98293ae1afbb2f53a87881b5376e0550aeb132c5261e7f1aed93492b259",
+  "status": "ONE_TIME_TEST_CORE_IMPLEMENTED_NOT_REAL_EXECUTED",
+  "test_protocol_fingerprint": "f8acc2665e9e5bbd3c3ad4bdf34d4a1ff9bfb8b715acf24f6669530eaa5aab3e",
+  "valid": true,
+  "validation_freeze_fingerprint": "521a97b41a86231b049cc65aebfd85ffc7c83ae7141134d6ae1158d112b1468c",
+  "validation_result_fingerprint": "ea8b482e60f854f58e27f3be387b7bb82f0c16a6cf1a99555b12643aeeca5fa1",
+  "verified_properties": {
+    "ledger_written_before_test_read_callback": true,
+    "persistent_ledger_implemented": true,
+    "post_read_failure_consumes_test": true,
+    "pre_read_failure_retriable_only_before_consumption": true,
+    "read_initiation_is_consumption_boundary": true,
+    "real_test_values_accessed": false,
+    "second_performance_driven_read_blocked": true,
+    "test_acceptance_uses_train_derived_floors": true,
+    "validation_metrics_do_not_raise_test_floors": true,
+    "validation_reread_forbidden": true
+  }
+}
